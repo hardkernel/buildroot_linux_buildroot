@@ -480,7 +480,7 @@ endchoice
 
 config BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD
 	bool "Download toolchain automatically"
-	default y
+	default n
 	depends on !BR2_TOOLCHAIN_EXTERNAL_CUSTOM
 	help
 	  When enabled, Buildroot will automatically download and
