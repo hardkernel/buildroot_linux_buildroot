@@ -465,10 +465,17 @@ define QT_CONFIGURE_CONFIG_FILE
 endef
 endif
 
+ifneq ($(BR2_PACKAGE_QT_LIBCMEM_FILE),)
+define QT_CONFIGLIB_FILE
+	cp $(BR2_PACKAGE_QT_LIBCMEM_FILE) $(@D)/src/3rdparty/libaml/
+endef
+endif
+
 define QT_CONFIGURE_CMDS
 	-[ -f $(@D)/Makefile ] && $(MAKE) -C $(@D) confclean
 	$(QT_CONFIGURE_IPV6)
 	$(QT_CONFIGURE_CONFIG_FILE)
+	$(QT_CONFIGLIB_FILE)
 	# Fix compiler path
 	$(call QT_QMAKE_SET,QMAKE_CC,$(TARGET_CC),$(@D))
 	$(call QT_QMAKE_SET,QMAKE_CXX,$(TARGET_CXX),$(@D))

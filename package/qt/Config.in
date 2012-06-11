@@ -69,6 +69,11 @@ config BR2_PACKAGE_QT_CONFIG_FILE
 	  This option allows to set the path of such a configuration
 	  file, which Buildroot will give to Qt at compile time.
 
+config BR2_PACKAGE_QT_LIBCMEM_FILE
+	string "Libcmem file"
+	help
+	  add libcmem.a to qt/src/3rdparty/libaml
+
 config BR2_PACKAGE_QT_QT3SUPPORT
 	bool "Compatibility with Qt3"
 	depends on BR2_PACKAGE_QT_GUI_MODULE
