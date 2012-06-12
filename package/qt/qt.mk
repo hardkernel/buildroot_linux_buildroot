@@ -200,7 +200,7 @@ QT_CONFIGURE_OPTS += -big-endian
 endif
 
 ifeq ($(BR2_arm)$(BR2_armeb),y)
-QT_EMB_PLATFORM = arm
+QT_EMB_PLATFORM = amlogic8726M-arm
 ifeq ($(BR2_GCC_VERSION_4_6_X),y)
 # workaround for gcc issue
 # http://gcc.gnu.org/ml/gcc-patches/2010-11/msg02245.html
@@ -427,7 +427,7 @@ endif
 # host. It's unclear if this would happen on other hosts.
 ifneq ($(findstring linux,$(GNU_HOST_NAME)),)
 ifneq ($(findstring x86,$(QT_EMB_PLATFORM)),)
-QT_CONFIGURE_OPTS += -platform linux-g++
+QT_CONFIGURE_OPTS += -platform linux-amlogic8726M-arm-g++
 endif
 endif
 # End of workaround.
