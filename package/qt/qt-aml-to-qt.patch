@@ -1,0 +1,5282 @@
+commit 67c5f93257d46a5e074bdd7a1045c249712b4655
+Author: wei.nie <wei.nie@amlogic.com>
+Date:   Tue Jun 5 09:53:35 2012 +0800
+
+    add aml ge2d to qt4.8.2
+
+diff --git a/include/Qt/qkbdamlogic.h b/include/Qt/qkbdamlogic.h
+new file mode 100755
+index 0000000..9ee81bb
+--- /dev/null
++++ b/include/Qt/qkbdamlogic.h
+@@ -0,0 +1 @@
++#include "../../src/gui/embedded/qkbdamlogic.h"
+diff --git a/include/QtGui/qkbdamlogic.h b/include/QtGui/qkbdamlogic.h
+new file mode 100755
+index 0000000..9ee81bb
+--- /dev/null
++++ b/include/QtGui/qkbdamlogic.h
+@@ -0,0 +1 @@
++#include "../../src/gui/embedded/qkbdamlogic.h"
+diff --git a/src/3rdparty/libaml/amstream.h b/src/3rdparty/libaml/amstream.h
+new file mode 100755
+index 0000000..089f71f
+--- /dev/null
++++ b/src/3rdparty/libaml/amstream.h
+@@ -0,0 +1,135 @@
++/*
++ * AMLOGIC Audio/Video streaming port driver.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the named License,
++ * or any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
++ *
++ * Author:  Tim Yao <timyao@amlogic.com>
++ *
++ */
++
++#ifndef AMSTREAM_H
++#define AMSTREAM_H
++
++#define PORT_FLAG_IN_USE    0x0001
++#define PORT_FLAG_VFORMAT   0x0002
++#define PORT_FLAG_AFORMAT   0x0004
++#define PORT_FLAG_FORMAT    (PORT_FLAG_VFORMAT | PORT_FLAG_AFORMAT)
++#define PORT_FLAG_VID       0x0008
++#define PORT_FLAG_AID       0x0010
++#define PORT_FLAG_ID        (PORT_FLAG_VID | PORT_FLAG_AID)
++#define PORT_FLAG_INITED  0x100
++
++#define PORT_TYPE_VIDEO     0x01
++#define PORT_TYPE_AUDIO     0x02
++#define PORT_TYPE_MPTS      0x04
++#define PORT_TYPE_MPPS      0x08
++#define PORT_TYPE_ES        0x10
++#define PORT_TYPE_RM        0x20
++
++#define AMSTREAM_IOC_MAGIC  'S'
++
++#define AMSTREAM_IOC_VB_START   _IOW(AMSTREAM_IOC_MAGIC, 0x00, int)
++#define AMSTREAM_IOC_VB_SIZE    _IOW(AMSTREAM_IOC_MAGIC, 0x01, int)
++#define AMSTREAM_IOC_AB_START   _IOW(AMSTREAM_IOC_MAGIC, 0x02, int)
++#define AMSTREAM_IOC_AB_SIZE    _IOW(AMSTREAM_IOC_MAGIC, 0x03, int)
++#define AMSTREAM_IOC_VFORMAT    _IOW(AMSTREAM_IOC_MAGIC, 0x04, int)
++#define AMSTREAM_IOC_AFORMAT    _IOW(AMSTREAM_IOC_MAGIC, 0x05, int)
++#define AMSTREAM_IOC_VID        _IOW(AMSTREAM_IOC_MAGIC, 0x06, int)
++#define AMSTREAM_IOC_AID        _IOW(AMSTREAM_IOC_MAGIC, 0x07, int)
++#define AMSTREAM_IOC_VB_STATUS  _IOR(AMSTREAM_IOC_MAGIC, 0x08, unsigned long)
++#define AMSTREAM_IOC_AB_STATUS  _IOR(AMSTREAM_IOC_MAGIC, 0x09, unsigned long)
++#define AMSTREAM_IOC_SYSINFO    _IOW(AMSTREAM_IOC_MAGIC, 0x0a, int)
++#define AMSTREAM_IOC_ACHANNEL   _IOW(AMSTREAM_IOC_MAGIC, 0x0b, int)
++#define AMSTREAM_IOC_SAMPLERATE _IOW(AMSTREAM_IOC_MAGIC, 0x0c, int)
++#define AMSTREAM_IOC_DATAWIDTH  _IOW(AMSTREAM_IOC_MAGIC, 0x0d, int)
++#define AMSTREAM_IOC_TSTAMP     _IOW(AMSTREAM_IOC_MAGIC, 0x0e, unsigned long)
++#define AMSTREAM_IOC_VDECSTAT   _IOR(AMSTREAM_IOC_MAGIC, 0x0f, unsigned long)
++#define AMSTREAM_IOC_ADECSTAT   _IOR(AMSTREAM_IOC_MAGIC, 0x10, unsigned long)
++
++#define AMSTREAM_IOC_PORT_INIT   _IO(AMSTREAM_IOC_MAGIC, 0x11)
++#define AMSTREAM_IOC_TRICKMODE  _IOW(AMSTREAM_IOC_MAGIC, 0x12, unsigned long)
++#define TRICKMODE_NONE       0x00
++#define TRICKMODE_I          0x01
++
++enum VIDEO_DEC_TYPE
++{
++        VIDEO_DEC_FORMAT_UNKNOW,
++        VIDEO_DEC_FORMAT_MPEG4_3,
++        VIDEO_DEC_FORMAT_MPEG4_4,
++        VIDEO_DEC_FORMAT_MPEG4_5,
++        VIDEO_DEC_FORMAT_H264,
++        VIDEO_DEC_FORMAT_MJPEG,
++        VIDEO_DEC_FORMAT_MP4,
++        VIDEO_DEC_FORMAT_H263,
++        VIDEO_DEC_FORMAT_REAL_8,
++        VIDEO_DEC_FORMAT_REAL_9,
++};
++
++struct buf_status {
++        int size;
++        int data_len;
++        int free_len;
++};
++
++
++struct vdec_status {
++        unsigned int width;
++        unsigned int height;
++        float fps;
++        unsigned int error_count;
++        unsigned int status;
++};
++
++struct adec_status {
++        unsigned int channels;
++        unsigned int sample_rate;
++        unsigned int resolution;
++        unsigned int error_count;
++        unsigned int status;
++};
++
++struct am_io_param {
++    union {
++          int data;
++          int id;//get bufstatus? //or others
++    };
++
++    int len; //buffer size;
++
++    union {
++        char buf[1];
++        struct buf_status status;
++        struct vdec_status vstatus;
++        struct adec_status astatus;
++    };
++};
++
++struct dec_sysinfo {
++    unsigned int    format;
++    unsigned int    width;
++    unsigned int    height;
++    unsigned int    rate;
++    unsigned int    extra;
++    unsigned int    status;
++    unsigned int    ratio;
++    void *          param;
++};
++
++
++void set_vdec_func(int (*vdec_func)(struct vdec_status *));
++void set_adec_func(int (*adec_func)(struct adec_status *));
++void set_trickmode_func(int (*trickmode_func)(unsigned long trickmode));
++
++#endif /* AMSTREAM_H */
+diff --git a/src/3rdparty/libaml/cmemlib.h b/src/3rdparty/libaml/cmemlib.h
+new file mode 100755
+index 0000000..33a829a
+--- /dev/null
++++ b/src/3rdparty/libaml/cmemlib.h
+@@ -0,0 +1,493 @@
++/*
++ *  Copyright 2010 by AMLOGIC INC.
++ *  Common physical memory allocator driver.
++ */
++
++/*
++ * Copyright (c) 2009, Texas Instruments Incorporated
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * *  Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *
++ * *  Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * *  Neither the name of Texas Instruments Incorporated nor the names of
++ *    its contributors may be used to endorse or promote products derived
++ *    from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
++ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
++ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
++ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
++ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
++ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
++ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
++ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ */
++
++/**
++ * @file    cmem.h
++ * @brief   Describes the interface to the contiguous memory allocator.
++ *
++ * The cmem user interface library wraps file system calls to an associated
++ * kernel module (cmemk.ko), which needs to be loaded in order for calls to
++ * this library to succeed.
++ *
++ * The following is an example of installing the cmem kernel module:
++ * 
++ * @verbatim /sbin/insmod cmemk.ko pools=4x30000,2x500000 phys_start=0x0 phys_end=0x3000000 @endverbatim
++ *     - phys_start and phys_end must be specified in hexadecimal format
++ *     - phys_start is "inclusive" and phys_end is "exclusive", i.e.,
++ *       phys_end should be "end address + 1".
++ *     - pools must be specified using decimal format (for both number and
++ *       size), since using hexadecimal format would visually clutter the
++ *       specification due to the use of "x" as a token separator
++ *     - it's possible to insmod cmemk.ko without specifying any memory blocks,
++ *       in which case CMEM_getPhys() and CMEM_cache*() APIs can still be
++ *       utilized by an application.
++ *
++ * This particular command creates 2 pools. The first pool is created with 4
++ * buffers of size 30000 bytes and the second pool is created with 2 buffers
++ * of size 500000 bytes. The CMEM pool buffers start at 0x0 and end at
++ * 0x2FFFFFF (max). 
++ *
++ * There is also support for a 2nd contiguous memory block to be specified,
++ * with all the same features supported for the 2nd block as with the 1st.
++ * This 2nd block is specified with *_1 parameters.  The following example
++ * expands upon the first example above:
++ * 
++ * @verbatim /sbin/insmod cmemk.ko pools=4x30000,2x500000 phys_start=0x0 phys_end=0x3000000
++    pools_1=4x65536 phys_start_1=0x80000000 phys_end_1=0x80010000 @endverbatim
++ *
++ * This particular command, in addition to the pools explained above,
++ * creates 1 pool (with 4 buffers of size 64KB) in a 2nd memory block which
++ * starts at 0x80000000 and ends at 0x8000FFFF (specified as "end + 1" on the
++ * insmod command).
++ *
++ * In order to access this 2nd memory block, new APIs have been added to
++ * CMEM which allow specification of the block ID.
++ *
++ * Pool buffers are aligned on a module-dependent boundary, and their sizes are
++ * rounded up to this same boundary.  This applies to each buffer within a
++ * pool.  The total space used by an individual pool will therefore be greater
++ * than (or equal to) the exact amount requested in the installation of the
++ * module.
++ *
++ * The poolid used in the driver calls would be 0 for the first pool and 1 for
++ * the second pool.
++ *
++ * Pool allocations can be requested explicitly by pool number, or more
++ * generally by just a size.  For size-based allocations, the pool which best
++ * fits the requested size is automatically chosen.  Some CMEM APIs (newer
++ * ones) accept a blockid as a parameter, in order to specify which of the
++ * multiple blocks to operate on.  For 'legacy' APIs (ones that existed before
++ * the support for multiple blocks) where a blockid is still needed, block 0
++ * is assumed.
++ *
++ * There is also support for a general purpose heap.  In addition to the 2
++ * pools described above, a general purpose heap block is created from which
++ * allocations of any size can be requested.  Internally, allocation sizes are
++ * rounded up to a module-dependent boundary and allocation addresses are
++ * aligned either to this same boundary or to the requested alignment
++ * (whichever is greater).
++ *
++ * The size of the heap block is the amount of CMEM memory remaining after all
++ * pool allocations.  If more heap space is needed than is available after pool
++ * allocations, you must reduce the amount of CMEM memory granted to the pools.
++ *
++ * Buffer allocation is tracked at the file descriptor level by way of a
++ * 'registration' list.  The initial allocator of a buffer (the process that
++ * calls CMEM_alloc()) is automatically added to the registration list,
++ * and further processes can become registered for the same buffer by way
++ * of the CMEM_registerAlloc() API (and unregister with the
++ * CMEM_unregister() API).  This registration list for each buffer
++ * allows for buffer ownership tracking and cleanup on a
++ * per-file-descriptor basis, so that when a process exits or dies without
++ * having explicitly freed/unregistered its buffers, they get automatically
++ * unregistered (and freed when no more registered file descriptors exist).
++ * Only when the last registered file descriptor frees a buffer (either
++ * explictily, or by auto-cleanup) does a buffer actually get freed back to
++ * the kernel module.
++ *
++ * Since the CMEM interface library doesn't use the GT tracing facility, there
++ * is one configuration option available for the CMEM module to control
++ * whether the debug or release interface library is used for building the
++ * application.  This config parameter is named 'debug' and is of type bool,
++ * and the default value is 'false'.
++ *
++ */
++/**
++ *  @defgroup   CMEM  Contiguous Memory Manager
++ *
++ *  This is the API for the Contiguous Memory Manager.
++ */
++
++#ifndef CMEM_H
++#define CMEM_H
++
++#if defined (__cplusplus)
++extern "C" {
++#endif
++
++/** @ingroup    CMEM */
++/*@{*/
++
++#define CMEM_VERSION    0x02300000U
++
++/* ioctl cmd "flavors" */
++#define CMEM_WB                         0x0100
++#define CMEM_INV                        0x0200
++#define CMEM_HEAP                       0x0400  /**< operation applies to heap */
++#define CMEM_POOL                       0x0000  /**< operation applies to a pool */
++#define CMEM_CACHED                     0x0800  /**< allocated buffer is cached */
++#define CMEM_NONCACHED                  0x0000  /**< allocated buffer is not cached */
++#define CMEM_PHYS                       0x1000
++
++/* supported "base" ioctl cmds for the driver. */
++#define CMEM_IOCALLOC                   1
++#define CMEM_IOCALLOCHEAP               2
++#define CMEM_IOCFREE                    3
++#define CMEM_IOCGETPHYS                 4
++#define CMEM_IOCGETSIZE                 5
++#define CMEM_IOCGETPOOL                 6
++#define CMEM_IOCCACHE                   7
++#define CMEM_IOCGETVERSION              8
++#define CMEM_IOCGETBLOCK                9
++#define CMEM_IOCREGUSER                 10
++#define CMEM_IOCADDRINREGION		11
++/*
++ * New ioctl cmds should use integers greater than the largest current cmd
++ * in order to not break backward compatibility.
++ */
++
++/* supported "flavors" to "base" ioctl cmds for the driver. */
++#define CMEM_IOCCACHEWBINV              CMEM_IOCCACHE | CMEM_WB | CMEM_INV
++#define CMEM_IOCCACHEWB                 CMEM_IOCCACHE | CMEM_WB
++#define CMEM_IOCCACHEINV                CMEM_IOCCACHE | CMEM_INV
++#define CMEM_IOCALLOCCACHED             CMEM_IOCALLOC | CMEM_CACHED
++#define CMEM_IOCALLOCHEAPCACHED         CMEM_IOCALLOCHEAP | CMEM_CACHED
++#define CMEM_IOCFREEHEAP                CMEM_IOCFREE | CMEM_HEAP
++#define CMEM_IOCFREEPHYS                CMEM_IOCFREE | CMEM_PHYS
++#define CMEM_IOCFREEHEAPPHYS            CMEM_IOCFREE | CMEM_HEAP | CMEM_PHYS
++
++#define CMEM_IOCCMDMASK                 0x000000ff
++
++/**
++ * @brief Parameters for CMEM_alloc(), CMEM_allocPool(), CMEM_free().
++ */
++typedef struct CMEM_AllocParams {
++    int type;           /**< either CMEM_HEAP or CMEM_POOL */
++    int flags;          /**< either CMEM_CACHED or CMEM_NONCACHED */
++    size_t alignment;   /**<
++                         * only used for heap allocations, must be power of 2
++                         */
++} CMEM_AllocParams;
++
++extern CMEM_AllocParams CMEM_DEFAULTPARAMS;
++
++typedef struct CMEM_BlockAttrs {
++    unsigned long phys_base;
++    size_t size;
++} CMEM_BlockAttrs;
++
++/** @cond INTERNAL */
++
++/**
++ */
++union CMEM_AllocUnion {
++    struct {                    /**< */
++        size_t size;
++        size_t align;
++        int blockid;
++    } alloc_heap_inparams;      /**< */
++    struct {                    /**< */
++        int poolid;
++        int blockid;
++    } alloc_pool_inparams;      /**< */
++    struct {                    /**< */
++        int poolid;
++        int blockid;
++    } get_size_inparams;        /**< */
++    struct {                    /**< */
++        size_t size;
++        int blockid;
++    } get_pool_inparams;        /**< */
++    struct {                    /**< */
++        unsigned long physp;
++        size_t size;
++    } alloc_pool_outparams;     /**< */
++    struct {                    /**< */
++        unsigned long physp;
++        size_t size;
++    } get_block_outparams;      /**< */
++    struct {                    /**< */
++        int poolid;
++        size_t size;
++    } free_outparams;           /**< */
++    unsigned long physp;
++    unsigned long virtp;
++    unsigned int  addr_in_region;	
++    size_t size;
++    int poolid;
++    int blockid;
++};
++
++/** @endcond */
++
++/**
++ * @brief Initialize the CMEM module. Must be called before other API calls.
++ *
++ * @return 0 for success or -1 for failure.
++ *
++ * @sa CMEM_exit
++ */
++int CMEM_init(void);
++
++/**
++ * @brief Find the pool in memory block blockid that best fits a given
++ * buffer size and has a buffer available.
++ *
++ * @param   blockid  Block number
++ * @param   size     The buffer size for which a pool is needed.
++ *
++ * @return A poolid that can be passed to CMEM_allocPool(), or -1 for error.
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_allocPool()
++ * @sa CMEM_free()
++ */
++int CMEM_getPool(int blockid, size_t size);
++
++/**
++ * @brief Allocate memory from a specified pool in a specified memory block.
++ *
++ * @param   blockid The memory block from which to allocate.
++ * @param   poolid  The pool from which to allocate memory.
++ * @param   params  Allocation parameters.
++ *
++ * @remarks @c params->type is ignored - a pool will always be used.
++ * @remarks @c params->alignment is unused, since pool buffers are already
++ *          aligned to specific boundaries.
++ *
++ * @return A pointer to the allocated buffer, or NULL for failure.
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_alloc()
++ * @sa CMEM_registerAlloc()
++ * @sa CMEM_unregister()
++ * @sa CMEM_free()
++ */
++void *CMEM_allocPool(int blockid, int poolid, CMEM_AllocParams *params);
++
++/**
++ * @brief Allocate memory of a specified size from a specified memory block
++ *
++ * @param   blockid The memory block from which to allocate.
++ * @param   size    The size of the buffer to allocate.
++ * @param   params  Allocation parameters.
++ *
++ * @remarks Used to allocate memory from either a pool or the heap.
++ *          If doing a pool allocation, the pool that best fits the requested
++ *          size will be selected.  Use CMEM_allocPool() to allocate from a
++ *          specific pool.
++ *
++ * @remarks Allocation will be cached or noncached, as specified by params.
++ *          params->alignment valid only for heap allocation.
++ *
++ * @return A pointer to the allocated buffer, or NULL for failure.
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_allocPool()
++ * @sa CMEM_registerAlloc()
++ * @sa CMEM_unregister()
++ * @sa CMEM_free()
++ */
++void *CMEM_alloc(int blockid, size_t size, CMEM_AllocParams *params);
++
++/**
++ * @brief Register shared usage of an already-allocated buffer
++ *
++ * @param   physp  Physical address of the already-allocated buffer.
++ *
++ * @remarks Used to register the calling process for usage of an
++ *          already-allocated buffer, for the purpose of shared usage of
++ *          the buffer.
++ *
++ * @remarks Allocation properties (such as cached/noncached or heap/pool)
++ *          are inherited from original allocation call.
++ *
++ * @return  A process-specific pointer to the allocated buffer, or NULL
++ *          for failure.
++ *
++ * @pre Must have called some form of CMEM_alloc*()
++ *
++ * @sa CMEM_allocPool()
++ * @sa CMEM_alloc()
++ * @sa CMEM_free()
++ * @sa CMEM_unregister()
++ */
++void *CMEM_registerAlloc(unsigned long physp);
++
++/**
++ * @brief Free a buffer previously allocated with
++ *        CMEM_alloc()/CMEM_allocPool().
++ *
++ * @param   ptr     The pointer to the buffer.
++ * @param   params  Allocation parameters.
++ *
++ * @remarks Use the same CMEM_AllocParams as was used for the allocation.
++ *          params->flags is "don't care".  params->alignment is "don't
++ *          care".
++ *
++ * @return 0 for success or -1 for failure.
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_alloc()
++ * @sa CMEM_allocPool()
++ * @sa CMEM_registerAlloc()
++ * @sa CMEM_unregister()
++ */
++
++
++int CMEM_free(void *ptr, CMEM_AllocParams *params);
++
++/**
++ * @brief Unregister use of a buffer previously registered with
++ *        CMEM_registerAlloc().
++ *
++ * @param   ptr     The pointer to the buffer.
++ * @param   params  Allocation parameters.
++ *
++ * @remarks Use the same CMEM_AllocParams as was used for the allocation.
++ *          params->flags is "don't care".  params->alignment is "don't
++ *          care".
++ *
++ * @return 0 for success or -1 for failure.
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_alloc()
++ * @sa CMEM_allocPool()
++ * @sa CMEM_registerAlloc()
++ * @sa CMEM_free()
++ */
++int CMEM_unregister(void *ptr, CMEM_AllocParams *params);
++
++/**
++ * @brief Get the physical address of a contiguous buffer.
++ *
++ * @param   ptr     The pointer to the buffer.
++ *
++ * @return The physical address of the buffer or 0 for failure.
++ *
++ * @pre Must have called CMEM_init()
++ */
++unsigned long CMEM_getPhys(void *ptr);
++
++/**
++ * @brief Do a cache writeback of the block pointed to by @c ptr/@c size
++ *
++ * @param   ptr     Pointer to block to writeback
++ * @param   size    Size in bytes of block to writeback.
++ *
++ * @return Success/failure boolean value
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_cacheInv()
++ * @sa CMEM_cacheWbInv()
++ */
++int CMEM_cacheWb(void *ptr, size_t size);
++
++/**
++ * @brief Do a cache invalidate of the block pointed to by @c ptr/@c size
++ *
++ * @param   ptr     Pointer to block to invalidate
++ * @param   size    Size in bytes of block to invalidate
++ *
++ * @return Success/failure boolean value
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_cacheWb()
++ * @sa CMEM_cacheWbInv()
++ */
++int CMEM_cacheInv(void *ptr, size_t size);
++
++/**
++ * @brief Do a cache writeback/invalidate of the block pointed to by
++ *        @c ptr/@c size
++ *
++ * @param   ptr     Pointer to block to writeback/invalidate
++ * @param   size    Size in bytes of block to writeback/invalidate
++ *
++ * @return Success/failure boolean value
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_cacheInv()
++ * @sa CMEM_cacheWb()
++ */
++int CMEM_cacheWbInv(void *ptr, size_t size);
++
++/**
++ * @brief Retrieve version from CMEM driver.
++ *
++ * @return Installed CMEM driver's version number.
++ *
++ * @pre Must have called CMEM_init()
++ */
++int CMEM_getVersion(void);
++
++/**
++ * @brief Retrieve extended memory block attributes from CMEM driver
++ *
++ * @param   blockid      Block number
++ * @param   pattrs       Pointer to CMEM_BlockAttrs struct
++ *
++ * @return Success (0) or failure (-1).
++ *
++ * @remarks Currently this API returns the same values as CMEM_getBlock().
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa  CMEM_getBlock()
++ */
++int CMEM_getBlockAttrs(int blockid, CMEM_BlockAttrs *pattrs);
++
++/**
++ * @brief Finalize the CMEM module.
++ *
++ * @return 0 for success or -1 for failure.
++ *
++ * @remarks After this function has been called, no other CMEM function may be
++ *          called (unless CMEM is reinitialized).
++ *
++ * @pre Must have called CMEM_init()
++ *
++ * @sa CMEM_init()
++ */
++int CMEM_exit(void);
++
++/*@}*/
++
++#if defined (__cplusplus)
++}
++#endif
++
++#endif
+\ No newline at end of file
+diff --git a/src/3rdparty/libaml/ge2d.h b/src/3rdparty/libaml/ge2d.h
+new file mode 100755
+index 0000000..54947d3
+--- /dev/null
++++ b/src/3rdparty/libaml/ge2d.h
+@@ -0,0 +1,179 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#ifndef GE2D_H
++#define GE2D_H
++
++#define  FBIOPUT_GE2D_STRETCHBLIT_NOALPHA   0x4702
++#define  FBIOPUT_GE2D_BLIT_NOALPHA			0x4701
++#define  FBIOPUT_GE2D_BLEND					0x4700
++#define  FBIOPUT_GE2D_BLIT					0x46ff
++#define  FBIOPUT_GE2D_STRETCHBLIT   		0x46fe
++#define  FBIOPUT_GE2D_FILLRECTANGLE 		0x46fd
++#define  FBIOPUT_GE2D_SRCCOLORKEY   		0x46fc
++#define  FBIOPUT_OSD_SRCCOLORKEY			0x46fb
++#define  FBIOPUT_OSD_SRCKEY_ENABLE			0x46fa
++#define  FBIOPUT_GE2D_CONFIG				0x46f9
++
++typedef enum  	
++{
++	OSD0_OSD0 = 0,
++	OSD0_OSD1,	 
++	OSD1_OSD1,
++	OSD1_OSD0,
++	ALLOC_OSD0,
++	ALLOC_OSD1,
++	ALLOC_ALLOC,
++	TYPE_INVALID,
++} ge2d_src_dst_t;
++
++
++
++typedef struct {
++	unsigned long  addr;
++	unsigned int	w;
++	unsigned int	h;
++}config_planes_t;
++
++typedef    struct {
++	int  src_dst_type;
++	int  alu_const_color;
++	unsigned int src_format;
++	unsigned int dst_format ; //add for src&dst all in user space.
++
++	config_planes_t src_planes[4];
++	config_planes_t dst_planes[4];
++}config_para_t;
++
++typedef struct {
++	int	x;   /* X coordinate of its top-left point */
++	int	y;   /* Y coordinate of its top-left point */
++	int	w;   /* width of it */
++	int	h;   /* height of it */
++} rectangle_t;
++
++typedef  struct {
++	unsigned int color ;
++	rectangle_t src1_rect;
++	rectangle_t src2_rect;
++	rectangle_t	dst_rect;
++	int op;
++} ge2d_op_para_t ;
++
++#define GE2D_ENDIAN_SHIFT		24
++#define GE2D_ENDIAN_MASK		(0x1 << GE2D_ENDIAN_SHIFT)
++#define GE2D_BIG_ENDIAN			(0 << GE2D_ENDIAN_SHIFT)
++#define GE2D_LITTLE_ENDIAN		(1 << GE2D_ENDIAN_SHIFT)
++
++#define GE2D_COLOR_MAP_SHIFT	20
++#define GE2D_COLOR_MAP_MASK		(0xf << GE2D_COLOR_MAP_SHIFT)
++/* 16 bit */
++#define GE2D_COLOR_MAP_YUV422	(0 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGB655	(1 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUV655	(1 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGB844	(2 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUV844	(2 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGBA6442	(3 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUVA6442	(3 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGBA4444	(4 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUVA4444	(4 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGB565	(5 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUV565	(5 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_ARGB4444	(6 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_AYUV4444	(6 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_ARGB1555	(7 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_AYUV1555	(7 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGBA4642	(8 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUVA4642	(8 << GE2D_COLOR_MAP_SHIFT)
++/* 24 bit */
++#define GE2D_COLOR_MAP_RGB888	(0 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUV444	(0 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGBA5658	(1 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUVA5658	(1 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_ARGB8565	(2 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_AYUV8565	(2 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_RGBA6666	(3 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUVA6666	(3 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_ARGB6666	(4 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_AYUV6666	(4 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_BGR888	(5 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_VUY888	(5 << GE2D_COLOR_MAP_SHIFT)
++/* 32 bit */
++#define GE2D_COLOR_MAP_RGBA8888	(0 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_YUVA8888	(0 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_ARGB8888	(1 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_AYUV8888	(1 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_ABGR8888	(2 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_AVUY8888	(2 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_BGRA8888	(3 << GE2D_COLOR_MAP_SHIFT)
++#define GE2D_COLOR_MAP_VUYA8888	(3 << GE2D_COLOR_MAP_SHIFT)
++
++#define GE2D_FMT_S8_Y			0x00000 /* 00_00_0_00_0_00 */
++#define GE2D_FMT_S8_CB			0x00040 /* 00_01_0_00_0_00 */
++#define GE2D_FMT_S8_CR			0x00080 /* 00_10_0_00_0_00 */
++#define GE2D_FMT_S8_R			0x00000 /* 00_00_0_00_0_00 */
++#define GE2D_FMT_S8_G			0x00040 /* 00_01_0_00_0_00 */
++#define GE2D_FMT_S8_B			0x00080 /* 00_10_0_00_0_00 */
++#define GE2D_FMT_S8_A			0x000c0 /* 00_11_0_00_0_00 */
++#define GE2D_FMT_S8_LUT			0x00020 /* 00_00_1_00_0_00 */
++#define GE2D_FMT_S16_YUV422		0x20100 /* 01_00_0_00_0_00 */
++#define GE2D_FMT_S16_RGB		(GE2D_LITTLE_ENDIAN|0x00100) /* 01_00_0_00_0_00 */
++#define GE2D_FMT_S24_YUV444		0x20200 /* 10_00_0_00_0_00 */
++#define GE2D_FMT_S24_RGB		(GE2D_LITTLE_ENDIAN|0x00200) /* 10_00_0_00_0_00 */
++#define GE2D_FMT_S32_YUVA444	0x20300 /* 11_00_0_00_0_00 */
++#define GE2D_FMT_S32_RGBA		(GE2D_LITTLE_ENDIAN|0x00300) /* 11_00_0_00_0_00 */
++#define GE2D_FMT_M24_YUV420		0x20007 /* 00_00_0_00_1_11 */
++#define GE2D_FMT_M24_YUV422		0x20006 /* 00_00_0_00_1_10 */
++#define GE2D_FMT_M24_YUV444		0x20004 /* 00_00_0_00_1_00 */
++#define GE2D_FMT_M24_RGB		0x00004 /* 00_00_0_00_1_00 */
++#define GE2D_FMT_M24_YUV420T	0x20017 /* 00_00_0_10_1_11 */
++#define GE2D_FMT_M24_YUV420B	0x2001f /* 00_00_0_11_1_11 */
++#define GE2D_FMT_S16_YUV422T	0x20110 /* 01_00_0_10_0_00 */
++#define GE2D_FMT_S16_YUV422B	0x20138 /* 01_00_0_11_0_00 */
++#define GE2D_FMT_S24_YUV444T	0x20210 /* 10_00_0_10_0_00 */
++#define GE2D_FMT_S24_YUV444B	0x20218 /* 10_00_0_11_0_00 */
++
++#define GE2D_FORMAT_S8_Y			(GE2D_FMT_S8_Y)           
++#define GE2D_FORMAT_S8_CB			(GE2D_FMT_S8_CB)           
++#define GE2D_FORMAT_S8_CR			(GE2D_FMT_S8_CR)           
++#define GE2D_FORMAT_S8_R			(GE2D_FMT_S8_R)           
++#define GE2D_FORMAT_S8_G			(GE2D_FMT_S8_G)           
++#define GE2D_FORMAT_S8_B			(GE2D_FMT_S8_B)           
++#define GE2D_FORMAT_S8_A			(GE2D_FMT_S8_A)           
++#define GE2D_FORMAT_S8_LUT			(GE2D_FMT_S8_LUT)         
++#define GE2D_FORMAT_S16_YUV422		(GE2D_FMT_S16_YUV422	| GE2D_COLOR_MAP_YUV422)
++#define GE2D_FORMAT_S16_RGB_655		(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_RGB655)  
++#define GE2D_FORMAT_S16_RGB_565		(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_RGB565) 
++#define GE2D_FORMAT_S16_RGB_844		(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_RGB844) 
++#define GE2D_FORMAT_S16_RGBA_6442	(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_RGBA6442)
++#define GE2D_FORMAT_S16_RGBA_4444	(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_RGBA4444)
++#define GE2D_FORMAT_S16_ARGB_4444	(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_ARGB4444)
++#define GE2D_FORMAT_S16_ARGB_1555	(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_ARGB1555)
++#define GE2D_FORMAT_S16_RGBA_4642	(GE2D_FMT_S16_RGB		| GE2D_COLOR_MAP_RGBA4642)
++#define GE2D_FORMAT_S24_YUV444		(GE2D_FMT_S24_YUV444	| GE2D_COLOR_MAP_YUV444) 
++#define GE2D_FORMAT_S24_RGB			(GE2D_FMT_S24_RGB		| GE2D_COLOR_MAP_RGB888)   
++#define GE2D_FORMAT_S32_YUVA444		(GE2D_FMT_S32_YUVA444	| GE2D_COLOR_MAP_YUVA4444)   
++#define GE2D_FORMAT_S32_RGBA		(GE2D_FMT_S32_RGBA		| GE2D_COLOR_MAP_RGBA8888) 
++#define GE2D_FORMAT_S32_ARGB		(GE2D_FMT_S32_RGBA		| GE2D_COLOR_MAP_ARGB8888) 
++#define GE2D_FORMAT_S32_ABGR		(GE2D_FMT_S32_RGBA		| GE2D_COLOR_MAP_ABGR8888) 
++#define GE2D_FORMAT_S32_BGRA		(GE2D_FMT_S32_RGBA		| GE2D_COLOR_MAP_BGRA8888) 
++#define GE2D_FORMAT_S24_RGBA_5658	(GE2D_FMT_S24_RGB		| GE2D_COLOR_MAP_RGBA5658)  
++#define GE2D_FORMAT_S24_ARGB_8565	(GE2D_FMT_S24_RGB		| GE2D_COLOR_MAP_ARGB8565) 
++#define GE2D_FORMAT_S24_RGBA_6666	(GE2D_FMT_S24_RGB		| GE2D_COLOR_MAP_RGBA6666)
++#define GE2D_FORMAT_S24_ARGB_6666	(GE2D_FMT_S24_RGB		| GE2D_COLOR_MAP_ARGB6666)
++#define GE2D_FORMAT_S24_BGR			(GE2D_FMT_S24_RGB		| GE2D_COLOR_MAP_BGR888)
++#define GE2D_FORMAT_M24_YUV420		(GE2D_FMT_M24_YUV420)   
++#define GE2D_FORMAT_M24_YUV422		(GE2D_FMT_M24_YUV422)
++#define GE2D_FORMAT_M24_YUV444		(GE2D_FMT_M24_YUV444)
++#define GE2D_FORMAT_M24_RGB			(GE2D_FMT_M24_RGB)
++#define GE2D_FORMAT_M24_YUV420T		(GE2D_FMT_M24_YUV420T)
++#define GE2D_FORMAT_M24_YUV420B		(GE2D_FMT_M24_YUV420B)
++#define GE2D_FORMAT_S16_YUV422T		(GE2D_FMT_S16_YUV422T | GE2D_COLOR_MAP_YUV422)
++#define GE2D_FORMAT_S16_YUV422B		(GE2D_FMT_S16_YUV422B | GE2D_COLOR_MAP_YUV422)   
++#define GE2D_FORMAT_S24_YUV444T		(GE2D_FMT_S24_YUV444T | GE2D_COLOR_MAP_YUV444)   
++#define GE2D_FORMAT_S24_YUV444B		(GE2D_FMT_S24_YUV444B | GE2D_COLOR_MAP_YUV444)
++
++#endif /* GE2D_H */
+\ No newline at end of file
+diff --git a/src/3rdparty/libaml/jpegdec.h b/src/3rdparty/libaml/jpegdec.h
+new file mode 100755
+index 0000000..fc3763e
+--- /dev/null
++++ b/src/3rdparty/libaml/jpegdec.h
+@@ -0,0 +1,83 @@
++/*
++ * AMLOGIC HW Jpeg decoder driver.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the named License,
++ * or any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
++ *
++ * Author:  Tim Yao <timyao@amlogic.com>
++ *
++ */
++
++#ifndef JPEGDEC_H
++#define JPEGDEC_H
++
++#define JPEGDEC_IOC_MAGIC  'J'
++
++#define JPEGDEC_IOC_INFOCONFIG	_IOW(JPEGDEC_IOC_MAGIC, 0x00, unsigned int)
++#define JPEGDEC_IOC_DECCONFIG	_IOW(JPEGDEC_IOC_MAGIC, 0x01, unsigned int)
++#define JPEGDEC_IOC_INFO		_IOW(JPEGDEC_IOC_MAGIC, 0x02, unsigned int)
++#define JPEGDEC_IOC_STAT		_IOW(JPEGDEC_IOC_MAGIC, 0x03, unsigned int)
++
++#define JPEGDEC_OPT_THUMBNAIL_ONLY		0x01
++#define JPEGDEC_OPT_THUMBNAIL_PREFERED	0x02
++#define JPEGDEC_OPT_FULLRANGE			0x04
++#define JPEGDEC_OPT_SRC_CROP			0x08
++
++#define JPEGINFO_TYPE_PROGRESSIVE		0x01
++#define JPEGINFO_TYPE_MULTISCAN			0x02
++#define JPEGINFO_TYPE_GRAYSCALE			0x04
++
++#define JPEGDEC_STAT_WAIT_DATA			0x01
++#define JPEGDEC_STAT_WAIT_INFOCONFIG	0x02
++#define JPEGDEC_STAT_WAIT_DECCONFIG		0x04
++#define JPEGDEC_STAT_ERROR				0x08
++#define JPEGDEC_STAT_UNSUPPORT			0x10
++#define JPEGDEC_STAT_INFO_READY			0x20
++#define JPEGDEC_STAT_DONE				0x40
++
++typedef enum {
++	CLKWISE_0    = 0,
++	CLKWISE_90   = 1,
++	CLKWISE_180  = 2,
++	CLKWISE_270  = 3,
++} jpegdec_angle_t;
++
++typedef struct {
++	unsigned long	addr_y;
++	unsigned long	addr_u;
++	unsigned long	addr_v;
++	unsigned 		canvas_width;
++
++	unsigned		opt;
++
++	unsigned		src_crop_x;
++	unsigned		src_crop_y;
++	unsigned		src_crop_w;
++	unsigned		src_crop_h;
++	
++	unsigned		dec_x;
++	unsigned		dec_y;
++	unsigned		dec_w;
++	unsigned		dec_h;	
++	jpegdec_angle_t	angle;
++} jpegdec_config_t;
++
++typedef struct {
++	unsigned width;
++	unsigned height;
++	unsigned comp_num;
++	unsigned type;
++} jpegdec_info_t;
++
++#endif /* JPEGDEC_H */
+diff --git a/src/3rdparty/libaml/vformat.h b/src/3rdparty/libaml/vformat.h
+new file mode 100755
+index 0000000..bfedd8a
+--- /dev/null
++++ b/src/3rdparty/libaml/vformat.h
+@@ -0,0 +1,35 @@
++/*
++ * AMLOGIC Audio/Video streaming port driver.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the named License,
++ * or any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
++ *
++ * Author:  Tim Yao <timyao@amlogic.com>
++ *
++ */
++
++#ifndef VFORMAT_H
++#define VFORMAT_H
++
++typedef enum {
++    VFORMAT_MPEG12 = 0,
++    VFORMAT_MPEG4,
++    VFORMAT_H264,
++    VFORMAT_MJPEG,
++    VFORMAT_REAL,
++    VFORMAT_JPEG,
++    VFORMAT_MAX
++} vformat_t;
++
++#endif /* VFORMAT_H */
+\ No newline at end of file
+diff --git a/src/3rdparty/webkit/Source/JavaScriptCore/wtf/FastMalloc.cpp b/src/3rdparty/webkit/Source/JavaScriptCore/wtf/FastMalloc.cpp
+old mode 100644
+new mode 100755
+index 86b123d..98a1c9f
+--- a/src/3rdparty/webkit/Source/JavaScriptCore/wtf/FastMalloc.cpp
++++ b/src/3rdparty/webkit/Source/JavaScriptCore/wtf/FastMalloc.cpp
+@@ -237,6 +237,12 @@ TryMallocReturnValue tryFastMalloc(size_t n)
+ 
+ void* fastMalloc(size_t n) 
+ {
++	if(n <= 0)
++    {
++        //qDebug("malloc size is [%d], ignore it\n", n);
++        return NULL;
++    }
++
+     ASSERT(!isForbidden());
+ 
+ #if ENABLE(WTF_MALLOC_VALIDATION)
+diff --git a/src/corelib/global/qconfig-amlogic.h b/src/corelib/global/qconfig-amlogic.h
+new file mode 100755
+index 0000000..caaa0f3
+--- /dev/null
++++ b/src/corelib/global/qconfig-amlogic.h
+@@ -0,0 +1,876 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
++** All rights reserved.
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtCore module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain additional
++** rights.  These rights are described in the Nokia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you have questions regarding the use of this file, please contact
++** Nokia at qt-info@nokia.com.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++/*
++ * All features and their dependencies.
++ *
++ * This list is generated from $QTDIR/src/corelib/global/qfeatures.txt
++ * by $QTSRCDIR/util/scripts/make_qfeatures_dot_h
++ */
++
++// QAction
++//#define QT_NO_ACTION
++
++// Big Codecs
++//#define QT_NO_BIG_CODECS
++
++// Color Names
++//#define QT_NO_COLORNAMES
++
++// QtConcurrent
++//#define QT_NO_CONCURRENT
++
++// QCopChannel
++//#define QT_NO_COP
++
++// CssParser
++//#define QT_NO_CSSPARSER
++
++// QCursor
++#define QT_NO_CURSOR
++
++// QDesktopServices
++//#define QT_NO_DESKTOPSERVICES
++
++// QDirectPainter
++//#define QT_NO_DIRECTPAINTER
++
++// Document Object Model
++//#define QT_NO_DOM
++
++// Effects
++//#define QT_NO_EFFECTS
++
++// QFileSystemWatcher
++//#define QT_NO_FILESYSTEMWATCHER
++
++// Freetype Font Engine
++//#define QT_NO_FREETYPE
++
++// QGroupBox
++//#define QT_NO_GROUPBOX
++
++// QImageIOPlugin
++//#define QT_NO_IMAGEFORMATPLUGIN
++
++// BMP Image Format
++//#define QT_NO_IMAGEFORMAT_BMP
++
++// JPEG Image Format
++//#define QT_NO_IMAGEFORMAT_JPEG
++
++// PNG Image Format
++//#define QT_NO_IMAGEFORMAT_PNG
++
++// PPM Image Format
++//#define QT_NO_IMAGEFORMAT_PPM
++
++// XBM Image Format
++//#define QT_NO_IMAGEFORMAT_XBM
++
++// QImage::createHeuristicMask()
++//#define QT_NO_IMAGE_HEURISTIC_MASK
++
++// Image Text
++//#define QT_NO_IMAGE_TEXT
++
++// QLCDNumber
++//#define QT_NO_LCDNUMBER
++
++// QLineEdit
++//#define QT_NO_LINEEDIT
++
++// QMessageBox
++//#define QT_NO_MESSAGEBOX
++
++// QMovie
++//#define QT_NO_MOVIE
++
++// QNetworkInterface
++//#define QT_NO_NETWORKINTERFACE
++
++// QNetworkProxy
++//#define QT_NO_NETWORKPROXY
++
++// Qt::WA_PaintOnScreen
++//#define QT_NO_PAINTONSCREEN
++
++// Painting Debug Utilities
++//#define QT_NO_PAINT_DEBUG
++
++// Phonon::AbstractMediaStream
++//#define QT_NO_PHONON_ABSTRACTMEDIASTREAM
++
++// Support for Audio Capture
++//#define QT_NO_PHONON_AUDIOCAPTURE
++
++// Phonon::Effect
++//#define QT_NO_PHONON_EFFECT
++
++// Phonon::MediaController
++//#define QT_NO_PHONON_MEDIACONTROLLER
++
++// Phonon::ObjectDescriptionModel
++//#define QT_NO_PHONON_OBJECTDESCRIPTIONMODEL
++
++// Phonon::VideoWidget
++//#define QT_NO_PHONON_VIDEO
++
++// QPicture
++//#define QT_NO_PICTURE
++
++// QProcess
++//#define QT_NO_PROCESS
++
++// QProgressBar
++//#define QT_NO_PROGRESSBAR
++
++// Properties
++//#define QT_NO_PROPERTIES
++
++//  Universally Unique Identifier Convertion
++//#define QT_NO_QUUID_STRING
++
++// QWSEmbedWidget
++//#define QT_NO_QWSEMBEDWIDGET
++
++// Alpha Cursor
++#define QT_NO_QWS_ALPHA_CURSOR
++
++// Decoration
++//#define QT_NO_QWS_DECORATION_DEFAULT
++
++// Keyboard
++//#define QT_NO_QWS_KEYBOARD
++
++// Mouse
++#define QT_NO_QWS_MOUSE
++
++// Mouse (Auto)
++#define QT_NO_QWS_MOUSE_AUTO
++
++// Mouse (Non-Auto)
++#define QT_NO_QWS_MOUSE_MANUAL
++
++// Multi-Process
++//#define QT_NO_QWS_MULTIPROCESS
++
++// Properties
++//#define QT_NO_QWS_PROPERTIES
++
++// QProxyScreen
++//#define QT_NO_QWS_PROXYSCREEN
++
++// Qt Prerendered Font Format
++//#define QT_NO_QWS_QPF
++
++// Qt Prerendered Font Format 2
++//#define QT_NO_QWS_QPF2
++
++// Raster Paint Engine callback functions
++//#define QT_NO_RASTERCALLBACKS
++
++// Resize Handler
++//#define QT_NO_RESIZEHANDLER
++
++// QRubberBand
++//#define QT_NO_RUBBERBAND
++
++// Session Manager
++//#define QT_NO_SESSIONMANAGER
++
++// QSettings
++//#define QT_NO_SETTINGS
++
++// QSharedMemory
++//#define QT_NO_SHAREDMEMORY
++
++// QShortcut
++//#define QT_NO_SHORTCUT
++
++// QSignalMapper
++//#define QT_NO_SIGNALMAPPER
++
++// QSizeGrip
++//#define QT_NO_SIZEGRIP
++
++// QSlider
++//#define QT_NO_SLIDER
++
++// Sounds
++//#define QT_NO_SOUND
++
++// Spin Widget
++//#define QT_NO_SPINWIDGET
++
++// Splash screen widget
++//#define QT_NO_SPLASHSCREEN
++
++// QStackedWidget
++//#define QT_NO_STACKEDWIDGET
++
++// QStatusBar
++//#define QT_NO_STATUSBAR
++
++// Status Tip
++//#define QT_NO_STATUSTIP
++
++// Standard Template Library
++//#define QT_NO_STL
++
++// QMotifStyle
++//#define QT_NO_STYLE_MOTIF
++
++// QWindowsStyle
++//#define QT_NO_STYLE_WINDOWS
++
++// QSystemSemaphore
++//#define QT_NO_SYSTEMSEMAPHORE
++
++// QSystemTrayIcon
++//#define QT_NO_SYSTEMTRAYICON
++
++// QTabletEvent
++//#define QT_NO_TABLETEVENT
++
++// QTemporaryFile
++//#define QT_NO_TEMPORARYFILE
++
++// QTextCodec
++//#define QT_NO_TEXTCODEC
++
++// Text Date
++//#define QT_NO_TEXTDATE
++
++// HtmlParser
++//#define QT_NO_TEXTHTMLPARSER
++
++// QTextStream
++//#define QT_NO_TEXTSTREAM
++
++// QToolTip
++//#define QT_NO_TOOLTIP
++
++// Translation
++//#define QT_NO_TRANSLATION
++
++// QUdpSocket
++//#define QT_NO_UDPSOCKET
++
++// QUndoCommand
++//#define QT_NO_UNDOCOMMAND
++
++// QUrlInfo
++//#define QT_NO_URLINFO
++
++// QValidator
++//#define QT_NO_VALIDATOR
++
++// QWheelEvent
++//#define QT_NO_WHEELEVENT
++
++// 
++//#define QT_NO_XMLSTREAM
++
++// Animation
++#if !defined(QT_NO_ANIMATION) && (defined(QT_NO_PROPERTIES))
++#define QT_NO_ANIMATION
++#endif
++
++// QButtonGroup
++#if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX))
++#define QT_NO_BUTTONGROUP
++#endif
++
++// QClipboard
++#if !defined(QT_NO_CLIPBOARD) && (defined(QT_NO_QWS_PROPERTIES))
++#define QT_NO_CLIPBOARD
++#endif
++
++// Codecs
++#if !defined(QT_NO_CODECS) && (defined(QT_NO_TEXTCODEC))
++#define QT_NO_CODECS
++#endif
++
++// QDate/QTime/QDateTime
++#if !defined(QT_NO_DATESTRING) && (defined(QT_NO_TEXTDATE))
++#define QT_NO_DATESTRING
++#endif
++
++// QDial
++#if !defined(QT_NO_DIAL) && (defined(QT_NO_SLIDER))
++#define QT_NO_DIAL
++#endif
++
++// QFileSystemModel
++#if !defined(QT_NO_FILESYSTEMMODEL) && (defined(QT_NO_FILESYSTEMWATCHER))
++#define QT_NO_FILESYSTEMMODEL
++#endif
++
++// QHostInfo
++#if !defined(QT_NO_HOSTINFO) && (defined(QT_NO_TEXTSTREAM))
++#define QT_NO_HOSTINFO
++#endif
++
++// XPM Image Format
++#if !defined(QT_NO_IMAGEFORMAT_XPM) && (defined(QT_NO_TEXTSTREAM))
++#define QT_NO_IMAGEFORMAT_XPM
++#endif
++
++// QLibrary
++#if !defined(QT_NO_LIBRARY) && (defined(QT_NO_SETTINGS))
++#define QT_NO_LIBRARY
++#endif
++
++// QMenu
++#if !defined(QT_NO_MENU) && (defined(QT_NO_ACTION))
++#define QT_NO_MENU
++#endif
++
++// QNetworkDiskCache
++#if !defined(QT_NO_NETWORKDISKCACHE) && (defined(QT_NO_TEMPORARYFILE))
++#define QT_NO_NETWORKDISKCACHE
++#endif
++
++// Phonon::SeekSlider
++#if !defined(QT_NO_PHONON_SEEKSLIDER) && (defined(QT_NO_SLIDER))
++#define QT_NO_PHONON_SEEKSLIDER
++#endif
++
++// Phonon::AbstractMediaStream
++#if !defined(QT_NO_PHONON_SETTINGSGROUP) && (defined(QT_NO_SETTINGS))
++#define QT_NO_PHONON_SETTINGSGROUP
++#endif
++
++// Phonon::VideoPlayer
++#if !defined(QT_NO_PHONON_VIDEOPLAYER) && (defined(QT_NO_PHONON_VIDEO))
++#define QT_NO_PHONON_VIDEOPLAYER
++#endif
++
++// Phonon::VolumeFaderEffect
++#if !defined(QT_NO_PHONON_VOLUMEFADEREFFECT) && (defined(QT_NO_PHONON_EFFECT))
++#define QT_NO_PHONON_VOLUMEFADEREFFECT
++#endif
++
++// QProgressDialog
++#if !defined(QT_NO_PROGRESSDIALOG) && (defined(QT_NO_PROGRESSBAR))
++#define QT_NO_PROGRESSDIALOG
++#endif
++
++// Cursor
++#if !defined(QT_NO_QWS_CURSOR) && (defined(QT_NO_CURSOR))
++#define QT_NO_QWS_CURSOR
++#endif
++
++// Decoration (Styled)
++#if !defined(QT_NO_QWS_DECORATION_STYLED) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
++#define QT_NO_QWS_DECORATION_STYLED
++#endif
++
++// Decoration (Windows Style)
++#if !defined(QT_NO_QWS_DECORATION_WINDOWS) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
++#define QT_NO_QWS_DECORATION_WINDOWS
++#endif
++
++// Dynamic screen transformation.
++#if !defined(QT_NO_QWS_DYNAMICSCREENTRANSFORMATION) && (defined(QT_NO_QWS_PROXYSCREEN))
++#define QT_NO_QWS_DYNAMICSCREENTRANSFORMATION
++#endif
++
++// Manager
++#if !defined(QT_NO_QWS_MANAGER) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
++#define QT_NO_QWS_MANAGER
++#endif
++
++// QVncTransformed
++#if !defined(QT_NO_QWS_TRANSFORMED) && (defined(QT_NO_QWS_PROXYSCREEN))
++#define QT_NO_QWS_TRANSFORMED
++#endif
++
++// QVncScreen
++#if !defined(QT_NO_QWS_VNC) && (defined(QT_NO_QWS_PROXYSCREEN))
++#define QT_NO_QWS_VNC
++#endif
++
++// QScrollBar
++#if !defined(QT_NO_SCROLLBAR) && (defined(QT_NO_SLIDER))
++#define QT_NO_SCROLLBAR
++#endif
++
++//  SOCKS5
++#if !defined(QT_NO_SOCKS5) && (defined(QT_NO_NETWORKPROXY))
++#define QT_NO_SOCKS5
++#endif
++
++// QSoftKeyManager
++#if !defined(QT_NO_SOFTKEYMANAGER) && (defined(QT_NO_ACTION))
++#define QT_NO_SOFTKEYMANAGER
++#endif
++
++// QSplitter
++#if !defined(QT_NO_SPLITTER) && (defined(QT_NO_RUBBERBAND))
++#define QT_NO_SPLITTER
++#endif
++
++// State machine
++#if !defined(QT_NO_STATEMACHINE) && (defined(QT_NO_PROPERTIES))
++#define QT_NO_STATEMACHINE
++#endif
++
++// QCDEStyle
++#if !defined(QT_NO_STYLE_CDE) && (defined(QT_NO_STYLE_MOTIF))
++#define QT_NO_STYLE_CDE
++#endif
++
++// QWindowsXPStyle
++#if !defined(QT_NO_STYLE_WINDOWSXP) && (defined(QT_NO_STYLE_WINDOWS))
++#define QT_NO_STYLE_WINDOWSXP
++#endif
++
++// SXE
++#if !defined(QT_NO_SXE) && (defined(QT_NO_QWS_MULTIPROCESS))
++#define QT_NO_SXE
++#endif
++
++// QToolButton
++#if !defined(QT_NO_TOOLBUTTON) && (defined(QT_NO_ACTION))
++#define QT_NO_TOOLBUTTON
++#endif
++
++// QUndoStack
++#if !defined(QT_NO_UNDOSTACK) && (defined(QT_NO_UNDOCOMMAND))
++#define QT_NO_UNDOSTACK
++#endif
++
++// ActiveQt
++#if !defined(QT_NO_WIN_ACTIVEQT) && (defined(QT_NO_PROPERTIES))
++#define QT_NO_WIN_ACTIVEQT
++#endif
++
++// QWizard
++#if !defined(QT_NO_WIZARD) && (defined(QT_NO_PROPERTIES))
++#define QT_NO_WIZARD
++#endif
++
++// QXmlStreamReader
++#if !defined(QT_NO_XMLSTREAMREADER) && (defined(QT_NO_XMLSTREAM))
++#define QT_NO_XMLSTREAMREADER
++#endif
++
++// QXmlStreamWriter
++#if !defined(QT_NO_XMLSTREAMWRITER) && (defined(QT_NO_XMLSTREAM))
++#define QT_NO_XMLSTREAMWRITER
++#endif
++
++// Context menu
++#if !defined(QT_NO_CONTEXTMENU) && (defined(QT_NO_MENU))
++#define QT_NO_CONTEXTMENU
++#endif
++
++// File Transfer Protocol
++#if !defined(QT_NO_FTP) && (defined(QT_NO_URLINFO) || defined(QT_NO_TEXTDATE))
++#define QT_NO_FTP
++#endif
++
++// Hyper Text Transfer Protocol
++#if !defined(QT_NO_HTTP) && (defined(QT_NO_HOSTINFO))
++#define QT_NO_HTTP
++#endif
++
++// QInputContext
++#if !defined(QT_NO_IM) && (defined(QT_NO_LIBRARY))
++#define QT_NO_IM
++#endif
++
++// Phonon::PlatformPlugin
++#if !defined(QT_NO_PHONON_PLATFORMPLUGIN) && (defined(QT_NO_LIBRARY))
++#define QT_NO_PHONON_PLATFORMPLUGIN
++#endif
++
++// QScrollArea
++#if !defined(QT_NO_SCROLLAREA) && (defined(QT_NO_SCROLLBAR))
++#define QT_NO_SCROLLAREA
++#endif
++
++// QWindowsVistaStyle
++#if !defined(QT_NO_STYLE_WINDOWSVISTA) && (defined(QT_NO_STYLE_WINDOWSXP))
++#define QT_NO_STYLE_WINDOWSVISTA
++#endif
++
++// QTabBar
++#if !defined(QT_NO_TABBAR) && (defined(QT_NO_TOOLBUTTON))
++#define QT_NO_TABBAR
++#endif
++
++// OdfWriter
++#if !defined(QT_NO_TEXTODFWRITER) && (defined(QT_NO_XMLSTREAMWRITER))
++#define QT_NO_TEXTODFWRITER
++#endif
++
++// Translation (UTF-8 representation)
++#if !defined(QT_NO_TRANSLATION_UTF8) && (defined(QT_NO_TRANSLATION) || defined(QT_NO_TEXTCODEC))
++#define QT_NO_TRANSLATION_UTF8
++#endif
++
++// QUndoGroup
++#if !defined(QT_NO_UNDOGROUP) && (defined(QT_NO_UNDOSTACK))
++#define QT_NO_UNDOGROUP
++#endif
++
++// QWhatsThis
++#if !defined(QT_NO_WHATSTHIS) && (defined(QT_NO_TOOLBUTTON))
++#define QT_NO_WHATSTHIS
++#endif
++
++// Drag and drop
++#if !defined(QT_NO_DRAGANDDROP) && (defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_IMAGEFORMAT_XPM))
++#define QT_NO_DRAGANDDROP
++#endif
++
++// QGraphicsView
++#if !defined(QT_NO_GRAPHICSVIEW) && (defined(QT_NO_SCROLLAREA))
++#define QT_NO_GRAPHICSVIEW
++#endif
++
++// QMdiArea
++#if !defined(QT_NO_MDIAREA) && (defined(QT_NO_SCROLLAREA))
++#define QT_NO_MDIAREA
++#endif
++
++// Phonon::VolumeSlider
++#if !defined(QT_NO_PHONON_VOLUMESLIDER) && (defined(QT_NO_SLIDER) || defined(QT_NO_TOOLBUTTON))
++#define QT_NO_PHONON_VOLUMESLIDER
++#endif
++
++// QPrinter
++#if !defined(QT_NO_PRINTER) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_PICTURE) || defined(QT_NO_TEMPORARYFILE))
++#define QT_NO_PRINTER
++#endif
++
++// QWSInputMethod
++#if !defined(QT_NO_QWS_INPUTMETHODS) && (defined(QT_NO_IM))
++#define QT_NO_QWS_INPUTMETHODS
++#endif
++
++// QSpinBox
++#if !defined(QT_NO_SPINBOX) && (defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
++#define QT_NO_SPINBOX
++#endif
++
++// QCleanLooksStyle
++#if !defined(QT_NO_STYLE_CLEANLOOKS) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
++#define QT_NO_STYLE_CLEANLOOKS
++#endif
++
++// QPlastiqueStyle
++#if !defined(QT_NO_STYLE_PLASTIQUE) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
++#define QT_NO_STYLE_PLASTIQUE
++#endif
++
++// QStyleSheetStyle
++#if !defined(QT_NO_STYLE_STYLESHEET) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_PROPERTIES) || defined(QT_NO_CSSPARSER))
++#define QT_NO_STYLE_STYLESHEET
++#endif
++
++// QWindowsCEStyle
++#if !defined(QT_NO_STYLE_WINDOWSCE) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
++#define QT_NO_STYLE_WINDOWSCE
++#endif
++
++// QWindowsMobileStyle
++#if !defined(QT_NO_STYLE_WINDOWSMOBILE) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
++#define QT_NO_STYLE_WINDOWSMOBILE
++#endif
++
++// QtSvg module
++#if !defined(QT_NO_SVG) && (defined(QT_NO_XMLSTREAMREADER) || defined(QT_NO_CSSPARSER))
++#define QT_NO_SVG
++#endif
++
++// Q3TabDialog
++#if !defined(QT_NO_TABDIALOG) && (defined(QT_NO_TABBAR))
++#define QT_NO_TABDIALOG
++#endif
++
++// QTextCodecPlugin
++#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_TEXTCODEC) || defined(QT_NO_LIBRARY))
++#define QT_NO_TEXTCODECPLUGIN
++#endif
++
++// QColorDialog
++#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_SPINBOX))
++#define QT_NO_COLORDIALOG
++#endif
++
++// QGraphicsEffect
++#if !defined(QT_NO_GRAPHICSEFFECT) && (defined(QT_NO_GRAPHICSVIEW))
++#define QT_NO_GRAPHICSEFFECT
++#endif
++
++// The Model/View Framework
++#if !defined(QT_NO_ITEMVIEWS) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_SCROLLAREA))
++#define QT_NO_ITEMVIEWS
++#endif
++
++// QMenuBar
++#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_MENU) || defined(QT_NO_TOOLBUTTON))
++#define QT_NO_MENUBAR
++#endif
++
++// Sound Server
++#if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_HOSTINFO) || defined(QT_NO_QWS_MULTIPROCESS))
++#define QT_NO_QWS_SOUNDSERVER
++#endif
++
++// QSvgGenerator
++#if !defined(QT_NO_SVGGENERATOR) && (defined(QT_NO_SVG))
++#define QT_NO_SVGGENERATOR
++#endif
++
++// QSvgRenderer
++#if !defined(QT_NO_SVGRENDERER) && (defined(QT_NO_SVG))
++#define QT_NO_SVGRENDERER
++#endif
++
++// QTabWidget
++#if !defined(QT_NO_TABWIDGET) && (defined(QT_NO_TABBAR) || defined(QT_NO_STACKEDWIDGET))
++#define QT_NO_TABWIDGET
++#endif
++
++// QTextEdit
++#if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_SCROLLAREA) || defined(QT_NO_PROPERTIES))
++#define QT_NO_TEXTEDIT
++#endif
++
++// QErrorMessage
++#if !defined(QT_NO_ERRORMESSAGE) && (defined(QT_NO_TEXTEDIT))
++#define QT_NO_ERRORMESSAGE
++#endif
++
++// QListView
++#if !defined(QT_NO_LISTVIEW) && (defined(QT_NO_ITEMVIEWS))
++#define QT_NO_LISTVIEW
++#endif
++
++// QMainWindow
++#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_MENU) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_TOOLBUTTON))
++#define QT_NO_MAINWINDOW
++#endif
++
++// QAbstractProxyModel
++#if !defined(QT_NO_PROXYMODEL) && (defined(QT_NO_ITEMVIEWS))
++#define QT_NO_PROXYMODEL
++#endif
++
++// QStandardItemModel
++#if !defined(QT_NO_STANDARDITEMMODEL) && (defined(QT_NO_ITEMVIEWS))
++#define QT_NO_STANDARDITEMMODEL
++#endif
++
++// QStringListModel
++#if !defined(QT_NO_STRINGLISTMODEL) && (defined(QT_NO_ITEMVIEWS))
++#define QT_NO_STRINGLISTMODEL
++#endif
++
++// QSvgWidget
++#if !defined(QT_NO_SVGWIDGET) && (defined(QT_NO_SVGRENDERER))
++#define QT_NO_SVGWIDGET
++#endif
++
++// QSyntaxHighlighter
++#if !defined(QT_NO_SYNTAXHIGHLIGHTER) && (defined(QT_NO_TEXTEDIT))
++#define QT_NO_SYNTAXHIGHLIGHTER
++#endif
++
++// QTableView
++#if !defined(QT_NO_TABLEVIEW) && (defined(QT_NO_ITEMVIEWS))
++#define QT_NO_TABLEVIEW
++#endif
++
++// QTextBrowser
++#if !defined(QT_NO_TEXTBROWSER) && (defined(QT_NO_TEXTEDIT))
++#define QT_NO_TEXTBROWSER
++#endif
++
++// QToolBox
++#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_TOOLBUTTON) || defined(QT_NO_SCROLLAREA))
++#define QT_NO_TOOLBOX
++#endif
++
++// QTreeView
++#if !defined(QT_NO_TREEVIEW) && (defined(QT_NO_ITEMVIEWS))
++#define QT_NO_TREEVIEW
++#endif
++
++// Accessibility
++#if !defined(QT_NO_ACCESSIBILITY) && (defined(QT_NO_PROPERTIES) || defined(QT_NO_MENUBAR))
++#define QT_NO_ACCESSIBILITY
++#endif
++
++// QColumnView
++#if !defined(QT_NO_COLUMNVIEW) && (defined(QT_NO_LISTVIEW))
++#define QT_NO_COLUMNVIEW
++#endif
++
++// QCompleter
++#if !defined(QT_NO_COMPLETER) && (defined(QT_NO_PROXYMODEL))
++#define QT_NO_COMPLETER
++#endif
++
++// Common UNIX Printing System
++#if !defined(QT_NO_CUPS) && (defined(QT_NO_PRINTER) || defined(QT_NO_LIBRARY))
++#define QT_NO_CUPS
++#endif
++
++// QDataWidgetMapper
++#if !defined(QT_NO_DATAWIDGETMAPPER) && (defined(QT_NO_ITEMVIEWS) || defined(QT_NO_PROPERTIES))
++#define QT_NO_DATAWIDGETMAPPER
++#endif
++
++// QListWidget
++#if !defined(QT_NO_LISTWIDGET) && (defined(QT_NO_LISTVIEW))
++#define QT_NO_LISTWIDGET
++#endif
++
++// QSortFilterProxyModel
++#if !defined(QT_NO_SORTFILTERPROXYMODEL) && (defined(QT_NO_PROXYMODEL))
++#define QT_NO_SORTFILTERPROXYMODEL
++#endif
++
++// QTableWidget
++#if !defined(QT_NO_TABLEWIDGET) && (defined(QT_NO_TABLEVIEW))
++#define QT_NO_TABLEWIDGET
++#endif
++
++// QToolBar
++#if !defined(QT_NO_TOOLBAR) && (defined(QT_NO_MAINWINDOW))
++#define QT_NO_TOOLBAR
++#endif
++
++// QTreeWidget
++#if !defined(QT_NO_TREEWIDGET) && (defined(QT_NO_TREEVIEW))
++#define QT_NO_TREEWIDGET
++#endif
++
++// QDirModel
++#if !defined(QT_NO_DIRMODEL) && (defined(QT_NO_ITEMVIEWS) || defined(QT_NO_FILESYSTEMMODEL))
++#define QT_NO_DIRMODEL
++#endif
++
++// QDockwidget
++#if !defined(QT_NO_DOCKWIDGET) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_MAINWINDOW))
++#define QT_NO_DOCKWIDGET
++#endif
++
++// QUndoView
++#if !defined(QT_NO_UNDOVIEW) && (defined(QT_NO_UNDOSTACK) || defined(QT_NO_LISTVIEW))
++#define QT_NO_UNDOVIEW
++#endif
++
++// QCompleter
++#if !defined(QT_NO_FSCOMPLETER) && (defined(QT_NO_FILESYSTEMMODEL) || defined(QT_NO_COMPLETER))
++#define QT_NO_FSCOMPLETER
++#endif
++
++// QGraphicsSvgItem
++#if !defined(QT_NO_GRAPHICSSVGITEM) && (defined(QT_NO_SVGRENDERER) || defined(QT_NO_GRAPHICSVIEW))
++#define QT_NO_GRAPHICSSVGITEM
++#endif
++
++// QComboBox
++#if !defined(QT_NO_COMBOBOX) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_STANDARDITEMMODEL) || defined(QT_NO_LISTVIEW))
++#define QT_NO_COMBOBOX
++#endif
++
++// QWorkSpace
++#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_MAINWINDOW) || defined(QT_NO_MENUBAR))
++#define QT_NO_WORKSPACE
++#endif
++
++// QPrintPreviewWidget
++#if !defined(QT_NO_PRINTPREVIEWWIDGET) && (defined(QT_NO_GRAPHICSVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_MAINWINDOW))
++#define QT_NO_PRINTPREVIEWWIDGET
++#endif
++
++// QCalendarWidget
++#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW) || defined(QT_NO_MENU) || defined(QT_NO_TEXTDATE) || defined(QT_NO_SPINBOX) || defined(QT_NO_TOOLBUTTON))
++#define QT_NO_CALENDARWIDGET
++#endif
++
++// QDateTimeEdit
++#if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_CALENDARWIDGET) || defined(QT_NO_DATESTRING))
++#define QT_NO_DATETIMEEDIT
++#endif
++
++// QInputDialog
++#if !defined(QT_NO_INPUTDIALOG) && (defined(QT_NO_COMBOBOX) || defined(QT_NO_SPINBOX) || defined(QT_NO_STACKEDWIDGET))
++#define QT_NO_INPUTDIALOG
++#endif
++
++// Phonon::EffectWidget
++#if !defined(QT_NO_PHONON_EFFECTWIDGET) && (defined(QT_NO_PHONON_EFFECT) || defined(QT_NO_COMBOBOX) || defined(QT_NO_SPINBOX))
++#define QT_NO_PHONON_EFFECTWIDGET
++#endif
++
++// QFontComboBox
++#if !defined(QT_NO_FONTCOMBOBOX) && (defined(QT_NO_COMBOBOX) || defined(QT_NO_STRINGLISTMODEL))
++#define QT_NO_FONTCOMBOBOX
++#endif
++
++// QFontDialog
++#if !defined(QT_NO_FONTDIALOG) && (defined(QT_NO_STRINGLISTMODEL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GROUPBOX))
++#define QT_NO_FONTDIALOG
++#endif
++
++// QPrintDialog
++#if !defined(QT_NO_PRINTDIALOG) && (defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_SPINBOX) || defined(QT_NO_TREEVIEW) || defined(QT_NO_TABWIDGET))
++#define QT_NO_PRINTDIALOG
++#endif
++
++// QFileDialog
++#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_TOOLTIP) || defined(QT_NO_SPLITTER) || defined(QT_NO_STACKEDWIDGET) || defined(QT_NO_PROXYMODEL))
++#define QT_NO_FILEDIALOG
++#endif
++
++// QPrintPreviewDialog
++#if !defined(QT_NO_PRINTPREVIEWDIALOG) && (defined(QT_NO_PRINTPREVIEWWIDGET) || defined(QT_NO_PRINTDIALOG) || defined(QT_NO_TOOLBAR))
++#define QT_NO_PRINTPREVIEWDIALOG
++#endif
+diff --git a/src/corelib/global/qglobal.h b/src/corelib/global/qglobal.h
+old mode 100644
+new mode 100755
+index 3bf0a7b..4dd3e51
+--- a/src/corelib/global/qglobal.h
++++ b/src/corelib/global/qglobal.h
+@@ -42,6 +42,10 @@
+ #ifndef QGLOBAL_H
+ #define QGLOBAL_H
+ 
++#ifndef __linux__
++#define __linux__
++#endif
++
+ #include <stddef.h>
+ 
+ #define QT_VERSION_STR "4.8.2"
+diff --git a/src/corelib/io/qsettings.cpp b/src/corelib/io/qsettings.cpp
+old mode 100644
+new mode 100755
+index 4f318ae..a38c6e3
+--- a/src/corelib/io/qsettings.cpp
++++ b/src/corelib/io/qsettings.cpp
+@@ -1343,6 +1343,8 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec
+                 break;
+         }
+     }
++	if(result.size() <= 0)
++        return QStringList();
+     return result.keys();
+ }
+ 
+diff --git a/src/gui/embedded/embedded.pri b/src/gui/embedded/embedded.pri
+old mode 100644
+new mode 100755
+index 836c116..eb3899a
+--- a/src/gui/embedded/embedded.pri
++++ b/src/gui/embedded/embedded.pri
+@@ -184,6 +184,8 @@ embedded {
+                 HEADERS += embedded/qkbdintegrity_qws.h
+                 SOURCES += embedded/qkbdintegrity_qws.cpp
+         }
++	HEADERS +=embedded/qkbdamlogic.h
++	SOURCES +=embedded/qkbdamlogic.cpp
+ 
+ #
+ # Mouse drivers
+diff --git a/src/gui/embedded/qkbdamlogic.cpp b/src/gui/embedded/qkbdamlogic.cpp
+new file mode 100755
+index 0000000..5575c0d
+--- /dev/null
++++ b/src/gui/embedded/qkbdamlogic.cpp
+@@ -0,0 +1,570 @@
++/****************************************************************************
++**
++** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtGui module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain
++** additional rights. These rights are described in the Nokia Qt LGPL
++** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
++** package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you are unsure which license is appropriate for your use, please
++** contact the sales department at http://www.qtsoftware.com/contact.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#include <stdlib.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <linux/input.h>
++
++#include <qvfbhdr.h>
++#include <qkbdamlogic.h>
++
++#include <qwindowsystem_qws.h>
++#include <qsocketnotifier.h>
++#include <qapplication.h>
++
++#define INVALID_KEY Qt::Key_unknown
++
++static IrMap defaultIrMap[] = 
++{
++	{0x67, Qt::Key_Up, "UP"}, 					
++	{0x6c, Qt::Key_Down, "DOWN"}, 				
++	{0x69, Qt::Key_Left, "LEFT"},				
++	{0x6a, Qt::Key_Right, "RIGHT"},				
++	{0x1c, Qt::Key_Enter, "ENTER"}, 			
++	{0x74, Qt::Key_Standby, "POWER"},
++	{0X71, Qt::Key_VolumeMute, "MUTE"},
++	{0X3b, Qt::Key_Launch0, "PHOTO"},
++	{0X3c, Qt::Key_Launch1, "MUSIC"},
++	{0X3d, Qt::Key_Launch2, "MOVIE"},
++	{0X184, Qt::Key_Launch3, "TEXT"},
++	{0X3e, Qt::Key_F1, "RATIO"},
++	{0X3f, Qt::Key_F2, "ROTATE"},
++	{0X174, Qt::Key_Zoom, "ZOOM"},
++	{0X40, Qt::Key_F3, "VIEW"},
++	{0X41, Qt::Key_F4, "OSD"},
++	{0X8b, Qt::Key_Menu, "MENU"},
++	{0X9e, Qt::Key_F5, "BACK MUSIC"},
++	{0X42, Qt::Key_F6, "SLIDE SHOW"},
++	{0X43, Qt::Key_F7, "STEP SHOW"},
++	{0X0c, Qt::Key_VolumeUp, "VOLUME+"},
++	{0X0c, Qt::Key_VolumeDown, "VOLUME-"},
++	{0Xae, Qt::Key_Cancel, "EXIT"},
++	{0Xa4, Qt::Key_MediaPlay, "PLAY"},
++	{0X80, Qt::Key_MediaStop, "STOP"},
++	{0Xa8, Qt::Key_Back, "FR"},
++	{0X9f, Qt::Key_Forward, "FF"},
++	{INVALID_KEY, 0, ""},
++};
++
++
++QT_BEGIN_NAMESPACE
++
++QAmlogicIRHandler::QAmlogicIRHandler(const QString &device)
++    : QObject()
++{
++	memset(readMap, 0, sizeof(IrMap)*MAX_KEY_NUMBER);
++	initIrMap();
++	
++    terminalName = device;
++
++	if (terminalName.isEmpty())
++        terminalName = QLatin1String("/dev/input/event0");
++	
++    kbdFD = -1;
++    kbdIdx = 0;
++
++    if ((kbdFD = open(terminalName.toLatin1().constData(), O_RDONLY | O_NDELAY)) < 0) {
++        qWarning("Cannot open %s (%s)", terminalName.toLatin1().constData(),
++        strerror(errno));
++    } else {
++        notifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this);
++        connect(notifier, SIGNAL(activated(int)),this, SLOT(readKeyboardData()));
++    }
++}
++
++QAmlogicIRHandler::~QAmlogicIRHandler()
++{
++    if (kbdFD >= 0)
++        close(kbdFD);
++}
++
++void QAmlogicIRHandler::string2KeyTable()
++{
++	string2key["Qt::Key_Up"] = Qt::Key_Up;
++	string2key["Qt::Key_Down"] = Qt::Key_Down;
++	string2key["Qt::Key_Left"] = Qt::Key_Left;
++	string2key["Qt::Key_Right"] = Qt::Key_Right;
++	string2key["Qt::Key_Enter"] = Qt::Key_Enter;
++	string2key["Qt::Key_Escape"] = Qt::Key_Escape;
++	string2key["Qt::Key_Menu"] = Qt::Key_Menu;
++	string2key["Qt::Key_Space"] = Qt::Key_Space;
++	string2key["Qt::Key_Plus"] = Qt::Key_Plus;
++	string2key["Qt::Key_Minus"] = Qt::Key_Minus;	
++	string2key["Qt::Key_PageUp"] = Qt::Key_PageUp;
++	string2key["Qt::Key_PageDown"] = Qt::Key_PageDown;
++	string2key["Qt::Key_Return"] = Qt::Key_Return;
++
++	string2key["Qt::Key_Tab"] = Qt::Key_Tab;
++	string2key["Qt::Key_Backtab"] = Qt::Key_Backtab;
++	string2key["Qt::Key_Backspace"] = Qt::Key_Backspace;
++	string2key["Qt::Key_Insert"] = Qt::Key_Insert;
++	string2key["Qt::Key_Delete"] = Qt::Key_Delete;
++	string2key["Qt::Key_Pause"] = Qt::Key_Pause;
++	string2key["Qt::Key_Print"] = Qt::Key_Print;
++	string2key["Qt::Key_SysReq"] = Qt::Key_SysReq;
++	string2key["Qt::Key_Clear"] = Qt::Key_Clear;
++	string2key["Qt::Key_Home"] = Qt::Key_Home;
++	string2key["Qt::Key_End"] = Qt::Key_End;
++	string2key["Qt::Key_Shift"] = Qt::Key_Shift;
++	string2key["Qt::Key_Control"] = Qt::Key_Control;
++
++	string2key["Qt::Key_Meta"] = Qt::Key_Meta;
++	string2key["Qt::Key_Alt"] = Qt::Key_Alt;
++	string2key["Qt::Key_AltGr"] = Qt::Key_AltGr;
++	string2key["Qt::Key_CapsLock"] = Qt::Key_CapsLock;
++	string2key["Qt::Key_NumLock"] = Qt::Key_NumLock;
++	string2key["Qt::Key_ScrollLock"] = Qt::Key_ScrollLock;
++	string2key["Qt::Key_Super_L"] = Qt::Key_Super_L;
++	string2key["Qt::Key_Super_R"] = Qt::Key_Super_R;
++	string2key["Qt::Key_Hyper_L"] = Qt::Key_Hyper_L;
++	string2key["Qt::Key_Hyper_R"] = Qt::Key_Hyper_R;
++	string2key["Qt::Key_Help"] = Qt::Key_Help;
++	string2key["Qt::Key_Direction_L"] = Qt::Key_Direction_L;
++	string2key["Qt::Key_Direction_R"] = Qt::Key_Direction_R;
++	string2key["Qt::Key_Any"] = Qt::Key_Any;
++	string2key["Qt::Key_Exclam"] = Qt::Key_Exclam;
++	string2key["Qt::Key_QuoteDbl"] = Qt::Key_QuoteDbl;
++	string2key["Qt::Key_NumberSign"] = Qt::Key_NumberSign;
++	string2key["Qt::Key_Dollar"] = Qt::Key_Dollar;
++	string2key["Qt::Key_Percent"] = Qt::Key_Percent;
++	string2key["Qt::Key_Ampersand"] = Qt::Key_Ampersand;
++	string2key["Qt::Key_Apostrophe"] = Qt::Key_Apostrophe;
++	string2key["Qt::Key_ParenLeft"] = Qt::Key_ParenLeft;
++	string2key["Qt::Key_ParenRight"] = Qt::Key_ParenRight;
++	string2key["Qt::Key_Asterisk"] = Qt::Key_Asterisk;
++	string2key["Qt::Key_Comma"] = Qt::Key_Comma;
++	string2key["Qt::Key_Period"] = Qt::Key_Period;
++	string2key["Qt::Key_Slash"] = Qt::Key_Slash;
++	string2key["Qt::Key_Colon"] = Qt::Key_Colon;
++	string2key["Qt::Key_Semicolon"] = Qt::Key_Semicolon;
++	string2key["Qt::Key_Less"] = Qt::Key_Less;
++	string2key["Qt::Key_Equal"] = Qt::Key_Equal;
++	string2key["Qt::Key_Greater"] = Qt::Key_Greater;
++	string2key["Qt::Key_Question"] = Qt::Key_Question;
++	string2key["Qt::Key_At"] = Qt::Key_At;
++	string2key["Qt::Key_BracketLeft"] = Qt::Key_BracketLeft;
++	string2key["Qt::Key_Backslash"] = Qt::Key_Backslash;
++	string2key["Qt::Key_BracketRight"] = Qt::Key_BracketRight;
++	string2key["Qt::Key_AsciiCircum"] = Qt::Key_AsciiCircum;
++	string2key["Qt::Key_Underscore"] = Qt::Key_Underscore;
++	string2key["Qt::Key_QuoteLeft"] = Qt::Key_QuoteLeft;
++	string2key["Qt::Key_BraceLeft"] = Qt::Key_BraceLeft;
++	string2key["Qt::Key_Bar"] = Qt::Key_Bar;
++	string2key["Qt::Key_BraceRight"] = Qt::Key_BraceRight;
++	string2key["Qt::Key_AsciiTilde"] = Qt::Key_AsciiTilde;
++	string2key["Qt::Key_nobreakspace"] = Qt::Key_nobreakspace;
++	string2key["Qt::Key_exclamdown"] = Qt::Key_exclamdown;
++	string2key["Qt::Key_cent"] = Qt::Key_cent;
++	string2key["Qt::Key_sterling"] = Qt::Key_sterling;
++	string2key["Qt::Key_currency"] = Qt::Key_currency;
++	string2key["Qt::Key_yen"] = Qt::Key_yen;
++	string2key["Qt::Key_brokenbar"] = Qt::Key_brokenbar;
++	string2key["Qt::Key_diaeresis"] = Qt::Key_diaeresis;
++	string2key["Qt::Key_copyright"] = Qt::Key_copyright;
++	string2key["Qt::Key_ordfeminine"] = Qt::Key_ordfeminine;
++	string2key["Qt::Key_guillemotleft"] = Qt::Key_guillemotleft;
++	string2key["Qt::Key_notsign"] = Qt::Key_notsign;
++	string2key["Qt::Key_hyphen"] = Qt::Key_hyphen;
++	string2key["Qt::Key_registered"] = Qt::Key_registered;
++	string2key["Qt::Key_macron"] = Qt::Key_macron;
++	string2key["Qt::Key_degree"] = Qt::Key_degree;
++	string2key["Qt::Key_plusminus"] = Qt::Key_plusminus;
++	string2key["Qt::Key_twosuperior"] = Qt::Key_twosuperior;
++	string2key["Qt::Key_threesuperior"] = Qt::Key_threesuperior;
++	string2key["Qt::Key_acute"] = Qt::Key_acute;
++	string2key["Qt::Key_mu"] = Qt::Key_mu;
++	string2key["Qt::Key_paragraph"] = Qt::Key_paragraph;
++	string2key["Qt::Key_periodcentered"] = Qt::Key_periodcentered;
++	string2key["Qt::Key_cedilla"] = Qt::Key_cedilla;
++	string2key["Qt::Key_onesuperior"] = Qt::Key_onesuperior;
++	string2key["Qt::Key_masculine"] = Qt::Key_masculine;
++	string2key["Qt::Key_guillemotright"] = Qt::Key_guillemotright;
++	string2key["Qt::Key_onequarter"] = Qt::Key_onequarter;
++	string2key["Qt::Key_threequarters"] = Qt::Key_threequarters;
++	string2key["Qt::Key_questiondown"] = Qt::Key_questiondown;
++	string2key["Qt::Key_Agrave"] = Qt::Key_Agrave;
++	string2key["Qt::Key_Aacute"] = Qt::Key_Aacute;
++	string2key["Qt::Key_Acircumflex"] = Qt::Key_Acircumflex;
++	string2key["Qt::Key_Atilde"] = Qt::Key_Atilde;
++	string2key["Qt::Key_Adiaeresis"] = Qt::Key_Adiaeresis;
++	string2key["Qt::Key_Aring"] = Qt::Key_Aring;
++	string2key["Qt::Key_AE"] = Qt::Key_AE;
++	string2key["Qt::Key_Ccedilla"] = Qt::Key_Ccedilla;
++	string2key["Qt::Key_Egrave"] = Qt::Key_Egrave;
++	string2key["Qt::Key_Eacute"] = Qt::Key_Eacute;
++	string2key["Qt::Key_Ecircumflex"] = Qt::Key_Ecircumflex;
++	string2key["Qt::Key_Ediaeresis"] = Qt::Key_Ediaeresis;
++	string2key["Qt::Key_Igrave"] = Qt::Key_Igrave;
++	string2key["Qt::Key_Iacute"] = Qt::Key_Iacute;
++	string2key["Qt::Key_Icircumflex"] = Qt::Key_Icircumflex;
++	string2key["Qt::Key_Idiaeresis"] = Qt::Key_Idiaeresis;
++	string2key["Qt::Key_ETH"] = Qt::Key_ETH;
++	string2key["Qt::Key_Ntilde"] = Qt::Key_Ntilde;
++	string2key["Qt::Key_Ograve"] = Qt::Key_Ograve;
++	string2key["Qt::Key_Oacute"] = Qt::Key_Oacute;
++	string2key["Qt::Key_Ocircumflex"] = Qt::Key_Ocircumflex;
++	string2key["Qt::Key_Otilde"] = Qt::Key_Otilde;
++	string2key["Qt::Key_Odiaeresis"] = Qt::Key_Odiaeresis;
++	string2key["Qt::Key_multiply"] = Qt::Key_multiply;
++	string2key["Qt::Key_Ooblique"] = Qt::Key_Ooblique;
++	string2key["Qt::Key_Ugrave"] = Qt::Key_Ugrave;
++	string2key["Qt::Key_Uacute"] = Qt::Key_Uacute;
++	string2key["Qt::Key_Ucircumflex"] = Qt::Key_Ucircumflex;
++	string2key["Qt::Key_Udiaeresis"] = Qt::Key_Udiaeresis;
++	string2key["Qt::Key_Yacute"] = Qt::Key_Yacute;
++	string2key["Qt::Key_THORN"] = Qt::Key_THORN;
++	string2key["Qt::Key_ssharp"] = Qt::Key_ssharp;
++	string2key["Qt::Key_division"] = Qt::Key_division;
++	string2key["Qt::Key_ydiaeresis"] = Qt::Key_ydiaeresis;
++	string2key["Qt::Key_Multi_key"] = Qt::Key_Multi_key;
++	string2key["Qt::Key_Codeinput"] = Qt::Key_Codeinput;
++	string2key["Qt::Key_SingleCandidate"] = Qt::Key_SingleCandidate;
++	string2key["Qt::Key_MultipleCandidate"] = Qt::Key_MultipleCandidate;
++	string2key["Qt::Key_PreviousCandidate"] = Qt::Key_PreviousCandidate;
++	string2key["Qt::Key_Mode_switch"] = Qt::Key_Mode_switch;
++	string2key["Qt::Key_Kanji"] = Qt::Key_Kanji;
++	string2key["Qt::Key_Muhenkan"] = Qt::Key_Muhenkan;
++	string2key["Qt::Key_Henkan"] = Qt::Key_Henkan;
++	string2key["Qt::Key_Romaji"] = Qt::Key_Romaji;
++	string2key["Qt::Key_Hiragana"] = Qt::Key_Hiragana;
++	string2key["Qt::Key_Katakana"] = Qt::Key_Katakana;
++	string2key["Qt::Key_Hiragana_Katakana"] = Qt::Key_Hiragana_Katakana;
++	string2key["Qt::Key_Zenkaku"] = Qt::Key_Zenkaku;
++	string2key["Qt::Key_Hankaku"] = Qt::Key_Hankaku;
++	string2key["Qt::Key_Touroku"] = Qt::Key_Touroku;
++	string2key["Qt::Key_Zenkaku_Hankaku"] = Qt::Key_Zenkaku_Hankaku;
++	string2key["Qt::Key_Massyo"] = Qt::Key_Massyo;
++	string2key["Qt::Key_Kana_Lock"] = Qt::Key_Kana_Lock;
++	string2key["Qt::Key_Kana_Shift"] = Qt::Key_Kana_Shift;
++	string2key["Qt::Key_Eisu_Shift"] = Qt::Key_Eisu_Shift;
++	string2key["Qt::Key_Eisu_toggle"] = Qt::Key_Eisu_toggle;
++	string2key["Qt::Key_Hangul"] = Qt::Key_Hangul;
++	string2key["Qt::Key_Hangul_Start"] = Qt::Key_Hangul_Start;
++	string2key["Qt::Key_Hangul_End"] = Qt::Key_Hangul_End;
++	string2key["Qt::Key_Hangul_Hanja"] = Qt::Key_Hangul_Hanja;
++	string2key["Qt::Key_Hangul_Jamo"] = Qt::Key_Hangul_Jamo;
++	string2key["Qt::Key_Hangul_Romaja"] = Qt::Key_Hangul_Romaja;
++	string2key["Qt::Key_Hangul_Jeonja"] = Qt::Key_Hangul_Jeonja;
++	string2key["Qt::Key_Hangul_Banja"] = Qt::Key_Hangul_Banja;
++	string2key["Qt::Key_Hangul_PreHanja"] = Qt::Key_Hangul_PreHanja;
++	string2key["Qt::Key_Hangul_PostHanja"] = Qt::Key_Hangul_PostHanja;
++	string2key["Qt::Key_Hangul_Special"] = Qt::Key_Hangul_Special;
++	string2key["Qt::Key_Dead_Grave"] = Qt::Key_Dead_Grave;
++	string2key["Qt::Key_Dead_Acute"] = Qt::Key_Dead_Acute;
++	string2key["Qt::Key_Dead_Circumflex"] = Qt::Key_Dead_Circumflex;
++	string2key["Qt::Key_Dead_Tilde"] = Qt::Key_Dead_Tilde;
++	string2key["Qt::Key_Dead_Macron"] = Qt::Key_Dead_Macron;
++	string2key["Qt::Key_Dead_Breve"] = Qt::Key_Dead_Breve;
++	string2key["Qt::Key_Dead_Abovedot"] = Qt::Key_Dead_Abovedot;
++	string2key["Qt::Key_Dead_Diaeresis"] = Qt::Key_Dead_Diaeresis;
++	string2key["Qt::Key_Dead_Abovering"] = Qt::Key_Dead_Abovering;
++	string2key["Qt::Key_Dead_Doubleacute"] = Qt::Key_Dead_Doubleacute;
++	string2key["Qt::Key_Dead_Caron"] = Qt::Key_Dead_Caron;
++	string2key["Qt::Key_Dead_Cedilla"] = Qt::Key_Dead_Cedilla;
++	string2key["Qt::Key_Dead_Ogonek"] = Qt::Key_Dead_Ogonek;
++	string2key["Qt::Key_Dead_Voiced_Sound"] = Qt::Key_Dead_Voiced_Sound;
++ 	string2key["Qt::Key_Dead_Iota"] = Qt::Key_Dead_Iota;
++	string2key["Qt::Key_Dead_Belowdot"] = Qt::Key_Dead_Belowdot;
++	string2key["Qt::Key_Dead_Hook"] = Qt::Key_Dead_Hook;
++	string2key["Qt::Key_Dead_Horn"] = Qt::Key_Dead_Horn;
++
++	string2key["Qt::Key_F1"] = Qt::Key_F1;
++	string2key["Qt::Key_F2"] = Qt::Key_F2;
++	string2key["Qt::Key_F3"] = Qt::Key_F3;
++	string2key["Qt::Key_F4"] = Qt::Key_F4;
++	string2key["Qt::Key_F5"] = Qt::Key_F5;
++	string2key["Qt::Key_F6"] = Qt::Key_F6;
++	string2key["Qt::Key_F7"] = Qt::Key_F7;
++	string2key["Qt::Key_F8"] = Qt::Key_F8;
++	string2key["Qt::Key_F9"] = Qt::Key_F9;
++	string2key["Qt::Key_F10"] = Qt::Key_F10;
++	string2key["Qt::Key_F11"] = Qt::Key_F11;
++	string2key["Qt::Key_F12"] = Qt::Key_F12; 
++	string2key["Qt::Key_F13"] = Qt::Key_F13;
++	string2key["Qt::Key_F14"] = Qt::Key_F14;
++	string2key["Qt::Key_F15"] = Qt::Key_F15; 
++	string2key["Qt::Key_F16"] = Qt::Key_F16;
++	string2key["Qt::Key_F17"] = Qt::Key_F17;
++	string2key["Qt::Key_F18"] = Qt::Key_F18; 
++	string2key["Qt::Key_F19"] = Qt::Key_F19;
++	string2key["Qt::Key_F20"] = Qt::Key_F20;
++	string2key["Qt::Key_F21"] = Qt::Key_F21;
++	string2key["Qt::Key_F22"] = Qt::Key_F22;
++	string2key["Qt::Key_F23"] = Qt::Key_F23;
++	string2key["Qt::Key_F24"] = Qt::Key_F24;
++	string2key["Qt::Key_F25"] = Qt::Key_F25;
++	string2key["Qt::Key_F26"] = Qt::Key_F26;
++	string2key["Qt::Key_F27"] = Qt::Key_F27; 
++	string2key["Qt::Key_F28"] = Qt::Key_F28;
++	string2key["Qt::Key_F29"] = Qt::Key_F29;
++	string2key["Qt::Key_F30"] = Qt::Key_F30;  
++	string2key["Qt::Key_F31"] = Qt::Key_F31;
++	string2key["Qt::Key_F32"] = Qt::Key_F32; 
++	string2key["Qt::Key_F33"] = Qt::Key_F33;
++	string2key["Qt::Key_F34"] = Qt::Key_F34;
++	string2key["Qt::Key_F35"] = Qt::Key_F35; 
++	
++	
++	string2key["Qt::Key_0"] = Qt::Key_0;
++	string2key["Qt::Key_1"] = Qt::Key_1;
++	string2key["Qt::Key_2"] = Qt::Key_2;
++	string2key["Qt::Key_3"] = Qt::Key_3;
++	string2key["Qt::Key_4"] = Qt::Key_4;
++	string2key["Qt::Key_5"] = Qt::Key_5;
++	string2key["Qt::Key_6"] = Qt::Key_6;
++	string2key["Qt::Key_7"] = Qt::Key_7;
++	string2key["Qt::Key_8"] = Qt::Key_8;
++	string2key["Qt::Key_9"] = Qt::Key_9;
++
++	string2key["Qt::Key_A"] = Qt::Key_A;
++	string2key["Qt::Key_B"] = Qt::Key_B;
++	string2key["Qt::Key_C"] = Qt::Key_C;
++	string2key["Qt::Key_D"] = Qt::Key_D;
++	string2key["Qt::Key_E"] = Qt::Key_E;
++	string2key["Qt::Key_F"] = Qt::Key_F;
++	string2key["Qt::Key_G"] = Qt::Key_G;
++	string2key["Qt::Key_H"] = Qt::Key_H;
++	string2key["Qt::Key_I"] = Qt::Key_I;
++	string2key["Qt::Key_J"] = Qt::Key_J;
++	string2key["Qt::Key_K"] = Qt::Key_K;
++	string2key["Qt::Key_L"] = Qt::Key_L;
++	string2key["Qt::Key_M"] = Qt::Key_M;
++	string2key["Qt::Key_N"] = Qt::Key_N;
++	string2key["Qt::Key_O"] = Qt::Key_O;
++	string2key["Qt::Key_P"] = Qt::Key_P;
++	string2key["Qt::Key_Q"] = Qt::Key_Q;
++	string2key["Qt::Key_R"] = Qt::Key_R;
++	string2key["Qt::Key_S"] = Qt::Key_S;
++	string2key["Qt::Key_T"] = Qt::Key_T;
++	string2key["Qt::Key_U"] = Qt::Key_U;
++	string2key["Qt::Key_V"] = Qt::Key_V;
++	string2key["Qt::Key_W"] = Qt::Key_W;
++	string2key["Qt::Key_X"] = Qt::Key_X;
++	string2key["Qt::Key_Y"] = Qt::Key_Y;
++	string2key["Qt::Key_Z"] = Qt::Key_Z;
++	
++	string2key["Qt::Key_VolumeDown"] = Qt::Key_VolumeDown;
++	string2key["Qt::Key_VolumeUp"] = Qt::Key_VolumeUp;
++	string2key["Qt::Key_VolumeMute"] = Qt::Key_VolumeMute;
++	string2key["Qt::Key_Back"] = Qt::Key_Back;
++	string2key["Qt::Key_Forward"] = Qt::Key_Forward;
++	string2key["Qt::Key_Play"] = Qt::Key_Play;
++	string2key["Qt::Key_Stop"] = Qt::Key_Stop;
++	string2key["Qt::Key_Zoom"] = Qt::Key_Zoom;
++	string2key["Qt::Key_Refresh"] = Qt::Key_Refresh;
++	
++	string2key["Qt::Key_MediaPlay"] = Qt::Key_MediaPlay;
++	string2key["Qt::Key_MediaStop"] = Qt::Key_MediaStop;
++	string2key["Qt::Key_MediaPrevious"] = Qt::Key_MediaPrevious;
++	string2key["Qt::Key_MediaNext"] = Qt::Key_MediaNext;
++	string2key["Qt::Key_MediaRecord"] = Qt::Key_MediaRecord;
++	string2key["Qt::Key_MediaLast"] = Qt::Key_MediaLast;
++	
++	string2key["Qt::Key_HomePage"] = Qt::Key_HomePage;
++	string2key["Qt::Key_Favorites"] = Qt::Key_Favorites;
++	string2key["Qt::Key_Search"] = Qt::Key_Search;
++	string2key["Qt::Key_Standby"] = Qt::Key_Standby;
++	string2key["Qt::Key_OpenUrl"] = Qt::Key_OpenUrl;
++	
++	string2key["Qt::Key_BassBoost"] = Qt::Key_BassBoost;
++	string2key["Qt::Key_BassUp"] = Qt::Key_BassUp;
++	string2key["Qt::Key_BassDown"] = Qt::Key_BassDown;
++	string2key["Qt::Key_TrebleUp"] = Qt::Key_TrebleUp;
++	string2key["Qt::Key_TrebleDown"] = Qt::Key_TrebleDown;
++	
++	string2key["Qt::Key_LaunchMail"] = Qt::Key_LaunchMail;
++	string2key["Qt::Key_LaunchMedia"] = Qt::Key_LaunchMedia;
++	string2key["Qt::Key_Launch0"] = Qt::Key_Launch0;
++	string2key["Qt::Key_Launch1"] = Qt::Key_Launch1;
++	string2key["Qt::Key_Launch2"] = Qt::Key_Launch2;
++	string2key["Qt::Key_Launch3"] = Qt::Key_Launch3;
++	string2key["Qt::Key_Launch4"] = Qt::Key_Launch4;
++	string2key["Qt::Key_Launch5"] = Qt::Key_Launch5;
++	string2key["Qt::Key_Launch6"] = Qt::Key_Launch6;
++	string2key["Qt::Key_Launch7"] = Qt::Key_Launch7;
++	string2key["Qt::Key_Launch8"] = Qt::Key_Launch8;
++	string2key["Qt::Key_Launch9"] = Qt::Key_Launch9;
++	string2key["Qt::Key_LaunchA"] = Qt::Key_LaunchA;
++	string2key["Qt::Key_LaunchB"] = Qt::Key_LaunchB;
++	string2key["Qt::Key_LaunchC"] = Qt::Key_LaunchC;
++	string2key["Qt::Key_LaunchD"] = Qt::Key_LaunchD;
++	string2key["Qt::Key_LaunchE"] = Qt::Key_LaunchE;
++	string2key["Qt::Key_LaunchF"] = Qt::Key_LaunchF;
++	
++	string2key["Qt::Key_Select"] = Qt::Key_Select;
++	string2key["Qt::Key_Yes"] = Qt::Key_Yes;
++	string2key["Qt::Key_No"] = Qt::Key_No;
++	string2key["Qt::Key_Cancel"] = Qt::Key_Cancel;
++	string2key["Qt::Key_Execute"] = Qt::Key_Execute;
++	string2key["Qt::Key_Printer"] = Qt::Key_Printer;
++	string2key["Qt::Key_Sleep"] = Qt::Key_Sleep;
++	
++	string2key["Qt::Key_Context1"] = Qt::Key_Context1;
++	string2key["Qt::Key_Context2"] = Qt::Key_Context2;
++	string2key["Qt::Key_Context3"] = Qt::Key_Context3;
++	string2key["Qt::Key_Context4"] = Qt::Key_Context4;
++	string2key["Qt::Key_Call"] = Qt::Key_Call;
++	string2key["Qt::Key_Hangup"] = Qt::Key_Hangup;
++	string2key["Qt::Key_Flip"] = Qt::Key_Flip;
++}
++
++void QAmlogicIRHandler::initIrMap()
++{
++	FILE* fd = NULL;
++
++	char *buf = NULL;
++	size_t size = 0;
++	ssize_t ret = 0;
++	char keyString[32];
++	
++	if((fd=fopen("/etc/irmap.conf", "r")) == NULL)
++	{
++		qWarning("can not find ir map file, use default ir map\n");
++		pIrMap = defaultIrMap;
++	}
++	else
++	{
++		//initialize ir key table
++		string2KeyTable();
++
++		int i=0;
++		for(; i<MAX_KEY_NUMBER-1; i++)
++		{
++			ret = getline(&buf, &size, fd);
++			if(ret == -1)
++				break;
++
++			sscanf(buf, "%x %s %[^\n]", &readMap[i].irCode, keyString, readMap[i].irString);
++			if(string2key.contains(keyString))
++			{
++				readMap[i].keyCode = string2key[keyString];
++			}
++			else
++			{
++				qWarning("warning::: can not find %s in key map table\n", keyString);
++				i--;	//ignore this key 
++				continue;
++			}
++
++			if(buf)
++			{
++				free(buf);
++				buf = NULL;
++			}
++
++			
++		}
++		readMap[i].irCode = INVALID_KEY; //end of key list
++		pIrMap = readMap;
++
++		if((ret = getline(&buf, &size, fd)) > 0)
++			qWarning("Warning::: The number of key beyond %d in irmap.conf\n", MAX_KEY_NUMBER-1);
++
++		if(buf)
++			free(buf);
++	}
++
++	if(fd)
++		fclose(fd);
++
++//only for debug
++#if 0 
++	int x = 0;
++	qDebug("===================================IR MAP=============================\n");
++	while(pIrMap[x].irCode != 0)
++	{
++		qDebug("%10x\t\t%10x\t\t%s\n", pIrMap[x].irCode, pIrMap[x].keyCode, pIrMap[x].irString);
++		x++;
++	}
++	qDebug("=======================================================================\n");
++#endif 
++}
++
++IrMap* QAmlogicIRHandler::transcode(unsigned int irCode)
++{
++	int idx = 0;
++	while(pIrMap[idx].irCode != INVALID_KEY)
++	{
++		if(irCode == pIrMap[idx].irCode)
++			return &(pIrMap[idx]);
++			
++		idx++;
++	}
++
++	qWarning("can not find ir 0x%x in ir map\n", irCode);
++	return NULL;
++}
++
++void QAmlogicIRHandler::readKeyboardData()
++{
++    struct input_event levt[64];
++    int readLen;
++    IrMap* pIr;
++
++	readLen = read (kbdFD, levt, sizeof(levt));
++	for(unsigned int i=0; i<(readLen/sizeof(struct input_event)); i++)
++	{
++		bool press = false;
++		bool repeat = false;
++		int keyCode;
++
++		pIr = transcode(levt[i].code);
++
++		if(pIr == NULL)
++			continue;
++		
++		keyCode = pIr->keyCode;
++		
++		if(levt[i].value == 1) 
++			press = true;
++		else if(levt[i].value == 2)
++			repeat = true;
++			
++		QWSServer::processKeyEvent(keyCode, keyCode, Qt::NoModifier, press, repeat);
++		qDebug("processKeyEvent key:%s  keyCode:0x%x  isPress:%d   isRepeat:%d\n", pIr->irString, keyCode, press, repeat);
++	}
++}
++
++QT_END_NAMESPACE
+diff --git a/src/gui/embedded/qkbdamlogic.h b/src/gui/embedded/qkbdamlogic.h
+new file mode 100755
+index 0000000..3993c35
+--- /dev/null
++++ b/src/gui/embedded/qkbdamlogic.h
+@@ -0,0 +1,93 @@
++/****************************************************************************
++**
++** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtGui module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain
++** additional rights. These rights are described in the Nokia Qt LGPL
++** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
++** package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you are unsure which license is appropriate for your use, please
++** contact the sales department at http://www.qtsoftware.com/contact.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#ifndef QKBDAMLOIC_H
++#define QKBDAMLOIC_H
++
++#include <QtGui/qkbd_qws.h>
++
++#define MAX_KEY_NUMBER 100
++
++typedef struct 
++{
++	unsigned int irCode;
++	int keyCode;
++	char irString[32];
++}IrMap;
++
++QT_BEGIN_HEADER
++
++QT_BEGIN_NAMESPACE
++
++QT_MODULE(Gui)
++
++class QSocketNotifier;
++
++class QAmlogicIRHandler : public QObject, public QWSKeyboardHandler
++{
++    Q_OBJECT
++public:
++    QAmlogicIRHandler(const QString &device);
++    virtual ~QAmlogicIRHandler();
++
++private Q_SLOTS:
++    void readKeyboardData();
++
++private:
++	void initIrMap();
++	IrMap* transcode(unsigned int irCode);
++	void string2KeyTable();
++	
++    QString terminalName;
++    int kbdFD;
++    int kbdIdx;
++    QSocketNotifier *notifier;
++	
++	IrMap* pIrMap;
++	IrMap readMap[MAX_KEY_NUMBER];
++	QMap<QString, int> string2key;
++};
++
++QT_END_NAMESPACE
++
++QT_END_HEADER
++
++#endif // QKBDAMLOIC_H
+\ No newline at end of file
+diff --git a/src/gui/embedded/qkbddriverfactory_qws.cpp b/src/gui/embedded/qkbddriverfactory_qws.cpp
+old mode 100644
+new mode 100755
+index f57074a..331206c
+--- a/src/gui/embedded/qkbddriverfactory_qws.cpp
++++ b/src/gui/embedded/qkbddriverfactory_qws.cpp
+@@ -49,6 +49,7 @@
+ #include "qkbdum_qws.h"
+ #include "qkbdvfb_qws.h"
+ #include "qkbdqnx_qws.h"
++#include "qkbdamlogic.h"
+ #include "qkbdintegrity_qws.h"
+ #include <stdlib.h>
+ #include "private/qfactoryloader_p.h"
+@@ -102,7 +103,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+ */
+ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString& device)
+ {
++	printf("key[%s]device[%s]\n", key.toLatin1().constData(), device.toLatin1().constData());
+     QString driver = key.toLower();
++	if (driver == QLatin1String("amlir"))
++        return new QAmlogicIRHandler(device);
+ #if defined(Q_OS_QNX) && !defined(QT_NO_QWS_KBD_QNX)
+     if (driver == QLatin1String("qnx") || driver.isEmpty())
+         return new QWSQnxKeyboardHandler(device);
+diff --git a/src/gui/embedded/qwindowsystem_qws.cpp b/src/gui/embedded/qwindowsystem_qws.cpp
+old mode 100644
+new mode 100755
+index d191ca4..a233d6f
+--- a/src/gui/embedded/qwindowsystem_qws.cpp
++++ b/src/gui/embedded/qwindowsystem_qws.cpp
+@@ -1431,8 +1431,8 @@ void QWSServerPrivate::initServer(int flags)
+     clientMap[-1] = new QWSClient(q, 0, 0);
+ 
+     if (!bgBrush)
+-        bgBrush = new QBrush(QColor(0x20, 0xb0, 0x50));
+-
++        //bgBrush = new QBrush(QColor(0x20, 0xb0, 0x50));
++		bgBrush = new QBrush(QColor(0, 0, 0, 0));
+     initializeCursor();
+ 
+     // input devices
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlib.pro b/src/plugins/gfxdrivers/ge2d/ge2dlib.pro
+new file mode 100755
+index 0000000..c4cf6d0
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlib.pro
+@@ -0,0 +1,19 @@
++TEMPLATE = lib
++CONFIG += plugin
++
++LIBS += $$QT_SOURCE_TREE/src/3rdparty/libaml/libcmem.a
++INCPATH +=$$QT_SOURCE_TREE/src/3rdparty/libaml
++
++
++TARGET = ge2dlibscreen
++target.path = $$[QT_INSTALL_PLUGINS]/gfxdrivers
++INSTALLS += target
++
++HEADERS = ge2dlibscreen.h \
++          ge2dlibsurface.h \
++          ge2dlibsharedsurface.h
++SOURCES = ge2dlibscreen.cpp \
++          ge2dlibsurface.cpp \	
++          ge2dlibsharedsurface.cpp \
++          ge2dlibplugin.cpp           
++          
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibplugin.cpp b/src/plugins/gfxdrivers/ge2d/ge2dlibplugin.cpp
+new file mode 100755
+index 0000000..94c81d2
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibplugin.cpp
+@@ -0,0 +1,40 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#include "ge2dlibscreen.h"
++
++#include <QScreenDriverPlugin>
++#include <QStringList>
++
++class Ge2dlibPlugin : public QScreenDriverPlugin
++{
++public:
++    Ge2dlibPlugin();
++
++    QStringList keys() const;
++    QScreen *create(const QString&, int displayId);
++};
++
++Ge2dlibPlugin::Ge2dlibPlugin()
++    : QScreenDriverPlugin()
++{
++}
++
++QStringList Ge2dlibPlugin::keys() const
++{
++    return (QStringList() << "ge2dlib");
++}
++
++QScreen* Ge2dlibPlugin::create(const QString& driver, int displayId)
++{
++    if (driver.toLower() != "ge2dlib")
++        return 0;
++
++    return new Ge2dlibScreen(displayId);
++}
++
++Q_EXPORT_STATIC_PLUGIN(ge2dlib)
++Q_EXPORT_PLUGIN2(ge2dlibscreendriver, Ge2dlibPlugin)
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibscreen.cpp b/src/plugins/gfxdrivers/ge2d/ge2dlibscreen.cpp
+new file mode 100755
+index 0000000..dacabd5
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibscreen.cpp
+@@ -0,0 +1,220 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#include <stdio.h>
++
++#include "qwsdisplay_qws.h"
++#include "ge2dlibscreen.h"
++#include "ge2dlibsurface.h"
++#include "ge2dlibsharedsurface.h"
++
++
++#include <QColor>
++#include <QWidget>
++#include <QApplication>
++#include <qdebug.h>
++
++
++QT_BEGIN_NAMESPACE
++
++
++CMEM_AllocParams Ge2dlibScreen::cmemParams = {CMEM_HEAP, CMEM_NONCACHED, 8};
++bool Ge2dlibScreen::connect(const QString &displaySpec)
++{
++    // Check for explicitly specified device
++    QString  dev;
++     dev = QLatin1String("/dev/ge2d");
++
++    if (access(dev.toLatin1().constData(), R_OK|W_OK) == 0)
++        devfd = open(dev.toLatin1().constData(), O_RDWR);
++    if (devfd == -1) {
++        if (QApplication::type() == QApplication::GuiServer) {
++            perror("QScreenLinuxFb::connect");
++            qCritical("Error opening framebuffer device %s", qPrintable(dev));
++            return false;
++        }
++        if (access(dev.toLatin1().constData(), R_OK) == 0)
++            devfd = open(dev.toLatin1().constData(), O_RDONLY);
++    }
++     
++    if (CMEM_init() < 0) {
++		close(devfd);
++        return false;
++    }
++
++    return QLinuxFbScreen::connect(displaySpec);
++}
++
++void Ge2dlibScreen::disconnect()
++{
++	close(devfd);
++	
++	CMEM_exit();
++
++    QLinuxFbScreen::disconnect();
++}
++static  inline   int  AddrInRegion(unsigned long addr, unsigned long start, unsigned long end)
++{
++	return  (addr >= start)&&(addr<end);
++}
++void Ge2dlibScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
++{
++    const QRect bound = (QScreen::region() & QRect(topLeft, img.size())).boundingRect();
++		const QRegion reg = (region & bound).translated(-topLeft);
++
++    const QVector<QRect> rects = reg.rects();
++    config_para_t ge2d_config;
++    ge2d_op_para_t op_para;
++    CMEM_BlockAttrs pattrs ;
++	int CMEM_getBlockAttrs(int blockid, CMEM_BlockAttrs *pattrs);
++
++	if (img.depth() < 16) {
++		QScreen::blit(img, topLeft, region);
++		return;
++	}
++	
++	ge2d_config.src_planes[0].addr= CMEM_getPhys((uchar *)img.scanLine(0));
++	if(0>CMEM_getBlockAttrs(0,&pattrs))
++	{	
++		QScreen::blit(img, topLeft, region);
++		return;
++	}
++	if (!ge2d_config.src_planes[0].addr || !AddrInRegion(ge2d_config.src_planes[0].addr , pattrs.phys_base,pattrs.phys_base+pattrs.size)) {
++		printf("--------------------cmem address:0x%x,size:(%d:%d),back\n",ge2d_config.src_planes[0].addr,img.size().width(),img.size().height());	
++		QScreen::blit(img, topLeft, region);
++		return;
++	}
++	printf("--------------------cmem address:0x%x,size:(%d:%d)accel\n",ge2d_config.src_planes[0].addr,img.size().width(),img.size().height());
++	ge2d_config.src_dst_type = ALLOC_OSD0;
++	ge2d_config.alu_const_color=0xff0000ff;
++	ge2d_config.src_planes[0].w= img.width();
++	ge2d_config.src_planes[0].h= img.height();
++
++
++    switch (img.format()) {
++	/* 32 bpp */
++    case QImage::Format_RGB32:
++    case QImage::Format_ARGB32:
++    case QImage::Format_ARGB32_Premultiplied:
++		ge2d_config.src_format = GE2D_FORMAT_S32_ARGB;
++		break;
++	/* 24 bpp */
++	case QImage::Format_RGB888:
++	case QImage::Format_RGB666:
++		ge2d_config.src_format = GE2D_FORMAT_S24_RGB;
++		break;
++	case QImage::Format_ARGB6666_Premultiplied:
++	case QImage::Format_ARGB8555_Premultiplied:
++		ge2d_config.src_format = GE2D_FORMAT_S24_ARGB_6666;
++		break;
++	case QImage::Format_ARGB8565_Premultiplied:
++		ge2d_config.src_format = GE2D_FORMAT_S24_ARGB_8565;
++		break;
++	/* 16 bpp */
++    case QImage::Format_RGB16:
++		ge2d_config.src_format = GE2D_FORMAT_S16_RGB_565;
++	    break;
++    case QImage::Format_RGB555:
++		ge2d_config.src_format = GE2D_FORMAT_S16_ARGB_1555;
++		break;
++	case QImage::Format_ARGB4444_Premultiplied:
++    case QImage::Format_RGB444:
++		ge2d_config.src_format = GE2D_FORMAT_S16_ARGB_4444;
++		break;
++	default:
++    	qCritical("blit_32(): Image format %d not supported!", img.format());
++    }
++
++    QWSDisplay::grab();
++
++    ioctl(devfd, FBIOPUT_GE2D_CONFIG, &ge2d_config);
++   // printf("stretch blit no alpha\r\n"); 
++    for (int i = 0; i < rects.size(); ++i) {
++        const QRect r = rects.at(i);
++
++        op_para.src1_rect.x = r.x();
++        op_para.src1_rect.y = r.y();
++        op_para.src1_rect.w = r.width();
++        op_para.src1_rect.h = r.height();
++
++#ifdef GE2DSCRREN_DEBUG
++		qDebug("Src: (0x%x->0x%x, %d, %d, %d, %d), imageStride = %d \n",
++			(unsigned)img.scanLine(0), (unsigned)ge2d_config.src_addr,
++			r.x(), r.y(), r.width(), r.height(),
++			img.bytesPerLine());
++#endif
++		op_para.dst_rect.x = topLeft.x() + r.x();
++		op_para.dst_rect.y = topLeft.y() + r.y();
++		op_para.dst_rect.w = r.width();
++		op_para.dst_rect.h = r.height();
++
++#ifdef GE2DSCRREN_DEBUG
++		qDebug("Dst: (0x%x, %d, %d), screenStride = %d\n",
++				(unsigned)base(),
++				(topLeft - offset()).x(), (topLeft - offset()).y(), linestep());
++#endif
++	 printf("stretch blit no alpha:%d-%d-%d-%d\r\n",op_para.dst_rect.x,op_para.dst_rect.y,op_para.dst_rect.w,op_para.dst_rect.h);
++        ioctl(devfd, FBIOPUT_GE2D_BLIT_NOALPHA, &op_para);
++    }
++
++    QWSDisplay::ungrab();
++}
++
++void Ge2dlibScreen::solidFill(const QColor &color, const QRegion &region)
++{
++    ge2d_op_para_t op_para;
++    QRect bound(0, 0, dw, dh);
++    
++	op_para.color = (color.blue()<<24)|(color.green()<<16)|(color.red()<<8)|color.alpha();
++
++    QWSDisplay::grab();
++
++    const QVector<QRect> rects = region.rects();
++    for (int i = 0; i < rects.size(); ++i) {
++        const QRect r = rects.at(i) & bound;
++        
++        op_para.src1_rect.x = r.x();
++        op_para.src1_rect.y = r.y();
++        op_para.src1_rect.w = r.width();
++        op_para.src1_rect.h = r.height();
++        if(r.width() <= 0 || r.height() <= 0)
++            continue;
++         
++        ioctl(devfd, FBIOPUT_GE2D_FILLRECTANGLE, &op_para);
++    }
++
++    QWSDisplay::ungrab();
++}
++
++QWSWindowSurface* Ge2dlibScreen::createSurface(QWidget *widget) const
++{
++    if (QApplication::type() == QApplication::GuiServer)
++    {
++    	 qCritical("++++++++widget surface********************");
++        return new Ge2dlibSurface(widget);
++    }		
++#ifndef QT_NO_QWS_MULTIPROCESS
++    else
++        return new Ge2dlibSharedSurface(widget);
++#endif
++
++    return 0;
++}
++
++QWSWindowSurface* Ge2dlibScreen::createSurface(const QString &key) const
++{
++    if (key == QLatin1String("ge2dlib")) {
++	   qCritical("++++++++key surface********************");	
++        return new Ge2dlibSurface;
++    }
++#ifndef QT_NO_QWS_MULTIPROCESS
++    else if (key == QLatin1String("ge2dlibshm"))
++        return new Ge2dlibSharedSurface;
++#endif
++    return 0;
++}
++
++QT_END_NAMESPACE
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibscreen.h b/src/plugins/gfxdrivers/ge2d/ge2dlibscreen.h
+new file mode 100755
+index 0000000..6c1b584
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibscreen.h
+@@ -0,0 +1,38 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#ifndef GE2DLIBSCREEN_H
++#define GE2DLIBSCREEN_H
++
++#include <QLinuxFbScreen>
++#include <ge2d.h>
++#include "cmemlib.h"
++
++QT_BEGIN_NAMESPACE
++
++class Q_GUI_EXPORT Ge2dlibScreen : public QLinuxFbScreen
++{
++public:
++    Ge2dlibScreen(int displayId) : QLinuxFbScreen(displayId) {}
++    ~Ge2dlibScreen() {}
++
++    bool connect(const QString &displaySpec);
++    void disconnect();
++
++    void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
++    void solidFill(const QColor &color, const QRegion &region);
++
++    QWSWindowSurface* createSurface(QWidget *widget) const;
++    QWSWindowSurface* createSurface(const QString &key) const;
++
++private:
++	int devfd;
++	static CMEM_AllocParams cmemParams;
++};
++
++QT_END_NAMESPACE
++
++#endif // GE2DLIBSCREEN_H
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibsharedsurface.cpp b/src/plugins/gfxdrivers/ge2d/ge2dlibsharedsurface.cpp
+new file mode 100755
+index 0000000..e4a3eec
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibsharedsurface.cpp
+@@ -0,0 +1,226 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#include <stdio.h>
++#include "ge2dlibsharedsurface.h"
++#include "cmemlib.h"
++
++#include <qwidget.h>
++#include <qscreen_qws.h>
++#include <qapplication.h>
++#include <qwsdisplay_qws.h>
++#include <qrgb.h>
++#include <qpaintengine.h>
++#include <qdesktopwidget.h>
++#include <private/qwsdisplay_qws_p.h>
++
++QT_BEGIN_NAMESPACE
++
++#ifndef QT_NO_QWS_MULTIPROCESS
++
++static inline QScreen *getScreen(const QWidget *w)
++{
++    const QList<QScreen*> subScreens = qt_screen->subScreens();
++    if (subScreens.isEmpty())
++        return qt_screen;
++
++    const int screen = QApplication::desktop()->screenNumber(w);
++
++    return qt_screen->subScreens().at(screen < 0 ? 0 : screen);
++}
++
++static int bytesPerPixel(QImage::Format format)
++{
++    switch (format) {
++    case QImage::Format_Invalid:
++        return 0;
++#ifndef QT_NO_DEBUG
++    case QImage::Format_Mono:
++    case QImage::Format_MonoLSB:
++        qFatal("QWSWindowSurface: Invalid backingstore format: %i",
++               int(format));
++#endif
++    case QImage::Format_Indexed8:
++        return 1;
++    case QImage::Format_RGB32:
++    case QImage::Format_ARGB32:
++    case QImage::Format_ARGB32_Premultiplied:
++        return 4;
++    case QImage::Format_RGB16:
++    case QImage::Format_RGB555:
++    case QImage::Format_RGB444:
++    case QImage::Format_ARGB4444_Premultiplied:
++        return 2;
++    case QImage::Format_ARGB8565_Premultiplied:
++    case QImage::Format_ARGB8555_Premultiplied:
++    case QImage::Format_ARGB6666_Premultiplied:
++    case QImage::Format_RGB666:
++    case QImage::Format_RGB888:
++        return 3;
++    default:
++#ifndef QT_NO_DEBUG
++        qFatal("QWSWindowSurface: Invalid backingstore format: %i",
++               int(format));
++#endif
++        return 0;
++    }
++}
++
++static inline int nextMulOf8(int n)
++{
++    return ((n + 7) & 0xfffffff8);
++}
++
++static inline void setImageMetrics(QImage &img, QWidget *window) {
++    QScreen *myScreen = getScreen(window);
++    if (myScreen) {
++        int dpmx = myScreen->width()*1000 / myScreen->physicalWidth();
++        int dpmy = myScreen->height()*1000 / myScreen->physicalHeight();
++        img.setDotsPerMeterX(dpmx);
++        img.setDotsPerMeterY(dpmy);
++    }
++}
++
++CMEM_AllocParams Ge2dlibSharedSurface::cmemParams = {CMEM_HEAP, CMEM_NONCACHED, 8};
++ 
++Ge2dlibSharedSurface::Ge2dlibSharedSurface()
++    : QWSMemorySurface(), mem(0), memId(0)
++{
++}
++
++Ge2dlibSharedSurface::Ge2dlibSharedSurface(QWidget *w)
++    : QWSMemorySurface(w), mem(0), memId(0)
++{
++}
++
++Ge2dlibSharedSurface::~Ge2dlibSharedSurface()
++{
++    if (mem)
++        CMEM_free(mem, &cmemParams);
++}
++
++void Ge2dlibSharedSurface::setGeometry(const QRect &rect)
++{
++    const QSize size = rect.size();
++
++    if (img.size() != size) {
++        if (size.isEmpty()) {
++			if (mem) {
++		        CMEM_free(mem, &cmemParams);
++            	mem = 0;
++            	memId = 0;
++           	}
++            img = QImage();
++        } else {
++			if (mem) {
++		        CMEM_free(mem, &cmemParams);
++            	mem = 0;
++            	memId = 0;
++           	}
++
++            QWidget *win = window();
++            const QImage::Format format = preferredImageFormat(win);
++            const int bpl = nextMulOf8(bytesPerPixel(format) * size.width());
++#ifdef QT_QWS_CLIENTBLIT
++            const int imagesize = bpl * size.height() + sizeof(uint);
++#else
++            const int imagesize = bpl * size.height();
++#endif
++
++#ifdef QT_QWS_CLIENTBLIT
++			mem = (uchar *)CMEM_alloc(0, imagesize + sizeof(uint), &cmemParams);
++#else
++			mem = (uchar *)CMEM_alloc(0, imagesize, &cmemParams);
++#endif
++			memId = CMEM_getPhys(mem);
++
++            if (!mem) {
++                perror("QWSSharedMemSurface::setGeometry allocating shared memory");
++                qFatal("Error creating shared memory of size %d", imagesize);
++            }
++            img = QImage(mem, size.width(), size.height(), bpl, format);
++            setImageMetrics(img, win);
++        }
++    }
++
++    QWSWindowSurface::setGeometry(rect);
++}
++
++QByteArray Ge2dlibSharedSurface::permanentState() const
++{
++    QByteArray array;
++    array.resize(6 * sizeof(int));
++
++    int *ptr = reinterpret_cast<int*>(array.data());
++
++	if (mem)
++    	ptr[0] = CMEM_getPhys(mem);
++   	else
++    	ptr[0] = 0;
++    ptr[1] = img.width();
++    ptr[2] = img.height();
++    ptr[3] = (memlock ? memlock->id() : -1);
++    ptr[4] = int(img.format());
++    ptr[5] = int(surfaceFlags());
++
++    return array;
++}
++
++void Ge2dlibSharedSurface::setPermanentState(const QByteArray &data)
++{
++    int width;
++    int height;
++    int lockId;
++    QImage::Format format;
++    SurfaceFlags flags;
++
++    const int *ptr = reinterpret_cast<const int*>(data.constData());
++
++    width = ptr[1];
++    height = ptr[2];
++    lockId = ptr[3];
++    format = QImage::Format(ptr[4]);
++    flags = SurfaceFlags(ptr[5]);
++
++    setSurfaceFlags(flags);
++
++	if (ptr[0] != memId) {
++		if (mem)
++			CMEM_free(mem, &cmemParams);
++	}
++	memId = ptr[0];
++	if (memId) {
++    	mem = (uchar *)CMEM_registerAlloc(memId);
++
++		if (!mem) {
++        	perror("QWSSharedMemSurface: attaching to shared memory");
++        	qCritical("QWSSharedMemSurface: Error attaching to"
++            	      " shared memory 0x%x", memId);
++        }
++   	} else
++   		mem = 0;
++
++#ifdef GE2DSCRREN_DEBUG
++	qDebug("Ge2dlibSharedSurface::setPermanentState, 0x%x->0x%x\n",
++			memId, (unsigned)mem);
++#endif
++
++    setLock(lockId);
++
++    const int bpl = nextMulOf8(bytesPerPixel(format) * width);
++    QWSMemorySurface::img = QImage(mem, width, height, bpl, format);
++}
++
++void Ge2dlibSharedSurface::releaseSurface()
++{
++    mem = 0;
++    memId = 0;
++    img = QImage();
++}
++
++#endif
++
++QT_END_NAMESPACE
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibsharedsurface.h b/src/plugins/gfxdrivers/ge2d/ge2dlibsharedsurface.h
+new file mode 100755
+index 0000000..16d833a
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibsharedsurface.h
+@@ -0,0 +1,42 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#ifndef GE2DLIBSHAREDSURFACE_H
++#define GE2DLIBSHAREDSURFACE_H
++
++#include <private/qwindowsurface_qws_p.h>
++#include "cmemlib.h"
++
++QT_BEGIN_NAMESPACE
++
++class Q_GUI_EXPORT Ge2dlibSharedSurface : public QWSMemorySurface
++{
++public:
++    Ge2dlibSharedSurface();
++    Ge2dlibSharedSurface(QWidget *widget);
++    ~Ge2dlibSharedSurface();
++
++    void setGeometry(const QRect &rect);
++
++    QString key() const { return QLatin1String("ge2dlibshm"); }
++    QByteArray permanentState() const;
++
++    void setPermanentState(const QByteArray &data);
++    virtual void releaseSurface();
++
++    int id() const { return memId; }
++
++protected:
++    uchar *mem;
++    int memId;
++    
++private:
++    static CMEM_AllocParams cmemParams;
++};
++
++QT_END_NAMESPACE
++
++#endif // GE2DLIBSHAREDSURFACE_H
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibsurface.cpp b/src/plugins/gfxdrivers/ge2d/ge2dlibsurface.cpp
+new file mode 100755
+index 0000000..65c9fd3
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibsurface.cpp
+@@ -0,0 +1,236 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#include <stdio.h>
++
++#include "ge2dlibsurface.h"
++#include <qwidget.h>
++#include <qscreen_qws.h>
++#include <qapplication.h>
++#include <qwsdisplay_qws.h>
++#include <qrgb.h>
++#include <qpaintengine.h>
++#include <qdesktopwidget.h>
++#include <private/qwsdisplay_qws_p.h>
++
++QT_BEGIN_NAMESPACE
++
++static inline QScreen *getScreen(const QWidget *w)
++{
++    const QList<QScreen*> subScreens = qt_screen->subScreens();
++    if (subScreens.isEmpty())
++        return qt_screen;
++
++    const int screen = QApplication::desktop()->screenNumber(w);
++
++    return qt_screen->subScreens().at(screen < 0 ? 0 : screen);
++}
++
++static int bytesPerPixel(QImage::Format format)
++{
++    switch (format) {
++    case QImage::Format_Invalid:
++        return 0;
++#ifndef QT_NO_DEBUG
++    case QImage::Format_Mono:
++    case QImage::Format_MonoLSB:
++        qFatal("QWSWindowSurface: Invalid backingstore format: %i",
++               int(format));
++#endif
++    case QImage::Format_Indexed8:
++        return 1;
++    case QImage::Format_RGB32:
++    case QImage::Format_ARGB32:
++    case QImage::Format_ARGB32_Premultiplied:
++        return 4;
++    case QImage::Format_RGB16:
++    case QImage::Format_RGB555:
++    case QImage::Format_RGB444:
++    case QImage::Format_ARGB4444_Premultiplied:
++        return 2;
++    case QImage::Format_ARGB8565_Premultiplied:
++    case QImage::Format_ARGB8555_Premultiplied:
++    case QImage::Format_ARGB6666_Premultiplied:
++    case QImage::Format_RGB666:
++    case QImage::Format_RGB888:
++        return 3;
++    default:
++#ifndef QT_NO_DEBUG
++        qFatal("QWSWindowSurface: Invalid backingstore format: %i",
++               int(format));
++#endif
++        return 0;
++    }
++}
++
++static inline int nextMulOf8(int n)
++{
++    return ((n + 7) & 0xfffffff8);
++}
++
++static inline void setImageMetrics(QImage &img, QWidget *window) {
++    QScreen *myScreen = getScreen(window);
++    if (myScreen) {
++        int dpmx = myScreen->width()*1000 / myScreen->physicalWidth();
++        int dpmy = myScreen->height()*1000 / myScreen->physicalHeight();
++        img.setDotsPerMeterX(dpmx);
++        img.setDotsPerMeterY(dpmy);
++    }
++}
++
++CMEM_AllocParams Ge2dlibSurface::cmemParams = {CMEM_HEAP, CMEM_NONCACHED, 8};
++ 
++Ge2dlibSurface::Ge2dlibSurface()
++    : QWSMemorySurface(), 
++ 	mem(0)
++{
++	
++}
++
++Ge2dlibSurface::Ge2dlibSurface(QWidget *w)
++    : QWSMemorySurface(w), 
++      mem(0)
++{
++}
++
++Ge2dlibSurface::~Ge2dlibSurface()
++{
++	
++}
++/*
++QPaintDevice * Ge2dlibSurface::paintDevice()
++{
++	return new QGE2DBPaintDevice(&img) ;
++}*/
++
++void Ge2dlibSurface::setGeometry(const QRect &rect)
++{
++    QSize size = rect.size();
++
++    QWidget *win = window();
++    if (win && !win->mask().isEmpty()) {
++        const QRegion region = win->mask()
++                               & rect.translated(-win->geometry().topLeft());
++        size = region.boundingRect().size();
++    }
++    qCritical("new enter setGeometry, ");
++		
++    uchar *deleteLater = 0;
++    // In case of a Hide event we need to delete the memory after sending the
++    // event to the server in order to let the server animate the event.
++    if (size.isEmpty()) {
++        deleteLater = mem;
++        mem = 0;
++    }
++     qCritical("enter setGeometry,size(%d,%d),image(%d,%d)",size.width(),size.height(),
++	 			img.size().width(),img.size().height());	
++    if (img.size() != size) {
++		if (mem) {
++			 qCritical("CMEM release memory ++ 0x%08x\n",mem);
++   			CMEM_free(mem, &cmemParams);
++   		}
++
++        if (size.isEmpty()) {
++            mem = 0;
++            img = QImage();
++        } else {
++            const QImage::Format format = preferredImageFormat(win);
++            const int bpl = nextMulOf8(bytesPerPixel(format) * size.width());
++            const int memsize = bpl * size.height();
++            mem = (uchar *)CMEM_alloc(0, memsize, &cmemParams);
++	     qCritical("mem:0x%x,format:%d,bpl:%d,memsize:%d",mem,format,bpl,memsize);
++            if (!mem) {
++#ifndef QT_NO_DEBUG
++                qFatal("CMEM allocation failure, size 0x%x\n",
++                	memsize);
++#endif
++            }
++            else {            
++                img = QImage(mem, size.width(), size.height(), bpl, format);
++		   printf("+++++++++++++++++++++++++mem alloc at:0x%x\n",CMEM_getPhys((uchar *)img.scanLine(0)))	;	
++                setImageMetrics(img, win);
++            }
++        }
++    }
++
++    QWSWindowSurface::setGeometry(rect);
++  	if (deleteLater) {
++	 qCritical("CMEM release memory -- 0x%08x\n",deleteLater);	
++    	CMEM_free(deleteLater, &cmemParams);
++	}
++}
++
++QByteArray Ge2dlibSurface::permanentState() const
++{
++    QByteArray array;
++    array.resize(sizeof(uchar*) + 3 * sizeof(int) +
++                 sizeof(SurfaceFlags));
++
++    char *ptr = array.data();
++
++    *reinterpret_cast<uchar**>(ptr) = mem;
++    ptr += sizeof(uchar*);
++
++    reinterpret_cast<int*>(ptr)[0] = img.width();
++    reinterpret_cast<int*>(ptr)[1] = img.height();
++    ptr += 2 * sizeof(int);
++
++    *reinterpret_cast<int *>(ptr) = img.format();
++    ptr += sizeof(int);
++
++    *reinterpret_cast<SurfaceFlags*>(ptr) = surfaceFlags();
++
++    return array;
++}
++
++void Ge2dlibSurface::setPermanentState(const QByteArray &data)
++{
++    int width;
++    int height;
++    QImage::Format format;
++    SurfaceFlags flags;
++
++    const char *ptr = data.constData();
++
++    mem = *reinterpret_cast<uchar* const*>(ptr);
++    ptr += sizeof(uchar*);
++
++    width = reinterpret_cast<const int*>(ptr)[0];
++    height = reinterpret_cast<const int*>(ptr)[1];
++    ptr += 2 * sizeof(int);
++
++    format = QImage::Format(*reinterpret_cast<const int*>(ptr));
++    ptr += sizeof(int);
++
++    flags = *reinterpret_cast<const SurfaceFlags*>(ptr);
++
++    const int bpl = nextMulOf8(bytesPerPixel(format) * width);
++    QWSMemorySurface::img = QImage(mem, width, height, bpl, format);
++    setSurfaceFlags(flags);
++}
++static  inline   int  AddrInRegion(unsigned long addr, unsigned long start, unsigned long end)
++{
++	return  (addr >= start)&&(addr<end);
++}
++void Ge2dlibSurface::releaseSurface()
++{
++   if (mem) {
++   	unsigned int phy_addr;
++	CMEM_BlockAttrs pattrs ;
++	
++  	 phy_addr= CMEM_getPhys(mem);
++   	if(0>CMEM_getBlockAttrs(0,&pattrs))
++  	{	
++		return ;
++	}
++	if(AddrInRegion(phy_addr, pattrs.phys_base,pattrs.phys_base+pattrs.size))
++   	CMEM_free(mem, &cmemParams);
++   }
++
++    mem = 0;
++    img = QImage();
++}
++QT_END_NAMESPACE
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dlibsurface.h b/src/plugins/gfxdrivers/ge2d/ge2dlibsurface.h
+new file mode 100755
+index 0000000..6dac5b3
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dlibsurface.h
+@@ -0,0 +1,43 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#ifndef GE2DLIBSURFACE_H
++#define GE2DLIBSURFACE_H
++
++#include <private/qpaintengine_raster_p.h>
++#include <private/qwindowsurface_qws_p.h>
++#include "ge2dlibscreen.h"
++#include "ge2dpaintdevice.h"
++#include "cmemlib.h"
++
++QT_BEGIN_NAMESPACE
++
++class Q_GUI_EXPORT Ge2dlibSurface : public QWSMemorySurface// ,public QGE2DBPaintDevice
++{
++public:
++    Ge2dlibSurface();
++    Ge2dlibSurface(QWidget *widget);
++    ~Ge2dlibSurface();
++
++    void setGeometry(const QRect &rect);
++    //QPaintDevice *paintDevice() ;
++    QString key() const { return QLatin1String("ge2dlib"); }
++    QByteArray permanentState() const;
++    void setPermanentState(const QByteArray &data);
++    virtual void releaseSurface();
++    	
++protected:
++    uchar *mem;
++ 
++    
++private:
++    static CMEM_AllocParams cmemParams;
++    	
++};
++
++QT_END_NAMESPACE
++
++#endif // GE2DLIBSURFACE_H
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dpaintdevice.cpp b/src/plugins/gfxdrivers/ge2d/ge2dpaintdevice.cpp
+new file mode 100755
+index 0000000..ebb507d
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dpaintdevice.cpp
+@@ -0,0 +1,132 @@
++/****************************************************************************
++**
++** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the plugins of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain
++** additional rights. These rights are described in the Nokia Qt LGPL
++** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
++** package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you are unsure which license is appropriate for your use, please
++** contact the sales department at http://www.qtsoftware.com/contact.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++
++#include "ge2dpaintengine.h"
++#include "ge2dpaintdevice.h"
++
++QGE2DBPaintDevice::QGE2DBPaintDevice(QImage *img)
++:QCustomRasterPaintDevice(0),engine(0)
++ 
++{
++    image=img;
++}
++
++QGE2DBPaintDevice::~QGE2DBPaintDevice()
++{
++    
++}
++QPoint  QGE2DBPaintDevice::GetOffset() const
++{
++	return QPoint(image->offset());
++}
++
++void *QGE2DBPaintDevice::memory() const
++{
++    
++    return image->scanLine(0);
++   
++}
++
++//****************************************************
++//functions decend from paint device .
++//****************************************************
++
++
++QPaintEngine* QGE2DBPaintDevice::paintEngine() const
++{
++    if (!engine) {
++        QGE2DBPaintDevice *that = const_cast<QGE2DBPaintDevice*>(this);
++        that->engine = new QGE2DPaintEngine(that);
++        return that->engine;
++    }
++    return engine;
++}
++
++
++
++QImage::Format QGE2DBPaintDevice::format() const
++{
++    //qCritical("call format");
++    return image->format();
++}
++
++
++int QGE2DBPaintDevice::bytesPerLine() const
++{
++	//qCritical("call bytesPerLine");
++    return image->bytesPerLine();
++}
++
++
++QSize QGE2DBPaintDevice::size() const
++{
++	//qCritical("call size");
++    	return image->size();
++}
++
++int QGE2DBPaintDevice::metric(QPaintDevice::PaintDeviceMetric metric) const
++{
++	//qCritical("call metric");
++	int w,h;
++	w=image->width();
++	h=image->height();
++	 switch (metric) {
++    		case QPaintDevice::PdmWidth:
++        	return w;
++		break;	
++      		case QPaintDevice::PdmHeight:
++        	return h;
++        	break;
++    		case QPaintDevice::PdmNumColors:
++        	return image->numColors();
++		break;
++             case QPaintDevice::PdmDepth:
++             return image->depth();
++        	break;
++		break;
++   		default:
++        	qWarning("QImage::metric(): Unhandled metric type %d", metric);
++        	break;
++    	}
++    	return 0;
++}
++
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dpaintdevice.h b/src/plugins/gfxdrivers/ge2d/ge2dpaintdevice.h
+new file mode 100755
+index 0000000..e728359
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dpaintdevice.h
+@@ -0,0 +1,77 @@
++/****************************************************************************
++**
++** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the plugins of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain
++** additional rights. These rights are described in the Nokia Qt LGPL
++** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
++** package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you are unsure which license is appropriate for your use, please
++** contact the sales department at http://www.qtsoftware.com/contact.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#ifndef GE2DPAINTDEVICE_H
++#define GE2DPAINTDEVICE_H
++
++#include <private/qpaintengine_raster_p.h>
++#include "ge2dlibscreen.h"
++//#include "ge2dpaintengine.h"
++
++QT_BEGIN_HEADER
++
++QT_MODULE(Gui)
++
++
++class QGE2DBPaintDevice : public QCustomRasterPaintDevice
++{
++public:
++	QGE2DBPaintDevice(QImage *img);
++    ~QGE2DBPaintDevice();
++    // Reimplemented from QCustomRasterPaintDevice:
++ 	QPaintEngine *paintEngine() const;
++	void *memory() const;
++	QPoint  GetOffset() const;
++	 	QImage::Format format() const;    
++		int bytesPerLine() const;  
++		QSize size() const; 
++		int metric(QPaintDevice::PaintDeviceMetric metric) const;
++ protected:
++ 	
++	
++	QImage  *image;
++	QRasterPaintEngine *engine;
++	
++};
++
++QT_END_HEADER
++
++#endif //GE2DPAINTDEVICE_H
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dpaintengine.cpp b/src/plugins/gfxdrivers/ge2d/ge2dpaintengine.cpp
+new file mode 100755
+index 0000000..c7bfa64
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dpaintengine.cpp
+@@ -0,0 +1,337 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++
++
++
++
++
++#include <qtransform.h>
++#include <qvarlengtharray.h>
++#include <qcache.h>
++#include <qmath.h>
++#include <private/qpixmapdata_p.h>
++#include <private/qpixmap_raster_p.h>
++#include "ge2dpaintdevice.h"
++#include "ge2dlibscreen.h"
++#include "ge2dpaintengine.h"
++#include "ge2dlibsurface.h"
++#include "ge2d.h"
++#include "cmemlib.h"
++#include <stdio.h>
++#include <fcntl.h>
++#include <stdio.h>      // jpeglib needs this to be pre-included
++#include <sys/ioctl.h>
++
++#include <QApplication>
++#include <qdebug.h>
++#include <qwsdisplay_qws.h>
++
++static const qreal aliasedCoordinateDelta = 0.5 - 0.015625;
++static inline QRect toNormalizedFillRect(const QRectF &rect)
++{
++    const int x1 = qRound(rect.x() + aliasedCoordinateDelta);
++    const int y1 = qRound(rect.y() + aliasedCoordinateDelta);
++    const int x2 = qRound(rect.right() + aliasedCoordinateDelta);
++    const int y2 = qRound(rect.bottom() + aliasedCoordinateDelta);
++
++    return QRect(x1, y1, x2 - x1, y2 - y1).normalized();
++}
++
++static unsigned int  ImgFormat2Ge2dFormat(QImage::Format img_format)
++{
++	unsigned int format=0xffffffff;
++	
++	 switch (img_format) {
++	/* 32 bpp */
++    	case QImage::Format_RGB32:
++    	case QImage::Format_ARGB32:
++    	case QImage::Format_ARGB32_Premultiplied:
++		format = GE2D_FORMAT_S32_ARGB;
++		break;
++	/* 24 bpp */
++	case QImage::Format_RGB888:
++	case QImage::Format_RGB666:
++		format = GE2D_FORMAT_S24_RGB;
++		break;
++	case QImage::Format_ARGB6666_Premultiplied:
++	case QImage::Format_ARGB8555_Premultiplied:
++		format = GE2D_FORMAT_S24_ARGB_6666;
++		break;
++	case QImage::Format_ARGB8565_Premultiplied:
++		format = GE2D_FORMAT_S24_ARGB_8565;
++		break;
++	/* 16 bpp */
++    	case QImage::Format_RGB16:
++		format = GE2D_FORMAT_S16_RGB_565;
++	    break;
++    	case QImage::Format_RGB555:
++		format = GE2D_FORMAT_S16_ARGB_1555;
++		break;
++	case QImage::Format_ARGB4444_Premultiplied:
++    	case QImage::Format_RGB444:
++		format = GE2D_FORMAT_S16_ARGB_4444;
++		break;
++	default:
++    		qCritical("blit_32(): Image format %d not supported!", img_format);
++    	}
++	 return format;
++	
++}
++
++/*
++
++class QGE2DPaintEnginePrivate : public QRasterPaintEnginePrivate
++{
++public:
++   QGE2DPaintEnginePrivate(QGE2DPaintEngine *p);
++    ~QGE2DPaintEnginePrivate();
++	void begin(QPaintDevice *device);
++	void end() ;
++	void fillRect(const QRectF &r, const QColor &color);
++ private:   
++    QGE2DPaintEngine*q;
++    QGE2DBPaintDevice  *paint_dev;
++    Ge2dlibScreen  *screen;	
++    friend class QGE2DPaintEngine;
++} 
++
++*/
++
++QGE2DPaintEngine::QGE2DPaintEngine(QPaintDevice *device)
++:QRasterPaintEngine(device),paint_dev(device)
++{
++	
++}
++
++
++QGE2DPaintEngine::~QGE2DPaintEngine()
++{
++}
++void QRasterPaintEngine::updateOutlineMapper()
++{
++    Q_D(QRasterPaintEngine);
++    d->outlineMapper->setMatrix(state()->matrix);
++}
++inline void QGE2DPaintEngine::ensureOutlineMapper() {
++    if (d_func()->outlinemapper_xform_dirty)
++        updateOutlineMapper();
++}
++void QGE2DPaintEngine::updateState()
++{
++    QRasterPaintEngineState *s = state();
++
++    if (s->dirty & DirtyTransform)
++        updateMatrix(s->matrix);
++
++    if (s->dirty & (DirtyPen|DirtyCompositionMode)) {
++        const QPainter::CompositionMode mode = s->composition_mode;
++        s->flags.fast_text = (s->penData.type == QSpanData::Solid)
++                       && (mode == QPainter::CompositionMode_Source
++                           || (mode == QPainter::CompositionMode_SourceOver
++                               && qAlpha(s->penData.solid.color) == 255));
++    }
++
++    s->dirty = 0;
++}
++bool QGE2DPaintEngine::begin(QPaintDevice *device)
++{
++	
++   const bool status = QRasterPaintEngine::begin(device);
++   paint_dev=device; 
++   return status;
++}
++
++bool QGE2DPaintEngine::end()
++{
++     paint_dev=NULL; 
++    return QRasterPaintEngine::end();
++}
++
++void  QGE2DPaintEngine::fillRect_normalized(const QRect &r, QSpanData *data)
++{
++    Q_D(QGE2DPaintEngine);	
++    int x1, x2, y1, y2;
++
++    bool rectClipped = false;
++
++    if (data->clip) {
++        x1 = qMax(r.x(), data->clip->xmin);
++        x2 = qMin(r.x() + r.width(), data->clip->xmax);
++        y1 = qMax(r.y(), data->clip->ymin);
++        y2 = qMin(r.y() + r.height(), data->clip->ymax);
++        rectClipped = data->clip->hasRectClip;
++
++    } else if (d) {
++        x1 = qMax(r.x(), d->deviceRect.x());
++        x2 = qMin(r.x() + r.width(), d->deviceRect.x() + d->deviceRect.width());
++        y1 = qMax(r.y(), d->deviceRect.y());
++        y2 = qMin(r.y() + r.height(), d->deviceRect.y() + d->deviceRect.height());
++    } else {
++        x1 = qMax(r.x(), 0);
++        x2 = qMin(r.x() + r.width(), data->rasterBuffer->width());
++        y1 = qMax(r.y(), 0);
++        y2 = qMin(r.y() + r.height(), data->rasterBuffer->height());
++    }
++
++    if (x2 <= x1 || y2 <= y1)
++        return ;
++
++    const int width = x2 - x1;
++    const int height = y2 - y1;
++
++
++
++    bool isUnclipped = rectClipped
++                       || (d && d->isUnclipped_normalized(QRect(x1, y1, width, height)));
++
++    if (d && isUnclipped) {
++        const QPainter::CompositionMode mode = d->rasterBuffer->compositionMode;
++	 printf("enter unclip\n");
++	 fillRectConfig();
++	 fillRectOP(QRect(x1,y1,width,height),data->solid.color)	;
++	 return ;
++	 
++        if ( (mode == QPainter::CompositionMode_Source
++                               || (mode == QPainter::CompositionMode_SourceOver
++                                   && qAlpha(data->solid.color) == 255)))
++        {
++            	fillRectConfig();
++		fillRectOP(QRect(x1,y1,width,height),data->solid.color)	;	
++		return ;		
++        }
++    }
++	
++    ProcessSpans blend = isUnclipped ? data->unclipped_blend : data->blend;
++
++    const int nspans = 256;
++    QT_FT_Span spans[nspans];
++
++    Q_ASSERT(data->blend);
++    int y = y1;
++    while (y < y2) {
++        int n = qMin(nspans, y2 - y);
++        int i = 0;
++        while (i < n) {
++            spans[i].x = x1;
++            spans[i].len = width;
++            spans[i].y = y + i;
++            spans[i].coverage = 255;
++            ++i;
++        }
++
++        blend(n, spans, data);
++        y += n;
++    }
++
++}
++void QGE2DPaintEngine::fillRect(const QRectF &r, QSpanData *data)
++{
++    Q_D(QGE2DPaintEngine);
++    QRasterPaintEngineState *s = state();
++    	
++    if (!s->flags.antialiased) {
++        uint txop = s->matrix.type();
++        if (txop == QTransform::TxNone) {
++            fillRect_normalized(toNormalizedFillRect(r), data);
++            return;
++        } else if (txop == QTransform::TxTranslate) {
++            const QRect rr = toNormalizedFillRect(r.translated(s->matrix.dx(), s->matrix.dy()));
++            fillRect_normalized(rr, data);
++            return;
++        } else if (txop == QTransform::TxScale) {
++            const QRect rr = toNormalizedFillRect(s->matrix.mapRect(r));
++            fillRect_normalized(rr, data);
++            return;
++        }
++    }
++    ensureState();
++    if (s->flags.tx_noshear) {
++        d->initializeRasterizer(data);
++        QRectF nr = r.normalized();
++        if (!nr.isEmpty()) {
++            const QPointF a = s->matrix.map((nr.topLeft() + nr.bottomLeft()) * 0.5f);
++            const QPointF b = s->matrix.map((nr.topRight() + nr.bottomRight()) * 0.5f);
++            d->rasterizer->rasterizeLine(a, b, nr.height() / nr.width());
++        }
++        return;
++    }
++    printf("fill path\n");
++    QPainterPath path;
++    path.addRect(r);
++    ensureOutlineMapper();
++    fillPath(path, data);
++}
++void QGE2DPaintEngine::fillRect(const QRectF &rect, const QBrush &brush)
++{
++
++     //screen->solidFill(brush.color(),QRegion(rect.x(),rect.y(),rect.width(),rect.height(),QRegion::Rectangle))  ;
++     printf("brush\n");
++	QRasterPaintEngineState *s = state();
++
++    	ensureBrush(brush);
++    	if (!s->brushData.blend)
++      	  return;
++     	fillRect(rect,&s->brushData);
++}
++
++void QGE2DPaintEngine::fillRect(const QRectF &rect, const QColor &color)
++{
++	QRasterPaintEngine::fillRect(rect,color);
++	return ;
++	// Q_D(QGE2DPaintEngine);
++	// d->fillRect(rect,color);
++	//     printf("color\n");
++	
++}
++void  QGE2DPaintEngine::fillRectConfig()
++{
++	
++	QGE2DBPaintDevice   *pt_dev=(QGE2DBPaintDevice   *)paint_dev;
++	config_para_t ge2d_config;
++	QImage::Format format=pt_dev->format();
++       QWSDisplay::grab();
++	ge2d_config.src_dst_type = ALLOC_ALLOC;
++	ge2d_config.alu_const_color=0xff0000ff;
++	ge2d_config.src_format = ImgFormat2Ge2dFormat(format);
++	ge2d_config.dst_format = ImgFormat2Ge2dFormat(format);
++	ge2d_config.src_planes[0].w=pt_dev->size().width();
++	ge2d_config.src_planes[0].h=pt_dev->size().height();
++	ge2d_config.src_planes[0].addr=CMEM_getPhys(pt_dev->memory());
++	ge2d_config.dst_planes[0].w=pt_dev->size().width();
++	ge2d_config.dst_planes[0].h=pt_dev->size().height();
++	ge2d_config.dst_planes[0].addr=CMEM_getPhys(pt_dev->memory());
++
++	ioctl(Ge2dlibScreen::getDevFD(), FBIOPUT_GE2D_CONFIG, &ge2d_config);  
++	QWSDisplay::ungrab();
++	
++}
++void  QGE2DPaintEngine::fillRectOP(const  QRect  &rect,const QColor &color)
++{
++	
++	ge2d_op_para_t op_para;
++	QGE2DBPaintDevice   *pt_dev=(QGE2DBPaintDevice   *)paint_dev;
++	printf("offset:%d-%d\n",coordinateOffset().x(),coordinateOffset().y());
++	QWSDisplay::grab();
++	op_para.src1_rect.x = rect.x();
++      op_para.src1_rect.y = rect.y();
++      op_para.src1_rect.w = rect.width();
++      op_para.src1_rect.h = rect.height();
++	op_para.color = (color.blue()<<24)|(color.green()<<16)|(color.red()<<8)|color.alpha();
++         
++      ioctl(Ge2dlibScreen::getDevFD(), FBIOPUT_GE2D_FILLRECTANGLE, &op_para);
++	  QWSDisplay::grab();
++}
++/*
++void QGE2DPaintEngine::fillRects(const QRect *rects, int n)
++{
++	printf("fillrects\n");
++    for (int i = 0; i < n; ++i) {
++        const QRect r = transform.mapRect(rects[i]);
++        fillRectFill(QRect(r.x(),r.y(),r.width(),r.height()),state()->brush.color());
++		
++    }
++}*/
+diff --git a/src/plugins/gfxdrivers/ge2d/ge2dpaintengine.h b/src/plugins/gfxdrivers/ge2d/ge2dpaintengine.h
+new file mode 100755
+index 0000000..5f388a1
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/ge2dpaintengine.h
+@@ -0,0 +1,72 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#ifndef GE2D_PAINTENGINE_H
++#define GE2D_PAINTENGINE_H
++
++#include <QtGui/QtGui>
++#include <private/qpaintengine_raster_p.h>
++#include "Qt/private/qoutlinemapper_p.h"
++#include "ge2dlibscreen.h"
++
++QT_BEGIN_NAMESPACE
++
++QT_MODULE(Gui)
++
++
++
++class QGE2DPaintEnginePrivate;
++class QGE2DPaintEngine : public QRasterPaintEngine
++{
++ Q_DECLARE_PRIVATE(QGE2DPaintEngine)
++  public:
++    QGE2DPaintEngine(QPaintDevice *device);
++	
++    ~QGE2DPaintEngine();
++
++   void fillRect(const QRectF &r, const QBrush &brush);
++   void fillRect(const QRectF &r, const QColor &color);
++   void fillRect(const QRectF &r, QSpanData *data);
++   //void fillRects(const QRect *rects, int n);*/
++   bool begin(QPaintDevice *device);
++   bool end();
++ private:
++	void updateState(void);
++	void updateOutlineMapper();
++	inline void ensureOutlineMapper();
++	inline void ensureBrush(const QBrush &brush) {
++        if (!qbrush_fast_equals(state()->lastBrush, brush) || state()->fillFlags)
++            updateBrush(brush);
++      } 	
++	void  fillRect_normalized(const QRect &r, QSpanData *data) ;
++	void  fillRectConfig();	
++   	void  fillRectOP(const  QRect  &rect,const QColor &color);
++ protected:
++    QPaintDevice  *paint_dev;
++     QTransform transform;	
++     
++	 inline void ensureState() {
++        if (state()->dirty)
++            updateState();
++    }
++
++
++};
++class
++#ifdef Q_WS_QWS
++Q_GUI_EXPORT
++#endif
++QGE2DPaintEnginePrivate : public QRasterPaintEnginePrivate
++{
++    Q_DECLARE_PUBLIC(QGE2DPaintEngine)
++public:
++	
++};
++	
++
++QT_END_NAMESPACE
++
++#endif // GE2D_PAINTENGINE_H
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/ge2d/main_include.h b/src/plugins/gfxdrivers/ge2d/main_include.h
+new file mode 100755
+index 0000000..fa0ce58
+--- /dev/null
++++ b/src/plugins/gfxdrivers/ge2d/main_include.h
+@@ -0,0 +1,6 @@
++#include "ge2dlibscreen.h"
++#include "ge2d.h"
++#include "ge2dpaintengine.h"
++#include "ge2dpaintdevice.h"
++#include "cmemlib.h"
++#include "ge2dlibsurface.h"
+\ No newline at end of file
+diff --git a/src/plugins/gfxdrivers/gfxdrivers.pro b/src/plugins/gfxdrivers/gfxdrivers.pro
+old mode 100644
+new mode 100755
+index 1f38942..fd55701
+--- a/src/plugins/gfxdrivers/gfxdrivers.pro
++++ b/src/plugins/gfxdrivers/gfxdrivers.pro
+@@ -8,3 +8,4 @@ contains(gfx-plugins, transformed)  :SUBDIRS += transformed
+ contains(gfx-plugins, svgalib)      :SUBDIRS += svgalib
+ contains(gfx-plugins, powervr)      :SUBDIRS += powervr
+ contains(gfx-plugins, eglnullws)    :SUBDIRS += eglnullws
++SUBDIRS += ge2d
+\ No newline at end of file
+diff --git a/src/plugins/imageformats/imageformats.pro b/src/plugins/imageformats/imageformats.pro
+old mode 100644
+new mode 100755
+index 54a2795..398ee3a
+--- a/src/plugins/imageformats/imageformats.pro
++++ b/src/plugins/imageformats/imageformats.pro
+@@ -1,6 +1,6 @@
+ TEMPLATE = subdirs
+ 
+-!contains(QT_CONFIG, no-jpeg):!contains(QT_CONFIG, jpeg):SUBDIRS += jpeg
++!contains(QT_CONFIG, no-jpeg):SUBDIRS += jpeg_aml
+ !contains(QT_CONFIG, no-gif):!contains(QT_CONFIG, gif):SUBDIRS += gif
+ !contains(QT_CONFIG, no-mng):!contains(QT_CONFIG, mng):SUBDIRS += mng
+ contains(QT_CONFIG, svg):SUBDIRS += svg
+diff --git a/src/plugins/imageformats/jpeg_aml/jpeg_aml.pro b/src/plugins/imageformats/jpeg_aml/jpeg_aml.pro
+new file mode 100755
+index 0000000..0450842
+--- /dev/null
++++ b/src/plugins/imageformats/jpeg_aml/jpeg_aml.pro
+@@ -0,0 +1,77 @@
++TARGET  = qjpeg
++include(../../qpluginbase.pri)
++
++QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-jpeg)"
++
++
++LIBS += $$QT_SOURCE_TREE/src/3rdparty/libaml/libcmem.a
++INCPATH +=$$QT_SOURCE_TREE/src/3rdparty/libaml
++
++HEADERS += qjpeghandler.h
++SOURCES += main.cpp \
++           qjpeghandler.cpp
++
++wince*: { 
++	DEFINES += NO_GETENV 
++	contains(CE_ARCH,x86):CONFIG -= stl exceptions
++	contains(CE_ARCH,x86):CONFIG += exceptions_off
++}
++
++contains(QT_CONFIG, system-jpeg) {
++        unix:LIBS += -ljpeg
++        win32:LIBS += libjpeg.lib
++}
++!contains(QT_CONFIG, system-jpeg) {
++	INCLUDEPATH += ../../../3rdparty/libjpeg
++	SOURCES  += \
++		../../../3rdparty/libjpeg/jaricom.c \
++	    ../../../3rdparty/libjpeg/jcapimin.c \
++	    ../../../3rdparty/libjpeg/jcapistd.c \
++	    ../../../3rdparty/libjpeg/jcarith.c \
++	    ../../../3rdparty/libjpeg/jccoefct.c \
++	    ../../../3rdparty/libjpeg/jccolor.c \
++	    ../../../3rdparty/libjpeg/jcdctmgr.c \
++	    ../../../3rdparty/libjpeg/jchuff.c \
++	    ../../../3rdparty/libjpeg/jcinit.c \
++	    ../../../3rdparty/libjpeg/jcmainct.c \
++	    ../../../3rdparty/libjpeg/jcmarker.c \
++	    ../../../3rdparty/libjpeg/jcmaster.c \
++	    ../../../3rdparty/libjpeg/jcomapi.c \
++	    ../../../3rdparty/libjpeg/jcparam.c \
++	    ../../../3rdparty/libjpeg/jcprepct.c \
++	    ../../../3rdparty/libjpeg/jcsample.c \
++	    ../../../3rdparty/libjpeg/jctrans.c \
++	    ../../../3rdparty/libjpeg/jdapimin.c \
++	    ../../../3rdparty/libjpeg/jdapistd.c \
++	    ../../../3rdparty/libjpeg/jdarith.c \
++	    ../../../3rdparty/libjpeg/jdatadst.c \
++	    ../../../3rdparty/libjpeg/jdatasrc.c \
++	    ../../../3rdparty/libjpeg/jdcoefct.c \
++	    ../../../3rdparty/libjpeg/jdcolor.c \
++	    ../../../3rdparty/libjpeg/jddctmgr.c \
++	    ../../../3rdparty/libjpeg/jdhuff.c \
++	    ../../../3rdparty/libjpeg/jdinput.c \
++	    ../../../3rdparty/libjpeg/jdmainct.c \
++	    ../../../3rdparty/libjpeg/jdmarker.c \
++	    ../../../3rdparty/libjpeg/jdmaster.c \
++	    ../../../3rdparty/libjpeg/jdmerge.c \
++	    ../../../3rdparty/libjpeg/jdpostct.c \
++	    ../../../3rdparty/libjpeg/jdsample.c \
++	    ../../../3rdparty/libjpeg/jdtrans.c \
++	    ../../../3rdparty/libjpeg/jerror.c \
++	    ../../../3rdparty/libjpeg/jfdctflt.c \
++	    ../../../3rdparty/libjpeg/jfdctfst.c \
++	    ../../../3rdparty/libjpeg/jfdctint.c \
++	    ../../../3rdparty/libjpeg/jidctflt.c \
++	    ../../../3rdparty/libjpeg/jidctfst.c \
++	    ../../../3rdparty/libjpeg/jidctint.c \
++	    ../../../3rdparty/libjpeg/jmemmgr.c \
++	    ../../../3rdparty/libjpeg/jmemnobs.c \
++	    ../../../3rdparty/libjpeg/jquant1.c \
++	    ../../../3rdparty/libjpeg/jquant2.c \
++	    ../../../3rdparty/libjpeg/jutils.c \
++}
++
++QTDIR_build:DESTDIR = $$QT_BUILD_TREE/plugins/imageformats
++target.path += $$[QT_INSTALL_PLUGINS]/imageformats
++INSTALLS += target
+diff --git a/src/plugins/imageformats/jpeg_aml/main.cpp b/src/plugins/imageformats/jpeg_aml/main.cpp
+new file mode 100755
+index 0000000..24a409e
+--- /dev/null
++++ b/src/plugins/imageformats/jpeg_aml/main.cpp
+@@ -0,0 +1,97 @@
++/****************************************************************************
++**
++** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the plugins of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain
++** additional rights. These rights are described in the Nokia Qt LGPL
++** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
++** package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you are unsure which license is appropriate for your use, please
++** contact the sales department at http://www.qtsoftware.com/contact.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#include <qimageiohandler.h>
++#include <qstringlist.h>
++
++#ifndef QT_NO_IMAGEFORMATPLUGIN
++
++#ifdef QT_NO_IMAGEFORMAT_JPEG
++#undef QT_NO_IMAGEFORMAT_JPEG
++#endif
++#include "qjpeghandler.h"
++
++QT_BEGIN_NAMESPACE
++
++class QJpegPlugin : public QImageIOPlugin
++{
++public:
++    QStringList keys() const;
++    Capabilities capabilities(QIODevice *device, const QByteArray &format) const;
++    QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const;
++};
++
++QStringList QJpegPlugin::keys() const
++{
++    return QStringList() << QLatin1String("jpeg") << QLatin1String("jpg");
++}
++
++QImageIOPlugin::Capabilities QJpegPlugin::capabilities(QIODevice *device, const QByteArray &format) const
++{
++    if (format == "jpeg" || format == "jpg")
++        return Capabilities(CanRead | CanWrite);
++    if (!format.isEmpty())
++        return 0;
++    if (!device->isOpen())
++        return 0;
++
++    Capabilities cap;
++    if (device->isReadable() && QJpegHandler::canRead(device))
++        cap |= CanRead;
++    if (device->isWritable())
++        cap |= CanWrite;
++    return cap;
++}
++
++QImageIOHandler *QJpegPlugin::create(QIODevice *device, const QByteArray &format) const
++{
++    QImageIOHandler *handler = new QJpegHandler;
++    handler->setDevice(device);
++    handler->setFormat(format);
++    return handler;
++}
++
++Q_EXPORT_STATIC_PLUGIN(QJpegPlugin)
++Q_EXPORT_PLUGIN2(qjpeg, QJpegPlugin)
++
++QT_END_NAMESPACE
++
++#endif // QT_NO_IMAGEFORMATPLUGIN
+\ No newline at end of file
+diff --git a/src/plugins/imageformats/jpeg_aml/qjpeghandler.cpp b/src/plugins/imageformats/jpeg_aml/qjpeghandler.cpp
+new file mode 100755
+index 0000000..fa45d92
+--- /dev/null
++++ b/src/plugins/imageformats/jpeg_aml/qjpeghandler.cpp
+@@ -0,0 +1,696 @@
++/*****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#include "qjpeghandler.h"
++
++
++#include <qvariant.h>
++#include <qvector.h>
++
++#include <stdio.h>      // jpeglib needs this to be pre-included
++#include <sys/ioctl.h>
++#include <setjmp.h>
++#include <fcntl.h>
++
++#ifdef FAR
++#undef FAR
++#endif
++static CMEM_AllocParams cmemParm = {CMEM_HEAP, CMEM_NONCACHED, 8};
++static  unsigned char *planes[4] = {NULL, NULL, NULL,NULL};
++// hw: optimize smoothscaler for returning 24-bit images
++
++// including jpeglib.h seems to be a little messy
++extern "C" {
++// mingw includes rpcndr.h but does not define boolean
++#if defined(Q_OS_WIN) && defined(Q_CC_GNU)
++#   if defined(__RPCNDR_H__) && !defined(boolean)
++        typedef unsigned char boolean;
++#       define HAVE_BOOLEAN
++#   endif
++#endif
++
++#define XMD_H           // shut JPEGlib up
++#if defined(Q_OS_UNIXWARE)
++#  define HAVE_BOOLEAN  // libjpeg under Unixware seems to need this
++#endif
++#include <jpeglib.h>
++#ifdef const
++#  undef const          // remove crazy C hackery in jconfig.h
++#endif
++}
++
++QT_BEGIN_NAMESPACE
++
++//#define QT_NO_IMAGE_SMOOTHSCALE
++
++
++
++
++
++static void scaleSize(unsigned  &reqW, unsigned &reqH, int imgW, int imgH, Qt::AspectRatioMode mode)
++{
++    if (mode == Qt::IgnoreAspectRatio)
++        return;
++    int t1 = imgW * reqH;
++    int t2 = reqW * imgH;
++    if ((mode == Qt::KeepAspectRatio && (t1 > t2)) || (mode == Qt::KeepAspectRatioByExpanding && (t1 < t2)))
++        reqH = t2 / imgW;
++    else
++        reqW = t1 / imgH;
++}
++static int rebuild_jpg_config_para(jpeg_data_t  *jpeg_data,jpegdec_config_t *config)
++{
++
++	int result ;
++	
++	planes[0] = (unsigned char *)CMEM_alloc(0, 
++				CANVAS_ALIGNED(jpeg_data->info.width) * jpeg_data->info.height, &cmemParm);
++	planes[1] = (unsigned char *)CMEM_alloc(0,
++				CANVAS_ALIGNED(jpeg_data->info.width/2) *jpeg_data->info.height/2, &cmemParm);
++	planes[2] = (unsigned char *)CMEM_alloc(0,
++				CANVAS_ALIGNED(jpeg_data->info.width/2) * jpeg_data->info.height/2, &cmemParm);
++	if ((!planes[0]) || (!planes[1]) || (!planes[2])) {
++		qCritical("Not enough memory\n");
++		if (planes[0])
++			CMEM_free(planes[0], &cmemParm);
++		if (planes[1])
++			CMEM_free(planes[1], &cmemParm);
++		if (planes[2])
++			CMEM_free(planes[2], &cmemParm);
++		return -1;
++	}
++	config->addr_y = CMEM_getPhys(planes[0]);
++	config->addr_u = CMEM_getPhys(planes[1]);
++	config->addr_v = CMEM_getPhys(planes[2]);
++	config->canvas_width = CANVAS_ALIGNED(jpeg_data->info.width);
++	if(config->dec_w==0 ||config->dec_h==0)
++	{
++		config->dec_w= jpeg_data->info.width;
++		config->dec_h=jpeg_data->info.height;
++	}
++	scaleSize(config->dec_w, config->dec_h, jpeg_data->info.width, jpeg_data->info.height, (Qt::AspectRatioMode)config->opt);
++	config->opt = 0;
++	config->dec_x = 0;
++	config->dec_y = 0;
++	config->angle = CLKWISE_0;
++	return 0;
++	
++}
++static unsigned int  get_decoder_state(int  handle)
++{
++	if(handle>0)
++	{
++		return ioctl(handle, JPEGDEC_IOC_STAT);
++	}
++	return JPEGDEC_STAT_ERROR;
++}
++/*********************************************************************
++**  function name:  read_jpeg_data
++**  para:
++**		device   		:	data source
++**		jpeg_data	:	jpeg info container which need to be filled by current func
++** 		op_max	 	: 	state machine quit mark.
++**		config		:	jpeg decoder config para 
++**	return value:  (int)
++**		0			:	fail
++**		others		:	machine state before quit.
++**
++***********************************************************************/
++static int   read_jpeg_data(QIODevice *device,jpeg_data_t  *jpeg_data,int op_max,jpegdec_config_t *config)
++{
++	int  read_num;
++	unsigned int decState;
++	int fd_jpegdec;
++	int i=0;
++	QString  dev ;
++	int fd_amport=jpeg_data->fd_amport;
++	
++	device->seek(0);  //seek device head .
++	if(jpeg_data->buffer==NULL||device==NULL||fd_amport<0) return 0;
++
++	dev= QLatin1String(FILE_NAME_JPEGDEC);
++   
++    	  fd_jpegdec= open(dev.toLatin1().constData(), O_RDWR);
++        if(fd_jpegdec <0 ){
++	  	perror("open amjpec device error\r\n")	;
++ 	  	qCritical("can't open jpeg relative device %s",qPrintable(dev));  	
++	  	return 0;
++    	  }
++	
++	//get jpeg info .
++	int  op_step=DEC_STAT_INFOCONFIG ;
++	int  result=0;;
++	int  read_unit=HEADER_SIZE;
++	
++	while(op_step < op_max)
++	{
++		decState=get_decoder_state( fd_jpegdec);
++		result = decState;
++		if (decState & JPEGDEC_STAT_ERROR) {
++			qCritical("jpegdec error\n");
++			break;
++		}
++
++		if (decState & JPEGDEC_STAT_UNSUPPORT) {
++			qCritical("jpegdec unsupported format\n");
++			break;
++		}
++
++		if (decState & JPEGDEC_STAT_DONE) {
++			qCritical("jpegdec done\n");
++			break;
++		}
++		if (decState & JPEGDEC_STAT_WAIT_DATA) {
++			read_num=device->read(jpeg_data->buffer,read_unit );
++			if(read_num<0)
++			{
++				qCritical("can't read data from jpeg device");  
++				result= 0;
++				break;
++			}
++			read_unit=MAX_BUFFER_SIZE;//expand buffer size to read real data.
++			if(read_num==0) //file end then fill padding data into buffer.
++			{
++				read_num=read_unit=HEADER_SIZE;
++				memset(jpeg_data->buffer,0,read_unit);
++			}
++			write( fd_amport, jpeg_data->buffer, read_num); 
++			
++		}	
++		switch(op_step)
++		{
++			case DEC_STAT_INFOCONFIG:
++			ioctl( fd_jpegdec, JPEGDEC_IOC_INFOCONFIG, 0);
++			op_step=DEC_STAT_INFO;
++			break;
++			case DEC_STAT_INFO:
++			if (decState & JPEGDEC_STAT_INFO_READY) {
++				ioctl( fd_jpegdec, JPEGDEC_IOC_INFO, &jpeg_data->info);
++				qCritical("++jpeg informations:w:%d,h:%d\r\n",jpeg_data->info.width,jpeg_data->info.height);
++				op_step=DEC_STAT_DECCONFIG;
++				
++			}else{
++				qCritical("in jpeg decoding process\n");
++				result =0;
++			}
++			break;
++			case DEC_STAT_DECCONFIG:
++			if(config)
++			{
++				// first request mem from cmem.
++				if(rebuild_jpg_config_para(jpeg_data,config)<0)
++				{
++					qCritical("rebuild_cmem_config_para error");
++					op_step = op_max;
++					result=0;
++					continue;
++				}
++				qCritical("sending jpeg decoding config (%d-%d-%d-%d), planes(0x%x, 0x%x, 0x%x).\n",
++					config->dec_x, config->dec_y, config->dec_w, config->dec_h,
++					config->addr_y, config->addr_u, config->addr_v);
++
++				if (ioctl(fd_jpegdec, JPEGDEC_IOC_DECCONFIG, config)<0) {
++					qCritical("decoder config failed\n");
++					op_step = op_max;
++					result =0;
++					continue;
++				}	
++				
++			}
++			op_step =DEC_STAT_RUN;
++			break;
++			default:
++			break;	
++		}
++	}
++	if( fd_jpegdec >0)
++	{
++		close(  fd_jpegdec);
++		fd_jpegdec=-1;
++	}
++	
++	return result;
++		
++}
++bool QJpegHandler::read_jpeg_size(QIODevice *device, int &w, int &h)
++{
++	jpeg_data_t  jpeg_data;
++	bool ret;
++
++	jpeg_data.fd_amport=fd_amport;
++
++	if(JPEGDEC_STAT_INFO_READY&read_jpeg_data(device,&jpeg_data,DEC_STAT_DECCONFIG,NULL))
++	{
++		w=jpeg_data.info.width;
++		h=jpeg_data.info.height;
++		ret= true;
++	}
++	else{
++		w=0,h=0;
++		ret= false;
++	}
++ 
++	return ret ;
++	
++}
++
++bool QJpegHandler::read_jpeg_format( QIODevice *device, QImage::Format &format)
++{
++    	bool result = false;
++	jpeg_data_t  jpeg_data;	
++
++	jpeg_data.fd_amport=fd_amport;
++      
++	if(JPEGDEC_STAT_INFO_READY&read_jpeg_data(device,&jpeg_data,DEC_STAT_DECCONFIG,NULL))
++	{
++		result = true;
++      		switch (jpeg_data.info.comp_num) {
++      			case 1:
++          		format = QImage::Format_Indexed8;
++	    	      break;
++		      case 3:
++		      case 4:
++			format = QImage::Format_RGB32;
++	    		qCritical("jpeg format RGB32");	  
++          		break;
++      			default:
++          		result = false;
++          		break;
++      		}
++	}
++	
++	return result;
++	
++}
++
++//to get a valid image for jpeg.
++static inline int nextMulOf8(int n)
++{
++    return ((n + 7) & 0xfffffff8);
++}
++
++static unsigned int  ImgFormat2Ge2dFormat(QImage::Format img_format)
++{
++	unsigned int format=0xffffffff;
++	
++	 switch (img_format) {
++	/* 32 bpp */
++    	case QImage::Format_RGB32:
++    	case QImage::Format_ARGB32:
++    	case QImage::Format_ARGB32_Premultiplied:
++		format = GE2D_FORMAT_S32_ARGB;
++		break;
++	/* 24 bpp */
++	case QImage::Format_RGB888:
++	case QImage::Format_RGB666:
++		format = GE2D_FORMAT_S24_RGB;
++		break;
++	case QImage::Format_ARGB6666_Premultiplied:
++	case QImage::Format_ARGB8555_Premultiplied:
++		format = GE2D_FORMAT_S24_ARGB_6666;
++		break;
++	case QImage::Format_ARGB8565_Premultiplied:
++		format = GE2D_FORMAT_S24_ARGB_8565;
++		break;
++	/* 16 bpp */
++    	case QImage::Format_RGB16:
++		format = GE2D_FORMAT_S16_RGB_565;
++	    break;
++    	case QImage::Format_RGB555:
++		format = GE2D_FORMAT_S16_ARGB_1555;
++		break;
++	case QImage::Format_ARGB4444_Premultiplied:
++    	case QImage::Format_RGB444:
++		format = GE2D_FORMAT_S16_ARGB_4444;
++		break;
++	default:
++    		qCritical("blit_32(): Image format %d not supported!", img_format);
++    	}
++	 return format;
++
++}
++static int bytesPerPixel(QImage::Format format)
++{
++    switch (format) {
++    case QImage::Format_Invalid:
++        return 0;
++#ifndef QT_NO_DEBUG
++    case QImage::Format_Mono:
++    case QImage::Format_MonoLSB:
++        qFatal("QWSWindowSurface: Invalid backingstore format: %i",
++               int(format));
++#endif
++    case QImage::Format_Indexed8:
++        return 1;
++    case QImage::Format_RGB32:
++    case QImage::Format_ARGB32:
++    case QImage::Format_ARGB32_Premultiplied:
++        return 4;
++    case QImage::Format_RGB16:
++    case QImage::Format_RGB555:
++    case QImage::Format_RGB444:
++    case QImage::Format_ARGB4444_Premultiplied:
++        return 2;
++    case QImage::Format_ARGB8565_Premultiplied:
++    case QImage::Format_ARGB8555_Premultiplied:
++    case QImage::Format_ARGB6666_Premultiplied:
++    case QImage::Format_RGB666:
++    case QImage::Format_RGB888:
++        return 3;
++    default:
++#ifndef QT_NO_DEBUG
++        qFatal("QWSWindowSurface: Invalid backingstore format: %i",
++               int(format));
++#endif
++        return 0;
++    }
++}
++static bool read_jpeg_image(QIODevice *device, QImage *outImage,
++                            const QByteArray &parameters, QSize scaledSize,
++                            int inQuality ,int fd_amport)
++{
++	 int quality = inQuality;
++	 int result=true ;
++	 int sWidth = 0, sHeight = 0;
++       char sModeStr[1024] = "";
++       Qt::AspectRatioMode sMode;
++	 QString params = QString::fromLatin1(parameters);  
++
++
++	 qCritical("*****************scaledSize:%d:%d",scaledSize.width(),scaledSize.height());	
++	 if (quality < 0)
++            quality = 75;	
++        params.simplified();
++        
++	 //parset request parameter.	
++	 //sWidth sHeight  request width and request height.
++        if (params.contains(QLatin1String("Scale"))) {
++#if defined(_MSC_VER) && _MSC_VER >= 1400 && !defined(Q_OS_WINCE)
++       	 sscanf_s(params.toLatin1().data(), "Scale(%i, %i, %1023s)",
++                     &sWidth, &sHeight, sModeStr, sizeof(sModeStr));
++#else
++       	sscanf(params.toLatin1().data(), "Scale(%i, %i, %1023s)",
++                   &sWidth, &sHeight, sModeStr);
++#endif
++	 
++       	QString sModeQStr(QString::fromLatin1(sModeStr));
++       	if (sModeQStr == QLatin1String("IgnoreAspectRatio")) {
++          	   sMode = Qt::IgnoreAspectRatio;
++       	} else if (sModeQStr == QLatin1String("KeepAspectRatio")) {
++             	sMode = Qt::KeepAspectRatio;
++       	} else if (sModeQStr == QLatin1String("KeepAspectRatioByExpanding")) {
++       		sMode = Qt::KeepAspectRatioByExpanding;
++       	} else {
++       	qDebug("read_jpeg_image: invalid aspect ratio mode \"%s\", see QImage::AspectRatioMode documentation", sModeStr);
++       	sMode = Qt::KeepAspectRatio;
++      		}
++	
++	}else if (scaledSize.isValid()) {//if scale size if valid
++		
++		sWidth=scaledSize.width();
++		sHeight=scaledSize.height();
++		sMode=Qt::IgnoreAspectRatio ;
++	}else{  //default process work
++			sWidth=0;
++			sHeight=0;
++			sMode=Qt::IgnoreAspectRatio ;
++	}
++       
++	//we need some step to decompress jpeg image to output 
++	// 1  request yuv space from cmem to store decompressed data
++	// 2  config and decompress jpg picture.
++	// 3	 request  new rgb space from cmem to store output rgb data.
++	// 4  ge2d move yuv data to rgb space.
++	// 5  release request mem to cmem module.
++	jpegdec_config_t  config;
++	jpeg_data_t  jpeg_data;
++	    QString   dev;
++	int fd_ge2d=-1;
++	config_para_t ge2d_config;
++	QImage::Format format;
++    	ge2d_op_para_t op_para;
++	int bpl 	 ;
++	QImage  picImage;
++
++		
++	config.dec_w=sWidth;
++	config.dec_h=sHeight;
++	config.opt=(unsigned)sMode ;
++	jpeg_data.fd_amport=fd_amport;
++	if(!(JPEGDEC_STAT_DONE&read_jpeg_data(device,&jpeg_data,DEC_STAT_MAX,&config)))
++	{
++		qCritical("can't decode jpg pic");	
++		result=false ;
++		goto exit;
++	}
++	
++	qCritical("deocde jpg pic completed");
++	// 3  request rgb space .
++	planes[3]=(unsigned char *)CMEM_alloc(0,config.dec_w*config.dec_h*4,&cmemParm);
++	if(!planes[3])
++	{
++		qCritical("can't get rgb memory from heap");
++		result=false ;
++		goto exit;
++	}
++	
++  
++
++	//open fb device to handle ge2d op FILE_NAME_GE2D
++      dev= QLatin1String(FILE_NAME_GE2D);
++      fd_ge2d= open(dev.toLatin1().constData(), O_RDWR);
++	if(fd_ge2d<0)
++	{
++		qCritical("can't open framebuffer device" );  	
++	  	result =false;
++		goto exit;
++	}
++	if(jpeg_data.info.comp_num==3 ||jpeg_data.info.comp_num==4)
++	{
++		format = QImage::Format_RGB32;
++	}else if(jpeg_data.info.comp_num==1)
++	{
++		format = QImage::Format_Indexed8;
++	}else{
++		qCritical("unsupported color format" );  	
++	  	result =false;
++		goto exit;
++	}
++	ge2d_config.src_dst_type = ALLOC_ALLOC;
++	ge2d_config.alu_const_color=0xff0000ff;
++	ge2d_config.src_format = GE2D_FORMAT_M24_YUV420;
++	ge2d_config.dst_format = ImgFormat2Ge2dFormat(format);
++	if(0xffffffff==ge2d_config.dst_format)
++	{
++		qCritical("can't get proper ge2d format" );  	
++	  	result =false;
++		goto exit;
++	}
++
++	ge2d_config.src_planes[0].addr = config.addr_y;
++	ge2d_config.src_planes[0].w = config.canvas_width;
++	ge2d_config.src_planes[0].h = config.dec_h;
++	ge2d_config.src_planes[1].addr = config.addr_u;
++	ge2d_config.src_planes[1].w = config.canvas_width/2;
++	ge2d_config.src_planes[1].h = config.dec_h / 2;
++
++	ge2d_config.src_planes[2].addr = config.addr_v;
++	ge2d_config.src_planes[2].w = config.canvas_width/2;
++	ge2d_config.src_planes[2].h = config.dec_h / 2;
++	ge2d_config.dst_planes[0].addr=CMEM_getPhys(planes[3]);
++	ge2d_config.dst_planes[0].w=config.dec_w;
++	ge2d_config.dst_planes[0].h = config.dec_h;
++	qCritical("planes[3]addr : 0x%x-0x%x" ,planes[3],ge2d_config.dst_planes[0].addr);		
++	ioctl(fd_ge2d, FBIOPUT_GE2D_CONFIG, &ge2d_config);
++	op_para.src1_rect.x = config.dec_x;
++	op_para.src1_rect.y = config.dec_y;
++	op_para.src1_rect.w = config.dec_w;
++	op_para.src1_rect.h = config.dec_h;
++
++	op_para.dst_rect.x = 0;
++	op_para.dst_rect.y = 0;
++	op_para.dst_rect.w = config.dec_w;
++	op_para.dst_rect.h = config.dec_h;
++
++    	ioctl(fd_ge2d, FBIOPUT_GE2D_STRETCHBLIT_NOALPHA, &op_para); 
++		
++	bpl = nextMulOf8(bytesPerPixel(format) *config.dec_w);
++	
++	picImage=QImage(planes[3],config.dec_w, config.dec_h, bpl,format);
++	
++	if(format==QImage::Format_Indexed8)
++	{
++		picImage.setNumColors(256);
++             for (int i = 0; i < 256; ++i)
++             picImage.setColor(i, qRgb(i,i,i));	
++	}
++	
++      *outImage=picImage.copy(QRect(1,1,0,0));
++	if(planes[3])
++	{
++		CMEM_free(planes[3], &cmemParm);
++	}
++       result= !outImage->isNull();
++exit:	
++	if (planes[0])
++			CMEM_free(planes[0], &cmemParm);
++	if (planes[1])
++			CMEM_free(planes[1], &cmemParm);
++	if (planes[2])
++			CMEM_free(planes[2], &cmemParm);
++	return result;
++
++}
++
++
++QJpegHandler::QJpegHandler()
++{
++    quality = 75;
++    //open jpegdecoder device.
++    QString   dev;
++    int i;
++    dev= QLatin1String(FILE_NAME_AMPORT);
++
++    if (access(dev.toLatin1().constData(), R_OK|W_OK) == 0)
++        fd_amport = open(dev.toLatin1().constData(), O_RDWR|O_NONBLOCK);
++    else{
++	  perror("open amport device error\r\n")	;
++ 	  qCritical("can't open jpeg relative device %s",qPrintable(dev));  	
++	  return ;
++    }
++     	
++    
++    if(CMEM_init())
++    {
++    	close(fd_amport);
++	fd_amport=-1;	
++      qCritical("can't init cmem for jpegdec"); 	
++    }
++    //init amport for write device data.	
++    ioctl(fd_amport, AMSTREAM_IOC_VB_SIZE, 1024*1024);
++    ioctl(fd_amport, AMSTREAM_IOC_VFORMAT, VFORMAT_JPEG); 
++    ioctl(fd_amport, AMSTREAM_IOC_PORT_INIT);
++    dev= QLatin1String(FILE_NAME_JPEGDEC);
++    while(access(dev.toLatin1().constData(), R_OK|W_OK))
++    {//waitting for device created.
++      	i ++;
++	usleep(1000);
++      	if(i>10)
++      	{
++      		perror("open qjpeg device error\r\n")	;
++	 	qCritical("can't open jpeg relative device %s",qPrintable(dev)); 
++	 	return ;
++      	}
++    }	
++	
++}
++QJpegHandler::~QJpegHandler()
++{
++	qCritical("~QJpegHandler: release");
++	
++	if(fd_amport>=0 )
++	{
++		close(fd_amport);
++	}
++	CMEM_exit();
++}
++bool QJpegHandler::canRead() const
++{
++    if (canRead(device())) {
++        setFormat("jpeg");
++        return true;
++    }
++    return false;
++}
++
++bool QJpegHandler::canRead(QIODevice *device)
++{
++    if (!device) {
++        qWarning("QJpegHandler::canRead() called with no device");
++        return false;
++    }
++
++    return device->peek(2) == "\xFF\xD8";
++}
++
++bool QJpegHandler::read(QImage *image)
++{
++	int ret;
++	
++    	if (!canRead())
++      		return false;
++    	mutex.lock();
++    	ret=read_jpeg_image(device(), image, parameters, scaledSize, quality,fd_amport);
++	mutex.unlock();
++}
++
++bool QJpegHandler::write(const QImage &image)
++{
++    qCritical("write unsupported\r\n");	
++    return false;
++}
++
++bool QJpegHandler::supportsOption(ImageOption option) const
++{
++    return option == Quality
++#ifndef QT_NO_IMAGE_SMOOTHSCALE
++        || option == ScaledSize
++#endif
++        || option == Size
++        || option == ImageFormat;
++}
++
++QVariant QJpegHandler::option(ImageOption option) 
++{
++	qCritical("call option:%d\r\n",option);
++    if (option == Quality) {
++        return quality;
++#ifndef QT_NO_IMAGE_SMOOTHSCALE
++    } else if  (option == ScaledSize) {
++        return scaledSize;
++#endif
++    } else if (option == Size) {
++        if (canRead() && !device()->isSequential()) {
++            qint64 pos = device()->pos();
++            int width = 0;
++            int height = 0;
++		mutex.lock(); 	
++            read_jpeg_size(device(), width, height);
++		mutex.unlock(); 	
++	     device()->seek(pos);
++            return QSize(width, height);
++        }
++    } else if (option == ImageFormat) {
++        if (canRead() && !device()->isSequential()) {
++            qint64 pos = device()->pos();
++            QImage::Format format = QImage::Format_Invalid;
++		mutex.lock(); 	
++            read_jpeg_format(device(), format );
++		mutex.unlock(); 
++            device()->seek(pos);
++            return format;
++        }
++        return QImage::Format_Invalid;
++    }
++    return QVariant();
++}
++
++void QJpegHandler::setOption(ImageOption option, const QVariant &value)
++{
++    if (option == Quality)
++        quality = value.toInt();
++#ifndef QT_NO_IMAGE_SMOOTHSCALE
++    else if ( option == ScaledSize )
++        scaledSize = value.toSize();
++#endif
++}
++
++QByteArray QJpegHandler::name() const
++{
++    return "jpeg";
++}
++
++QT_END_NAMESPACE
+\ No newline at end of file
+diff --git a/src/plugins/imageformats/jpeg_aml/qjpeghandler.h b/src/plugins/imageformats/jpeg_aml/qjpeghandler.h
+new file mode 100755
+index 0000000..6b78a5c
+--- /dev/null
++++ b/src/plugins/imageformats/jpeg_aml/qjpeghandler.h
+@@ -0,0 +1,80 @@
++/****************************************************************************
++**
++** Copyright (C) 2010 AMLOGIC, INC.
++** All rights reserved.
++****************************************************************************/
++
++#ifndef QJPEGHANDLER_H
++#define QJPEGHANDLER_H
++
++#include <QtGui/qimageiohandler.h>
++#include <QtCore/QSize>
++#include <QtCore/QtCore>
++#include <qimage.h>
++#include "ge2d.h"
++#include "cmemlib.h"
++#include "amstream.h"
++#include "vformat.h"
++#include "jpegdec.h"
++
++#define   FILE_NAME_AMPORT    "/dev/amstream_vbuf"
++#define   FILE_NAME_JPEGDEC	  "/dev/amjpegdec"
++#define   FILE_NAME_GE2D		  "/dev/ge2d"
++#define   MAX_BUFFER_SIZE		  (32*1024)
++#define   HEADER_SIZE				  (2048)	
++#define CANVAS_ALIGNED(x)	(((x) + 7) & ~7)
++
++
++enum {
++	DEC_STAT_INFOCONFIG=0,
++	DEC_STAT_INFO,
++	DEC_STAT_DECCONFIG,
++	DEC_STAT_RUN,
++	DEC_STAT_MAX
++};
++
++QT_BEGIN_NAMESPACE
++
++
++
++typedef  struct{
++ int  fd_amport;
++ jpegdec_info_t info;
++ char buffer[MAX_BUFFER_SIZE];
++
++}jpeg_data_t;
++
++class QJpegHandler : public QImageIOHandler
++{
++public:
++
++    QJpegHandler();
++    ~	QJpegHandler();
++
++    bool canRead() const;
++    bool read(QImage *image);
++    bool write(const QImage &image);
++
++    QByteArray name() const;
++
++    static bool canRead(QIODevice *device);
++
++    QVariant option(ImageOption option) ;
++    void setOption(ImageOption option, const QVariant &value);
++    bool supportsOption(ImageOption option) const;
++   	
++
++private:
++	bool read_jpeg_size(QIODevice *device, int &w, int &h);
++	bool read_jpeg_format( QIODevice *device, QImage::Format &format);
++    	int quality;
++    	QByteArray parameters;
++    	QSize scaledSize;
++	int  fd_amport ;
++	QMutex  mutex;
++
++};
++
++QT_END_NAMESPACE
++
++#endif // QJPEGHANDLER_H
+\ No newline at end of file
+diff --git a/tools/designer/src/designer/qdesigner_actions.cpp b/tools/designer/src/designer/qdesigner_actions.cpp
+old mode 100644
+new mode 100755
+index 892fdb5..516a7ef
+--- a/tools/designer/src/designer/qdesigner_actions.cpp
++++ b/tools/designer/src/designer/qdesigner_actions.cpp
+@@ -1307,12 +1307,16 @@ void QDesignerActions::showAppFontDialog()
+ 
+ QPixmap QDesignerActions::createPreviewPixmap(QDesignerFormWindowInterface *fw)
+ {
++#ifndef QT_NO_CURSOR
+     const QCursor oldCursor = core()->topLevel()->cursor();
+     core()->topLevel()->setCursor(Qt::WaitCursor);
++#endif
+ 
+     QString errorMessage;
+     const QPixmap pixmap = m_previewManager->createPreviewPixmap(fw, QString(), &errorMessage);
++#ifndef QT_NO_CURSOR
+     core()->topLevel()->setCursor(oldCursor);
++#endif
+     if (pixmap.isNull()) {
+         QMessageBox::warning(fw, tr("Preview failed"), errorMessage);
+     }
+@@ -1408,8 +1412,10 @@ void QDesignerActions::printPreviewImage()
+     if (!dialog.exec())
+         return;
+ 
++#ifndef QT_NO_CURSOR
+     const QCursor oldCursor = core()->topLevel()->cursor();
+     core()->topLevel()->setCursor(Qt::WaitCursor);
++#endif
+     // Estimate of required scaling to make form look the same on screen and printer.
+     const double suggestedScaling = static_cast<double>(m_printer->physicalDpiX()) /  static_cast<double>(fw->physicalDpiX());
+ 
+@@ -1428,7 +1434,9 @@ void QDesignerActions::printPreviewImage()
+     painter.translate(xOffset, yOffset);
+     painter.scale(scaling, scaling);
+     painter.drawPixmap(0, 0, pixmap);
++#ifndef QT_NO_CURSOR
+     core()->topLevel()->setCursor(oldCursor);
++#endif
+ 
+     showStatusBarMessage(tr("Printed %1.").arg(QFileInfo(fw->fileName()).fileName()));
+ #endif
+diff --git a/tools/tools.pro b/tools/tools.pro
+old mode 100644
+new mode 100755
+index 0e27053..91ec73d
+--- a/tools/tools.pro
++++ b/tools/tools.pro
+@@ -40,7 +40,7 @@ embedded:SUBDIRS += kmap2qmap
+ contains(QT_CONFIG, dbus):SUBDIRS += qdbus
+ # We don't need these command line utilities on embedded platforms.
+ !wince*:!symbian:contains(QT_CONFIG, xmlpatterns): SUBDIRS += xmlpatterns xmlpatternsvalidator
+-embedded: SUBDIRS += makeqpf
++#embedded: SUBDIRS += makeqpf
+ 
+ !wince*:!cross_compile:SUBDIRS += qdoc3
+ 
