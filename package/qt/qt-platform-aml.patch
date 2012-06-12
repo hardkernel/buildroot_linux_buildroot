@@ -13,9 +13,9 @@ diff -Nur -Nur qt-everywhere-opensource-src-4.8.2/mkspecs/qws/linux-amlogic8726M
 +QT          += core gui
 +QMAKE_INCREMENTAL_STYLE = sublib
 +
-+include(../common/linux.conf)
-+include(../common/gcc-base-unix.conf)
-+include(../common/g++-unix.conf)
++include(../../common/linux.conf)
++include(../../common/gcc-base-unix.conf)
++include(../../common/g++-unix.conf)
 +
 +ROOTFS=/home/girish/amlogic/rootfs
 +TOOLCHAIN=/home/girish/toolchains/arm-2010q1/bin
@@ -97,7 +97,7 @@ diff -Nur -Nur qt-everywhere-opensource-src-4.8.2/mkspecs/qws/linux-amlogic8726M
 +**
 +****************************************************************************/
 +
-+#include "../linux-g++/qplatformdefs.h"
++#include "../../linux-g++/qplatformdefs.h"
 diff -Nur -Nur qt-everywhere-opensource-src-4.8.2/mkspecs/qws/linux-amlogic8726M-arm-g++/README qt-4.8.2/mkspecs/qws/linux-amlogic8726M-arm-g++/README
 --- qt-everywhere-opensource-src-4.8.2/mkspecs/qws/linux-amlogic8726M-arm-g++/README	1970-01-01 08:00:00.000000000 +0800
 +++ qt-4.8.2/mkspecs/qws/linux-amlogic8726M-arm-g++/README	2012-06-12 17:04:31.576292568 +0800
