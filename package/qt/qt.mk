@@ -200,7 +200,7 @@ QT_CONFIGURE_OPTS += -big-endian
 endif
 
 ifeq ($(BR2_arm)$(BR2_armeb),y)
-QT_EMB_PLATFORM = amlogic8726M-arm
+QT_EMB_PLATFORM = arm
 ifeq ($(BR2_GCC_VERSION_4_6_X),y)
 # workaround for gcc issue
 # http://gcc.gnu.org/ml/gcc-patches/2010-11/msg02245.html
@@ -427,13 +427,13 @@ endif
 # host. It's unclear if this would happen on other hosts.
 ifneq ($(findstring linux,$(GNU_HOST_NAME)),)
 ifneq ($(findstring x86,$(QT_EMB_PLATFORM)),)
-QT_CONFIGURE_OPTS += -platform linux-amlogic8726M-arm-g++
+QT_CONFIGURE_OPTS += -platform linux-g++
 endif
 endif
 # End of workaround.
 
 # Variable for other Qt applications to use
-QT_QMAKE:=$(HOST_DIR)/usr/bin/qmake -spec qws/linux-$(QT_EMB_PLATFORM)-g++
+QT_QMAKE:=$(HOST_DIR)/usr/bin/qmake -spec qws/linux-gnueabi-neon
 
 ################################################################################
 # QT_QMAKE_SET -- helper macro to set <variable> = <value> in
@@ -467,7 +467,7 @@ endif
 
 ifneq ($(BR2_PACKAGE_QT_LIBCMEM_FILE),)
 define QT_CONFIGLIB_FILE
-	cp $(BR2_PACKAGE_QT_LIBCMEM_FILE) $(@D)/src/3rdparty/libaml/
+#	cp $(BR2_PACKAGE_QT_LIBCMEM_FILE) $(@D)/src/3rdparty/libaml/
 endef
 endif
 
@@ -508,6 +508,7 @@ define QT_CONFIGURE_CMDS
 		-plugindir /usr/lib/qt/plugins \
 		-hostprefix $(STAGING_DIR) \
 		-fast \
+		#-opengl es2  \
 		-no-rpath \
 	)
 endef
@@ -565,6 +566,8 @@ endif
 ifeq ($(BR2_PACKAGE_QT_QT3SUPPORT),y)
 QT_INSTALL_LIBS    += Qt3Support
 endif
+
+#QT_INSTALL_LIBS	   += QtOpenGL
 
 QT_CONF_FILE=$(HOST_DIR)/usr/bin/qt.conf
 

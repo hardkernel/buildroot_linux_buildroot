@@ -1,0 +1,77 @@
+diff -Nur qt-everywhere-opensource-src-4.8.2.orig/mkspecs/qws/linux-gnueabi-neon/qmake.conf qt-everywhere-opensource-src-4.8.2.check/mkspecs/qws/linux-gnueabi-neon/qmake.conf
+--- qt-everywhere-opensource-src-4.8.2.orig/mkspecs/qws/linux-gnueabi-neon/qmake.conf	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.2.check/mkspecs/qws/linux-gnueabi-neon/qmake.conf	2012-07-19 12:06:50.770396775 +0800
+@@ -0,0 +1,27 @@
++#
++# qmake configuration for building with arm-none-linux-gnueabi-g++
++#
++
++include(../../common/linux.conf)
++include(../../common/gcc-base-unix.conf)
++include(../../common/g++-unix.conf)
++include(../../common/qws.conf)
++
++QMAKE_CFLAGS_RELEASE   = -O3 -march=armv7-a -mfpu=neon -mfloat-abi=softfp
++QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO = -O3 -g -march=armv7-a -mfpu=neon -mfloat-abi=softfp
++
++QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE
++QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
++
++# modifications to g++.conf
++QMAKE_CC                = arm-none-linux-gnueabi-gcc
++QMAKE_CXX               = arm-none-linux-gnueabi-g++
++QMAKE_LINK              = arm-none-linux-gnueabi-g++
++QMAKE_LINK_SHLIB        = arm-none-linux-gnueabi-g++
++
++# modifications to linux.conf
++QMAKE_AR                = arm-none-linux-gnueabi-ar cqs
++QMAKE_OBJCOPY           = arm-none-linux-gnueabi-objcopy
++QMAKE_STRIP             = arm-none-linux-gnueabi-strip
++
++load(qt_config)
+diff -Nur qt-everywhere-opensource-src-4.8.2.orig/mkspecs/qws/linux-gnueabi-neon/qplatformdefs.h qt-everywhere-opensource-src-4.8.2.check/mkspecs/qws/linux-gnueabi-neon/qplatformdefs.h
+--- qt-everywhere-opensource-src-4.8.2.orig/mkspecs/qws/linux-gnueabi-neon/qplatformdefs.h	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.2.check/mkspecs/qws/linux-gnueabi-neon/qplatformdefs.h	2012-04-27 03:45:52.000000000 +0800
+@@ -0,0 +1,42 @@
++/****************************************************************************
++**
++** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
++** All rights reserved.
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the qmake spec of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** GNU Lesser General Public License Usage
++** This file may be used under the terms of the GNU Lesser General Public
++** License version 2.1 as published by the Free Software Foundation and
++** appearing in the file LICENSE.LGPL included in the packaging of this
++** file. Please review the following information to ensure the GNU Lesser
++** General Public License version 2.1 requirements will be met:
++** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain additional
++** rights. These rights are described in the Nokia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU General
++** Public License version 3.0 as published by the Free Software Foundation
++** and appearing in the file LICENSE.GPL included in the packaging of this
++** file. Please review the following information to ensure the GNU General
++** Public License version 3.0 requirements will be met:
++** http://www.gnu.org/copyleft/gpl.html.
++**
++** Other Usage
++** Alternatively, this file may be used in accordance with the terms and
++** conditions contained in a signed written agreement between you and Nokia.
++**
++**
++**
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#include "../../linux-g++/qplatformdefs.h"
