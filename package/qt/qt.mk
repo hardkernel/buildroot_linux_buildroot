@@ -508,9 +508,10 @@ define QT_CONFIGURE_CMDS
 		-plugindir /usr/lib/qt/plugins \
 		-hostprefix $(STAGING_DIR) \
 		-fast \
-		#-opengl es2  \
 		-no-rpath \
 	)
+
+		#-opengl es2  "add this option to configure if select opengl" 
 endef
 
 define QT_BUILD_CMDS
