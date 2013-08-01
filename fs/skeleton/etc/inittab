@@ -30,8 +30,8 @@
 ::sysinit:/etc/init.d/rcS
 
 # Set up a couple of getty's
-tty1::respawn:/sbin/getty 38400 tty1
-tty2::respawn:/sbin/getty 38400 tty2
+tty1::once:/sbin/getty 38400 tty1
+tty2::once:/sbin/getty 38400 tty2
 
 # Put a getty on the serial port
 #ttyS0::respawn:/sbin/getty -L ttyS0 115200 vt100 # UNSUPPORT GENERIC_SERIAL
@@ -41,7 +41,7 @@ ttyS0::respawn:/bin/sh  # AMLOGIC_GENERAL_SERIAL
 null::sysinit:/bin/touch /var/log/messages
 null::respawn:/sbin/syslogd -n
 null::respawn:/sbin/klogd -n
-tty3::respawn:/usr/bin/tail -f /var/log/messages
+tty3::once:/usr/bin/tail -f /var/log/messages
 null::respawn:/usr/sbin/telnetd -l /bin/sh
 
 # Stuff to do for the 3-finger salute
