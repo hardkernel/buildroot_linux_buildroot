@@ -34,3 +34,4 @@ opengl-dirclean:
 ifeq ($(BR2_PACKAGE_OPENGL),y)
 TARGETS+=opengl
 endif
+include package/opengl/*/*.mk

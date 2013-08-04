@@ -1,18 +1,19 @@
-#############################################################
+################################################################################
 #
 # ruby
 #
-#############################################################
+################################################################################
 
-RUBY_VERSION = 1.9.2-p290
+RUBY_VERSION = 1.9.3-p429
 RUBY_SITE = ftp://ftp.ruby-lang.org/pub/ruby/1.9
-RUBY_AUTORECONF = YES
-HOST_RUBY_AUTORECONF = YES
-RUBY_DEPENDENCIES = host-ruby
-HOST_RUBY_DEPENDENCIES =
+RUBY_DEPENDENCIES = host-pkgconf host-ruby
+HOST_RUBY_DEPENDENCIES = host-pkgconf
 RUBY_MAKE_ENV = $(TARGET_MAKE_ENV)
+RUBY_MAKE = $(MAKE1)
 RUBY_CONF_OPT = --disable-install-doc --disable-rpath
 HOST_RUBY_CONF_OPT = --disable-install-doc --with-out-ext=curses,readline
+RUBY_LICENSE = Ruby
+RUBY_LICENSE_FILES = LEGAL
 
 # Force optionals to build before we do
 ifeq ($(BR2_PACKAGE_BERKELEYDB),y)
@@ -31,5 +32,5 @@ ifeq ($(BR2_PACKAGE_ZLIB),y)
 	RUBY_DEPENDENCIES += zlib
 endif
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

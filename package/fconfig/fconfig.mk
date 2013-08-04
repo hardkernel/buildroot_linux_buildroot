@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # fconfig
 #
-#############################################################
+################################################################################
+
 FCONFIG_VERSION = 20080329
 FCONFIG_SOURCE = fconfig-$(FCONFIG_VERSION).tar.gz
 FCONFIG_SITE = http://andrzejekiert.ovh.org/software/fconfig/
@@ -25,4 +26,4 @@ define FCONFIG_CLEAN_CMDS
 	-$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

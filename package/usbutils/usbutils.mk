@@ -1,16 +1,15 @@
-#############################################################
+################################################################################
 #
 # usbutils
 #
-#############################################################
+################################################################################
 
-USBUTILS_VERSION = 005
-USBUTILS_SITE = http://snapshot.debian.org/archive/debian/20111211T214105Z/pool/main/u/usbutils/
-USBUTILS_SOURCE = usbutils_$(USBUTILS_VERSION).orig.tar.gz
-USBUTILS_DEPENDENCIES = host-pkg-config libusb
+USBUTILS_VERSION = 007
+USBUTILS_SITE = $(BR2_KERNEL_MIRROR)/linux/utils/usb/usbutils
+USBUTILS_DEPENDENCIES = host-pkgconf libusb
 USBUTILS_INSTALL_STAGING = YES
-# no configure in tarball
-USBUTILS_AUTORECONF = YES
+USBUTILS_LICENSE = GPLv2+
+USBUTILS_LICENSE_FILES = COPYING
 
 ifeq ($(BR2_PACKAGE_USBUTILS_ZLIB),y)
 	USBUTILS_DEPENDENCIES += zlib
@@ -21,6 +20,15 @@ endif
 # Build after busybox since it's got a lightweight lsusb
 ifeq ($(BR2_PACKAGE_BUSYBOX),y)
 	USBUTILS_DEPENDENCIES += busybox
+endif
+
+# Nice lsusb.py script only if there's python
+ifeq ($(BR2_PACKAGE_PYTHON),)
+define USBUTILS_REMOVE_PYTHON
+	rm -f $(TARGET_DIR)/usr/bin/lsusb.py
+endef
+
+USBUTILS_POST_INSTALL_TARGET_HOOKS += USBUTILS_REMOVE_PYTHON
 endif
 
 define USBUTILS_TARGET_CLEANUP
@@ -49,8 +57,6 @@ define USBUTILS_REMOVE_DEVFILES
 	rm -f $(TARGET_DIR)/usr/bin/libusb-config
 endef
 
-ifneq ($(BR2_HAVE_DEVFILES),y)
 USBUTILS_POST_INSTALL_TARGET_HOOKS += USBUTILS_REMOVE_DEVFILES
-endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

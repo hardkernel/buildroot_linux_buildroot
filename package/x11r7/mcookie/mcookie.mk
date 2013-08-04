@@ -1,11 +1,12 @@
-#############################################################
+################################################################################
 #
 # mcookie
 #
-#############################################################
+################################################################################
 
 # Source included in Buildroot
 MCOOKIE_SOURCE =
+MCOOKIE_LICENSE = Public Domain
 
 define MCOOKIE_EXTRACT_CMDS
 	cp package/x11r7/mcookie/mcookie.c $(@D)/
@@ -19,4 +20,4 @@ define MCOOKIE_INSTALL_TARGET_CMDS
 	install -m 0755 -D $(@D)/mcookie $(TARGET_DIR)/usr/bin/mcookie
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

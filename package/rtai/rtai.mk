@@ -1,3 +1,9 @@
+################################################################################
+#
+# rtai
+#
+################################################################################
+
 RTAI_VERSION = 3.8.1
 RTAI_SOURCE  = rtai-$(RTAI_VERSION).tar.bz2
 RTAI_SITE    = http://www.rtai.org/RTAI/
@@ -12,4 +18,4 @@ RTAI_CONF_OPT = \
 
 RTAI_MAKE = $(MAKE1)
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

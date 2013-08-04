@@ -1,27 +1,24 @@
-#############################################################
-# Xenomai
-# URL  : http://xenomai.org
-# NOTE : Real-Time Framework for Linux
+################################################################################
 #
-#############################################################
+# xenomai
+#
+################################################################################
 
 XENOMAI_VERSION = $(call qstrip,$(BR2_PACKAGE_XENOMAI_VERSION))
 ifeq ($(XENOMAI_VERSION),)
-XENOMAI_VERSION = 2.6.0
+XENOMAI_VERSION = 2.6.2.1
 endif
 
 XENOMAI_SITE = http://download.gna.org/xenomai/stable/
 XENOMAI_SOURCE = xenomai-$(XENOMAI_VERSION).tar.bz2
+XENOMAI_LICENSE = headers: GPLv2+ with exception, libraries: LGPLv2.1+, kernel: GPLv2+, docs: GFDLv1.2+, ipipe patch and can driver: GPLv2
+# GFDL is not included but refers to gnu.org
+XENOMAI_LICENSE_FILES = debian/copyright include/COPYING src/skins/native/COPYING ksrc/nucleus/COPYING
 
 XENOMAI_INSTALL_STAGING = YES
 
-ifeq ($(BR2_PACKAGE_XENOMAI_SMP),y)
-XENOMAI_CONF_OPT += --enable-smp
-endif
-
 XENOMAI_CONF_OPT += --includedir=/usr/include/xenomai/
 
-ifeq ($(BR2_HAVE_DEVFILES),)
 define XENOMAI_REMOVE_DEVFILES
 	for i in xeno-config xeno-info wrap-link.sh ; do \
 		rm -f $(TARGET_DIR)/usr/bin/$$i ; \
@@ -29,7 +26,6 @@ define XENOMAI_REMOVE_DEVFILES
 endef
 
 XENOMAI_POST_INSTALL_TARGET_HOOKS += XENOMAI_REMOVE_DEVFILES
-endif
 
 ifeq ($(BR2_PACKAGE_XENOMAI_TESTSUITE),)
 define XENOMAI_REMOVE_TESTSUITE
@@ -109,14 +105,4 @@ endef
 XENOMAI_POST_INSTALL_TARGET_HOOKS += XENOMAI_INSTALL_UDEV_RULES
 endif # udev
 
-define XENOMAI_REMOVE_UDEV_RULES
-	if test -d $(TARGET_DIR)/etc/udev/rules.d ; then \
-		for f in $(@D)/ksrc/nucleus/udev/*.rules ; do \
-			rm -f $(TARGET_DIR)/etc/udev/rules.d/$$f ; \
-		done ; \
-	fi;
-endef
-
-XENOMAI_POST_UNINSTALL_TARGET_HOOKS += XENOMAI_REMOVE_UDEV_RULES
-
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

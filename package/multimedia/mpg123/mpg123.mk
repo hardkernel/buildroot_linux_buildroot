@@ -1,14 +1,16 @@
-#############################################################
+################################################################################
 #
 # mpg123
 #
-#############################################################
+################################################################################
 
-MPG123_VERSION = 1.13.4
+MPG123_VERSION = 1.15.4
 MPG123_SOURCE = mpg123-$(MPG123_VERSION).tar.bz2
-MPG123_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/mpg123
+MPG123_SITE = http://downloads.sourceforge.net/project/mpg123/mpg123/$(MPG123_VERSION)
 MPG123_CONF_OPT = --with-optimization=0 --disable-lfs-alias
 MPG123_INSTALL_STAGING = YES
+MPG123_LICENSE = LGPLv2.1
+MPG123_LICENSE_FILES = COPYING
 
 MPG123_CPU = $(if $(BR2_SOFT_FLOAT),generic_nofpu,generic_fpu)
 
@@ -59,9 +61,8 @@ MPG123_CONF_OPT += --with-audio=$(shell echo $(MPG123_AUDIO) | tr ' ' ,)
 
 ifeq ($(BR2_PACKAGE_LIBTOOL),y)
 MPG123_DEPENDENCIES += libtool
-# .la files gets stripped unless HAVE_DEVFILES is enabled, so directly
-# load .so files rather than .la
+# .la files gets stripped , so directly load .so files rather than .la
 MPG123_CONF_OPT += --with-modules --with-module-suffix=.so
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

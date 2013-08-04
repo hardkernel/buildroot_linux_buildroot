@@ -1,15 +1,27 @@
-#############################################################
+################################################################################
 #
 # imagemagick
 #
-#############################################################
+################################################################################
 
-IMAGEMAGICK_MAJOR = 6.7.2
-IMAGEMAGICK_VERSION = $(IMAGEMAGICK_MAJOR)-10
+IMAGEMAGICK_MAJOR = 6.8.6
+IMAGEMAGICK_VERSION = $(IMAGEMAGICK_MAJOR)-2
 IMAGEMAGICK_SOURCE = ImageMagick-$(IMAGEMAGICK_VERSION).tar.bz2
-IMAGEMAGICK_SITE = ftp://ftp.imagemagick.org/pub/ImageMagick/legacy
+# The official ImageMagick site only keeps the latest versions
+# available, which is annoying. Use an alternate site that keeps all
+# older versions.
+IMAGEMAGICK_SITE = ftp://ftp.nluug.nl/pub/ImageMagick/
+IMAGEMAGICK_LICENSE = Apache-v2
+IMAGEMAGICK_LICENSE_FILES = LICENSE
+
 IMAGEMAGICK_INSTALL_STAGING = YES
 IMAGEMAGICK_AUTORECONF = YES
+IMAGEMAGICK_CONFIG_SCRIPTS = \
+	$(addsuffix -config,Magick MagickCore MagickWand Wand)
+
+ifeq ($(BR2_INSTALL_LIBSTDCPP),y)
+IMAGEMAGICK_CONFIG_SCRIPTS += Magick++-config
+endif
 
 ifeq ($(BR2_LARGEFILE),y)
 IMAGEMAGICK_CONF_ENV = ac_cv_sys_file_offset_bits=64
@@ -30,7 +42,7 @@ IMAGEMAGICK_CONF_OPT = --program-transform-name='s,,,' \
 		--without-fpx \
 		--without-x
 
-IMAGEMAGICK_DEPENDENCIES = host-pkg-config
+IMAGEMAGICK_DEPENDENCIES = host-pkgconf
 
 ifeq ($(BR2_PACKAGE_FONTCONFIG),y)
 IMAGEMAGICK_CONF_OPT += --with-fontconfig
@@ -41,6 +53,8 @@ endif
 
 ifeq ($(BR2_PACKAGE_FREETYPE),y)
 IMAGEMAGICK_CONF_OPT += --with-freetype
+IMAGEMAGICK_CONF_ENV += \
+	ac_cv_path_freetype_config=$(STAGING_DIR)/usr/bin/freetype-config
 IMAGEMAGICK_DEPENDENCIES += freetype
 else
 IMAGEMAGICK_CONF_OPT += --without-freetype
@@ -105,14 +119,4 @@ else
 IMAGEMAGICK_CONF_OPT += --without-bzip2
 endif
 
-define IMAGEMAGICK_REMOVE_CONFIG_SCRIPTS
-	$(RM) -f $(addprefix $(TARGET_DIR)/usr/bin/,	\
-		   $(addsuffix -config,			\
-		     Magick MagickCore MagickWand Wand Magick++))
-endef
-
-ifneq ($(BR2_HAVE_DEVFILES),y)
-IMAGEMAGICK_POST_INSTALL_TARGET_HOOKS += IMAGEMAGICK_REMOVE_CONFIG_SCRIPTS
-endif
-
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

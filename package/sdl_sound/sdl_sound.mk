@@ -1,12 +1,13 @@
-#############################################################
+################################################################################
 #
-# sdl_sound addon for SDL
+# sdl_sound
 #
-#############################################################
-SDL_SOUND_VERSION:=1.0.3
-SDL_SOUND_SOURCE:=SDL_sound-$(SDL_SOUND_VERSION).tar.gz
-SDL_SOUND_SITE:=http://icculus.org/SDL_sound/downloads/
-SDL_SOUND_INSTALL_STAGING:=YES
+################################################################################
+
+SDL_SOUND_VERSION = 1.0.3
+SDL_SOUND_SOURCE = SDL_sound-$(SDL_SOUND_VERSION).tar.gz
+SDL_SOUND_SITE = http://icculus.org/SDL_sound/downloads/
+SDL_SOUND_INSTALL_STAGING = YES
 SDL_SOUND_DEPENDENCIES = sdl
 
 ifneq ($(BR2_ENABLE_LOCALE),y)
@@ -32,8 +33,7 @@ SDL_SOUND_CONF_OPT = \
 	--disable-sdltest \
 	--enable-static
 
-# enable mmx for newer x86's
-ifeq ($(BR2_i386)$(BR2_x86_i386)$(BR2_x86_i486)$(BR2_x86_i586)$(BR2_x86_pentiumpro)$(BR2_x86_geode),y)
+ifeq ($(BR2_X86_CPU_HAS_MMX),y)
 SDL_SOUND_CONF_OPT += --enable-mmx
 else
 SDL_SOUND_CONF_OPT += --disable-mmx
@@ -48,10 +48,10 @@ SDL_SOUND_POST_INSTALL_TARGET_HOOKS += SDL_SOUND_REMOVE_PLAYSOUND
 endif
 
 # target shared libs doesn't get removed by make uninstall if the .la
-# files are removed (E.G. if BR2_HAVE_DEVFILES isn't set)
+# files are removed
 define SDL_SOUND_UNINSTALL_TARGET_CMDS
 	$(MAKE) DESTDIR=$(TARGET_DIR) uninstall -C $(@D)
 	rm -f $(TARGET_DIR)/usr/lib/libSDL_sound*so*
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

@@ -1,18 +1,21 @@
-#############################################################
+################################################################################
 #
 # libevas
 #
-#############################################################
+################################################################################
 
-LIBEVAS_VERSION = 1.1.0
+LIBEVAS_VERSION = $(EFL_VERSION)
 LIBEVAS_SOURCE = evas-$(LIBEVAS_VERSION).tar.bz2
 LIBEVAS_SITE = http://download.enlightenment.org/releases/
+LIBEVAS_LICENSE = BSD-2c
+LIBEVAS_LICENSE_FILES = COPYING
+
 LIBEVAS_INSTALL_STAGING = YES
 
-LIBEVAS_DEPENDENCIES = host-pkg-config zlib libeina freetype
+LIBEVAS_DEPENDENCIES = host-pkgconf zlib libeina freetype
 
-HOST_LIBEVAS_DEPENDENCIES = host-pkg-config host-zlib host-libeina \
-				host-freetype host-libpng host-jpeg
+HOST_LIBEVAS_DEPENDENCIES = host-pkgconf host-zlib host-libeina \
+				host-freetype host-libpng host-libjpeg
 HOST_LIBEVAS_CONF_OPT += \
 	--enable-image-loader-png \
 	--enable-image-loader-jpeg \
@@ -60,7 +63,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBEVAS_X11),y)
 LIBEVAS_CONF_OPT += --enable-software-xlib
-LIBEVAS_DEPENDENCIES += xproto_xproto
+LIBEVAS_DEPENDENCIES += xlib_libX11 xlib_libXext
 endif
 
 ifeq ($(BR2_PACKAGE_LIBEVAS_X11_GLX),y)
@@ -115,23 +118,23 @@ LIBEVAS_CONF_OPT += --enable-gl-flavor-gles --enable-gles-variety-s3c6410
 endif
 
 # code options
-ifeq ($(BR2_i386)$(BR2_x86_64),y)
-# defaults
-LIBEVAS_CONF_OPT += --disable-cpu-mmx --disable-cpu-sse --disable-cpu-sse3
-
-# enable if cpu variant has mmx support
-ifneq ($(BR2_x86_i386)$(BR2_x86_i486)$(BR2_x86_i586)$(BR2_x86_i686)$(BR2_x86_pentiumpro)$(BR2_x86_geode),y)
+ifeq ($(BR2_X86_CPU_HAS_MMX),y)
 LIBEVAS_CONF_OPT += --enable-cpu-mmx
+else
+LIBEVAS_CONF_OPT += --disable-cpu-mmx
+endif
 
-ifneq ($(BR2_x86_pentium_mmx)$(BR2_x86_pentium2)$(BR2_x86_k6)$(BR2_x86_k6_2)$(BR2_x86_athlon)$(BR2_x86_c3)$(BR2_x86_winchip_c6)$(BR2_x86_winchip2),y)
+ifeq ($(BR2_X86_CPU_HAS_SSE),y)
 LIBEVAS_CONF_OPT += --enable-cpu-sse
+else
+LIBEVAS_CONF_OPT += --disable-cpu-sse
+endif
 
-ifneq ($(BR2_x86_pentium3)$(BR2_x86_pentium4)$(BR2_x86_prescott)$(BR2_x86_athlon_4)$(BR2_x86_opteron)$(BR2_x86_c32)$(BR2_x86_64_opteron),y)
+ifeq ($(BR2_X86_CPU_HAS_SSE3),y)
 LIBEVAS_CONF_OPT += --enable-cpu-sse3
-endif # sse3
-endif # sse
-endif # mmx
-endif # x86
+else
+LIBEVAS_CONF_OPT += --disable-cpu-sse3
+endif
 
 ifeq ($(BR2_powerpc_7400)$(BR2_powerpc_7450)$(BR2_powerpc_970),y)
 LIBEVAS_CONF_OPT += --enable-cpu-altivec
@@ -139,8 +142,7 @@ else
 LIBEVAS_CONF_OPT += --disable-cpu-altivec
 endif
 
-ifeq ($(BR2_cortex_a8)$(BR2_cortex_a9),y)
-# NEON is optional for A9
+ifeq ($(BR2_ARM_CPU_HAS_NEON),y)
 LIBEVAS_CONF_OPT += --enable-cpu-neon
 else
 LIBEVAS_CONF_OPT += --disable-cpu-neon
@@ -174,12 +176,6 @@ else
 LIBEVAS_CONF_OPT += --disable-image-loader-pmaps
 endif
 
-ifeq ($(BR2_PACKAGE_LIBEVAS_SVG),y)
-LIBEVAS_CONF_OPT += --enable-image-loader-svg
-else
-LIBEVAS_CONF_OPT += --disable-image-loader-svg
-endif
-
 ifeq ($(BR2_PACKAGE_LIBEVAS_TIFF),y)
 LIBEVAS_CONF_OPT += --enable-image-loader-tiff
 LIBEVAS_DEPENDENCIES += tiff
@@ -207,10 +203,13 @@ else
 LIBEVAS_CONF_OPT += --disable-font-loader-eet
 endif
 
-# documentation
-ifneq ($(BR2_HAVE_DOCUMENTATION),y)
-LIBEVAS_CONF_OPT += --disable-doc
-endif
+# libevas installs the source code of examples on the target, which
+# are generally not useful.
+define LIBEVAS_REMOVE_EXAMPLES
+	rm -rf $(TARGET_DIR)/usr/share/evas/examples/
+endef
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+LIBEVAS_POST_INSTALL_TARGET_HOOKS += LIBEVAS_REMOVE_EXAMPLES
+
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

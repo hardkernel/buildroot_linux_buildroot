@@ -1,7 +1,6 @@
-######################################################################
+################################################################################
 #
 # Qt Embedded for Linux
-# http://www.qtsoftware.com/
 #
 # This makefile was originally composed by Thomas Lundquist <thomasez@zelow.no>
 # Later heavily modified by buildroot developers
@@ -10,13 +9,19 @@
 # the kernels FPU emulation so it's better to choose soft float in the
 # buildroot config (and uClibc.config of course, if you have your own.)
 #
-######################################################################
+################################################################################
 
 QT_VERSION = 4.8.2
 QT_SOURCE  = qt-everywhere-opensource-src-$(QT_VERSION).tar.gz
 QT_SITE    = http://releases.qt-project.org/qt4/source
 QT_DEPENDENCIES = host-pkg-config
 QT_INSTALL_STAGING = YES
+
+QT_LICENSE = LGPLv2.1 with exceptions or GPLv3
+ifneq ($(BR2_PACKAGE_QT_LICENSE_APPROVED),y)
+QT_LICENSE += or Digia Qt Commercial license
+endif
+QT_LICENSE_FILES = LICENSE.LGPL LGPL_EXCEPTION.txt LICENSE.GPL3
 
 ifeq ($(BR2_PACKAGE_QT_LICENSE_APPROVED),y)
 QT_CONFIGURE_OPTS += -opensource -confirm-license
@@ -25,7 +30,7 @@ endif
 QT_CONFIG_FILE=$(call qstrip,$(BR2_PACKAGE_QT_CONFIG_FILE))
 
 ifneq ($(QT_CONFIG_FILE),)
-QT_CONFIGURE_OPTS += -config buildroot
+QT_CONFIGURE_OPTS += -qconfig buildroot
 endif
 
 QT_CFLAGS = $(TARGET_CFLAGS)
@@ -67,7 +72,7 @@ endif
 
 
 ### Pixel depths
-QT_PIXEL_DEPTHS := # empty
+QT_PIXEL_DEPTHS = # empty
 ifeq ($(BR2_PACKAGE_QT_PIXEL_DEPTH_1),y)
 QT_PIXEL_DEPTHS += 1
 endif
@@ -131,7 +136,11 @@ QT_DEPENDENCIES += directfb
 else
 QT_CONFIGURE_OPTS += -no-gfx-directfb
 endif
-
+ifeq ($(BR2_PACKAGE_QT_GFX_POWERVR),y)
+QT_CONFIGURE_OPTS += \
+	-plugin-gfx-powervr -D QT_NO_QWS_CURSOR -D QT_QWS_CLIENTBLIT
+QT_DEPENDENCIES += powervr
+endif
 
 ### Mouse drivers
 ifeq ($(BR2_PACKAGE_QT_MOUSE_PC),y)
@@ -308,6 +317,13 @@ else
 QT_CONFIGURE_OPTS += -no-openssl
 endif
 
+ifeq ($(BR2_PACKAGE_QT_OPENGL_ES),y)
+QT_CONFIGURE_OPTS += -opengl es2 -egl
+QT_DEPENDENCIES   += libgles libegl
+else
+QT_CONFIGURE_OPTS += -no-opengl
+endif
+
 # Qt SQL Drivers
 ifeq ($(BR2_PACKAGE_QT_SQL_MODULE),y)
 ifeq ($(BR2_PACKAGE_QT_IBASE),y)
@@ -417,10 +433,10 @@ else
 QT_CONFIGURE_OPTS += -no-declarative
 endif
 
-# ccache and precompiled headers don't play well together
-ifeq ($(BR2_CCACHE),y)
+# -no-pch is needed to workaround the issue described at
+# http://comments.gmane.org/gmane.comp.lib.qt.devel/5933.
+# In addition, ccache and precompiled headers don't play well together
 QT_CONFIGURE_OPTS += -no-pch
-endif
 
 # x86x86fix
 # Workaround Qt Embedded bug when crosscompiling for x86 under x86 with linux
@@ -495,7 +511,7 @@ define QT_CONFIGURE_CMDS
 		PKG_CONFIG_SYSROOT_DIR="$(STAGING_DIR)" \
 		PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
 		PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/pkgconfig:$(PKG_CONFIG_PATH)" \
-		MAKEFLAGS="$(MAKEFLAGS) -j$(BR2_JLEVEL)" ./configure \
+		MAKEFLAGS="$(MAKEFLAGS) -j$(PARALLEL_JOBS)" ./configure \
 		$(if $(VERBOSE),-verbose,-silent) \
 		-force-pkg-config \
 		$(QT_CONFIGURE_OPTS) \
@@ -506,6 +522,7 @@ define QT_CONFIGURE_CMDS
 		-no-separate-debug-info \
 		-prefix /usr \
 		-plugindir /usr/lib/qt/plugins \
+		-importdir /usr/lib/qt/imports \
 		-hostprefix $(STAGING_DIR) \
 		-fast \
 		-no-rpath \
@@ -567,6 +584,12 @@ endif
 ifeq ($(BR2_PACKAGE_QT_QT3SUPPORT),y)
 QT_INSTALL_LIBS    += Qt3Support
 endif
+ifeq ($(BR2_PACKAGE_QT_OPENGL_ES),y)
+QT_INSTALL_LIBS    += QtOpenGL
+endif
+ifeq ($(BR2_PACKAGE_QT_GFX_POWERVR),y)
+QT_INSTALL_LIBS    += pvrQWSWSEGL
+endif
 
 #QT_INSTALL_LIBS	   += QtOpenGL
 
@@ -589,14 +612,20 @@ endef
 # everything in the STAGING_DIR), we move host programs such as qmake,
 # rcc or uic to the HOST_DIR so that they are available at the usual
 # location. A qt.conf file is generated to make sure that all host
-# programs still find all files they need.
+# programs still find all files they need. The .pc files are tuned to
+# remove the sysroot path from them, since pkg-config already adds it
+# automatically.
 define QT_INSTALL_STAGING_CMDS
 	$(MAKE) -C $(@D) install
 	mkdir -p $(HOST_DIR)/usr/bin
 	mv $(addprefix $(STAGING_DIR)/usr/bin/,$(QT_HOST_PROGRAMS)) $(HOST_DIR)/usr/bin
-	rm -rf $(HOST_DIR)/usr/mkspecs
-	mv $(STAGING_DIR)/usr/mkspecs $(HOST_DIR)/usr
+	ln -sf $(STAGING_DIR)/usr/mkspecs $(HOST_DIR)/usr/mkspecs
 	$(QT_INSTALL_QT_CONF)
+	for i in moc uic rcc lupdate lrelease ; do \
+		$(SED) "s,^$${i}_location=.*,$${i}_location=$(HOST_DIR)/usr/bin/$${i}," \
+			$(STAGING_DIR)/usr/lib/pkgconfig/Qt*.pc ; \
+	done
+	$(SED) "s,$(STAGING_DIR)/,,g" $(STAGING_DIR)/usr/lib/pkgconfig/Qt*.pc
 endef
 
 # Library installation
@@ -616,6 +645,14 @@ define QT_INSTALL_TARGET_PLUGINS
 	fi
 endef
 
+# Import installation
+define QT_INSTALL_TARGET_IMPORTS
+	if [ -d $(STAGING_DIR)/usr/lib/qt/imports/ ] ; then \
+		mkdir -p $(TARGET_DIR)/usr/lib/qt/imports ; \
+		cp -dpfr $(STAGING_DIR)/usr/lib/qt/imports/* $(TARGET_DIR)/usr/lib/qt/imports ; \
+	fi
+endef
+
 # Fonts installation
 ifneq ($(QT_FONTS),)
 define QT_INSTALL_TARGET_FONTS
@@ -631,11 +668,22 @@ define QT_INSTALL_TARGET_FONTS_TTF
 endef
 endif
 
+ifeq ($(BR2_PACKAGE_QT_GFX_POWERVR),y)
+define QT_INSTALL_TARGET_POWERVR
+	# Note: this overwrites the default powervr.ini provided by the ti-gfx
+	# package.
+	$(INSTALL) -D -m 0644 package/qt/powervr.ini \
+		$(TARGET_DIR)/etc/powervr.ini
+endef
+endif
+
 define QT_INSTALL_TARGET_CMDS
 	$(QT_INSTALL_TARGET_LIBS)
 	$(QT_INSTALL_TARGET_PLUGINS)
+	$(QT_INSTALL_TARGET_IMPORTS)
 	$(QT_INSTALL_TARGET_FONTS)
 	$(QT_INSTALL_TARGET_FONTS_TTF)
+	$(QT_INSTALL_TARGET_POWERVR)
 endef
 
 define QT_CLEAN_CMDS
@@ -648,4 +696,4 @@ define QT_UNINSTALL_TARGET_CMDS
 	-rm $(TARGET_DIR)/usr/lib/libphonon.so.*
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

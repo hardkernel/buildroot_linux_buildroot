@@ -1,11 +1,12 @@
-#############################################################
+################################################################################
 #
 # netplug
 #
-#############################################################
-NETPLUG_VERSION=1.2.9.2
-NETPLUG_SOURCE=netplug-$(NETPLUG_VERSION).tar.bz2
-NETPLUG_SITE=http://www.red-bean.com/~bos/netplug
+################################################################################
+
+NETPLUG_VERSION = 1.2.9.2
+NETPLUG_SOURCE = netplug-$(NETPLUG_VERSION).tar.bz2
+NETPLUG_SITE = http://www.red-bean.com/~bos/netplug
 
 define NETPLUG_BUILD_CMDS
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
@@ -25,4 +26,4 @@ define NETPLUG_CLEAN_CMDS
 	-$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

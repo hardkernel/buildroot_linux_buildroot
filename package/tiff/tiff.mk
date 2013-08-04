@@ -1,17 +1,19 @@
-#############################################################
+################################################################################
 #
 # tiff
 #
-#############################################################
-TIFF_VERSION = 4.0.1
-TIFF_SITE = ftp://ftp.remotesensing.org/pub/libtiff
-TIFF_SOURCE = tiff-$(TIFF_VERSION).tar.gz
+################################################################################
+
+TIFF_VERSION = 4.0.3
+TIFF_SITE = http://download.osgeo.org/libtiff
+TIFF_LICENSE = tiff license
+TIFF_LICENSE_FILES = COPYRIGHT
 TIFF_INSTALL_STAGING = YES
 TIFF_CONF_OPT = \
 	--disable-cxx \
 	--without-x \
 
-TIFF_DEPENDENCIES = host-pkg-config
+TIFF_DEPENDENCIES = host-pkgconf
 
 TIFF_TOOLS_LIST =
 ifeq ($(BR2_PACKAGE_TIFF_TIFF2PDF),y)
@@ -81,4 +83,4 @@ define TIFF_INSTALL_TARGET_CMDS
 	done
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

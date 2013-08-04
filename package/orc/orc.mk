@@ -1,13 +1,15 @@
-#############################################################
+################################################################################
 #
 # orc
 #
-#############################################################
-ORC_VERSION = 0.4.14
+################################################################################
+
+ORC_VERSION = 0.4.16
 ORC_SITE = http://code.entropywave.com/download/orc/
+ORC_LICENSE = BSD-2c, BSD-3c
+ORC_LICENSE_FILES = COPYING
 ORC_INSTALL_STAGING = YES
 ORC_DEPENDENCIES = host-orc
-HOST_ORC_DEPENDENCIES =
 
 define ORC_REMOVE_BUGREPORT
 	rm -f $(TARGET_DIR)/usr/bin/orc-bugreport
@@ -18,10 +20,7 @@ define ORC_REMOVE_DEVFILES
 endef
 
 ORC_POST_INSTALL_TARGET_HOOKS += ORC_REMOVE_BUGREPORT
-
-ifneq ($(BR2_HAVE_DEVFILES),y)
 ORC_POST_INSTALL_TARGET_HOOKS += ORC_REMOVE_DEVFILES
-endif
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

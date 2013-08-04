@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
-# DataFlashBoot
+# at91dataflashboot
 #
-#############################################################
+################################################################################
 
 AT91DATAFLASHBOOT_VERSION = 1.05
 AT91DATAFLASHBOOT_SOURCE = DataflashBoot-$(AT91DATAFLASHBOOT_VERSION).tar.bz2
@@ -19,4 +19,4 @@ define AT91DATAFLASHBOOT_INSTALL_IMAGES_CMDS
 	cp $(@D)/DataflashBoot-$(AT91DATAFLASHBOOT_VERSION).bin $(BINARIES_DIR)
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

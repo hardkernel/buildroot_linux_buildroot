@@ -1,3 +1,9 @@
+################################################################################
+#
+# dsp-tools
+#
+################################################################################
+
 DSP_TOOLS_VERSION = 2.0
 DSP_TOOLS_SOURCE = dsp-tools-$(DSP_TOOLS_VERSION).tar.gz
 DSP_TOOLS_SITE = http://gst-dsp.googlecode.com/files/
@@ -15,4 +21,4 @@ define DSP_TOOLS_UNINSTALL_TARGET_CMDS
 	rm -f $(addprefix $(TARGET_DIR)/usr/bin/dsp-, load probe test exec)
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

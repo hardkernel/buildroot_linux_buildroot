@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # dhcpdump
 #
-#############################################################
+################################################################################
 
 DHCPDUMP_VERSION = 1.8
 DHCPDUMP_SITE    = http://www.mavetju.org/download/
@@ -18,4 +18,4 @@ define DHCPDUMP_INSTALL_TARGET_CMDS
 	install -m 0755 -D $(@D)/dhcpdump $(TARGET_DIR)/usr/bin/dhcpdump
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

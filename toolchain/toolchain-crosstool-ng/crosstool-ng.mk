@@ -10,8 +10,8 @@
 
 CTNG_DIR := $(BUILD_DIR)/build-toolchain
 
-CTNG_UCLIBC_CONFIG_FILE := $(TOPDIR)/toolchain/uClibc/uClibc-0.9.32.config
-CTNG_CONFIG_FILE:=$(call qstrip,$(BR2_TOOLCHAIN_CTNG_CONFIG))
+CTNG_UCLIBC_CONFIG_FILE := $(TOPDIR)/package/uclibc/uClibc-0.9.33.config
+CTNG_CONFIG_FILE := $(call qstrip,$(BR2_TOOLCHAIN_CTNG_CONFIG))
 
 # Hack! ct-ng is in fact a Makefile script. As such, it accepts all
 # make options, such as -C, which makes it uneeded to chdir prior
@@ -22,15 +22,13 @@ PATH=$(HOST_PATH) ct-ng -C $(CTNG_DIR) --no-print-directory $(1)
 endef
 
 #-----------------------------------------------------------------------------
-# 'uclibc' is the target to depend on to get the toolchain and prepare
-# the staging directory and co.
-uclibc: dependencies $(STAMP_DIR)/ct-ng-toolchain-installed
+toolchain-crosstool-ng: dependencies $(STAMP_DIR)/ct-ng-toolchain-installed
 
-# 'uclibc-source' is the target used by the infra structure to mean
-# "we just want to download the toolchain's sources, not build it"
-# For crosstool-NG, we need it to be configured before we can download;
-# then we have to override a config option to just do the download
-uclibc-source: $(CTNG_DIR)/.config
+# The target used by the infra structure to mean "we just want to
+# download the toolchain's sources, not build it" For crosstool-NG, we
+# need it to be configured before we can download; then we have to
+# override a config option to just do the download
+toolchain-crosstool-ng-source: $(CTNG_DIR)/.config
 	$(Q)$(call ctng,build CT_ONLY_DOWNLOAD=y)
 
 #-----------------------------------------------------------------------------
@@ -40,6 +38,10 @@ uclibc-source: $(CTNG_DIR)/.config
 # The generic system libraries (in /lib)
 CTNG_LIBS_LIB := ld*.so libc.so libcrypt.so libdl.so libgcc_s.so libm.so    \
                  libnsl.so libpthread.so libresolv.so librt.so libutil.so
+
+ifeq ($(BR2_PACKAGE_GDB_SERVER),y)
+CTNG_LIBS_LIB += libthread_db.so
+endif
 
 #--------------
 # The libc-specific system libraries (in /lib)
@@ -62,16 +64,14 @@ endif
 # Actual copy
 $(STAMP_DIR)/ct-ng-toolchain-installed: $(STAMP_DIR)/ct-ng-toolchain-built
 	$(Q)mkdir -p $(TARGET_DIR)/lib
-	$(Q)CTNG_TUPLE="$$( $(call ctng,show-tuple) )";                     \
+	$(Q)CTNG_TUPLE="$$( $(call ctng,show-tuple 2>&1) )";                \
 	    CTNG_SYSROOT="$(HOST_DIR)/usr/$${CTNG_TUPLE}/sysroot";          \
-	    echo "CTNG_TUPLE='$${CTNG_TUPLE}'";                             \
-	    echo "CTNG_SYSROOT='$${CTNG_SYSROOT}'";                         \
-	    echo "Copy external toolchain libraries to target...";          \
+	    $(call MESSAGE,"Copying toolchain libraries to target...");     \
 	    for libs in $(CTNG_LIBS_LIB); do                                \
-	        $(call copy_toolchain_lib_root,$${CTNG_SYSROOT},$$libs,/lib); \
+	        $(call copy_toolchain_lib_root,$${CTNG_SYSROOT},,lib,$$libs,/lib); \
 	    done;                                                           \
 	    for libs in $(CTNG_LIBS_USR_LIB); do                            \
-	        $(call copy_toolchain_lib_root,$${CTNG_SYSROOT},$$libs,/usr/lib); \
+	        $(call copy_toolchain_lib_root,$${CTNG_SYSROOT},,lib,$$libs,/usr/lib); \
 	    done;
 	$(Q)touch $@
 
@@ -81,7 +81,8 @@ $(STAMP_DIR)/ct-ng-toolchain-installed: $(STAMP_DIR)/ct-ng-toolchain-built
 #       depending on the selected C library. Those deps are added later
 
 $(STAMP_DIR)/ct-ng-toolchain-built: $(CTNG_DIR)/.config
-	$(Q)$(call ctng,build.$(BR2_JLEVEL))
+	$(Q)$(call MESSAGE,"Building the crosstool-NG toolchain")
+	$(Q)$(call ctng,build.$(PARALLEL_JOBS))
 	$(Q)printf "\n"
 	$(Q)touch $@
 
@@ -95,9 +96,9 @@ $(STAMP_DIR)/ct-ng-toolchain-built: $(CTNG_DIR)/.config
 # - second for path options (because they have no prompt, they
 #                            always get set to the default value)
 # - third for C library .config (if it has one, eg. uClibc)
-CTNG_FIX_DOT_CONFIG_SED       :=
-CTNG_FIX_DOT_CONFIG_PATHS_SED :=
-CTNG_FIX_DOT_CONFIG_LIBC_SED  :=
+CTNG_FIX_BUILDROOT_CONFIG_SED       :=
+CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED :=
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED  :=
 
 #--------------
 # A few generic functions
@@ -187,7 +188,7 @@ endif
 # CT_LOCAL_TARBALLS_DIR     : share downloads with BR
 # CT_SYSROOT_DIR_PREFIX     : no prefix needed, really
 # CT_TARGET_VENDOR          : try to set a unique vendor string, to avoid clashing with BR's vendor string
-# CT_TARGET_ALIAS           : set the target tuple alias to REAL_GNU_TARGET_NAME so that packages' ./configure find the compiler
+# CT_TARGET_ALIAS           : set the target tuple alias to GNU_TARGET_NAME so that packages' ./configure find the compiler
 # CT_DEBUG_gdb              : deselect gdb+gdbserver if buildroot builds its own
 # CT_CC_LANG_CXX            : required if we copy libstdc++.so, and build C++
 # CT_LIBC_UCLIBC_CONFIG_FILE: uClibc config file, if needed
@@ -196,126 +197,126 @@ endif
 # with BR2 config options.
 # Known missing: arch options, uClibc/eglibc config...
 #
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_INSTALL_DIR_RO)=y:\# \1 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_ARCH_[BL]E).*:\# \2 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_ARCH_$(CTNG_ENDIAN)) is not set:\1=y:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_ARCH_(32|64)).*:\# \2 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_ARCH_$(CTNG_BIT)) is not set:\1=y:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_TARGET_VENDOR)=.*:\1="unknown":;
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_TARGET_ALIAS)=.*:\1="$(GNU_TARGET_NAME)":;
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_TOOLCHAIN_PKGVERSION)="(.*)":\1="buildroot $(BR2_VERSION_FULL)":;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_INSTALL_DIR_RO)=y:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_ARCH_[BL]E).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_ARCH_$(CTNG_ENDIAN)) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_ARCH_(32|64)).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_ARCH_$(CTNG_BIT)) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_TARGET_VENDOR)=.*:\1="buildroot":;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_TARGET_ALIAS)=.*:\1="$(ARCH)-linux":;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_TOOLCHAIN_PKGVERSION)="(.*)":\1="buildroot $(BR2_VERSION_FULL)":;
 ifneq ($(call qstrip,$(BR2_USE_MMU)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_ARCH_USE_MMU) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_ARCH_USE_MMU) is not set:\1=y:;
 else
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_ARCH_USE_MMU)=y:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_ARCH_USE_MMU)=y:\# \1 is not set:;
 endif
 ifneq ($(call qstrip,$(BR2_PACKAGE_GDB_SERVER))$(call qstrip,$(BR2_PACKAGE_GDB_HOST)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_DEBUG_gdb)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_DEBUG_gdb)=.*:\# \1 is not set:;
 endif
 ifeq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_CXX)),y)
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_CC_LANG_CXX) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_CC_LANG_CXX) is not set:\1=y:;
 else
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_CC_LANG_CXX)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_CC_LANG_CXX)=.*:\# \1 is not set:;
 endif
 
 # Shoe-horn CPU variant now
 ifneq ($(call qstrip,$(BR2_GCC_TARGET_ARCH)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_ARCH_ARCH)=.*:\1=$(BR2_GCC_TARGET_ARCH):;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_ARCH_ARCH)=.*:\1=$(BR2_GCC_TARGET_ARCH):;
 endif
 ifneq ($(call qstrip,$(BR2_GCC_TARGET_TUNE)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_ARCH_TUNE)=.*:\1=$(BR2_GCC_TARGET_TUNE):;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_ARCH_TUNE)=.*:\1=$(BR2_GCC_TARGET_TUNE):;
 endif
 
 # And floating point now
 ifeq ($(call qstrip,$(BR2_SOFT_FLOAT)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_ARCH_FLOAT_HW) is not set:\1=y:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_ARCH_FLOAT_SW)=y:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_ARCH_FLOAT_HW) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_ARCH_FLOAT_SW)=y:\# \1 is not set:;
 else
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_ARCH_FLOAT_HW)=y:\# \1 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_ARCH_FLOAT_SW) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_ARCH_FLOAT_HW)=y:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_ARCH_FLOAT_SW) is not set:\1=y:;
 endif
 
 # Thread implementation selection
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NONE).*:\# \2 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_THREADS_LINUXTHREADS).*:\# \2 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NPTL).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NONE).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_THREADS_LINUXTHREADS).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NPTL).*:\# \2 is not set:;
 ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_THREADS_PTHREADS))$(call qstrip,$(BR2_TOOLCHAIN_CTNG_THREADS_PTHREADS_OLD)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_THREADS_LINUXTHREADS).*:\2=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_THREADS_LINUXTHREADS).*:\2=y:;
  ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_uClibc)),)
   ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_THREADS_PTHREADS_OLD)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_NEW).*:\# \2 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_OLD).*:\2=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_NEW).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_OLD).*:\2=y:;
   else
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_OLD).*:\# \2 is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_NEW).*:\2=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_OLD).*:\# \2 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_LIBC_UCLIBC_LNXTHRD_NEW).*:\2=y:;
   endif
  endif
 else ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_THREADS_NPTL)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NPTL).*:\2=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NPTL).*:\2=y:;
 else ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_THREADS_NONE)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NONE).*:\2=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(|\# )(CT_THREADS_NONE).*:\2=y:;
 endif
 
 #--------------
 # And the specials for paths
-CTNG_FIX_DOT_CONFIG_PATHS_SED += s:^(CT_PREFIX_DIR)=.*:\1="$(HOST_DIR)/usr":;
-CTNG_FIX_DOT_CONFIG_PATHS_SED += s:^(CT_LOCAL_TARBALLS_DIR)=.*:\1="$(DL_DIR)":;
-CTNG_FIX_DOT_CONFIG_PATHS_SED += s:^(CT_SYSROOT_NAME)=.*:\1="sysroot":;
-CTNG_FIX_DOT_CONFIG_PATHS_SED += s:^(CT_SYSROOT_DIR_PREFIX)=.*:\1="":;
+CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED += s:^(CT_PREFIX_DIR)=.*:\1="$(HOST_DIR)/usr":;
+CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED += s:^(CT_LOCAL_TARBALLS_DIR)=.*:\1="$(DL_DIR)":;
+CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED += s:^(CT_SYSROOT_NAME)=.*:\1="sysroot":;
+CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED += s:^(CT_SYSROOT_DIR_PREFIX)=.*:\1="":;
 
 #--------------
 # uClibc specific options
 ifeq ($(BR2_TOOLCHAIN_CTNG_uClibc),y)
 
 # Handle the locales option
-ifneq ($(call qstrip,$(BR2_ENABLE_LOCALE)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_LIBC_UCLIBC_LOCALES) is not set:\1=y\n\# CT_LIBC_UCLIBC_LOCALES_PREGEN_DATA is not set:;
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_LIBC_UCLIBC_LOCALES_PREGEN_DATA)=.*:\# \1 is not set:;
+ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_uClibc_LOCALE)),)
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_LIBC_UCLIBC_LOCALES) is not set:\1=y\n\# CT_LIBC_UCLIBC_LOCALES_PREGEN_DATA is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_LIBC_UCLIBC_LOCALES_PREGEN_DATA)=.*:\# \1 is not set:;
 else
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_LIBC_UCLIBC_LOCALES)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_LIBC_UCLIBC_LOCALES)=.*:\# \1 is not set:;
 endif
 
 # Handle the wide-char option
-ifneq ($(call qstrip,$(BR2_USE_WCHAR)),)
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_LIBC_UCLIBC_WCHAR) is not set:\1=y:;
+ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_uClibc_WCHAR)),)
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_LIBC_UCLIBC_WCHAR) is not set:\1=y:;
 else
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_LIBC_UCLIBC_WCHAR)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_LIBC_UCLIBC_WCHAR)=.*:\# \1 is not set:;
 endif
 
 # Handle the LFS option
-ifneq ($(call qstrip,$(BR2_LARGEFILE)),)
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_LFS) is not set:\1=y:;
+ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_uClibc_LARGEFILE)),)
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_LFS) is not set:\1=y:;
 else
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^(UCLIBC_HAS_LFS)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^(UCLIBC_HAS_LFS)=.*:\# \1 is not set:;
 endif
 
 # Handle the IPv6 option
-ifneq ($(call qstrip,$(BR2_INET_IPV6)),)
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_IPV6) is not set:\1=y:;
+ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_uClibc_INET_IPV6)),)
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_IPV6) is not set:\1=y:;
 else
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^(UCLIBC_HAS_IPV6)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^(UCLIBC_HAS_IPV6)=.*:\# \1 is not set:;
 endif
 
 # Handle the RPC option
-ifneq ($(call qstrip,$(BR2_INET_RPC)),)
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_RPC) is not set:\1=y\nUCLIBC_HAS_FULL_RPC=y\nUCLIBC_HAS_REENTRANT_RPC=y:;
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_FULL_RPC) is not set:\1=y:;
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_REENTRANT_RPC) is not set:\1=y:;
+ifneq ($(call qstrip,$(BR2_TOOLCHAIN_CTNG_uClibc_INET_RPC)),)
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_RPC) is not set:\1=y\nUCLIBC_HAS_FULL_RPC=y\nUCLIBC_HAS_REENTRANT_RPC=y:;
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_FULL_RPC) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^\# (UCLIBC_HAS_REENTRANT_RPC) is not set:\1=y:;
 else
-CTNG_FIX_DOT_CONFIG_LIBC_SED += s:^(UCLIBC_HAS_RPC)=.*:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED += s:^(UCLIBC_HAS_RPC)=.*:\# \1 is not set:;
 endif
 
 # Instruct CT-NG's .config where to find the uClibc's .config
-CTNG_FIX_DOT_CONFIG_PATHS_SED += s:^(CT_LIBC_UCLIBC_CONFIG_FILE)=.*:\1="$(CTNG_DIR)/libc.config":;
+CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED += s:^(CT_LIBC_UCLIBC_CONFIG_FILE)=.*:\1="$(CTNG_DIR)/libc.config":;
 
 # And add this to the toolchain build dependency
 $(STAMP_DIR)/ct-ng-toolchain-built: $(CTNG_DIR)/libc.config
 
 # And here is how we get this uClibc's .config
-$(CTNG_DIR)/libc.config: $(CTNG_UCLIBC_CONFIG_FILE) $(CONFIG_DIR)/.config
+$(CTNG_DIR)/libc.config: $(CTNG_UCLIBC_CONFIG_FILE) $(BUILDROOT_CONFIG)
 	-$(Q)cp -a $@ $@.timestamp
 	$(Q)cp -f $< $@
-	$(call ctng-fix-dot-config,$@,$(CTNG_FIX_DOT_CONFIG_LIBC_SED))
+	$(call ctng-fix-dot-config,$@,$(CTNG_FIX_BUILDROOT_CONFIG_LIBC_SED))
 	$(call ctng-check-config-changed,$@,$@.timestamp)
 	$(Q)rm -f $@.timestamp
 
@@ -326,10 +327,10 @@ endif # LIBC is uClibc
 ifeq ($(BR2_TOOLCHAIN_CTNG_glibc)$(BR2_TOOLCHAIN_CTNG_eglibc),y)
 
 # Force unwind support
-CTNG_FIX_DOT_CONFIG_SED += s:^\# (CT_LIBC_GLIBC_FORCE_UNWIND) is not set:\1=y:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^\# (CT_LIBC_GLIBC_FORCE_UNWIND) is not set:\1=y:;
 
 # Force non-fortified build
-CTNG_FIX_DOT_CONFIG_SED += s:^(CT_LIBC_ENABLE_FORTIFIED_BUILD)=y:\# \1 is not set:;
+CTNG_FIX_BUILDROOT_CONFIG_SED += s:^(CT_LIBC_ENABLE_FORTIFIED_BUILD)=y:\# \1 is not set:;
 
 endif # LIBC is glibc or eglibc
 
@@ -343,14 +344,14 @@ endif # LIBC is glibc or eglibc
 # or a feature of kconfig?)
 # $1: the .config file to munge
 define ctng-oldconfig
-	$(call ctng-fix-dot-config,$(1),$(CTNG_FIX_DOT_CONFIG_SED))
+	$(call ctng-fix-dot-config,$(1),$(CTNG_FIX_BUILDROOT_CONFIG_SED))
 	$(Q)yes ''                                             |\
 	$(call ctng,CT_IS_A_BACKEND=y                           \
 	            CT_BACKEND_ARCH=$(CTNG_ARCH)                \
 	            CT_BACKEND_KERNEL=linux                     \
 	            CT_BACKEND_LIBC=$(BR2_TOOLCHAIN_CTNG_LIBC)  \
 	            oldconfig                                   )
-	$(call ctng-fix-dot-config,$(1),$(CTNG_FIX_DOT_CONFIG_PATHS_SED))
+	$(call ctng-fix-dot-config,$(1),$(CTNG_FIX_BUILDROOT_CONFIG_PATHS_SED))
 endef
 
 # We need the host crosstool-NG before we can even begin working
@@ -359,32 +360,28 @@ endef
 $(CTNG_DIR)/.config: | host-crosstool-ng
 
 # Default configuration
-# Depends on top-level .config because it has options we have to shoe-horn
-# into crosstool-NG's .config
 # Only copy the original .config file if we don't have one already.
 # Check that given config file matches selected C library.
 # We need to call oldconfig twice in a row to ensure the options
 # are correctly set ( eg. if an option is new, then the initial sed
 # can't do anything about it ) Ideally, this should go in oldconfig
 # itself, but it's much easier to handle here.
-
-$(CTNG_DIR)/.config: $(CTNG_CONFIG_FILE) $(CONFIG_DIR)/.config
+$(CTNG_DIR)/.config:
 	$(Q)if [ ! -f $@ ]; then                                                        \
 	        mkdir -p "$(CTNG_DIR)";                                                 \
-	        libc="$$(awk -F '"' '$$1=="CT_LIBC=" { print $$2; }' "$<")";            \
+	        libc="$$(awk -F '"' '$$1=="CT_LIBC=" { print $$2; }'                    \
+	                        "$(CTNG_CONFIG_FILE)"                                   \
+	                )";                                                             \
 	        if [ "$${libc}" != "$(BR2_TOOLCHAIN_CTNG_LIBC)" ]; then                 \
-	            echo "* Inconsistency in crosstool-NG config file '$<'";            \
+	            echo "* Inconsistency in crosstool-NG config file '$(CTNG_CONFIG_FILE)'"; \
 	            echo "* - buildroot configured for '$(BR2_TOOLCHAIN_CTNG_LIBC)'";   \
 	            echo "* - given config file for '$${libc}'";                        \
 	            exit 1;                                                             \
 	        fi;                                                                     \
-	        cp -f $< $@;                                                            \
+	        cp -f $(CTNG_CONFIG_FILE) $@;                                                            \
 	    fi
-	$(Q)cp -a $@ $@.timestamp
 	$(call ctng-oldconfig,$@)
 	$(call ctng-oldconfig,$@)
-	$(call ctng-check-config-changed,$@,$@.timestamp)
-	$(Q)rm -f $@.timestamp
 
 # Manual configuration
 ctng-menuconfig: $(CTNG_DIR)/.config

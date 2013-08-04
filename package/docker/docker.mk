@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # docker
 #
-#############################################################
+################################################################################
+
 DOCKER_VERSION = 1.5
 DOCKER_SOURCE = docker-$(DOCKER_VERSION).tar.gz
 DOCKER_SITE = http://icculus.org/openbox/2/docker
@@ -16,6 +17,6 @@ DOCKER_MAKE_OPT = CC="$(TARGET_CC)" CXX="$(TARGET_CXX)" LD="$(TARGET_LD)" \
 
 DOCKER_INSTALL_TARGET_OPT = PREFIX=$(TARGET_DIR)/usr install
 
-DOCKER_DEPENDENCIES = host-pkg-config libglib2 xserver_xorg-server
+DOCKER_DEPENDENCIES = host-pkgconf libglib2 xlib_libX11
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

@@ -1,15 +1,16 @@
-LTTNG_BABELTRACE_SITE    = http://lttng.org/files/bundles/20111214/
-LTTNG_BABELTRACE_VERSION = 0.8
-LTTNG_BABELTRACE_SOURCE  = babeltrace-$(LTTNG_BABELTRACE_VERSION).tar.bz2
+################################################################################
+#
+# lttng-babeltrace
+#
+################################################################################
 
-# Needed to fix libtool handling, otherwise the build fails when
-# building the ctf-parser-test program, which depends on libctf-ast.so
-# which itself depends on libbabeltrace_types.so.0 (and libtool gets
-# lost in the middle of this).
-LTTNG_BABELTRACE_AUTORECONF      = YES
-HOST_LTTNG_BABELTRACE_AUTORECONF = YES
+LTTNG_BABELTRACE_SITE    = http://lttng.org/files/babeltrace/
+LTTNG_BABELTRACE_VERSION = 1.1.1
+LTTNG_BABELTRACE_SOURCE  = babeltrace-$(LTTNG_BABELTRACE_VERSION).tar.bz2
+LTTNG_BABELTRACE_LICENSE = MIT; LGPLv2 for include/babeltrace/list.h; GPLv3+ for formats/ctf/metadata/ctf-parser.h
+LTTNG_BABELTRACE_LICENSE_FILES = mit-license.txt LICENSE
 
 LTTNG_BABELTRACE_DEPENDENCIES = popt util-linux libglib2
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

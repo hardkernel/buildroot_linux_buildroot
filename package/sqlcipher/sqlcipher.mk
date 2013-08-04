@@ -1,9 +1,9 @@
-#############################################################
+################################################################################
 #
-# Sqlcipher extension of sqlite
-# http://sqlcipher.net
+# sqlcipher
 #
-#############################################################
+################################################################################
+
 SQLCIPHER_VERSION = 1.1.9
 SQLCIPHER_SITE = http://github.com/sjlombardo/sqlcipher/tarball/v$(SQLCIPHER_VERSION)
 SQLCIPHER_DEPENDENCIES = openssl host-tcl
@@ -53,4 +53,4 @@ define SQLCIPHER_UNINSTALL_STAGING_CMDS
 	rm -f $(STAGING_DIR)/usr/include/sqlite3*.h
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

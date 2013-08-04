@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
-# ncftp client
+# ncftp
 #
-#############################################################
+################################################################################
 
 NCFTP_VERSION = 3.2.5
 NCFTP_SOURCE = ncftp-$(NCFTP_VERSION)-src.tar.bz2
@@ -41,4 +41,4 @@ define NCFTP_UNINSTALL_TARGET_CMDS
 	rm -f $(addprefix $(TARGET_DIR)/usr/bin/, $(NCFTP_TARGET_BINS) ncftpspooler)
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

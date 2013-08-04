@@ -1,11 +1,11 @@
-######################################################################
+################################################################################
 #
 # Check buildroot dependencies and bail out if the user's
 # system is judged to be lacking....
 #
-######################################################################
+################################################################################
 
-DEPENDENCIES_HOST_PREREQ:=
+DEPENDENCIES_HOST_PREREQ := 
 
 # suitable-host-pkg: calls check-host-$(1).sh shell script. Parameter (2)
 # can be the candidate to be checked. If not present, the check-host-$(1).sh
@@ -22,7 +22,6 @@ endif
 
 core-dependencies:
 	@HOSTCC="$(firstword $(HOSTCC))" MAKE="$(MAKE)" \
-		CONFIG_FILE="$(CONFIG_DIR)/.config" \
 		DL_TOOLS="$(sort $(DL_TOOLS_DEPENDENCIES))" \
 		$(TOPDIR)/support/dependencies/dependencies.sh
 
@@ -36,10 +35,10 @@ dependencies-clean:
 dependencies-dirclean:
 	true
 
-#############################################################
+################################################################################
 #
 # Toplevel Makefile options
 #
-#############################################################
+################################################################################
 .PHONY: dependencies core-dependencies
 

@@ -1,6 +1,13 @@
-JQUERY_VERSION = 1.7.1
+################################################################################
+#
+# jquery
+#
+################################################################################
+
+JQUERY_VERSION = 1.10.2
 JQUERY_SITE = http://code.jquery.com
 JQUERY_SOURCE = jquery-$(JQUERY_VERSION).min.js
+JQUERY_LICENSE = MIT
 
 define JQUERY_EXTRACT_CMDS
 	cp $(DL_DIR)/$(JQUERY_SOURCE) $(@D)
@@ -15,4 +22,4 @@ define JQUERY_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/var/www/jquery.js
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # vorbis-tools
 #
-#############################################################
+################################################################################
 
 VORBIS_TOOLS_VERSION = 1.4.0
 VORBIS_TOOLS_SITE = http://downloads.xiph.org/releases/vorbis
@@ -17,4 +17,4 @@ ifeq ($(BR2_PACKAGE_SPEEX),y)
 VORBIS_TOOLS_DEPENDENCIES += speex
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

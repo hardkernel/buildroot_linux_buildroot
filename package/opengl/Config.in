@@ -6,3 +6,14 @@ config BR2_PACKAGE_OPENGL
 	  http://openlinux.amlogic.com
 
 
+config BR2_PACKAGE_HAS_OPENGL_EGL
+	bool
+
+config BR2_PACKAGE_HAS_OPENGL_ES
+	bool
+
+config BR2_PACKAGE_HAS_OPENVG
+	bool
+
+config BR2_PACKAGE_HAS_OPENMAX
+	bool

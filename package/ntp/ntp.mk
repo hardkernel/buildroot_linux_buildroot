@@ -1,11 +1,13 @@
-#############################################################
+################################################################################
 #
 # ntp
 #
-#############################################################
+################################################################################
 
 NTP_VERSION = 4.2.6p5
 NTP_SITE = http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2
+NTP_LICENSE = ntp license
+NTP_LICENSE_FILES = COPYRIGHT
 NTP_CONF_ENV = ac_cv_lib_md5_MD5Init=no
 
 ifneq ($(BR2_INET_IPV6),y)
@@ -65,4 +67,4 @@ endef
 
 NTP_POST_PATCH_HOOKS += NTP_PATCH_FIXUPS
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

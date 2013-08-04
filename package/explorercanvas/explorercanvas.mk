@@ -1,3 +1,9 @@
+################################################################################
+#
+# explorercanvas
+#
+################################################################################
+
 EXPLORERCANVAS_VERSION = r3
 EXPLORERCANVAS_SITE = http://explorercanvas.googlecode.com/files/
 EXPLORERCANVAS_SOURCE = excanvas_$(EXPLORERCANVAS_VERSION).zip
@@ -15,4 +21,4 @@ define EXPLORERCANVAS_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/var/www/excanvas.js
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

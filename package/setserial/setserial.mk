@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
-# Setserial
+# setserial
 #
-#############################################################
+################################################################################
+
 SETSERIAL_VERSION            = 2.17
 SETSERIAL_PATCH              = setserial_2.17-45.2.diff.gz
 SETSERIAL_SOURCE             = setserial_$(SETSERIAL_VERSION).orig.tar.gz
@@ -19,4 +20,4 @@ endef
 
 SETSERIAL_POST_PATCH_HOOKS += SETSERIAL_APPLY_DEBIAN_PATCHES
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

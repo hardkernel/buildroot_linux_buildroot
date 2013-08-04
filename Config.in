@@ -10,7 +10,17 @@ config BR2_VERSION
 	string
 	option env="BR2_VERSION_FULL"
 
-source "target/Config.in.arch"
+config BR2_HOSTARCH
+	string
+	option env="HOSTARCH"
+
+# Hidden boolean selected by pre-built packages for x86, when they
+# need to run on x86-64 machines (example: pre-built external
+# toolchains, binary tools like SAM-BA, etc.).
+config BR2_HOSTARCH_NEEDS_IA32_LIBS
+	bool
+
+source "arch/Config.in"
 
 menu "Build options"
 
@@ -85,6 +95,18 @@ config BR2_TAR_OPTIONS
 
 endmenu
 
+config BR2_DEFCONFIG_FROM_ENV
+	string
+	option env="BR2_DEFCONFIG"
+
+config BR2_DEFCONFIG
+	string "Location to save buildroot config"
+	default BR2_DEFCONFIG_FROM_ENV if BR2_DEFCONFIG_FROM_ENV != ""
+	default "$(CONFIG_DIR)/defconfig"
+	help
+	  When running 'make savedefconfig', the defconfig file will be saved
+	  in this location.
+
 config BR2_DL_DIR
 	string "Download dir"
 	default "$(TOPDIR)/dl"
@@ -119,6 +141,22 @@ config BR2_PRIMARY_SITE
 	  NOTE: This works for all packages using the central package
 	  infrastructure (generic, autotools, cmake, ...)
 
+config BR2_PRIMARY_SITE_ONLY
+	bool "Only allow downloads from primary download site"
+	depends on BR2_PRIMARY_SITE != ""
+	help
+	  If this option is enabled, downloads will only be attempted
+	  from the primary download site. Other locations, like the
+	  package's official download location or the backup download
+	  site, will not be considered. Therefore, if the package is
+	  not present on the primary site, the download fails.
+
+	  This is useful for project developers who want to ensure
+	  that the project can be built even if the upstream tarball
+	  locations disappear.
+
+if !BR2_PRIMARY_SITE_ONLY
+
 config BR2_BACKUP_SITE
 	string "Backup download site"
 	default "http://sources.buildroot.net/"
@@ -126,18 +164,6 @@ config BR2_BACKUP_SITE
 	  Backup site to download from. If this option is set then buildroot
 	  will fall back to download package sources from here if the
 	  normal location fails.
-
-config BR2_SOURCEFORGE_MIRROR
-	string "Sourceforge mirror site"
-	default "kent"
-	help
-	  Sourceforge has a system of mirror sites.  Some sites may be
-	  closer to your location, and sometimes mirror sites go down
-	  and are no longer available.  This option allows you to select
-	  your preferred Sourceforge mirror site.
-
-	  The list of mirrors is available here:
-	  http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
 
 config BR2_KERNEL_MIRROR
 	string "Kernel.org mirror"
@@ -175,13 +201,17 @@ config BR2_DEBIAN_MIRROR
 	  Usually, just add your country code like XX here:
 	  http://ftp.XX.debian.org
 
+endif
+
 endmenu
 
 config BR2_JLEVEL
-	int "Number of jobs to run simultaneously"
-	default "2"
+	int "Number of jobs to run simultaneously (0 for auto)"
+	default "0"
 	help
-	  Number of jobs to run simultaneously
+	  Number of jobs to run simultaneously.  If 0, determine
+	  automatically according to number of CPUs on the host
+	  system.
 
 config BR2_CCACHE
 	bool "Enable compiler cache"
@@ -197,6 +227,13 @@ config BR2_CCACHE
 	  and/or configuration, you are responsible for purging the
 	  ccache cache by removing the $HOME/.buildroot-ccache
 	  directory.
+
+config BR2_CCACHE_DIR
+	string "Compiler cache location"
+	depends on BR2_CCACHE
+	default "$(HOME)/.buildroot-ccache"
+	help
+	  Where ccache should store cached files.
 
 config BR2_DEPRECATED
 	bool "Show packages that are deprecated or obsolete"
@@ -275,6 +312,25 @@ config BR2_STRIP_none
 	  Do not strip binaries and libraries in the target
 	  filesystem.
 endchoice
+
+config BR2_STRIP_EXCLUDE_FILES
+	string "executables that should not be stripped"
+	depends on !BR2_STRIP_none
+	default ""
+	help
+	  You may specify a space-separated list of binaries and libraries
+	  here that should not be stripped on the target.
+
+config BR2_STRIP_EXCLUDE_DIRS
+	string "directories that should be skipped when stripping"
+	depends on !BR2_STRIP_none
+	default ""
+	help
+	  You may specify a space-separated list of directories that should
+	  be skipped when stripping. Binaries and libraries in these
+	  directories will not be touched.
+	  The directories should be specified relative to the target directory,
+	  without leading slash.
 
 choice
 	prompt "gcc optimization level"
@@ -355,17 +411,13 @@ config BR2_PREFER_STATIC_LIB
 
 config BR2_HAVE_DOCUMENTATION
 	bool "documentation on the target"
+	# We no longer want to support a toolchain on the target
+	depends on BR2_DEPRECATED
 	help
 	  Install the documentation, including manual pages and info
 	  pages, on the target.
 	  If you say n here, your target will not contain any
 	  documentation.
-
-config BR2_HAVE_DEVFILES
-	bool "development files in target filesystem"
-	help
-	  Install headers and static libraries in the
-	  target filesystem
 
 config BR2_PACKAGE_OVERRIDE_FILE
 	string "location of a package override file"
@@ -377,11 +429,26 @@ config BR2_PACKAGE_OVERRIDE_FILE
 	  as the source directory for a particular package. See the
 	  Buildroot documentation for more details on this feature.
 
+config BR2_GLOBAL_PATCH_DIR
+	string "global patch directory"
+	help
+	  You may specify a directory containing global package patches.
+	  For a specific version <packageversion> of a specific package
+	  <packagename>, patches are applied as follows.
+
+	  First, the default Buildroot patch set for the package is applied.
+
+	  If the directory $(BR2_GLOBAL_PATCH_DIR)/<packagename>/<packageversion>
+	  exists, then all *.patch files in the directory will be applied.
+
+	  Otherwise, if the directory $(BR2_GLOBAL_PATCH_DIR)/<packagename> exists,
+	  then all *.patch files in the directory will be applied.
+
 endmenu
 
 source "toolchain/Config.in"
 
-source "target/generic/Config.in"
+source "system/Config.in"
 
 source "package/Config.in"
 
@@ -392,3 +459,5 @@ source "fs/Config.in"
 source "boot/Config.in"
 
 source "linux/Config.in"
+
+source "Config.in.legacy"

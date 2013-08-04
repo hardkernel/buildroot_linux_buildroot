@@ -1,6 +1,8 @@
+################################################################################
 #
-# bonnie++
+# bonnie
 #
+################################################################################
 
 BONNIE_VERSION = 1.03e
 BONNIE_SOURCE = bonnie++-$(BONNIE_VERSION).tgz
@@ -15,4 +17,4 @@ define BONNIE_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/sbin/bonnie++ $(TARGET_DIR)/usr/sbin/zcav
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

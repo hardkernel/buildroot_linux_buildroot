@@ -1,10 +1,11 @@
-#############################################################
+################################################################################
 #
 # at91bootstrap
 #
-#############################################################
+################################################################################
+
 AT91BOOTSTRAP_VERSION = 1.16
-AT91BOOTSTRAP_SITE = http://www.atmel.com/dyn/resources/prod_documents/
+AT91BOOTSTRAP_SITE = ftp://www.at91.com/pub/at91bootstrap/
 AT91BOOTSTRAP_SOURCE = AT91Bootstrap$(AT91BOOTSTRAP_VERSION).zip
 
 AT91BOOTSTRAP_BOARD = $(call qstrip,$(BR2_TARGET_AT91BOOTSTRAP_BOARD))
@@ -31,14 +32,14 @@ AT91BOOTSTRAP_POST_PATCH_HOOKS += AT91BOOTSTRAP_APPLY_CUSTOM_PATCHES
 endif
 
 define AT91BOOTSTRAP_BUILD_CMDS
-	$(MAKE) CROSS_COMPILE=$(TARGET_CROSS) -C $(@D)/$(AT91BOOTSTRAP_MAKE_SUBDIR)
+	$(MAKE1) CROSS_COMPILE=$(TARGET_CROSS) -C $(@D)/$(AT91BOOTSTRAP_MAKE_SUBDIR)
 endef
 
 define AT91BOOTSTRAP_INSTALL_IMAGES_CMDS
 	cp $(@D)/$(AT91BOOTSTRAP_BINARY) $(BINARIES_DIR)
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))
 
 ifeq ($(BR2_TARGET_AT91BOOTSTRAP),y)
 # we NEED a board name unless we're at make source

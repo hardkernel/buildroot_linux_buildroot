@@ -1,4 +1,10 @@
-FEH_VERSION = 2.5
+################################################################################
+#
+# feh
+#
+################################################################################
+
+FEH_VERSION = 2.9.1
 FEH_SOURCE = feh-$(FEH_VERSION).tar.bz2
 FEH_SITE = http://feh.finalrewind.org/
 FEH_DEPENDENCIES = libcurl giblib imlib2 libpng xlib_libXinerama xlib_libXt
@@ -18,4 +24,4 @@ define FEH_UNINSTALL_TARGET_CMDS
 		DESTDIR=$(TARGET_DIR) -C $(@D) uninstall
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

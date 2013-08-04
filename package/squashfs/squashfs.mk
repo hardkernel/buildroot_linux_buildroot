@@ -1,6 +1,12 @@
-SQUASHFS_VERSION=4.2
-SQUASHFS_SOURCE=squashfs$(SQUASHFS_VERSION).tar.gz
-SQUASHFS_SITE=http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/squashfs
+################################################################################
+#
+# squashfs
+#
+################################################################################
+
+SQUASHFS_VERSION = 4.2
+SQUASHFS_SOURCE = squashfs$(SQUASHFS_VERSION).tar.gz
+SQUASHFS_SITE = http://downloads.sourceforge.net/projct/squashfs/squashfs/squashfs$(SQUASHFS_VERSION)
 
 # no libattr in BR
 SQUASHFS_MAKE_ARGS = XATTR_SUPPORT=0
@@ -72,5 +78,5 @@ define HOST_SQUASHFS_INSTALL_CMDS
    -C $(@D)/squashfs-tools/ INSTALL_DIR=$(HOST_DIR)/usr/bin install
 endef
 
-$(eval $(call GENTARGETS))
-$(eval $(call GENTARGETS,host))
+$(eval $(generic-package))
+$(eval $(host-generic-package))

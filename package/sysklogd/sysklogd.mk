@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # sysklogd
 #
-#############################################################
+################################################################################
+
 SYSKLOGD_VERSION = 1.5
 SYSKLOGD_SOURCE  = sysklogd_$(SYSKLOGD_VERSION).orig.tar.gz
 SYSKLOGD_PATCH   = sysklogd_$(SYSKLOGD_VERSION)-6.diff.gz
@@ -52,4 +53,4 @@ define SYSKLOGD_CLEAN_CMDS
 	$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

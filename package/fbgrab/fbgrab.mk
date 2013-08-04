@@ -1,7 +1,15 @@
-FBGRAB_VERSION = 1.0
+################################################################################
+#
+# fbgrab
+#
+################################################################################
+
+FBGRAB_VERSION = 1.1
 FBGRAB_SOURCE = fbgrab-$(FBGRAB_VERSION).tar.gz
-FBGRAB_SITE = http://hem.bredband.net/gmogmo/fbgrab
+FBGRAB_SITE = http://fbgrab.monells.se
 FBGRAB_DEPENDENCIES = libpng
+FBGRAB_LICENSE = GPLv2
+FBGRAB_LICENSE_FILES = COPYING
 
 define FBGRAB_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)
@@ -15,4 +23,4 @@ define FBGRAB_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/bin/fbgrab
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

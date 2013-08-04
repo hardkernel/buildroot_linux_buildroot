@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # devmem2
 #
-#############################################################
+################################################################################
 
 DEVMEM2_SITE = http://free-electrons.com/pub/mirror
 DEVMEM2_SOURCE = devmem2.c
@@ -28,4 +28,4 @@ define DEVMEM2_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/sbin/devmem2
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # python-mad
 #
-#############################################################
+################################################################################
 
 PYTHON_MAD_VERSION = 0.6
 PYTHON_MAD_SOURCE  = pymad-$(PYTHON_MAD_VERSION).tar.gz
@@ -38,4 +38,4 @@ define PYTHON_MAD_INSTALL_TARGET_CMDS
 	(cd $(@D); $(HOST_DIR)/usr/bin/python setup.py install --prefix=$(TARGET_DIR)/usr)
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

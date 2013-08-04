@@ -1,13 +1,20 @@
-#############################################################
+################################################################################
 #
 # ushare
 #
-#############################################################
+################################################################################
 
 USHARE_VERSION = 1.1a
 USHARE_SOURCE = ushare-$(USHARE_VERSION).tar.bz2
 USHARE_SITE = http://ushare.geexbox.org/releases
-USHARE_DEPENDENCIES = host-pkg-config libupnp
+USHARE_DEPENDENCIES = host-pkgconf libupnp
+USHARE_LICENSE = GPLv2+
+USHARE_LICENSE_FILES = COPYING
+
+ifeq ($(BR2_NEEDS_GETTEXT_IF_LOCALE),y)
+USHARE_DEPENDENCIES += gettext
+USHARE_LDFLAGS += -lintl
+endif
 
 define USHARE_CONFIGURE_CMDS
 	(cd $(@D); \
@@ -19,7 +26,7 @@ define USHARE_CONFIGURE_CMDS
 endef
 
 define USHARE_BUILD_CMDS
-	$(MAKE) -C $(@D)
+	$(MAKE) LDFLAGS="$(TARGET_LDFLAGS) $(USHARE_LDFLAGS)" -C $(@D)
 endef
 
 define USHARE_INSTALL_TARGET_CMDS
@@ -28,4 +35,4 @@ define USHARE_INSTALL_TARGET_CMDS
 endef
 
 # Even though configure is called it's not autoconf
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

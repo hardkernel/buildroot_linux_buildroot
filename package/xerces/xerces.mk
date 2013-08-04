@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # xerces
 #
-#############################################################
+################################################################################
+
 XERCES_VERSION = 3.1.1
 XERCES_SOURCE = xerces-c-$(XERCES_VERSION).tar.gz
 XERCES_SITE = http://archive.apache.org/dist/xerces/c/3/sources/
@@ -23,4 +24,4 @@ else
 XERCES_CONF_OPT += --disable-network
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

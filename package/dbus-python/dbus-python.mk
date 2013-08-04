@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # dbus-python
 #
-#############################################################
+################################################################################
+
 DBUS_PYTHON_VERSION = 0.83.0
 DBUS_PYTHON_SOURCE = dbus-python-$(DBUS_PYTHON_VERSION).tar.gz
 DBUS_PYTHON_SITE = http://dbus.freedesktop.org/releases/dbus-python/
@@ -20,4 +21,4 @@ DBUS_PYTHON_CONF_OPT = --disable-html-docs --disable-api-docs
 
 DBUS_PYTHON_DEPENDENCIES = dbus-glib python host-python
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

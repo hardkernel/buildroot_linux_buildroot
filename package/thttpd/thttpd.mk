@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # thttpd
 #
-#############################################################
+################################################################################
+
 THTTPD_VERSION = 2.25b
 THTTPD_SOURCE = thttpd_$(THTTPD_VERSION).orig.tar.gz
 THTTPD_PATCH = thttpd_$(THTTPD_VERSION)-11.diff.gz
@@ -48,4 +49,4 @@ define THTTPD_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/bin/syslogtocern
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

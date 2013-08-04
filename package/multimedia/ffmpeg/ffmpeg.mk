@@ -1,13 +1,20 @@
-#############################################################
+################################################################################
 #
 # ffmpeg
 #
-#############################################################
+################################################################################
 
-FFMPEG_VERSION = 0.8.11
+FFMPEG_VERSION = 0.8.12
 FFMPEG_SOURCE = ffmpeg-$(FFMPEG_VERSION).tar.bz2
 FFMPEG_SITE = http://ffmpeg.org/releases
 FFMPEG_INSTALL_STAGING = YES
+
+FFMPEG_LICENSE = LGPLv2.1+, libjpeg license
+FFMPEG_LICENSE_FILES = LICENSE COPYING.LGPLv2.1
+ifeq ($(BR2_PACKAGE_FFMPEG_GPL),y)
+FFMPEG_LICENSE += and GPLv2+
+FFMPEG_LICENSE_FILES += COPYING.GPLv2
+endif
 
 FFMPEG_CONF_OPT = \
 	--prefix=/usr		\
@@ -133,20 +140,26 @@ FFMPEG_DEPENDENCIES += host-nasm
 endif
 endif
 
-# ARM defaults to v5: clear if less, add extra if more
-ifeq ($(BR2_generic_arm)$(BR2_arm7tdmi)$(BR2_arm610)$(BR2_arm710)$(BR2_arm720t)$(BR2_arm920t)$(BR2_arm922t),y)
+# Explicitly disable everything that doesn't match for ARM
+# FFMPEG "autodetects" by compiling an extended instruction via AS
+# This works on compilers that aren't built for generic by default
+ifeq ($(BR2_arm7tdmi)$(BR2_arm720t)$(BR2_arm920t)$(BR2_arm922t)$(BR2_strongarm)$(BR2_fa526),y)
 FFMPEG_CONF_OPT += --disable-armv5te
 endif
 ifeq ($(BR2_arm1136jf_s)$(BR2_arm1176jz_s)$(BR2_arm1176jzf-s),y)
 FFMPEG_CONF_OPT += --enable-armv6
+else
+FFMPEG_CONF_OPT += --disable-armv6 --disable-armv6t2
 endif
-ifeq ($(BR2_arm10)$(BR2_arm1136jf_s)$(BR2_arm1176jz_s)$(BR2_arm1176jzf-s)$(BR2_cortex_a8)$(BR2_cortex_a9),y)
+ifeq ($(BR2_arm10)$(BR2_arm1136jf_s)$(BR2_arm1176jz_s)$(BR2_arm1176jzf-s)$(BR2_cortex_a5)$(BR2_cortex_a8)$(BR2_cortex_a9)$(BR2_cortex_a15),y)
 FFMPEG_CONF_OPT += --enable-armvfp
+else
+FFMPEG_CONF_OPT += --disable-armvfp
 endif
-# NEON is optional for A9
-ifeq ($(BR2_cortex_a8),y)
+ifeq ($(BR2_ARM_CPU_HAS_NEON),y)
 FFMPEG_CONF_OPT += --enable-neon
 endif
+
 # Set powerpc altivec appropriately
 ifeq ($(BR2_powerpc),y)
 ifeq ($(BR2_powerpc_7400)$(BR2_powerpc_7450)$(BR2_powerpc_970),y)
@@ -177,4 +190,4 @@ define FFMPEG_CONFIGURE_CMDS
 	)
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

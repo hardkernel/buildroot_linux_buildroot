@@ -1,12 +1,14 @@
-#############################################################
+################################################################################
 #
 # cdrkit
 #
-#############################################################
+################################################################################
 
 CDRKIT_VERSION = 1.1.11
 CDRKIT_SITE = http://www.cdrkit.org/releases
 CDRKIT_DEPENDENCIES = libcap bzip2 zlib
+CDRKIT_LICENSE = GPLv2
+CDRKIT_LICENSE_FILES = COPYING
 
 ifeq ($(BR2_ENDIAN),"BIG")
 CMAKE_ENDIAN_OPT=-DBITFIELDS_HTOL=1
@@ -23,5 +25,5 @@ CDRKIT_CONF_OPT += -DCMAKE_EXE_LINKER_FLAGS="$(TARGET_LDFLAGS)"
 HOST_CDRKIT_CONF_OPT += -DCMAKE_C_FLAGS="-I$(HOST_DIR)/usr/include"
 HOST_CDRKIT_CONF_OPT += -DCMAKE_EXE_LINKER_FLAGS="$(HOST_LDFLAGS)"
 
-$(eval $(call CMAKETARGETS))
-$(eval $(call CMAKETARGETS,host))
+$(eval $(cmake-package))
+$(eval $(host-cmake-package))

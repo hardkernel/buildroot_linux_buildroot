@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
-# Pygame
+# python-pygame
 #
-#############################################################
+################################################################################
+
 # stable 1.9.1 release requires V4L which has been wiped out of recent Linux
 # kernels, so use latest mercurial revision until next stable release is out.
 PYTHON_PYGAME_VERSION = f0bb4a4b365d
@@ -108,4 +109,4 @@ define PYTHON_PYGAME_UNINSTALL_TARGET_CMDS
 	rm -rf $(TARGET_DIR)/usr/lib/python*/site-packages/pygame*
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

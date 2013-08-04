@@ -1,3 +1,9 @@
+################################################################################
+#
+# lpc3250loader
+#
+################################################################################
+
 HOST_LPC3250LOADER_SITE = git://gitorious.org/lpc3250loader/lpc3250loader.git
 HOST_LPC3250LOADER_VERSION = 1.0
 
@@ -6,4 +12,4 @@ define HOST_LPC3250LOADER_INSTALL_CMDS
 		$(HOST_DIR)/usr/bin/LPC3250loader.py
 endef
 
-$(eval $(call GENTARGETS,host))
+$(eval $(host-generic-package))

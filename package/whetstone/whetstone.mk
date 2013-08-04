@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # whetstone
 #
-#############################################################
+################################################################################
 
 WHETSTONE_VERSION = 1.2
 WHETSTONE_SOURCE = whetstone.c
@@ -28,4 +28,4 @@ define WHETSTONE_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/bin/whetstone
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

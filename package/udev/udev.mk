@@ -1,11 +1,14 @@
-#############################################################
+################################################################################
 #
 # udev
 #
-#############################################################
+################################################################################
+
 UDEV_VERSION = 182
 UDEV_SOURCE = udev-$(UDEV_VERSION).tar.bz2
 UDEV_SITE = $(BR2_KERNEL_MIRROR)/linux/utils/kernel/hotplug/
+UDEV_LICENSE = GPLv2+
+UDEV_LICENSE_FILES = COPYING
 UDEV_INSTALL_STAGING = YES
 
 # mq_getattr is in librt
@@ -20,7 +23,7 @@ UDEV_CONF_OPT =			\
 	--with-firmware-path=/lib/firmware		\
 	--disable-introspection
 
-UDEV_DEPENDENCIES = host-gperf host-pkg-config util-linux kmod
+UDEV_DEPENDENCIES = host-gperf host-pkgconf util-linux kmod
 
 ifeq ($(BR2_PACKAGE_UDEV_RULES_GEN),y)
 UDEV_CONF_OPT += --enable-rule_generator
@@ -45,4 +48,4 @@ endef
 
 UDEV_POST_INSTALL_TARGET_HOOKS += UDEV_INSTALL_INITSCRIPT
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

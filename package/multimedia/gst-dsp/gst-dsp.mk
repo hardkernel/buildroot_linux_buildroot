@@ -1,3 +1,9 @@
+################################################################################
+#
+# gst-dsp
+#
+################################################################################
+
 GST_DSP_VERSION = 0.10.2
 GST_DSP_SITE = http://gst-dsp.googlecode.com/files/
 
@@ -13,6 +19,6 @@ define GST_DSP_UNINSTALL_TARGET_CMDS
 	$(RM) $(TARGET_DIR)/usr/lib/gstreamer-0.10/libgstdsp.so
 endef
 
-GST_DSP_DEPENDENCIES = gstreamer tidsp-binaries host-pkg-config
+GST_DSP_DEPENDENCIES = gstreamer tidsp-binaries host-pkgconf
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

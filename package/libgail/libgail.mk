@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # libgail
 #
-#############################################################
+################################################################################
+
 LIBGAIL_VERSION_MAJOR = 1.22
 LIBGAIL_VERSION_MINOR = 3
 LIBGAIL_VERSION = $(LIBGAIL_VERSION_MAJOR).$(LIBGAIL_VERSION_MINOR)
@@ -15,6 +16,6 @@ ifneq ($(BR2_PACKAGE_XLIB_LIBX11),y)
 LIBGAIL_CONF_OPT += --disable-x
 endif
 
-LIBGAIL_DEPENDENCIES = host-pkg-config libgtk2 pango
+LIBGAIL_DEPENDENCIES = host-pkgconf libgtk2 pango
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

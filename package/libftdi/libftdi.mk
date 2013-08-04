@@ -1,15 +1,17 @@
-#############################################################
+################################################################################
 #
 # libftdi
 #
-#############################################################
+################################################################################
+
 LIBFTDI_VERSION = 0.19
 LIBFTDI_SOURCE = libftdi-$(LIBFTDI_VERSION).tar.gz
 LIBFTDI_SITE = http://www.intra2net.com/en/developer/libftdi/download/
 LIBFTDI_DEPENDENCIES = libusb-compat libusb
 LIBFTDI_INSTALL_STAGING = YES
-
+LIBFTDI_CONFIG_SCRIPTS = libftdi-config
 LIBFTDI_AUTORECONF = YES
+HOST_LIBFTDI_AUTORECONF = YES
 
 LIBFDTI_CONF_OPT = --without-examples
 
@@ -20,5 +22,5 @@ else
 LIBFDTI_CONF_OPT += --disable-libftdipp
 endif
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))
