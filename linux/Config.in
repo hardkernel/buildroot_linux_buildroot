@@ -51,12 +51,23 @@ config BR2_LINUX_KERNEL_CUSTOM_GIT
 	help
 	  This option allows Buildroot to get the Linux kernel source
 	  code from a Git repository.
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL
+	bool "Local kernel"
+	help
+	  This option allows Buildroot to get the Linux kernel source
+	  code from a Git repository.
 
 endchoice
 
 config BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE
 	string "Kernel version"
 	depends on BR2_LINUX_KERNEL_CUSTOM_VERSION
+
+
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL_LOCATION
+	string
+	prompt "Local kernel location"
+	depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
 
 config BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION
 	string "URL of custom kernel tarball"
