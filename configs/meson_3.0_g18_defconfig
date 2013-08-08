@@ -44,7 +44,7 @@ BR2_LINUX_KERNEL_CUSTOM_GIT=y
 BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL="git://scgit.amlogic.com/kernel/common"
 BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION="amlogic-3.0"                           
 BR2_LINUX_KERNEL_USE_DEFCONFIG=y                                                                       
-BR2_LINUX_KERNEL_DEFCONFIG="meson6_skt"                                     
+BR2_LINUX_KERNEL_DEFCONFIG="meson6_g18_jbmr1"                                     
 BR2_LINUX_KERNEL_UIMAGE=y 
 
 #

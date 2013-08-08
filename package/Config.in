@@ -1,7 +1,9 @@
 menu "Package Selection for the target"
 
 source "package/busybox/Config.in"
-
+menu "amlogic customer"
+source "package/aml_customer/Config.in"
+endmenu
 # Audio and video applications
 source "package/multimedia/Config.in"
 
