@@ -129,7 +129,7 @@ int check_audiodsp_fatal_err()
     int fatal_err = 0;
     fatal_err = get_sysfs_int("/sys/class/audiodsp/codec_fatal_err") & 0xf;
     if (fatal_err != 0) {
-        log_print("[%s]get audio dsp error:%d!\n", __FUNCTION__, fatal_err);
+        //log_print("[%s]get audio dsp error:%d!\n", __FUNCTION__, fatal_err);
     }
     return fatal_err;
 }

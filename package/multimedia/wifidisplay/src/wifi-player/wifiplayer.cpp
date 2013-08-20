@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#define LOG_NDEBUG 0
+#define LOG_NDEBUG 1
 #define LOG_TAG "AmlogicPlayer"
 #include "utils/Log.h"
 #include <stdio.h>
@@ -28,6 +28,7 @@
 #include <utils/String8.h>
 
 #include "ammodule.h"
+#include "amconfigutils.h"
 #include <wifiplayer/WifiPlayer.h>
 namespace android
 {
@@ -99,6 +100,9 @@ status_t WifiPlayer::setDataSource(const char *path)
 status_t WifiPlayer::prepareAsync()
 {
     ALOGV("prepareAsync\n");
+    am_setconfig("media.libplayer.wfd", "1");
+    am_setconfig("media.libplayer.fastswitch", "2");
+
     mPlay_ctl.callback_fn.notify_fn = notifyhandle;
     mPlay_ctl.callback_fn.update_interval = 1000;
     mPlay_ctl.audio_index = -1;
@@ -108,7 +112,7 @@ status_t WifiPlayer::prepareAsync()
     mPlay_ctl.auto_buffing_enable = 0;
     mPlay_ctl.enable_rw_on_pause = 0; /**/
     mPlay_ctl.lowbuffermode_flag = 1;
-
+//	mPlay_ctl.noaudio = 1; 
     mPlay_ctl.read_max_cnt = 10000; /*retry num*/
 
     mPlay_ctl.SessionID = mSessionID;
@@ -196,7 +200,7 @@ status_t WifiPlayer::start()
         return NO_ERROR;
     }
     set_display_axis(0);
-#if 0
+#if 1
     player_cmd_t cmd;
     memset(&cmd, 0, sizeof(cmd));
     cmd.set_mode = CMD_SET_FREERUN_MODE;

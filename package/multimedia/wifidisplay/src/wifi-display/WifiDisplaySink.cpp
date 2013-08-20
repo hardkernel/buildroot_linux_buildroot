@@ -611,7 +611,7 @@ void WifiDisplaySink::onGetParameterRequest(
 
     snprintf(body, sizeof(body), 
         "wfd_video_formats: 40 00 02 02 0001DEFF 157C7FFF 00000FFF 00 0000 0000 11 none none, 01 02 0001DEFF 157C7FFF 00000FFF 00 0000 0000 11 none none\r\n"
-        "wfd_audio_codecs: LPCM 00000003 00\r\n"//, AAC 0000000F 00\r\n" LPCM 00000003 00,
+        "wfd_audio_codecs: AAC 0000000F 00\r\n" //LPCM 00000003 00,
         "wfd_client_rtp_ports: RTP/AVP/UDP;unicast %d 0 mode=play\r\n"
         "wfd_uibc_capability: input_category_list=GENERIC;generic_cap_list=Keyboard, Mouse, SingleTouch;hidc_cap_list=none;port=none\r\n"
         "wfd_standby_resume_capability: supported\r\n",

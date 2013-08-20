@@ -23,6 +23,6 @@ install:
 	
 $(TARGET): $(OBJS)
 	@ echo MAKE $(TARGET) START
-	$(CXX) $(CPPFLAGS) $(LDFLAGS) $(OBJS) -o $(TARGET)
+	$(CXX) $(CPPFLAGS) $(LDFLAGS) $(SOURCE) -o $(TARGET)
 	@ echo MAKE $(TARGET) DONE
 

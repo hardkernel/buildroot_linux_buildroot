@@ -384,24 +384,46 @@ void check_msg(play_para_t *para, player_cmd_t *msg)
         para->buffering_threshhold_max = msg->f_param2;
     }else if (msg->set_mode & CMD_SET_FREERUN_MODE) {
     	 /*low delay mode.
-    	#define FREERUN_NONE 0 // no freerun mode
-	#define FREERUN_NODUR 1 // freerun without duration
-	#define FREERUN_DUR 2 // freerun with duration
-	*/
-	int mode=msg->param;
-	log_print("set freerun_mode %d\n",mode);
+        #define FREERUN_NONE 0 // no freerun mode
+        #define FREERUN_NODUR 1 // freerun without duration
+        #define FREERUN_DUR 2 // freerun with duration
+        bit 2: iponly_flag
+        bit 3: no decoder reference buffer
+        bit 4: vsync_pts_inc to up
+        */
+        int mode=msg->param;
+        log_print("set freerun_mode %d\n",mode);
         if(mode || am_getconfig_bool("media.libplayer.wfd")){/*mode=1,2,is low buffer mode also*/
-		if(para->pFormatCtx&& para->pFormatCtx->pb)
-			ffio_set_buf_size(para->pFormatCtx->pb,1024*4);//reset aviobuf to small.
-                para->playctrl_info.lowbuffermode_flag=1;
-	}else{
-		para->playctrl_info.lowbuffermode_flag=0;
-	}
-       if (para->vcodec) {
-           codec_set_freerun_mode(para->vcodec,mode);    /*es*/
-       } else {
-           codec_set_freerun_mode(para->codec,mode);    /*not es*/
-       }
+            if(para->pFormatCtx&& para->pFormatCtx->pb)
+                ffio_set_buf_size(para->pFormatCtx->pb,1024*4);//reset aviobuf to small.
+            para->playctrl_info.lowbuffermode_flag=1;
+        }else{
+            para->playctrl_info.lowbuffermode_flag=0;
+        }
+        if (mode & 0x04) {
+            /* ip frame only mode */
+            para->playctrl_info.iponly_flag = 1;
+        }
+        if (mode & 0x08) {
+            /* no decoder reference buffer */
+            para->playctrl_info.no_dec_ref_buf = 1;
+        }
+        if (mode & 0x10) {
+            /* vsync pts inc to up +1 */
+            para->playctrl_info.vsync_upint = 1;
+        }
+        if (mode & 0x20) {
+            /* no error recovery */
+            para->playctrl_info.no_error_recovery = 1;
+        }
+
+        mode = mode & 0x3;
+        para->playctrl_info.freerun_mode = mode;
+        if (para->vcodec) {
+            codec_set_freerun_mode(para->vcodec,mode);    /*es*/
+        } else if (para->codec){
+            codec_set_freerun_mode(para->codec,mode);    /*not es*/
+        }
     }
 #if 1
     else if (msg->ctrl_cmd & CMD_SWITCH_SID) {

@@ -1,6 +1,6 @@
 //coded by peter,20130215
 
-#define LOG_NDEBUG 0
+#define LOG_NDEBUG 1
 #define LOG_TAG "M3uParser"
 
 

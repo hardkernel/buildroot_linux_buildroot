@@ -53,3 +53,7 @@ null::shutdown:/usr/bin/killall syslogd
 null::shutdown:/bin/umount -a -r
 null::shutdown:/sbin/swapoff -a
 
+#null::sysinit:/usr/sbin/fbset -fb /dev/fb0 -g 1024 600 1024 1200 32
+null::sysinit:echo 1 >  /sys/class/graphics/fb1/blank 
+#null::sysinit:/usr/sbin/gui &
+

@@ -637,6 +637,10 @@ int codec_init(codec_para_t *pcodec)
     int ret;
     //if(pcodec->has_audio)
     //  audio_stop();
+    pcodec->handle = -1;
+    pcodec->cntl_handle = -1;
+    pcodec->sub_handle = -1;
+    pcodec->audio_utils_handle = -1;
     switch (pcodec->stream_type) {
     case STREAM_TYPE_ES_VIDEO:
         ret = codec_video_es_init(pcodec);
@@ -2016,7 +2020,27 @@ int codec_init_audio_utils(codec_para_t *pcodec)
     
     return CODEC_ERROR_NONE;
 }
+/* --------------------------------------------------------------------------*/
+ /**
+* @brief  codec_release_audio_utils  Release the audio utils device
+*
+* @param[in]  pcodec  Pointer of codec parameter structure
+*
+* @return     Success or fail error type
+*/
+/* --------------------------------------------------------------------------*/
+int codec_release_audio_utils(codec_para_t *pcodec)
+{
+    if (pcodec) {
+        codec_h_close(pcodec->audio_utils_handle);
+        if(pcodec->audio_utils_handle>=0)
+            codec_h_close(pcodec->audio_utils_handle);
+    }
 
+    pcodec->audio_utils_handle = -1;
+    
+    return CODEC_ERROR_NONE;
+}
 /* --------------------------------------------------------------------------*/
 /**
 * @brief  codec_set_audio_resample_ena  Set audio resample
@@ -2178,5 +2202,20 @@ int codec_get_video_cur_bitrate(codec_para_t *pcodec,int *bitrate)
 int codec_get_audio_cur_bitrate(codec_para_t *pcodec,int *bitrate)
 {
     return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_AUDIO_AVG_BITRATE_BPS, bitrate);
+}
+
+/* --------------------------------------------------------------------------*/
+/**
+* @brief  codec_set_vsync_upint  Set the mode to video freerun
+*
+* @param[in]  pcodec  Pointer of codec parameter structure
+* @param[in]  mode    vsync upint mode to be set
+*
+* @return     0 for success, or fail type if < 0
+*/
+/* --------------------------------------------------------------------------*/
+int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode)
+{
+    return codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_SET_VSYNC_UPINT, (unsigned long)mode);
 }
 

@@ -1,5 +1,6 @@
 PREFIX=$(LIBPLAYER_STAGING_DIR)/usr
 TARGET_DIR=$(LIBPLAYER_TARGET_DIR)/usr
+TARGET_FIRWARE_DIR=$(LIBPLAYER_TARGET_DIR)
 LIB_DIR=$(PREFIX)/lib/libplayer
 BUILD_DIR=$(shell pwd)
 INC_DIR=$(LIBPLAYER_STAGING_DIR)/usr/include
@@ -31,13 +32,13 @@ install:all
 	cp -rf $(LIB_DIR)/libamadec* $(TARGET_DIR)/lib
 	cp -rf $(LIB_DIR)/libamstreaming* $(TARGET_DIR)/lib
 	cp -rf $(LIB_DIR)/libamavutils* $(TARGET_DIR)/lib
-	mkdir -p $(TARGET_DIR)/lib/firmware
-	cp -rf ${BUILD_DIR}/../amadec/firmware/*.bin $(TARGET_DIR)/lib/firmware
+	mkdir -p $(TARGET_FIRWARE_DIR)/lib/firmware
+	cp -rf ${BUILD_DIR}/../amadec/firmware/*.bin $(TARGET_FIRWARE_DIR)/lib/firmware
 
 distclean:clean
     
 clean:
-	rm $(PREFIX)/bin/$(TARGET)
+	rm $(TARGET_DIR)/bin/$(TARGET)
 
 ${TARGET}:kplayer.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $($(@:%=%_s)) -o $@

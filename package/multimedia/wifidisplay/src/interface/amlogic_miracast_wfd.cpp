@@ -38,9 +38,8 @@ int connect_to_wifi_source(const char *sourceHost, int32_t sourcePort) {
     if(!mInit){
         mInit = true;
         mSink = new WifiDisplaySink(mSession);
-    }
-
-    mSinkLooper->registerHandler(mSink);
+        mSinkLooper->registerHandler(mSink);
+     }
 
     if (sourcePort >= 0) {
         mSink->start(sourceHost, sourcePort);

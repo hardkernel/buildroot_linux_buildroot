@@ -46,6 +46,15 @@ static void vcodec_info_init(play_para_t *p_para, codec_para_t *v_codec)
         if (((vinfo->video_format == VFORMAT_H264) || (vinfo->video_format == VFORMAT_H264MVC)) && (p_para->file_type == AVI_FILE)) {
             v_codec->am_sysinfo.param     = (void *)(EXTERNAL_PTS | SYNC_OUTSIDE);
         }
+        if ((vinfo->video_format == VFORMAT_H264) && p_para->playctrl_info.iponly_flag) {
+            v_codec->am_sysinfo.param = (void *)(IPONLY_MODE | (int)v_codec->am_sysinfo.param);
+        }
+        if ((vinfo->video_format == VFORMAT_H264) && p_para->playctrl_info.no_dec_ref_buf) {
+            v_codec->am_sysinfo.param = (void *)(NO_DEC_REF_BUF | (int)v_codec->am_sysinfo.param);
+        }
+        if ((vinfo->video_format == VFORMAT_H264) && p_para->playctrl_info.no_error_recovery) {
+            v_codec->am_sysinfo.param = (void *)(NO_ERROR_RECOVERY | (int)v_codec->am_sysinfo.param);
+        }
     } else if ((vinfo->video_format == VFORMAT_VC1) && (p_para->file_type == AVI_FILE)) {
         v_codec->am_sysinfo.param = (void *)EXTERNAL_PTS;
     } else {
@@ -190,6 +199,12 @@ static int stream_es_init(play_para_t *p_para)
         }
         p_para->scodec = s_codec;
     }
+
+    if (v_codec) {
+        codec_set_freerun_mode(v_codec, p_para->playctrl_info.freerun_mode);
+        codec_set_vsync_upint(v_codec, p_para->playctrl_info.vsync_upint);
+    }
+       
     return PLAYER_SUCCESS;
 
 error1:

@@ -132,6 +132,7 @@ typedef  struct {
     int no_dec_ref_buf;
     int vsync_upint;
     int pcrscr_state;
+    int no_error_recovery;
 } p_ctrl_info_t;
 
 int player_dec_init(struct play_para *p_para);

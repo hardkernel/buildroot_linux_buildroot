@@ -100,6 +100,7 @@ int codec_get_freerun_mode(codec_para_t *pcodec);
 int codec_set_freerun_mode(codec_para_t *pcodec, unsigned int mode);
 
 int codec_init_audio_utils(codec_para_t *pcodec);
+int codec_release_audio_utils(codec_para_t *pcodec);
 int codec_set_audio_resample_ena(codec_para_t *pcodec, unsigned long mode);
 int codec_get_audio_resample_ena(codec_para_t *pcodec);
 int codec_set_audio_resample_type(codec_para_t *pcodec, unsigned long type);
@@ -113,4 +114,6 @@ int codec_get_audio_cur_delay_ms(codec_para_t *pcodec,int *delay_ms);
 int codec_get_video_cur_delay_ms(codec_para_t *pcodec,int *delay_ms);
 int codec_get_video_cur_bitrate(codec_para_t *pcodec,int *bitrate);
 int codec_get_audio_cur_bitrate(codec_para_t *pcodec,int *bitrate);
+
+int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode);
 #endif

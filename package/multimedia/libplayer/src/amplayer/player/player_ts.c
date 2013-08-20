@@ -39,6 +39,15 @@ static int stream_ts_init(play_para_t *p_para)
                 log_print("[%s:%d]Slow media detected for ts\n", __FUNCTION__, __LINE__);
                 codec->am_sysinfo.param = USE_IDR_FRAMERATE;
             }
+            if ((codec->video_type == VFORMAT_H264) && p_para->playctrl_info.iponly_flag) {
+                codec->am_sysinfo.param = (void *)(IPONLY_MODE | (int) codec->am_sysinfo.param);
+            }
+            if ((codec->video_type == VFORMAT_H264) && p_para->playctrl_info.no_dec_ref_buf) {
+                codec->am_sysinfo.param = (void *)(NO_DEC_REF_BUF | (int) codec->am_sysinfo.param);
+            }
+            if ((vinfo->video_format == VFORMAT_H264) && p_para->playctrl_info.no_error_recovery) {
+                codec->am_sysinfo.param = (void *)(NO_ERROR_RECOVERY | (int)codec->am_sysinfo.param);
+            }
         } else if (codec->video_type == VFORMAT_VC1 || codec->video_type == VFORMAT_AVS) {
             codec->am_sysinfo.format = vinfo->video_codec_type;
             codec->am_sysinfo.width = vinfo->video_width;
@@ -109,6 +118,10 @@ static int stream_ts_init(play_para_t *p_para)
     }    
 
     p_para->codec = codec;
+    if (vinfo->has_video) {
+        codec_set_freerun_mode(codec,p_para->playctrl_info.freerun_mode);
+        codec_set_vsync_upint(codec, p_para->playctrl_info.vsync_upint);
+    }
     return PLAYER_SUCCESS;
 error1:
     log_print("[ts]codec_init failed!\n");
@@ -119,7 +132,9 @@ static int stream_ts_release(play_para_t *p_para)
 {
     if (p_para->codec) {
         if (p_para->codec->audio_utils_handle >= 0) {
+            codec_set_audio_resample_type(p_para->codec, 0);
             codec_set_audio_resample_ena(p_para->codec, 0); 
+            codec_release_audio_utils(p_para->codec);
         }
 
         codec_close(p_para->codec);

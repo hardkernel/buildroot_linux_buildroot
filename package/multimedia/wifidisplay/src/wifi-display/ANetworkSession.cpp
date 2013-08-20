@@ -15,6 +15,7 @@
  */
 
 #define LOG_NDEBUG 1
+#define LOG_TAG "NetworkSession"
 #include <utils/Log.h>
 
 #include <wifidisplay/ANetworkSession.h>
@@ -27,6 +28,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
+#include <signal.h>
 #include <foundation/ABuffer.h>
 #include <foundation/ADebug.h>
 #include <foundation/AMessage.h>
@@ -286,6 +288,7 @@ status_t ANetworkSession::Session::readMore() {
     } while (n < 0 && errno == EINTR);
 
     status_t err = OK;
+
     if (n > 0) {
         mInBuffer.append(tmp, n);
 
@@ -402,7 +405,6 @@ status_t ANetworkSession::Session::writeMore() {
         CHECK(!mOutDatagrams.empty());
 
         status_t err;
-
         do {
             const sp<ABuffer> &datagram = *mOutDatagrams.begin();
 
@@ -423,6 +425,7 @@ status_t ANetworkSession::Session::writeMore() {
                 data[6] = (rtpTime >> 8) & 0xff;
                 data[7] = rtpTime & 0xff;
             }
+
             int n;
             do {
                 n = send(mSocket, datagram->data(), datagram->size(), 0);
@@ -458,7 +461,6 @@ status_t ANetworkSession::Session::writeMore() {
         int err;
         socklen_t optionLen = sizeof(err);
         CHECK_EQ(getsockopt(mSocket, SOL_SOCKET, SO_ERROR, &err, &optionLen), 0);
-        getsockopt(mSocket, SOL_SOCKET, SO_ERROR, &err, &optionLen);
         CHECK_EQ(optionLen, (socklen_t)sizeof(err));
 
         if (err != 0) {
@@ -466,22 +468,6 @@ status_t ANetworkSession::Session::writeMore() {
             mSawSendFailure = true;
             return -err;
         }
-
-#if 0
-        //connectted or error occured.
-        struct sockaddr_in remoteAddr;
-        socklen_t remoteAddrLen = sizeof(remoteAddr);
-
-        res = getpeername(mSocket, (struct sockaddr *)&remoteAddr, &remoteAddrLen);
-        in_addr_t addr = ntohl(remoteAddr.sin_addr.s_addr);
-        AString remoteAddrString = StringPrintf(
-                "%d.%d.%d.%d",
-                (addr >> 24),
-                (addr >> 16) & 0xff,
-                (addr >> 8) & 0xff,
-                addr & 0xff);
-        ALOGI("===peer name:%s",remoteAddrString.c_str());
-#endif
 
         mState = CONNECTED;
         notify(kWhatConnected);
@@ -745,7 +731,13 @@ status_t ANetworkSession::createClientOrServer(
     status_t err = OK;
     int s, res;
     sp<Session> session;
-
+#if 0
+    struct sigaction act;
+    act.sa_handler = SIG_IGN;
+    if (sigaction(SIGPIPE, &act, NULL) == 0){
+        ALOGI("SIGPIPE ignore\n");
+    }
+#endif
     s = socket(
             AF_INET,
             (mode == kModeCreateUDPSession) ? SOCK_DGRAM : SOCK_STREAM,
@@ -1128,22 +1120,6 @@ void ANetworkSession::threadLoop() {
             }
 
             if (FD_ISSET(s, &ws)) {
-#if 0
-	      //connectted or error occured.
-               struct sockaddr_in remoteAddr;
-               socklen_t remoteAddrLen = sizeof(remoteAddr);
-
-               res = getpeername(
-                       s, (struct sockaddr *)&remoteAddr, &remoteAddrLen);
-               in_addr_t addr = ntohl(remoteAddr.sin_addr.s_addr);
-               AString remoteAddrString = StringPrintf(
-                "%d.%d.%d.%d",
-                (addr >> 24),
-                (addr >> 16) & 0xff,
-                (addr >> 8) & 0xff,
-                addr & 0xff);
-                ALOGI("===peer name:%s",remoteAddrString.c_str());
-#endif
                 status_t err = session->writeMore();
                 if (err != OK) {
                     ALOGE("writeMore on socket %d failed w/ error %d (%s)",

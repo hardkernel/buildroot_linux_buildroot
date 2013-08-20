@@ -5,7 +5,7 @@
 //
 #define LOG_TAG "Looper"
 
-#define LOG_NDEBUG 0
+#define LOG_NDEBUG 1
 
 // Debugs poll and wake interactions.
 #define DEBUG_POLL_AND_WAKE 0
