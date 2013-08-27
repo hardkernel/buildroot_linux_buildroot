@@ -11,10 +11,10 @@
 #
 ################################################################################
 
-QT_VERSION = 4.8.2
+QT_VERSION = 4.8.5
 QT_SOURCE  = qt-everywhere-opensource-src-$(QT_VERSION).tar.gz
-QT_SITE    = http://releases.qt-project.org/qt4/source
-QT_DEPENDENCIES = host-pkg-config
+QT_SITE    = http://download.qt-project.org/official_releases/qt/4.8/$(QT_VERSION)
+QT_DEPENDENCIES = host-pkgconf
 QT_INSTALL_STAGING = YES
 
 QT_LICENSE = LGPLv2.1 with exceptions or GPLv3
@@ -449,7 +449,7 @@ endif
 # End of workaround.
 
 # Variable for other Qt applications to use
-QT_QMAKE:=$(HOST_DIR)/usr/bin/qmake -spec qws/linux-gnueabi-neon
+QT_QMAKE = $(HOST_DIR)/usr/bin/qmake -spec qws/linux-$(QT_EMB_PLATFORM)-g++
 
 ################################################################################
 # QT_QMAKE_SET -- helper macro to set <variable> = <value> in
@@ -481,17 +481,10 @@ define QT_CONFIGURE_CONFIG_FILE
 endef
 endif
 
-ifneq ($(BR2_PACKAGE_QT_LIBCMEM_FILE),)
-define QT_CONFIGLIB_FILE
-#	cp $(BR2_PACKAGE_QT_LIBCMEM_FILE) $(@D)/src/3rdparty/libaml/
-endef
-endif
-
 define QT_CONFIGURE_CMDS
 	-[ -f $(@D)/Makefile ] && $(MAKE) -C $(@D) confclean
 	$(QT_CONFIGURE_IPV6)
 	$(QT_CONFIGURE_CONFIG_FILE)
-	$(QT_CONFIGLIB_FILE)
 	# Fix compiler path
 	$(call QT_QMAKE_SET,QMAKE_CC,$(TARGET_CC),$(@D))
 	$(call QT_QMAKE_SET,QMAKE_CXX,$(TARGET_CXX),$(@D))
@@ -527,8 +520,6 @@ define QT_CONFIGURE_CMDS
 		-fast \
 		-no-rpath \
 	)
-
-		#-opengl es2  "add this option to configure if select opengl" 
 endef
 
 define QT_BUILD_CMDS
@@ -590,8 +581,6 @@ endif
 ifeq ($(BR2_PACKAGE_QT_GFX_POWERVR),y)
 QT_INSTALL_LIBS    += pvrQWSWSEGL
 endif
-
-#QT_INSTALL_LIBS	   += QtOpenGL
 
 QT_CONF_FILE=$(HOST_DIR)/usr/bin/qt.conf
 
