@@ -1,6 +1,6 @@
-QT5_VERSION = 5.0.2
-QT5_SITE = http://download.qt-project.org/official_releases/qt/5.0/$(QT5_VERSION)/submodules/
-include package/qt5/*/*.mk
+QT5_VERSION = 5.1.1
+QT5_SITE = http://download.qt-project.org/official_releases/qt/5.1/$(QT5_VERSION)/submodules/
+include $(sort $(wildcard package/qt5/*/*.mk))
 
 define QT5_LA_PRL_FILES_FIXUP
 	for i in $$(find $(STAGING_DIR)/usr/lib* -name "libQt5*.la"); do \

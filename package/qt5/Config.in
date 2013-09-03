@@ -8,6 +8,7 @@ menuconfig BR2_PACKAGE_QT5
 	depends on BR2_INET_IPV6
 	depends on BR2_TOOLCHAIN_HAS_THREADS
 	depends on !BR2_PACKAGE_QT
+	depends on !BR2_mips64 || !BR2_MIPS_NABI64
 	help
 	  This option enables the Qt5 framework. Sub-options allow to
 	  select which modules should be built.
@@ -22,8 +23,12 @@ source "package/qt5/qt5imageformats/Config.in"
 source "package/qt5/qt5jsbackend/Config.in"
 source "package/qt5/qt5multimedia/Config.in"
 source "package/qt5/qt5quick1/Config.in"
+source "package/qt5/qt5quickcontrols/Config.in"
 source "package/qt5/qt5script/Config.in"
+source "package/qt5/qt5sensors/Config.in"
+source "package/qt5/qt5serialport/Config.in"
 source "package/qt5/qt5svg/Config.in"
 source "package/qt5/qt5webkit/Config.in"
+source "package/qt5/qt5x11extras/Config.in"
 source "package/qt5/qt5xmlpatterns/Config.in"
 endif

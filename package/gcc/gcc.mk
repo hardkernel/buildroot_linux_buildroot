@@ -215,4 +215,4 @@ HOST_GCC_COMMON_CONF_OPT += \
 	--with-long-double-128
 endif
 
-include package/gcc/*/*.mk
+include $(sort $(wildcard package/gcc/*/*.mk))
