@@ -18,6 +18,7 @@ source "package/multimedia/gst-fsl-plugins/Config.in"
 source "package/multimedia/gst-omapfb/Config.in"
 source "package/multimedia/gst-plugin-x170/Config.in"
 source "package/multimedia/gst-fluendo-mpegdemux/Config.in"
+source "package/multimedia/gst-aml-plugins/Config.in"
 
 # Gstreamer 1.x & Plugins
 source "package/multimedia/gstreamer1/Config.in"
