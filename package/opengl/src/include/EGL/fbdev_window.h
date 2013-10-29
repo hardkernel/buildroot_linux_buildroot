@@ -26,7 +26,8 @@ typedef enum
 	FBDEV_PIXMAP_SUPPORTS_UMP = (1<<0),
 	FBDEV_PIXMAP_ALPHA_FORMAT_PRE = (1<<1),
 	FBDEV_PIXMAP_COLORSPACE_sRGB = (1<<2),
-	FBDEV_PIXMAP_EGL_MEMORY = (1<<3)        /* EGL allocates/frees this memory */
+	FBDEV_PIXMAP_EGL_MEMORY = (1<<3),       /* EGL allocates/frees this memory */
+	FBDEV_PIXMAP_DMA_BUF = (1<<4),
 } fbdev_pixmap_flags;
 
 typedef struct fbdev_window
@@ -50,6 +51,14 @@ typedef struct fbdev_pixmap
 	unsigned short *data;
 	unsigned int format; /* extra format information in case rgbal is not enough, especially for YUV formats */
 } fbdev_pixmap;
+
+#if MALI_USE_DMA_BUF
+struct fbdev_dma_buf {
+	int fd;
+	int size;
+	void* ptr;
+};
+#endif
 
 #ifdef __cplusplus
 }
