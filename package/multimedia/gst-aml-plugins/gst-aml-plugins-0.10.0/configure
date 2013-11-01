@@ -11505,7 +11505,7 @@ else
 $as_echo "yes" >&6; }
 
 
-  GST_LIBS="$GST_LIBS -L/mnt/nfsroot/yvonne.chen/Linux/buildroot/output/host/usr/arm-buildroot-linux-gnueabi/sysroot/usr/lib/libplayer -lamcodec -ldl -lamadec -lasound -lamavutils"
+  GST_LIBS="$GST_LIBS -L\$(STAGING_DIR)\$(libdir)/libplayer -lamcodec -ldl -lamadec -lasound -lamavutils"
 
 
 fi
