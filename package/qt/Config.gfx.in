@@ -28,4 +28,8 @@ config BR2_PACKAGE_QT_GFX_POWERVR
 	depends on BR2_PACKAGE_HAS_POWERVR
 	bool "powervr"
 
+config BR2_PACKAGE_QT_GFX_EGLNULLWS
+	depends on BR2_PACKAGE_QT_OPENGL_ES
+	bool "eglnullws"
+
 endmenu
