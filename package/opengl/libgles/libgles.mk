@@ -20,8 +20,7 @@ endif
 
 ifeq ($(LIBGLES_DEPENDENCIES),)
 define LIBGLES_CONFIGURE_CMDS
-	echo "No libGLES implementation selected. Configuration error."
-	exit 1
+	echo "WARNING: No libEGL implementation selected."
 endef
 endif
 
