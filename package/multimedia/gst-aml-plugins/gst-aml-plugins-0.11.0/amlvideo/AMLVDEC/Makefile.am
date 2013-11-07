@@ -1,0 +1,27 @@
+# Note: plugindir is set in configure
+
+##############################################################################
+# TODO: change libgstplugin.la to something else, e.g. libmysomething.la     #
+##############################################################################
+plugin_LTLIBRARIES = libgstamlvdec.la
+
+##############################################################################
+# TODO: for the next set of variables, name the prefix if you named the .la, #
+#  e.g. libmysomething.la => libmysomething_la_SOURCES                       #
+#                            libmysomething_la_CFLAGS                        #
+#                            libmysomething_la_LIBADD                        #
+#                            libmysomething_la_LDFLAGS                       #
+##############################################################################
+
+# sources used to compile this plug-in
+libgstamlvdec_la_SOURCES = gstamlvdec.c gstamlvideoheader.c gstamlvideoheader.h gstamlvdec.h 
+
+# compiler and linker flags used to compile this plugin, set in configure.ac
+libgstamlvdec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl
+libgstamlvdec_la_LIBADD = $(GST_LIBS)
+libgstamlvdec_la_LIBADD += ../../common/libgstamlsysctl.a
+libgstamlvdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstamlvdec_la_LIBTOOLFLAGS = --tag=disable-static
+
+# headers we need but don't want installed
+noinst_HEADERS = gstamlvdec.h gstamlvideoheader.h 
