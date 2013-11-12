@@ -80,6 +80,10 @@ endif
 ALSA_LIB_CONF_ENV = CFLAGS="$(ALSA_LIB_CFLAGS)" \
 		    LDFLAGS="$(TARGET_LDFLAGS) -lm"
 
+define LIBFOO_POST_INSTALL_STAGING_HOOKS
+	-cp -f pcm.h $(STAGING_DIR)/usr/alsa/
+endef	
+
 define ALSA_LIB_UNINSTALL_TARGET_CMDS
 	-rm -f $(TARGET_DIR)/usr/lib/libasound.so*
 	-rm -rf $(TARGET_DIR)/usr/lib/alsa-lib
