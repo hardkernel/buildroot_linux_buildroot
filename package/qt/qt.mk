@@ -141,6 +141,10 @@ QT_CONFIGURE_OPTS += \
 	-plugin-gfx-powervr -D QT_NO_QWS_CURSOR -D QT_QWS_CLIENTBLIT
 QT_DEPENDENCIES += powervr
 endif
+ifeq ($(BR2_PACKAGE_QT_GFX_EGLNULLWS),y)
+QT_CONFIGURE_OPTS += \
+	-plugin-gfx-eglnullws -D QT_NO_QWS_CURSOR -D QT_QWS_CLIENTBLIT
+endif
 
 ### Mouse drivers
 ifeq ($(BR2_PACKAGE_QT_MOUSE_PC),y)
@@ -505,7 +509,7 @@ define QT_CONFIGURE_CMDS
 		PKG_CONFIG="$(PKG_CONFIG_HOST_BINARY)" \
 		PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/pkgconfig:$(PKG_CONFIG_PATH)" \
 		MAKEFLAGS="$(MAKEFLAGS) -j$(PARALLEL_JOBS)" ./configure \
-		$(if $(VERBOSE),-verbose,-silent) \
+		-verbose \
 		-force-pkg-config \
 		$(QT_CONFIGURE_OPTS) \
 		-no-xinerama \

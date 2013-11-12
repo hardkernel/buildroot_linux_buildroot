@@ -1,5 +1,7 @@
 config BR2_PACKAGE_OPENGL
 	bool "opengl"
+	select BR2_PACKAGE_HAS_OPENGL_EGL
+	select BR2_PACKAGE_HAS_OPENGL_ES
 	help
 	  amlogic mali400 opengl driver.
 
