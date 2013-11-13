@@ -166,11 +166,17 @@ endif
 
 define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_PACKAGE_AML_CUSTOMER),
-	cp -rf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer
-	mv -f  $(LINUX_DIR)/customer/configs/* $(LINUX_DIR)/arch/arm/configs)
-	cp $(KERNEL_SOURCE_CONFIG) $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
-	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) buildroot_defconfig
-	rm $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
+		cp -rf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
+	$(if $(BR2_PACKAGE_GPU),
+		cp -rf $(GPU_DIR)/mali $(LINUX_DIR)/drivers/amlogic/
+		cp -rf $(GPU_DIR)/ump $(LINUX_DIR)/drivers/amlogic/)
+	$(if $(BR2_LINUX_KERNEL_USE_DEFCONFIG),	
+		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig)
+	$(if $(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),
+		cp -f $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE) $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
+		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) buildroot_defconfig
+		rm -f $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
+	)
 	$(if $(BR2_arm)$(BR2_armeb),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
 	# As the kernel gets compiled before root filesystems are
