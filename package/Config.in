@@ -520,6 +520,7 @@ source "package/ne10/Config.in"
 source "package/neardal/Config.in"
 source "package/pcsc-lite/Config.in"
 source "package/urg/Config.in"
+source "package/remotecfg/Config.in"
 endmenu
 
 menu "Javascript"
