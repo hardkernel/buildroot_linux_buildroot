@@ -16,7 +16,7 @@
 #include <sys/soundcard.h>
 //#include <config.h>
 #include <alsa/asoundlib.h>
-
+#include <alsa/pcm.h>
 #include <audio-dec.h>
 #include <adec-pts-mgt.h>
 #include <log-print.h>

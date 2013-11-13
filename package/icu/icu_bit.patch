@@ -1,0 +1,12 @@
+diff -Naur icu-4.2.1.orig/source/configure icu-4.2.1/source/configure
+--- icu-4.2.1.orig/source/configure	2013-11-02 14:21:54.122310770 -0700
++++ icu-4.2.1/source/configure	2013-11-02 14:27:38.726319587 -0700
+@@ -4031,7 +4031,7 @@
+     { $as_echo "$as_me:$LINENO: checking whether runnable 64 bit binaries are built by default" >&5
+ $as_echo_n "checking whether runnable 64 bit binaries are built by default... " >&6; }
+     if test "$cross_compiling" = yes; then
+-  DEFAULT_64BIT=unknown
++  DEFAULT_64BIT=no
+ else
+   cat >conftest.$ac_ext <<_ACEOF
+ int main(void) {return (sizeof(void*)*8==64)?0:1;}
