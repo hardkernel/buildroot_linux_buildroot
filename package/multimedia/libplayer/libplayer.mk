@@ -4,46 +4,26 @@
 #
 #############################################################
 LIBPLAYER_VERSION:=0.4.0
-LIBPLAYER_DIR=$(BUILD_DIR)/libplayer
-LIBPLAYER_SOURCE=src
-LIBPLAYER_SITE=.
-export LIBPLAYER_BUILD_DIR = $(BUILD_DIR)
+LIBPLAYER_SITE=$(TOPDIR)/package/multimedia/libplayer/src
+LIBPLAYER_SITE_METHOD=local
+LIBPLAYER_BUILD_DIR = $(BUILD_DIR)
+LIBPLAYER_INSTALL_STAGING = YES
+LIBFOO_DEPENDENCIES = zlib alsa-lib
+
 export LIBPLAYER_STAGING_DIR = $(STAGING_DIR)
 export LIBPLAYER_TARGET_DIR = $(TARGET_DIR)
 
-DEPENDS=zlib alsa-lib
+#define LIBPLAYER_CONFIGURE_CMDS
+#	$(MAKE) CC=$(TARGET_CC) -C $(@D) configure
+#endef
 
-LIBMMS_DEPENDENCIES = libmms 
-$(LIBPLAYER_DIR)/.unpacked:
-	mkdir -p $(LIBPLAYER_DIR)
-	cp -arf ./package/multimedia/libplayer/src/* $(LIBPLAYER_DIR)
-	touch $(LIBPLAYER_DIR)/.unpacked
+define LIBPLAYER_BUILD_CMDS
+	$(MAKE) CC=$(TARGET_CC) -C $(@D) all
+	$(MAKE) CC=$(TARGET_CC) -C $(@D) install
+endef
 
-$(LIBPLAYER_DIR)/libplayer: $(LIBPLAYER_DIR)/.unpacked
-	$(MAKE) CC=$(TARGET_CC) -C $(LIBPLAYER_DIR) all
-	$(MAKE) CC=$(TARGET_CC) -C $(LIBPLAYER_DIR) install
+define LIBPLAYER_CLEAN_CMDS
+	$(MAKE) -C $(@D) clean
+endef
 
-libplayer:$(DEPENDS) $(LIBPLAYER_DIR)/libplayer
-
-libplayer-source: $(DL_DIR)/$(LIBPLAYER_SOURCE)
-
-libplayer-clean:
-	-$(MAKE) -C $(LIBPLAYER_DIR) clean
-
-libplayer-dirclean:
-	rm -rf $(LIBPLAYER_DIR)
-
-#before_cmd:depends
-
-#depends:
-#	@if [   "${DEPENDS}" != "" ]; then \
-                cd ${TOPDIR};make ${DEPENDS};    \
-        fi
-#############################################################
-#
-# Toplevel Makefile options
-#
-#############################################################
-ifeq ($(BR2_PACKAGE_LIBPLAYER),y)
-TARGETS+=libplayer
-endif
+$(eval $(generic-package))

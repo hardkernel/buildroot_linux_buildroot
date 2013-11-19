@@ -11,7 +11,7 @@ FFMPEG_CONFIG_FLAGS=--prefix=${PREFIX} --disable-static --enable-shared \
     --cross-prefix=arc-linux-uclibc- --extra-ldflags=-L${PREFIX}/lib --arch=arc --disable-altivec --disable-amd3dnow \
     --disable-amd3dnowext --disable-mmx --disable-mmx2 --disable-sse --disable-ssse3 --disable-armv5te --disable-armv6 \
     --disable-armv6t2 --disable-armvfp --disable-iwmmxt --disable-mmi --disable-neon --disable-vis --disable-yasm --enable-pic \
-	--disable-avdevice
+	--disable-avdevice --disable-v4l
 
     
 CONFIG_FLAGS=
@@ -30,14 +30,8 @@ all:before_cmd config
 	make -C ${BUILD_DIR} install
 	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
 	
-configure:config
-
-get_file:
-	@if [ ! -d "${TAR_DIR}" ]; then \
-		mkdir ${TAR_DIR}; \
-	fi;
-	cp -rf ${PKG_TOP_DIR}/${FILE_DIR}/src/* ${PKG_BUILD_DIR}/${FILE_DIR}
-	
+configure:
+        cd ${BUILD_DIR}/${AMFFMPEG_DIR} && ${PKG_TOP_DIR}/${FILE_DIR}/src/${AMFFMPEG_DIR}/configure  ${FFMPEG_CONFIG_FLAGS}
 
 install:all
 
