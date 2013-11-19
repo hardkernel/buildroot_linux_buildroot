@@ -92,7 +92,8 @@ enum
     PROP_0,
     PROP_SILENT,
     PROP_SYNC,
-    PROP_ASYNC
+    PROP_ASYNC,
+    PROP_MUTE
 };
 
 /* the capabilities of the inputs and outputs.
@@ -102,7 +103,7 @@ enum
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("ANY")
+    GST_STATIC_CAPS ("audio/x-raw-int")
     );
 
 GST_BOILERPLATE (GstAmlAsink, gst_amlasink, GstBaseSink ,GST_TYPE_BASE_SINK);
@@ -124,9 +125,9 @@ gst_amlasink_base_init (gpointer gclass)
 {
     GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
     gst_element_class_set_details_simple(element_class,
-    "amlasink",
-    "aml audio sink plugin ",
-    "for aml audio out property control",
+    "aml audio sink ",
+    "Sink/Audio",    
+    "aml dummy sink",
     " <<aml@aml.org>>");
     gst_element_class_add_pad_template (element_class,
     gst_static_pad_template_get (&sink_factory));
@@ -148,6 +149,8 @@ gst_amlasink_class_init (GstAmlAsinkClass * klass)
 
     g_object_class_install_property (gobject_class, PROP_SILENT, g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
           FALSE, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, PROP_MUTE, g_param_spec_boolean ("mute", "Mute", "mute audio or not ?",
+            FALSE, G_PARAM_READWRITE));  
 
     gstbasesink_class->render = gst_amlasink_render;  //data through
     gstbasesink_class->stop = gst_amlasink_stop; //data stop
@@ -170,6 +173,7 @@ gst_amlasink_init (GstAmlAsink * amlasink,
     pad = GST_BASE_SINK_PAD (amlasink);
     gst_base_sink_set_sync (GST_BASE_SINK (amlasink), FALSE);
     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlasink), FALSE);
+    AML_DEBUG("gst_amlasink_init\n");
 
 }
 
@@ -179,6 +183,7 @@ gst_amlasink_event (GstBaseSink * sink, GstEvent  *event)
     gboolean ret;
     GstTagList *tag_list;
     GstAmlAsink *amlasink = GST_AMLASINK(sink);
+    AML_DEBUG ( "asink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
   
     switch (GST_EVENT_TYPE (event)) {  
     case GST_EVENT_NEWSEGMENT:{
@@ -224,6 +229,9 @@ gst_amlasink_set_property (GObject * object, guint prop_id,
         case PROP_SILENT:
             amlasink->silent = g_value_get_boolean (value);
             break;
+        case PROP_MUTE:
+
+            break;
 	case PROP_ASYNC:
             gst_base_sink_set_async_enabled (amlasink, g_value_get_boolean (1));
             break;
@@ -241,6 +249,9 @@ gst_amlasink_get_property (GObject * object, guint prop_id,
     switch (prop_id) {
         case PROP_SILENT:
             g_value_set_boolean (value, amlasink->silent);
+            break;
+        case PROP_MUTE:
+
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -321,7 +332,7 @@ amlasink_init (GstAmlAsink * amlasink)
     GST_DEBUG_CATEGORY_INIT (gst_amlasink_debug, "amlasink",
         0, "Template amlasink");
   
-    return gst_element_register (amlasink, "amlasink", GST_RANK_NONE,
+    return gst_element_register (amlasink, "amlasink", GST_RANK_PRIMARY,
         GST_TYPE_AMLASINK);
 }
 

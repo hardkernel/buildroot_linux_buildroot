@@ -1,31 +1,5 @@
-/*
- * GStreamer
- * Copyright (C) 2005 Thomas Vander Stichele <thomas@apestaart.org>
- * Copyright (C) 2005 Ronald S. Bultje <rbultje@ronald.bitfreak.net>
- * Copyright (C) 2013  <<user@hostname.org>>
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- * Alternatively, the contents of this file may be used under the
- * GNU Lesser General Public License Version 2.1 (the "LGPL"), in
- * which case the following provisions apply instead of the ones
- * mentioned above:
+/* GStreamer
+ * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -43,25 +17,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * SECTION:element-amlaout
- *
- * FIXME:Describe amlaout here.
- *
- * <refsect2>
- * <title>Example launch line</title>
- * |[
- * gst-launch -v -m fakesrc ! amlaout ! fakesink silent=TRUE
- * ]|
- * </refsect2>
- */
-
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include "config.h"
 #endif
+#include <string.h>
 
-#include <gst/gst.h>
-#include <gst/base/gstbasetransform.h>
+#include <inttypes.h>
+
 #include "gstamlvdec.h"
 #include  "gstamlvideoheader.h"
 #include  "gstamlsysctl.h"
@@ -79,237 +41,110 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-GST_DEBUG_CATEGORY_STATIC (gst_amlvdec_debug);
-#define GST_CAT_DEFAULT gst_amlvdec_debug
+//#define AML_DEBUG g_print
 #define  AML_DEBUG(...)   GST_INFO_OBJECT(amlvdec,__VA_ARGS__) 
-//#define  AML_DEBUG   g_print 
-/* Filter signals and args */
-enum
-{
-    /* FILL ME */
-    LAST_SIGNAL
-};
 
-enum
-{
-    PROP_0,
-    PROP_SILENT
-};
+GST_DEBUG_CATEGORY_STATIC (amlvdec_debug);
+#define GST_CAT_DEFAULT (amlvdec_debug)
 
-/* the capabilities of the inputs and outputs.
- *
- * describe the real formats here.
- */
-static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
+static GstStaticPadTemplate sink_template_factory =
+    GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("ANY")
+    GST_STATIC_CAPS ("video/x-h264; video/mpeg; video/x-msmpeg; video/x-h263; video/x-jpeg")
     );
-static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
+
+static GstStaticPadTemplate src_template_factory =
+    GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("ANY")
+    GST_STATIC_CAPS ("video/x-raw-yuv")
     );
-GST_BOILERPLATE (GstAmlVdec, gst_amlvdec, GstBaseTransform, GST_TYPE_BASE_TRANSFORM);
 
-static void gst_amlvdec_set_property (GObject * object, guint prop_id, const GValue * value, GParamSpec * pspec);
-static void gst_amlvdec_get_property (GObject * object, guint prop_id, GValue * value, GParamSpec * pspec);
-static GstStateChangeReturn gst_amlvdec_change_state (GstElement *element, GstStateChange transition);
-static gboolean gst_amlvdec_set_caps  (GstBaseTransform * base, GstCaps * incaps, GstCaps * outcaps);
-static GstFlowReturn gst_amlvdec_render(GstAmlVdec *amlvdec, GstBuffer *buffer);
-static gboolean gst_amlvdec_start(GstBaseTransform *trans);
-static gboolean gst_amlvdec_stop(GstBaseTransform *trans);
-static gboolean gst_amlvdec_sink_event(GstBaseTransform *trans, GstEvent *event);
-static gboolean gst_amlvdec_src_query (GstPad  *pad, GstQuery  *query);
-static void gst_amlvdec_before_transform (GstBaseTransform *trans, GstBuffer *buffer);
-static GstFlowReturn gst_amlvdec_transform_ip (GstBaseTransform *trans, GstBuffer *buf);
-
-/* GObject vmethod implementations */
 static codec_para_t v_codec_para;
 static codec_para_t *vpcodec;
+static void gst_amlvdec_base_init (gpointer g_class);
+static void gst_amlvdec_class_init (GstAmlVdecClass * klass);
+static void gst_amlvdec_init (GstAmlVdec * amlvdec);
+static gboolean gst_amlvdec_src_event (GstPad * pad, GstEvent * event);
+static gboolean gst_amlvdec_sink_event (GstPad * pad, GstEvent * event);
+static gboolean gst_amlvdec_setcaps (GstPad * pad, GstCaps * caps);
+static GstFlowReturn gst_amlvdec_chain (GstPad * pad, GstBuffer * buf);
+static GstStateChangeReturn gst_amlvdec_change_state (GstElement * element,GstStateChange transition);
+static GstElementClass *parent_class = NULL;
 
-static void
-gst_amlvdec_base_init (gpointer gclass)
+GType
+gst_amlvdec_get_type (void)
 {
-    GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
-    gst_element_class_set_details_simple(element_class,
-    "amlvdec",
-    "video decoding plugin using hw decoder ",
-    "send video es to decoder and then render it out",
-    " <<aml@aml.org>>");
-    gst_element_class_add_pad_template (element_class,
-    gst_static_pad_template_get (&src_factory));
-    gst_element_class_add_pad_template (element_class,
-    gst_static_pad_template_get (&sink_factory));
+    static GType amlvdec_type = 0;
+    
+    if (!amlvdec_type) {
+        static const GTypeInfo amlvdec_info = {
+            sizeof (GstAmlVdecClass),
+            gst_amlvdec_base_init,
+            NULL,
+            (GClassInitFunc) gst_amlvdec_class_init,
+            NULL,
+            NULL,
+            sizeof (GstAmlVdec),
+            0,
+            (GInstanceInitFunc) gst_amlvdec_init,
+        };    
+        amlvdec_type = g_type_register_static (GST_TYPE_ELEMENT, "GstAmlVdec", &amlvdec_info,0);
+    }
+    
+    GST_DEBUG_CATEGORY_INIT (amlvdec_debug, "amlvdec", 0, "AMLVDEC decoder element");    
+    return amlvdec_type;
 }
 
-/* initialize the amlaout's class */
-static void gst_amlvdec_class_init (GstAmlVdecClass * klass)
+static void
+gst_amlvdec_base_init (gpointer g_class)
+{
+    GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
+  
+    gst_element_class_add_static_pad_template (element_class,
+        &src_template_factory);
+    gst_element_class_add_static_pad_template (element_class,
+        &sink_template_factory);
+  #ifdef enable_user_data
+    gst_element_class_add_static_pad_template (element_class,
+        &user_data_template_factory);
+  #endif
+    gst_element_class_set_details_simple (element_class,
+        "aml vdec video decoder", "Codec/Decoder/Video",
+        "Uses amlvdec to send video es to hw decode ",
+        "aml <aml@aml.org>");
+}
+
+static void
+gst_amlvdec_class_init (GstAmlVdecClass * klass)
 {
     GObjectClass *gobject_class;
     GstElementClass *gstelement_class;
+  
     gobject_class = (GObjectClass *) klass;
-    gstelement_class = (GstElementClass *) klass;
-    GstBaseTransformClass *basetransform_class = GST_BASE_TRANSFORM_CLASS (klass);
-
-    gobject_class->set_property = gst_amlvdec_set_property;
-    gobject_class->get_property = gst_amlvdec_get_property;
+    gstelement_class = (GstElementClass *) klass;  
+    parent_class = g_type_class_peek_parent (klass);  
     gstelement_class->change_state = gst_amlvdec_change_state;
 
-    g_object_class_install_property (gobject_class, PROP_SILENT, g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
-          FALSE, G_PARAM_READWRITE));
-	
-    basetransform_class->transform_ip = GST_DEBUG_FUNCPTR ( gst_amlvdec_transform_ip);
-    basetransform_class->set_caps = GST_DEBUG_FUNCPTR ( gst_amlvdec_set_caps);
-    basetransform_class->start = GST_DEBUG_FUNCPTR ( gst_amlvdec_start);
-    basetransform_class->stop =  GST_DEBUG_FUNCPTR ( gst_amlvdec_stop);
-    basetransform_class->event = GST_DEBUG_FUNCPTR ( gst_amlvdec_sink_event);
-    basetransform_class->before_transform = GST_DEBUG_FUNCPTR ( gst_amlvdec_before_transform);
-    basetransform_class->passthrough_on_same_caps = TRUE;
 }
 
-/* initialize the new element
- * instantiate pads and add them to element
- * set pad calback functions
- * initialize instance structure
- */
-static void gst_amlvdec_init (GstAmlVdec * amlvdec,
-    GstAmlVdecClass * gclass)
-{    
-    amlvdec->silent = FALSE;
-    AML_DEBUG("gst_amlvdec_init\n");
-}
-
-static void wait_for_render_end()
+static void
+gst_amlvdec_init (GstAmlVdec * amlvdec)
 {
-    unsigned rp_move_count = 40,count=0;
-    struct buf_status vbuf;
-    unsigned last_rp = 0;
-    int ret=1;	
-    do {
-        if (count>2000)//avoid infinite loop
-            break;	
-        ret = codec_get_vbuf_state(vpcodec, &vbuf);
-        if (ret != 0) {
-            g_print("codec_get_vbuf_state error: %x\n", -ret);
-            break;
-        }
-        if(last_rp != vbuf.read_pointer){
-            last_rp = vbuf.read_pointer;
-            rp_move_count = 40;
-        }else
-            rp_move_count--;        
-            usleep(1000*30);
-            count++;	
-    } while (vbuf.data_len > 0x100 && rp_move_count > 0);
-}
+    /* create the sink and src pads */
+    amlvdec->sinkpad = gst_pad_new_from_static_template (&sink_template_factory, "sink");
+    gst_pad_set_chain_function (amlvdec->sinkpad, GST_DEBUG_FUNCPTR (gst_amlvdec_chain));
+    gst_pad_set_event_function (amlvdec->sinkpad, GST_DEBUG_FUNCPTR (gst_amlvdec_sink_event));
+    gst_pad_set_setcaps_function (amlvdec->sinkpad, GST_DEBUG_FUNCPTR (gst_amlvdec_setcaps));
+    gst_element_add_pad (GST_ELEMENT (amlvdec), amlvdec->sinkpad);
+  
+    amlvdec->srcpad = gst_pad_new_from_static_template (&src_template_factory, "src");
+    gst_pad_set_event_function (amlvdec->srcpad, GST_DEBUG_FUNCPTR (gst_amlvdec_src_event));
+    gst_pad_use_fixed_caps (amlvdec->srcpad);
+    gst_element_add_pad (GST_ELEMENT (amlvdec), amlvdec->srcpad);
 
-static gboolean gst_amlvdec_sink_event (GstBaseTransform *trans, GstEvent *event)
-{
-    GstTagList *tag_list;
-    GstAmlVdec *amlvdec = GST_AMLVDEC(trans);
-    AML_DEBUG( "vdec got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
-    switch (GST_EVENT_TYPE (event)) {  
-    case GST_EVENT_NEWSEGMENT:{
-        gboolean update;
-        gdouble rate;
-        GstFormat format;
-        gint64 start, stop, time;
-        gst_event_parse_new_segment (event, &update, &rate, &format,&start, &stop, &time);
-        if (format == GST_FORMAT_TIME) {
-            GST_INFO_OBJECT (amlvdec, "received new segment: rate %g "
-              "format %d, start: %" GST_TIME_FORMAT ", stop: %" GST_TIME_FORMAT
-              ", time: %" GST_TIME_FORMAT, rate, format, GST_TIME_ARGS (start),
-              GST_TIME_ARGS (stop), GST_TIME_ARGS (time));
-        } else {
-            GST_INFO_OBJECT (amlvdec, "received new segment: rate %g "
-              "format %d, start: %" G_GINT64_FORMAT ", stop: %" G_GINT64_FORMAT
-              ", time: %" G_GINT64_FORMAT, rate, format, start, stop, time);
-        }
-        break;
-    }	
-    case GST_EVENT_TAG:
-        gst_event_parse_tag (event, &tag_list);
-        if (gst_tag_list_is_empty (tag_list))
-            AML_DEBUG("null tag list\n");
-        break;
-    case GST_EVENT_FLUSH_STOP:{
-        if(amlvdec->codec_init_ok){
-            gint res = -1;
-            //GST_OBJECT_LOCK (amlvdec);
-            res = codec_reset(vpcodec);
-            if (res < 0) {
-                g_print("reset vcodec failed, res= %x\n", res);
-                return FALSE;
-            }            
-            amlvdec->is_headerfeed = FALSE; 
-        }	
-        break;
-    	}		
-    case GST_EVENT_FLUSH_START:{       
-        break;
-    	}		
-    case GST_EVENT_EOS:
-        /* end-of-stream, we should close down all stream leftovers here */ 
-  	  AML_DEBUG("ge GST_EVENT_EOS,check for video end\n");
-	  if(amlvdec->codec_init_ok)	
-	  {
-	     wait_for_render_end();
-             amlvdec->is_eos = TRUE;
-	  }	
-        break;
-    default: 
-        break;
-    }
-    return parent_class->event (trans, event);
-}
-
-static void gst_amlvdec_set_property (GObject * object, guint prop_id,
-    const GValue * value, GParamSpec * pspec)
-{
-    GstAmlVdec *amlvdec = GST_AMLVDEC (object);  
-    switch (prop_id) {
-        case PROP_SILENT:
-            amlvdec->silent = g_value_get_boolean (value);
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-            break;
-    }
-}
-
-static void gst_amlvdec_get_property (GObject * object, guint prop_id,
-    GValue * value, GParamSpec * pspec)
-{
-    GstAmlVdec *amlvdec = GST_AMLVDEC (object);  
-    switch (prop_id) {
-        case PROP_SILENT:
-            g_value_set_boolean (value, amlvdec->silent);
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-            break;
-    }
-}
-
-static gboolean
-gst_amlvdec_src_query (GstPad  *pad, GstQuery  *query)
-{
-  gboolean ret=FALSE;
-  switch (GST_QUERY_TYPE (query)) {
-  	
-    case GST_QUERY_POSITION:
-      /* we should report the current position */     
-        break;
-    case GST_QUERY_DURATION:
-      /* we should report the duration here */   
-        break;    
-    default:
-      /* just call the default handler */
-        ret = gst_pad_query_default (pad, query);
-        break;
-    }
-    return ret;
+  /* initialize the amlvdec acceleration */
 }
 
 static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
@@ -324,18 +159,18 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
     name=gst_structure_get_name (structure); 
     AML_DEBUG("here caps name =%s,\n",name); 
     if (strcmp(name, "video/x-h264") == 0) {
-        gint32 frame_width=0,frame_height=0;
-	gint32 value_numerator=0,value_denominator=0;
+	      gint32 frame_width=0,frame_height=0;
+	      gint32 value_numerator=0,value_denominator=0;
         gst_structure_get_int(structure, "width",&frame_width);
         gst_structure_get_int(structure, "height",&frame_height);
-	gst_structure_get_fraction(structure, "framerate",&value_numerator,&value_denominator);
+	      gst_structure_get_fraction(structure, "framerate",&value_numerator,&value_denominator);
         /* Handle the codec_data information */
         codec_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data"); 	
         if (NULL != codec_data_buf) {
             guint8 *hdrextdata;
             gint i;
             amlvdec->codec_data = gst_value_get_buffer(codec_data_buf);
-            AML_DEBUG("H.264 SET CAPS check for codec data \n");    
+            g_print("H.264 SET CAPS check for codec data \n");    
             amlvdec->codec_data_len = GST_BUFFER_SIZE(amlvdec->codec_data);
             AML_DEBUG("\n>>H264 decoder: AVC Codec specific data length is %d\n",amlvdec->codec_data_len);
             AML_DEBUG("AVC codec data is \n");
@@ -353,11 +188,11 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
         vpcodec->am_sysinfo.width = frame_width;
         if(value_numerator>0)		
             vpcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;
-            AML_DEBUG(" Frame Width =%d,Height=%d,rate=%d\n", vpcodec->am_sysinfo.width, frame_height,vpcodec->am_sysinfo.rate);
+	      AML_DEBUG(" Frame Width =%d,Height=%d,rate=%d\n", vpcodec->am_sysinfo.width, frame_height,vpcodec->am_sysinfo.rate);
     }else if (strcmp(name, "video/mpeg") == 0) {  
         gst_structure_get_int (structure, "mpegversion", &mpegversion);
         AML_DEBUG("here mpegversion =%d\n",mpegversion);
-        if (mpegversion==2||mpegversion==1) {
+        if (mpegversion==2||mpegversion==1) {		
             vpcodec->video_type = VFORMAT_MPEG12;
             vpcodec->am_sysinfo.format = 0;
         }else if (mpegversion==4){
@@ -376,7 +211,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
                 guint8 *hdrextdata;
                 gint i;
                 amlvdec->codec_data = gst_value_get_buffer(codec_data_buf);
-                AML_DEBUG("mp4v check for codec data \n");    
+                g_print("mp4v check for codec data \n");    
                 amlvdec->codec_data_len = GST_BUFFER_SIZE(amlvdec->codec_data);
                 AML_DEBUG("\n>>mp4v Codec specific data length is %d\n",amlvdec->codec_data_len);
                 AML_DEBUG("mp4v codec data is \n");
@@ -389,9 +224,9 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
             vpcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
             vpcodec->am_sysinfo.height = frame_height;
             vpcodec->am_sysinfo.width = frame_width;
-	    if(value_numerator>0)		
+            if(value_numerator>0)		
                vpcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;		 
-        }		
+            }		
     }else if (strcmp(name, "video/x-msmpeg") == 0) {
         gst_structure_get_int (structure, "msmpegversion", &msmpegversion);
         if (msmpegversion==43){
@@ -424,18 +259,6 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
     return TRUE;	
 }
 
-/* this function handles the link with other elements */
-static gboolean gst_amlvdec_set_caps (GstBaseTransform * base, GstCaps * incaps, GstCaps * outcaps)
-{
-    GstAmlVdec  *amlvdec= GST_AMLVDEC(base);  
-   
-    AML_DEBUG("vdec set_caps\n");
-    if(incaps)	
-        gst_set_vstream_info (amlvdec, incaps );
-	
-    return TRUE;
-}
-
 static GstFlowReturn
 gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
 {
@@ -444,6 +267,13 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
     gint written;
     GstClockTime timestamp,pts;
     struct buf_status vbuf;
+    GstCaps * caps = NULL;
+
+    if (!amlvdec->codec_init_ok){
+        caps = GST_BUFFER_CAPS (buf);
+        if (caps)		
+            gst_set_vstream_info (amlvdec, caps );
+    }
 
     if(amlvdec->codec_init_ok)
     {   
@@ -453,7 +283,8 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
                 usleep(1000*40);
                 //return GST_FLOW_OK;
             }
-        }		
+        }
+		
         timestamp = GST_BUFFER_TIMESTAMP (buf);
         pts=timestamp*9LL/100000LL+1L;        
         if(!amlvdec->is_headerfeed&&amlvdec->codec_data_len){ 	
@@ -467,8 +298,7 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
         if (timestamp!= GST_CLOCK_TIME_NONE){
             GST_DEBUG_OBJECT (amlvdec,"pts=%x\n",(unsigned long)pts);
             GST_DEBUG_OBJECT (amlvdec, "PTS to (%" G_GUINT64_FORMAT ") time: %"
-            GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp));
-			
+            GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp));    
             if(codec_checkin_pts(vpcodec,(unsigned long)pts)!=0)
                 AML_DEBUG("pts checkin flied maybe lose sync\n");        	
         }
@@ -501,7 +331,7 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
                     GST_ELEMENT_ERROR (amlvdec, RESOURCE, NO_SPACE_LEFT, (NULL), (NULL));
                     break;
                 default:{
-                   GST_ELEMENT_ERROR (amlvdec, RESOURCE, WRITE, (NULL),("Error while writing to file  %s",g_strerror (errno)));
+                    GST_ELEMENT_ERROR (amlvdec, RESOURCE, WRITE, (NULL),("Error while writing to file  %s",g_strerror (errno)));
                 }
             }
             return GST_FLOW_ERROR;
@@ -511,37 +341,164 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
     }
     return GST_FLOW_OK;
 }
-/* chain function
- * this function does the actual processing
- */
-static  GstFlowReturn gst_amlvdec_transform_ip (GstBaseTransform *trans, GstBuffer *buf)
-{
-    GstAmlVdec *amlvdec;
-    amlvdec = GST_AMLVDEC (trans);
 
+static GstFlowReturn
+gst_amlvdec_chain (GstPad * pad, GstBuffer * buf)
+{
+    GstAmlVdec *amlvdec;  
+    amlvdec = GST_AMLVDEC(GST_PAD_PARENT (pad));
+  
     if (amlvdec->silent == FALSE){  	
         gst_amlvdec_render (amlvdec, buf);	
-    }	
-    return GST_FLOW_OK;
-
-}
-
-static void gst_amlvdec_before_transform (GstBaseTransform *trans, GstBuffer *buffer)
-{
-    GstCaps * caps = NULL;
-    GstAmlVdec *amlvdec;
-    amlvdec = GST_AMLVDEC (trans);
-    if (!amlvdec->codec_init_ok&&buffer){
-        caps = GST_BUFFER_CAPS (buffer);
-        if (caps)		
-            gst_set_vstream_info (amlvdec, caps );	
-
     }
+    return gst_pad_push (amlvdec->srcpad, buf);
+  
+    /* just push out the incoming buffer without touching it */
+  //  return GST_FLOW_OK;
+}
+static void wait_for_render_end()
+{
+    unsigned rp_move_count = 40,count=0;
+    struct buf_status vbuf;
+    unsigned last_rp = 0;
+    int ret=1;	
+    do {
+	  if(count>2000)//avoid infinite loop
+	      break;	
+        ret = codec_get_vbuf_state(vpcodec, &vbuf);
+        if (ret != 0) {
+            g_print("codec_get_vbuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != vbuf.read_pointer){
+            last_rp = vbuf.read_pointer;
+            rp_move_count = 40;
+        }else
+            rp_move_count--;        
+            usleep(1000*30);
+            count++;	
+    } while (vbuf.data_len > 0x100 && rp_move_count > 0);
 }
 
-static gboolean gst_amlvdec_start(GstBaseTransform *trans)
+static gboolean
+gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
+{
+    GstAmlVdec *amlvdec;
+    gboolean ret = TRUE;
+    amlvdec = GST_AMLVDEC(gst_pad_get_parent (pad));
+    GST_DEBUG_OBJECT (amlvdec, "Got %s event on sink pad", GST_EVENT_TYPE_NAME (event));
+
+    switch (GST_EVENT_TYPE (event)) {
+        case GST_EVENT_NEWSEGMENT:
+        {
+            gboolean update;
+            GstFormat format;
+            gdouble rate, arate;
+            gint64 start, stop, time;
+
+            gst_event_parse_new_segment_full (event, &update, &rate, &arate, &format, &start, &stop, &time);
+
+            if (format != GST_FORMAT_TIME)
+                goto newseg_wrong_format;
+
+            gst_segment_set_newsegment_full (&amlvdec->segment, update, rate, arate, format, start, stop, time);
+
+            GST_DEBUG_OBJECT (amlvdec,"Pushing newseg rate %g, applied rate %g, format %d, start %"
+                G_GINT64_FORMAT ", stop %" G_GINT64_FORMAT ", pos %" G_GINT64_FORMAT,
+                rate, arate, format, start, stop, time);
+
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+        }
+		
+        case GST_EVENT_FLUSH_START:
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+	  
+        case GST_EVENT_FLUSH_STOP:
+        {
+            if(amlvdec->codec_init_ok){
+                gint res = -1;
+                res = codec_reset(vpcodec);
+                if (res < 0) {
+                    g_print("reset vcodec failed, res= %x\n", res);
+                    return FALSE;
+                }            
+                amlvdec->is_headerfeed = FALSE; 
+            }
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+        } 
+		
+        case GST_EVENT_EOS:
+            AML_DEBUG("ge GST_EVENT_EOS,check for video end\n");
+            if(amlvdec->codec_init_ok)	
+            {
+                wait_for_render_end();
+                amlvdec->is_eos = TRUE;
+            }	
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+		 
+        default:
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+    }
+
+done:
+    gst_object_unref (amlvdec);
+
+    return ret;
+
+  /* ERRORS */
+newseg_wrong_format:
+  {
+    GST_DEBUG_OBJECT (amlvdec, "received non TIME newsegment");
+    gst_event_unref (event);
+    goto done;
+  }
+}
+
+
+static gboolean
+gst_amlvdec_setcaps (GstPad * pad, GstCaps * caps)
+{
+    GstAmlVdec *amlvdec;
+    GstPad *otherpad;
+    amlvdec = GST_AMLVDEC (gst_pad_get_parent (pad));
+    otherpad = (pad == amlvdec->srcpad) ? amlvdec->sinkpad : amlvdec->srcpad;
+    if(caps)	
+        gst_set_vstream_info (amlvdec, caps );  
+    gst_object_unref (amlvdec);
+  
+    return TRUE;
+}
+
+static gboolean
+gst_amlvdec_src_event (GstPad * pad, GstEvent * event)
+{
+    gboolean res;
+    GstAmlVdec *amlvdec;  
+    amlvdec =  GST_AMLVDEC (GST_PAD_PARENT (pad));
+  
+    switch (GST_EVENT_TYPE (event)) {
+        case GST_EVENT_SEEK:{
+            gst_event_ref (event);
+            res = gst_pad_push_event (amlvdec->sinkpad, event) ;
+            gst_event_unref (event);
+            break;
+        }		
+
+        default:
+            res = gst_pad_push_event (amlvdec->sinkpad, event);
+            break;
+    }	
+    return res; 
+}
+
+static gboolean
+gst_amlvdec_start (GstAmlVdec *amlvdec)
 { 
-    GstAmlVdec *amlvdec = GST_AMLVDEC (trans);
     AML_DEBUG("amlvdec start....\n");
     amlvdec->codec_init_ok=0;
     vpcodec = &v_codec_para;
@@ -558,15 +515,14 @@ static gboolean gst_amlvdec_start(GstBaseTransform *trans)
     amlvdec->codec_data = NULL;
     amlvdec->is_paused = FALSE;
     amlvdec->is_eos = FALSE;
+    amlvdec->codec_init_ok = 0;
     return TRUE;
 }
 
 static gboolean
-gst_amlvdec_stop (GstBaseTransform *trans)
-{       
+gst_amlvdec_stop (GstAmlVdec *amlvdec)
+{
     gint ret = -1;
-    GstAmlVdec *amlvdec = GST_AMLVDEC(trans);
-    AML_DEBUG("gst_amlvdec_stop....\n");
     if(amlvdec->codec_init_ok){
         if(amlvdec->is_paused == TRUE) {
             ret=codec_resume(vpcodec);
@@ -580,97 +536,81 @@ gst_amlvdec_stop (GstBaseTransform *trans)
     }
     amlvdec->codec_init_ok=0;
     amlvdec->is_headerfeed=FALSE;
-    	
     return TRUE;
 }
 
 static GstStateChangeReturn
 gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
 {
-    GstAmlVdec *amlvdec= GST_AMLVDEC (element);
     GstStateChangeReturn result;
-    gint ret=-1;	
-
+    GstAmlVdec *amlvdec =  GST_AMLVDEC(element);
+    gint ret= -1;
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
+            gst_amlvdec_start(amlvdec);
             break;
+  		
         case GST_STATE_CHANGE_READY_TO_PAUSED:
+    
             break;
-        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:	  	
-            if(amlvdec->is_paused == TRUE) {
+        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+            if(amlvdec->is_paused == TRUE &&  amlvdec->codec_init_ok) {
                 ret=codec_resume(vpcodec);
                 if (ret != 0) {
                     g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else
                     amlvdec->is_paused = FALSE;
-            }	
-            break;
+            }
+
         default:
-            break;
+          break;
     }
 
-    result = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
-  
+    result =  parent_class->change_state (element, transition);
+
     switch (transition) {
-	  case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-        if(!amlvdec->is_eos)
-        {
-            ret=codec_pause(vpcodec);
-            if (ret != 0) {
-                g_print("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
-            }else
-                amlvdec->is_paused = TRUE;
-        }
-	      break;
-        case GST_STATE_CHANGE_PAUSED_TO_READY:    
+        case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+            if(!amlvdec->is_eos &&  amlvdec->codec_init_ok){ 
+                ret=codec_pause(vpcodec);
+                if (ret != 0) {
+                    g_print("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                }else
+                    amlvdec->is_paused = TRUE;
+            }
             break;
-        case GST_STATE_CHANGE_READY_TO_NULL: 
+			
+        case GST_STATE_CHANGE_PAUSED_TO_READY:
+    
+          break;
+		  
+        case GST_STATE_CHANGE_READY_TO_NULL:
+            gst_amlvdec_stop(amlvdec);
             break;
+			
         default:
             break;
     }
+
     return result;
-}
-
-/* entry point to initialize the plug-in
- * initialize the plug-in itself
- * register the element factories and other features
- */
-static gboolean
-amlvdec_init (GstPlugin * amlvdec)
-{
-  /* debug category for fltering log messages
-   *
-   * exchange the string 'Template amlaout' with your description
-   */
-    GST_DEBUG_CATEGORY_INIT (gst_amlvdec_debug, "amlvdec",
-        0, "Template amlvdec");
   
-    return gst_element_register (amlvdec, "amlvdec", GST_RANK_NONE,
-        GST_TYPE_AMLVDEC);
 }
 
-/* PACKAGE: this is usually set by autotools depending on some _INIT macro
- * in configure.ac and then written into and defined in config.h, but we can
- * just set it ourselves here in case someone doesn't use autotools to
- * compile this code. GST_PLUGIN_DEFINE needs PACKAGE to be defined.
- */
-#ifndef PACKAGE
-#define PACKAGE "myfirstamlvdec"
-#endif
+static gboolean
+plugin_init (GstPlugin * plugin)
+{
+    if (!gst_element_register (plugin, "amlvdec", GST_RANK_PRIMARY,
+            GST_TYPE_AMLVDEC))
+      return FALSE;
+  
+    return TRUE;
+}
 
-/* gstreamer looks for this structure to register amlvdec
- *
- * exchange the string 'Template amlaout' with your amlaout description
- */
-GST_PLUGIN_DEFINE (
-    GST_VERSION_MAJOR,
+GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
     "amlvdec",
-    "Template amlvdec",
-    amlvdec_init,
-    VERSION,
+    "aml fake video decoder",
+    plugin_init,
+    VERSION, 
     "LGPL",
     "GStreamer",
-    "http://gstreamer.net/"
-)
+    "http://gstreamer.net/");

@@ -123,9 +123,9 @@ gst_amlvsink_base_init (gpointer gclass)
 {
     GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
     gst_element_class_set_details_simple(element_class,
-    "amlvsink",
-    "aml video sink plugin ",
-    "for video render property control",
+    "aml video sink ",
+    "Sink/Video",   
+    "send video es to decoder and then render it out",
     " <<aml@aml.org>>");
     gst_element_class_add_pad_template (element_class,
     gst_static_pad_template_get (&sink_factory)); 
@@ -234,7 +234,7 @@ static void gst_amlvsink_set_property (GObject * object, guint prop_id,
             amlvsink->silent = g_value_get_boolean (value);
             break;
         case PROP_ASYNC:
-           //  gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), g_value_get_boolean (0));
+             gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), g_value_get_boolean (0));
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -286,7 +286,6 @@ gst_amlvsink_change_state (GstElement * element, GstStateChange transition)
 {
     GstAmlVsink *amlvsink= GST_AMLVSINK (element);
     GstStateChangeReturn result;
-    gint ret=-1;	
 
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
@@ -330,7 +329,7 @@ amlvsink_init (GstPlugin * amlvsink)
     GST_DEBUG_CATEGORY_INIT (gst_amlvsink_debug, "amlvsink",
         0, "Template amlvsink");
   
-    return gst_element_register (amlvsink, "amlvsink", GST_RANK_NONE,
+    return gst_element_register (amlvsink, "amlvsink", GST_RANK_PRIMARY-1,
         GST_TYPE_AMLVSINK);
 }
 
