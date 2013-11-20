@@ -5,6 +5,11 @@
 #include <../include/codec.h>
 #define ADTS_HEADER_SIZE        (7)
 #define HDR_BUF_SIZE                (1024)
+#define EXTERNAL_PTS    (1)
+#define SYNC_OUTSIDE    (2)
+#define UNIT_FREQ       96000
+#define PTS_FREQ        90000
+#define AV_SYNC_THRESH    PTS_FREQ*30
 #if 0
 typedef struct {
     unsigned short syncword;

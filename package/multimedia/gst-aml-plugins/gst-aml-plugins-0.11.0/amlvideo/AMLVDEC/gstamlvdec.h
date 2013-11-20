@@ -47,7 +47,7 @@
 #define __GST_AMLVDEC_H__
 
 #include <gst/gst.h>
-#include <gst/base/gstbasetransform.h>
+#include <gst/video/video.h>
 
 G_BEGIN_DECLS
 
@@ -65,28 +65,24 @@ G_BEGIN_DECLS
 
 typedef struct _GstAmlVdec      GstAmlVdec;
 typedef struct _GstAmlVdecClass GstAmlVdecClass;
-#define EXTERNAL_PTS    (1)
-#define SYNC_OUTSIDE    (2)
-#define UNIT_FREQ       96000
-#define PTS_FREQ        90000
-#define AV_SYNC_THRESH    PTS_FREQ*30
 
 struct _GstAmlVdec 
 {
-    GstBaseTransform element;
+    GstElement     element;
     GstPad *sinkpad, *srcpad;
-    gboolean silent;
+    GstSegment     segment;
     guint codec_init_ok;
     GstBuffer* codec_data;        // Header data needed for H264 and some codecs
     guint      codec_data_len;    // Header Extension obtained through caps negotiation
     gboolean is_headerfeed;	/* flag for decoder initialization */
     gboolean is_paused;
     gboolean is_eos;
+    gboolean     silent;
 };
 
 struct _GstAmlVdecClass 
 {
-   GstBaseTransformClass parent_class;
+    GstElementClass parent_class;
 };
 
 GType gst_amlvdec_get_type (void);

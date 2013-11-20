@@ -47,7 +47,7 @@
 #define __GST_AMLADEC_H__
 
 #include <gst/gst.h>
-#include <gst/base/gstbasetransform.h>
+#include <gst/tag/tag.h>
 
 G_BEGIN_DECLS
 
@@ -69,8 +69,8 @@ typedef struct _GstAmlAdecClass GstAmlAdecClass;
 
 struct _GstAmlAdec
 {
+  GstElement element;
 
-  GstBaseTransform element;
 
   GstPad *sinkpad, *srcpad;
 
@@ -89,11 +89,12 @@ struct _GstAmlAdec
   gboolean   is_paused;
   gboolean   is_eos;
 
+  GstSegment segment;
 };
 
 struct _GstAmlAdecClass
 {
-   GstBaseTransformClass parent_class;
+  GstElementClass parent_class;
 
 };
 
