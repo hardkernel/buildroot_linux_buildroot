@@ -168,6 +168,28 @@ define BUSYBOX_INSTALL_WATCHDOG_SCRIPT
 endef
 endif
 
+define BUSYBOX_INSTALL_INETD_SCRIPT 
+	if grep -q CONFIG_INETD=y $(@D)/.config; then \
+	  [ -f $(TARGET_DIR)/etc/init.d/S41inetd ] || \
+	  $(INSTALL) -m 0755 -D package/busybox/S41inetd \
+	  $(TARGET_DIR)/etc/init.d/S41inetd; \
+	else rm -f $(TARGET_DIR)/etc/init.d/S41inetd; fi 
+endef
+define BUSYBOX_INSTALL_INETD_CONF 
+	if grep -q CONFIG_INETD=y $(@D)/.config; then \
+	  [ -f $(TARGET_DIR)/etc/inetd.conf ] || \
+	  $(INSTALL) -D -m 0644 package/busybox/inetd.conf \
+	  $(TARGET_DIR)/etc/inetd.conf; \
+	  if grep -q CONFIG_TELNETD=y $(@D)/.config; then \
+	    if ! grep -q '^telnet' $(TARGET_DIR)/etc/inetd.conf; then \
+	      echo -e "telnet\tstream\ttcp\tnowait\troot\ttelnetd\ttelnetd -i" >> $(TARGET_DIR)/etc/inetd.conf; \
+	    fi; \
+	  else \
+	    $(SED) '/^telnet/d' $(TARGET_DIR)/etc/inetd.conf; \
+	  fi; \
+	else rm -f $(TARGET_DIR)/etc/inetd.conf; fi 
+endef 
+
 # We do this here to avoid busting a modified .config in configure
 BUSYBOX_POST_EXTRACT_HOOKS += BUSYBOX_COPY_CONFIG
 
@@ -200,6 +222,8 @@ define BUSYBOX_INSTALL_TARGET_CMDS
 	$(BUSYBOX_INSTALL_MDEV_CONF)
 	$(BUSYBOX_INSTALL_LOGGING_SCRIPT)
 	$(BUSYBOX_INSTALL_WATCHDOG_SCRIPT)
+	$(BUSYBOX_INSTALL_INETD_SCRIPT) 
+	$(BUSYBOX_INSTALL_INETD_CONF)
 endef
 
 define BUSYBOX_UNINSTALL_TARGET_CMDS
