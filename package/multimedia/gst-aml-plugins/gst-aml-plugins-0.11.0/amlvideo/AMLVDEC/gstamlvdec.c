@@ -387,7 +387,6 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
     gboolean ret = TRUE;
     amlvdec = GST_AMLVDEC(gst_pad_get_parent (pad));
     GST_DEBUG_OBJECT (amlvdec, "Got %s event on sink pad", GST_EVENT_TYPE_NAME (event));
-
     switch (GST_EVENT_TYPE (event)) {
         case GST_EVENT_NEWSEGMENT:
         {
@@ -412,6 +411,10 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
         }
 		
         case GST_EVENT_FLUSH_START:
+            
+            if(amlvdec->codec_init_ok){
+                set_black_policy(0);
+            }
             ret = gst_pad_push_event (amlvdec->srcpad, event);
             break;
 	  
@@ -516,6 +519,7 @@ gst_amlvdec_start (GstAmlVdec *amlvdec)
     amlvdec->is_paused = FALSE;
     amlvdec->is_eos = FALSE;
     amlvdec->codec_init_ok = 0;
+    amlvdec->prival = 0;
     return TRUE;
 }
 

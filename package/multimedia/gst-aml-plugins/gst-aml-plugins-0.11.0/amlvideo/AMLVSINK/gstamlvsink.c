@@ -91,7 +91,9 @@ enum
 {
     PROP_0,
     PROP_SILENT,
-    PROP_ASYNC
+    PROP_ASYNC,
+    PROP_MUTE,
+    PROP_FLUSH_REPEAT_FRAME
 };
 
 /* the capabilities of the inputs and outputs.
@@ -144,9 +146,11 @@ static void gst_amlvsink_class_init (GstAmlVsinkClass * klass)
     gobject_class->get_property = gst_amlvsink_get_property;
     gstelement_class->change_state = gst_amlvsink_change_state;
 
-    g_object_class_install_property (gobject_class, PROP_SILENT, g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
-          FALSE, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, PROP_SILENT, g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?", FALSE, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, PROP_MUTE, g_param_spec_boolean ("mute", "Mute", "Mute output or not ?", FALSE, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, PROP_FLUSH_REPEAT_FRAME, g_param_spec_boolean ("flush_repeat_frame", "Flush_repaeat_frame", "Keep last frame or not?", FALSE, G_PARAM_READWRITE));
 
+    gstbasesink_class->render = gst_amlvsink_render;  //data through
     gstbasesink_class->render = gst_amlvsink_render;  //data through
     gstbasesink_class->stop = gst_amlvsink_stop; //data stop
     gstbasesink_class->start = gst_amlvsink_start; //data start
@@ -234,7 +238,12 @@ static void gst_amlvsink_set_property (GObject * object, guint prop_id,
             amlvsink->silent = g_value_get_boolean (value);
             break;
         case PROP_ASYNC:
-             gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), g_value_get_boolean (0));
+            gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), g_value_get_boolean (0));
+            break;
+        case PROP_MUTE:
+            break;
+        case PROP_FLUSH_REPEAT_FRAME:
+            set_black_policy (g_value_get_int (value));
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -249,6 +258,11 @@ static void gst_amlvsink_get_property (GObject * object, guint prop_id,
     switch (prop_id) {
         case PROP_SILENT:
             g_value_set_boolean (value, filter->silent);
+            break;
+        case PROP_MUTE:
+            break;
+        case PROP_FLUSH_REPEAT_FRAME:
+            g_value_set_boolean (value, get_black_policy());
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

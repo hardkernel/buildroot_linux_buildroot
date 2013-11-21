@@ -78,6 +78,7 @@ struct _GstAmlVdec
     gboolean is_paused;
     gboolean is_eos;
     gboolean     silent;
+    gint      prival;
 };
 
 struct _GstAmlVdecClass 

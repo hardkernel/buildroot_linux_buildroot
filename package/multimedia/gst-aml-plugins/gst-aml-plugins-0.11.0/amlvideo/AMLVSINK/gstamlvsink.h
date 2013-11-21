@@ -48,6 +48,7 @@
 
 #include <gst/gst.h>
 #include <gst/base/gstbasesink.h>
+#include "gstamlsysctl.h"
 
 G_BEGIN_DECLS
 
