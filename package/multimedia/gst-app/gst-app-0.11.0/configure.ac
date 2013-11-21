@@ -89,6 +89,7 @@ dnl =======================================================================
 AC_CONFIG_FILES([
 Makefile
 rdkplay/Makefile
+amlplay/Makefile
 ])
 AC_OUTPUT
 
