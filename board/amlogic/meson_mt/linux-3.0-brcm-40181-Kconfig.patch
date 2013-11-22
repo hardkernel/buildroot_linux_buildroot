@@ -1,0 +1,27 @@
+--- linux-amlogic-3.0/drivers/amlogic/wifi/broadcm_40181/Kconfig.orig	2013-11-21 10:53:00.092341167 +0800
++++ linux-amlogic-3.0/drivers/amlogic/wifi/broadcm_40181/Kconfig	2013-11-21 10:53:18.836341623 +0800
+@@ -37,21 +37,21 @@ config SDIO_HARD_IRQ
+ config BCMDHD_FW_PATH
+ 	depends on SDIO && SDIO_DHD_CDC_WIFI_40181_MODULE
+ 	string "Firmware path"
+-	default "/system/etc/wifi/40183/fw_bcmdhd.bin"
++	default "/etc/wifi/40181/fw_bcmdhd.bin"
+ 	---help---
+ 	  Path to the firmware file.
+ 
+ config BCMDHD_NVRAM_PATH
+ 	depends on SDIO && SDIO_DHD_CDC_WIFI_40181_MODULE
+ 	string "NVRAM path"
+-	default "/system/etc/wifi/40183/nvram.txt"
++	default "/etc/wifi/40181/nvram.txt"
+ 	---help---
+ 	  Path to the calibration file.
+ 
+ config BCMDHD_CONFIG_PATH
+ 	depends on SDIO && SDIO_DHD_CDC_WIFI_40181_MODULE
+ 	string "Config path"
+-	default "/system/etc/firmware/config.txt"
++	default "/etc/firmware/config.txt"
+ 	---help---
+ 	  Path to the driver configuration file.
+ 
