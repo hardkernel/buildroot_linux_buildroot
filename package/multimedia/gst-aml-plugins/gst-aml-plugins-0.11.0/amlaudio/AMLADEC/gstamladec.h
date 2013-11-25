@@ -48,6 +48,7 @@
 
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
+#include  "gstamlsysctl.h"
 
 G_BEGIN_DECLS
 
@@ -89,6 +90,8 @@ struct _GstAmlAdec
   gboolean   is_paused;
   gboolean   is_eos;
 
+  AmlState eState;
+  
   GstSegment segment;
 };
 

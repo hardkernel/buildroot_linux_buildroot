@@ -3,6 +3,12 @@
 #include <gst/gst.h>
 
 G_BEGIN_DECLS
+typedef enum{
+    AmlStateNormal,
+    AmlStateFastForward,
+    AmlStateSlowForward,
+}AmlState;
+
 int set_sysfs_str(const char *path, const char *val);
 int get_sysfs_str(const char *path, char *valstr, int size);
 int set_sysfs_int(const char *path, int val);

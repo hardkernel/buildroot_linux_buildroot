@@ -26,7 +26,6 @@
 
 #include "gstamlvdec.h"
 #include  "gstamlvideoheader.h"
-#include  "gstamlsysctl.h"
 #include  "../../common/include/codec.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -380,6 +379,34 @@ static void wait_for_render_end()
     } while (vbuf.data_len > 0x100 && rp_move_count > 0);
 }
 
+static gboolean amlvdec_forward_process(GstAmlVdec *amlvdec, 
+    gboolean update, gdouble rate, GstFormat format, gint64 start,
+    gint64 stop, gint64 position)
+{
+    AmlState eCurrentState = AmlStateNormal;
+    if(((rate - 1.0) < 0.000001) && ((rate - 1.0) > -0.000001)){
+        set_tsync_enable(1);
+        codec_set_video_playrate(vpcodec, (int)(rate*(1<<16)));
+        eCurrentState = AmlStateNormal;
+    }
+    else if(rate > 0){
+        set_tsync_enable(0);
+        codec_set_video_playrate(vpcodec, (int)(rate*(1<<16)));
+        if(rate > 1.0){
+            eCurrentState = AmlStateFastForward;
+        }
+        else{
+            eCurrentState = AmlStateSlowForward;
+        }
+    }
+
+    if(eCurrentState != amlvdec->eState){
+        amlvdec->eState = eCurrentState;
+    }
+    
+    return TRUE;
+}
+
 static gboolean
 gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
 {
@@ -399,7 +426,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
 
             if (format != GST_FORMAT_TIME)
                 goto newseg_wrong_format;
-
+            amlvdec_forward_process(amlvdec, update, rate, format, start, stop, time);
             gst_segment_set_newsegment_full (&amlvdec->segment, update, rate, arate, format, start, stop, time);
 
             GST_DEBUG_OBJECT (amlvdec,"Pushing newseg rate %g, applied rate %g, format %d, start %"

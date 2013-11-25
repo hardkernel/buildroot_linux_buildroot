@@ -13,7 +13,8 @@ install:
 	-make -C amadec install
 	-make -C amavutils install
 	-make -C amcodec install
-
+	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(TARGET_DIR)/usr/lib 
+	
 clean:
 	-make -C amadec clean
 	-make -C amavutils clean

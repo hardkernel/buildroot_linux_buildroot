@@ -39,7 +39,6 @@
 #include <string.h>
 #include "gstamladec.h"
 #include  "gstamlaudioheader.h"
-#include  "gstamlsysctl.h"
 #include  "../../common/include/codec.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -242,6 +241,42 @@ static void wait_for_render_end (void)
 
 }
 
+static gboolean amladec_forward_process (GstAmlAdec *amladec, 
+    gboolean update, gdouble rate, GstFormat format, gint64 start,
+    gint64 stop, gint64 position)
+{
+    AmlState eCurrentState = AmlStateNormal;
+    if (((rate - 1.0) < 0.000001) && ((rate - 1.0) > -0.000001)){
+        codec_set_mute(apcodec, 0);
+        eCurrentState = AmlStateNormal;
+    }
+    else if(rate > 0){
+        codec_set_mute(apcodec, 1);
+        
+        if(rate > 1.0){
+            eCurrentState = AmlStateFastForward;
+        }
+        else{
+            eCurrentState = AmlStateSlowForward;
+        }
+    }
+
+    if(eCurrentState != amladec->eState){
+        if(amladec->eState == AmlStateNormal){
+            //codec_close_audio(apcodec);
+            audio_pause(apcodec->adec_priv);
+        }
+        else if(eCurrentState == AmlStateNormal){
+            //codec_resume_audio(apcodec, 1);
+            audio_resume(apcodec->adec_priv);
+        }
+        amladec->eState = eCurrentState;
+    }
+    
+    return TRUE;
+}
+
+
 static gboolean
 gst_amladec_sink_event (GstPad * pad, GstEvent * event)
 {
@@ -259,7 +294,8 @@ gst_amladec_sink_event (GstPad * pad, GstEvent * event)
             gst_event_parse_new_segment_full (event, &update, &rate, &applied_rate,
                 &format, &start, &stop, &pos);
       
-            if (format == GST_FORMAT_TIME) {      
+            if (format == GST_FORMAT_TIME) {     
+                amladec_forward_process(amladec, update, rate, format, start, stop, pos);
                 result = gst_pad_push_event (amladec->srcpad, event);  
                 gst_segment_set_newsegment_full (&amladec->segment, update, rate,
                     applied_rate, GST_FORMAT_TIME, start, stop, pos);
@@ -502,7 +538,7 @@ static GstFlowReturn gst_amladec_chain (GstPad * pad, GstBuffer * buf)
     GstStructure *structure;
     amladec = GST_AMLADEC (GST_OBJECT_PARENT (pad));
 
-    if (amladec->silent == FALSE){  	
+    if (amladec->silent == FALSE && amladec->eState == AmlStateNormal){  	
         gst_amladec_render (amladec, buf);	
     }	
 

@@ -2219,3 +2219,10 @@ int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode)
     return codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_SET_VSYNC_UPINT, (unsigned long)mode);
 }
 
+/*add for gstreamer fast/slow forward*/
+int codec_set_video_playrate(codec_para_t* pcodec, int rate)
+{
+    return codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_SET_PLAYRATE, (unsigned long)rate);
+}
+
+

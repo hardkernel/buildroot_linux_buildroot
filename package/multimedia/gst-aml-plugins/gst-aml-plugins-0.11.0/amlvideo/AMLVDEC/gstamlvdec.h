@@ -48,6 +48,7 @@
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
+#include  "gstamlsysctl.h"
 
 G_BEGIN_DECLS
 
@@ -79,6 +80,7 @@ struct _GstAmlVdec
     gboolean is_eos;
     gboolean     silent;
     gint      prival;
+	AmlState eState;
 };
 
 struct _GstAmlVdecClass 
