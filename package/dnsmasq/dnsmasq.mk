@@ -90,6 +90,7 @@ endef
 define DNSMASQ_INSTALL_TARGET_CMDS
 	$(DNSMASQ_MAKE_ENV) $(MAKE) -C $(@D) $(DNSMASQ_MAKE_OPT) install$(DNSMASQ_I18N)
 	mkdir -p $(TARGET_DIR)/var/lib/misc/
+	$(INSTALL) -D -m 0644 package/dnsmasq/dnsmasq.conf $(TARGET_DIR)/etc/
 endef
 
 define DNSMASQ_UNINSTALL_TARGET_CMDS
