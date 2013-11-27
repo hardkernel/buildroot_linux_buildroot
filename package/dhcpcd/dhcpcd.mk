@@ -22,7 +22,9 @@ define DHCPCD_CONFIGURE_CMDS
 	$(TARGET_CONFIGURE_OPTS) ./configure \
 		--target=$(BR2_GCC_TARGET_ARCH) \
 		--os=linux \
-		$(DHCPCD_CONFIG_OPT) )
+		$(DHCPCD_CONFIG_OPT) \
+	--sysconfdir=/etc \
+	--libexecdir=/libexec)
 endef
 
 define DHCPCD_BUILD_CMDS
@@ -37,6 +39,31 @@ define DHCPCD_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/etc/dhcpcd.conf
 	$(INSTALL) -D -m 0755 $(@D)/dhcpcd-run-hooks \
 		$(TARGET_DIR)/libexec/dhcpcd-run-hooks
+	mkdir -p $(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/01-test \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/02-dump \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/10-mtu \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/10-wpa_supplicant \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/15-timezone \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/20-resolv.conf \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/29-lookup-hostname \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/30-hostname \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/50-dhcpcd-compat \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/50-ntp.conf \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/50-ypbind \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
+	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/50-yp.conf \
+		$(TARGET_DIR)/libexec/dhcpcd-hooks/
 endef
 
 # NOTE: Even though this package has a configure script, it is not generated
