@@ -1693,7 +1693,7 @@ unsigned int codec_get_scrstate(codec_para_t *pcodec, unsigned long *time)
 	
     ret = ioctl(pcodec->cntl_handle, AMSTREAM_IOC_GET_SCR_STATE, time);
     if (ret < 0) {
-		CODEC_PRINT("[%s] ioctl failed %d\n", __FUNCTION__, ret);
+	//CODEC_PRINT("[%s] ioctl failed %d\n", __FUNCTION__, ret);
         return ret;
     }	
 	
