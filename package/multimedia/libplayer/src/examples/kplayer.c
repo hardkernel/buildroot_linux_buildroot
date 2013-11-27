@@ -183,7 +183,7 @@ static void signal_handler(int signum)
 {   
 	printf("Get signum=%x\n",signum);
 	player_progress_exit();	
-	set_display_axis(1);
+	//set_display_axis(1);
 	signal(signum, SIG_DFL);
 	raise (signum);
 }
@@ -212,7 +212,7 @@ int main(int argc,char *argv[])
 	}
 	player_init();
 	streamsource_init();
-	set_display_axis(0);		//move osd out of screen to set video layer out
+	//set_display_axis(0);		//move osd out of screen to set video layer out
 		
 	player_register_update_callback(&pCtrl->callback_fn,&update_player_info,1000);
 	printf("player callback register....\n");
@@ -372,7 +372,7 @@ int main(int argc,char *argv[])
 		signal(SIGINT, signal_handler);        
 		signal(SIGQUIT, signal_handler);		
 	}	
-	set_display_axis(1);	//recover osd
+	//set_display_axis(1);	//recover osd
 	free(pCtrl->file_name);
 	free(pCtrl);       
     printf("...........player exit,~,byeybe...........\n");	
