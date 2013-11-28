@@ -47,7 +47,7 @@
 #define __GST_AMLADEC_H__
 
 #include <gst/gst.h>
-#include <gst/tag/tag.h>
+//#include <gst/tag/tag.h>
 #include  "gstamlsysctl.h"
 
 G_BEGIN_DECLS

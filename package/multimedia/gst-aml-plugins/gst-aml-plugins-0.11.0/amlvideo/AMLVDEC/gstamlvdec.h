@@ -47,7 +47,7 @@
 #define __GST_AMLVDEC_H__
 
 #include <gst/gst.h>
-#include <gst/video/video.h>
+//#include <gst/video/video.h>
 #include  "gstamlsysctl.h"
 
 G_BEGIN_DECLS
