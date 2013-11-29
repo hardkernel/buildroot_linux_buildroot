@@ -12,13 +12,13 @@ typedef struct _CFContext {
     int perform_retval;
     int http_code;
     int seekable;
-    int open_quited;
     //int is_seeking;
     //int thread_first_run;
     int64_t filesize;
     pthread_t pid;
     pthread_mutex_t quit_mutex;
     pthread_cond_t quit_cond;
+    int (*interrupt)(void);
     CURLWContext * cwc_h;
     CURLWHandle * cwh_h;
     Curl_Data * cwd;
@@ -31,9 +31,10 @@ int curl_fetch_http_keepalive_open(CFContext * handle, const char * uri);
 int curl_fetch_read(CFContext * handle, char * buf, int size);
 int64_t curl_fetch_seek(CFContext * handle, int64_t off, int whence);
 int curl_fetch_close(CFContext * handle);
-int curl_fetch_interrupt(CFContext * handle);
 int curl_fetch_http_set_headers(CFContext * handle, const char * headers);
 int curl_fetch_http_set_cookie(CFContext * handle, const char * cookie);
 int curl_fetch_get_info(CFContext * handle, curl_info cmd, uint32_t flag, void * info);
+void curl_fetch_register_interrupt(CFContext * handle, interruptcallback pfunc);
+//int curl_fetch_interrupt(CFContext * handle);
 
 #endif

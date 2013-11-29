@@ -173,9 +173,11 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
             ret = AVERROR(ret);
             av_strerror(ret, errbuf, sizeof(errbuf));
             av_log(h, AV_LOG_ERROR,
-                   "TCP connection to %s:%d failed: %s\n",
-                   hostname, port, errbuf);
+                   "TCP connection to %s:%d failed: %s, ret = %d\n",
+                   hostname, port, errbuf, ret);            
             ret = AVERROR(ret);
+            if(ret>0)
+                ret = AVERROR(EIO);
             goto fail;
         }
     }

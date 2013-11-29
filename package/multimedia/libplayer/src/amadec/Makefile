@@ -15,12 +15,12 @@ TOPDIR=$(shell pwd)
 SRC?=$(TOPDIR)
 
 CFLAGS+=-O2 -mlong-calls -fPIC -g
-CFLAGS+=-I$(SRC) -I$(SRC)/include -I$(SRC)/../amavutils/include -I${HEADERS_DIR} -L${LIB_DIR}
+CFLAGS+=-I$(SRC) -I$(SRC)/include -I$(SRC)/../amavutils/include -I$(SRC)/../amplayer/player/include -I${HEADERS_DIR} -L${LIB_DIR}
 CFLAGS+=-DALSA_OUT
 
-
-
-
+ifdef DOLBY_UDC
+    CFLAGS+=-DDOLBY_USE_ARMDEC
+endif
 
 export CC CFLAGS
 

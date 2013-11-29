@@ -21,8 +21,17 @@
 #include <errno.h>
 #include <limits.h>
 #include <unistd.h>
-#include "include/amlog.h"
 #define LOG_TAG "ammodule"
+#ifdef ANDROID
+#include <utils/Log.h>
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGV(...)
+#else
+#define LOGI printf
+#define LOGE printf
+#define LOGV printf
+#endif
 #include <amconfigutils.h>
 /** Base path of the hal modules */
 #define AM_LIBRARY_PATH1    "/system/lib/amplayer"

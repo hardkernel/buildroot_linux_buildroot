@@ -782,7 +782,6 @@ static int ebml_parse_id(MatroskaDemuxContext *matroska, EbmlSyntax *syntax,
         return 0;  // we reached the end of an unknown size cluster
     if (!syntax[i].id && id != EBML_ID_VOID && id != EBML_ID_CRC32 && id != EBML_ID_HEADER){
         av_log(matroska->ctx, AV_LOG_INFO, "Unknown entry 0x%X\n", id);
-		return AVERROR_INVALIDDATA;
 	}
 
     if ((matroska->media_offset == MAX_OFFSET)
@@ -864,7 +863,7 @@ static int ebml_parse_elem(MatroskaDemuxContext *matroska,
     uint32_t id = syntax->id;
     uint64_t length;
     int res;
-    int64_t pos,offset_next ;
+    int64_t pos,offset_next,filesize;
 
     data = (char *)data + syntax->data_offset;
     if (syntax->list_elem_size) {
@@ -910,7 +909,14 @@ static int ebml_parse_elem(MatroskaDemuxContext *matroska,
 		        return avio_skip(pb,level->start+level->length-pos)<0 ? AVERROR(EIO) : 0;			  	
 		   }
 		}
-		return avio_skip(pb,length)<0 ? AVERROR(EIO) : 0;
+		filesize = avio_size(pb);
+		pos = avio_tell(pb);
+		if ((pos + length) > filesize){
+			av_log(NULL,AV_LOG_INFO,"Seek OUTOF Filesize curpos[%lld] length[%lld] filesize[%lld]\n",pos,length,filesize);
+			return AVERROR_INVALIDDATA;
+		}else {
+			return avio_skip(pb,length)<0 ? AVERROR(EIO) : 0;
+		}
     }
     if (res == AVERROR_INVALIDDATA)
         av_log(matroska->ctx, AV_LOG_ERROR, "Invalid element\n");
@@ -1713,14 +1719,17 @@ static int matroska_read_header(AVFormatContext *s, AVFormatParameters *ap)
             	} 
         }
     }
-	
+
 	if (index_list->nb_elem < 2){		
 		s->support_seek = 0;	
-		av_log(matroska->ctx, AV_LOG_INFO, "index nb_elem less than 2, set unsupport seek!\n");
+		av_log(matroska->ctx, AV_LOG_INFO, "index nb_elem less than 2, set unsupport seek! nb_elem:%d seekable:%d\n", index_list->nb_elem, matroska->ctx->pb->seekable);
 	}
 	else		
 		s->support_seek = 1;
-	
+
+	if(matroska->ctx->pb->seekable == 1 && index_list->nb_elem == 0)
+		s->support_seek = 1;
+
     matroska_convert_tags(s);
 
     matroska->in_read_header = 0;
@@ -1786,7 +1795,7 @@ static int matroska_parse_block(MatroskaDemuxContext *matroska, uint8_t *data,
 
     if ((n = matroska_ebmlnum_uint(matroska, data, size, &num)) < 0) {
         av_log(matroska->ctx, AV_LOG_ERROR, "EBML block data error\n");
-        return AVERROR_INVALIDDATA;
+        return res;
     }
     data += n;
     size -= n;
@@ -1795,7 +1804,7 @@ static int matroska_parse_block(MatroskaDemuxContext *matroska, uint8_t *data,
     if (size <= 3 || !track || !track->stream) {
         av_log(matroska->ctx, AV_LOG_INFO,
                "Invalid stream %"PRIu64" or size %u\n", num, size);
-       return AVERROR_INVALIDDATA; 
+       return res; 
     }
     st = track->stream;
     if (st->discard >= AVDISCARD_ALL)

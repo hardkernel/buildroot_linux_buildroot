@@ -199,10 +199,14 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
         unsigned int i;
         int matroska_flag = 0;
         int vpx_flag = 0;
+        int flv_flag = 0;
 
         type->fmt_string = pFCtx->iformat->name;
         if (!strcmp(type->fmt_string, "matroska,webm")) {
             matroska_flag = 1;
+        }
+        if (!strcmp(type->fmt_string, "flv")) {
+            flv_flag = 1;
         }
 
         for (i = 0; i < pFCtx->nb_streams; i++) {
@@ -247,10 +251,18 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
 					am_p->media_info.stream_info.adif_file_flag=1;
 				}
 			  }
+			  if((strstr(type->fmt_string,"asf")!=NULL) && pFCtx->drmcontent )
+			  {
+				log_print("drm wma detected\n");
+			       memset(format_string, 0, sizeof(format_string));
+			       sprintf(format_string, "%s","asf-drm");
+				type->fmt_string = format_string;
+   				
+			  }			  
 		 }
 	   //-----------------------------------------------------
-        // special process for webm and vpx
-        if (matroska_flag || vpx_flag) {
+        // special process for webm/vpx, flv/vp6
+        if (matroska_flag || flv_flag || vpx_flag) {
             int length = 0;
 
             memset(format_string, 0, sizeof(format_string));

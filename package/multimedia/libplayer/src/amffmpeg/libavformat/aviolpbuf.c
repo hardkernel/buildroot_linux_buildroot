@@ -658,6 +658,16 @@ int64_t url_lp_get_buffed_pos(URLContext *s)
 		pos,lp->file_size,(int)(pos*100/lp->file_size),(int)((pos*10000/lp->file_size)%100),buffer_in_cache); */
 	return pos;
 }
+int64_t url_buffed_size(AVIOContext *s)
+{
+	if(!s)
+		return 0;
+	if(s->enabled_lp_buffer){
+		int64_t buffed=url_lp_get_buffed_pos(s->opaque)-avio_seek(s,0,SEEK_CUR);
+		return buffed > 0 ? buffed :0;
+	}else
+		return 0;
+}
 
 int url_lp_intelligent_buffering(URLContext *s,int size)
 {

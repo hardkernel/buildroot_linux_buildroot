@@ -28,6 +28,7 @@
 #include "url.h"
 #include <stdarg.h>
 #include "amconfigutils.h"
+#include "libavutil/avstring.h"
 
 #define IO_BUFFER_SIZE 32768
 #define IO_BUFFER_MIN_SIZE 1024
@@ -1265,6 +1266,8 @@ int avio_open_h(AVIOContext **s, const char *filename, int flags,const char * he
         ffurl_close(h);
         return err;
     }
+    if (av_strstart(filename, "rtp:", NULL))
+        h->priv_flags = 1 ; 
     return 0;
 }
 

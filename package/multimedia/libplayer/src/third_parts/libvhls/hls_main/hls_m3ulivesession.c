@@ -1,6 +1,6 @@
 //coded by peter,20130221
 
-#define LOG_NDEBUG 1
+#define LOG_NDEBUG 0
 #define LOG_TAG "M3uSession"
 
 #include <stdio.h>
@@ -52,6 +52,8 @@
 #include "hls_simple_cache.h"
 #endif
 
+#define AUDIO_BANDWIDTH_MAX 100000  //100k
+#define BANDWIDTH_THRESHOLD 5000 //5k
 
 #define ERROR_MSG() LOGE("Null session pointer check:%s,%s,%d\n",__FILE__,__FUNCTION__,__LINE__)
 enum RefreshState {
@@ -184,12 +186,20 @@ static void _sort_m3u_session_bandwidth(M3ULiveSession* ss){
             }
         }
         i--;
-    }    
+    }
+
+    /* m3u8 bandwidth may not be compatible with HLS draft, fix it*/
+    int coeff = 1;
+    if(ss->bandwidth_list[ss->bandwidth_item_num-1]->mBandwidth > 0
+        && ss->bandwidth_list[ss->bandwidth_item_num-1]->mBandwidth < BANDWIDTH_THRESHOLD) {
+        coeff = 1000;
+    }
     LOGV("*************************Dump all bandwidth list start ********************\n");
     for(i=0; i<ss->bandwidth_item_num; i++){
         if(ss->bandwidth_list[i]){
             ss->bandwidth_list[i]->index = i;
             temp = ss->bandwidth_list[i];
+            temp->mBandwidth *= coeff;
             if(ss->log_level >= HLS_SHOW_URL) {
                 LOGV("***Item index:%d,Bandwidth:%lu,url:%s\n",temp->index,temp->mBandwidth,temp->url);
             } else {
@@ -985,6 +995,7 @@ static int _fetch_segment_file(M3ULiveSession* s,M3uBaseNode* segment,int isLive
     int64_t fetch_start,fetch_end;
     fetch_start = in_gettimeUs();
     int drop_estimate_bw = 0;
+    int need_retry = 0;
     
 open_retry:
 {
@@ -1018,6 +1029,15 @@ open_retry:
             strlcpy(headers,s->headers,MAX_URL_SIZE);
         }
     }
+
+    if(need_retry==1){ // segment ts maybe put on http server not https
+        if(strcasestr(url,"https")){
+            char tmp_url[MAX_URL_SIZE];
+            snprintf(tmp_url,MAX_URL_SIZE,"http%s",segment->fileUrl+5);
+            url = tmp_url;
+        }
+        need_retry=0;
+    }
     
     if(s->is_encrypt_media >0 ){
         
@@ -1042,6 +1062,7 @@ open_retry:
 	     if(s->log_level >= HLS_SHOW_URL) {
                 LOGV("Maybe seek play,just retry to open,url:%s\n",url);
 	     }
+	     _thread_wait_timeUs(s,100*1000);
             hls_http_close(handle);
             handle = NULL;
             goto open_retry;            
@@ -1056,6 +1077,7 @@ open_retry:
             _thread_wait_timeUs(s,100*1000);
             hls_http_close(handle);
             handle = NULL;
+            need_retry = 1;
             goto open_retry;
 
         }else if(isLive&&(now - fetch_start)<segmentDurationUs/2){//maybe 5s
@@ -1067,6 +1089,7 @@ open_retry:
             _thread_wait_timeUs(s,100*1000);
             hls_http_close(handle);
             handle = NULL;
+            need_retry = 1;
             goto open_retry;
         }else{//failed to download,need skip this file
             LOGV("[%s],skip this segment\n",isLive>0?"LIVE":"VOD");
@@ -1230,7 +1253,7 @@ open_retry:
             }else{
                 s->err_code = rlen;
                 hls_http_close(handle);
-                return -1;
+                return rlen;
             }
 
         }
@@ -1353,7 +1376,7 @@ static int _download_next_segment(M3ULiveSession* s){
         }
     }
  
-    if((ret == 0 || ret == HLSERROR(EAGAIN))&&s->seekflag<=0){//must not seek
+    if((ret == 0 || ret == -1000 || ret == HLSERROR(EAGAIN))&&s->seekflag<=0){//must not seek
         pthread_mutex_lock(&s->session_lock);
         ++s->cur_seq_num;
         pthread_mutex_unlock(&s->session_lock);
@@ -1402,7 +1425,7 @@ static void* _download_worker(void* ctx){
             first_download = 0;
         }
         ret = _download_next_segment(s); //100ms delay       
-        if(ret<0){
+        if(ret<0&&ret!=-1000){
             if(ret != HLSERROR(EAGAIN)){               
                 break;
             }
@@ -1539,8 +1562,6 @@ static void _pre_estimate_bandwidth(M3ULiveSession* s){
 }
 //========================================API============================================
 
-#define AUDIO_BANDWIDTH_MAX 100000  //100k
-
 int m3u_session_open(const char* baseUrl,const char* headers,void** hSession){
     if(baseUrl == NULL||strlen(baseUrl)<2){
         LOGE("Check input baseUrl\n");
@@ -1599,8 +1620,10 @@ int m3u_session_open(const char* baseUrl,const char* headers,void** hSession){
                 return -1;
                 
             }
-            
-            if(node->bandwidth<AUDIO_BANDWIDTH_MAX){
+
+#if 1
+            if(node->bandwidth>0&&((node->bandwidth<AUDIO_BANDWIDTH_MAX&&node->bandwidth>BANDWIDTH_THRESHOLD)
+                || (node->bandwidth<AUDIO_BANDWIDTH_MAX/1000))){
 		  if(session->log_level >= HLS_SHOW_URL) {
                     LOGV("This variant can't playback,drop it,url:%s,bandwidth:%d\n",node->fileUrl,node->bandwidth);
 		  } else {
@@ -1608,6 +1631,7 @@ int m3u_session_open(const char* baseUrl,const char* headers,void** hSession){
 		  }
                 continue;
             }
+#endif
             
             BandwidthItem_t* item = (BandwidthItem_t*)malloc(sizeof(BandwidthItem_t));
             

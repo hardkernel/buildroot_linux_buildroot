@@ -16,15 +16,13 @@
 #include <sys/soundcard.h>
 //#include <config.h>
 #include <alsa/asoundlib.h>
-#include <alsa/pcm.h>
+
 #include <audio-dec.h>
 #include <adec-pts-mgt.h>
 #include <log-print.h>
 #include <alsa-out.h>
 
 
-#define   PERIOD_SIZE  1024
-#define   PERIOD_NUM    4
 #define USE_INTERPOLATION
 
 static snd_pcm_sframes_t (*readi_func)(snd_pcm_t *handle, void *buffer, snd_pcm_uframes_t size);
@@ -33,8 +31,8 @@ static snd_pcm_sframes_t (*readn_func)(snd_pcm_t *handle, void **bufs, snd_pcm_u
 static snd_pcm_sframes_t (*writen_func)(snd_pcm_t *handle, void **bufs, snd_pcm_uframes_t size);
 
 
-static int fragcount = PERIOD_NUM;
-static snd_pcm_uframes_t chunk_size = PERIOD_SIZE;
+static int fragcount = 16;
+static snd_pcm_uframes_t chunk_size = 1024;
 static char output_buffer[64 * 1024];
 static unsigned char decode_buffer[OUTPUT_BUFFER_SIZE + 64];
 
@@ -182,25 +180,18 @@ static int set_params(alsa_param_t *alsa_params)
     //bits_per_frame = bits_per_sample * hwparams.realchanl;
     alsa_params->bits_per_frame = alsa_params->bits_per_sample * alsa_params->channelcount;
 
-    bufsize = 	PERIOD_NUM*PERIOD_SIZE;
-    err = snd_pcm_hw_params_set_buffer_size_near(alsa_params->handle, hwparams,&bufsize);
-    if (err < 0) {
-        adec_print("Unable to set  buffer  size \n");
-        return err;
-    }
-	
     err = snd_pcm_hw_params_set_period_size_near(alsa_params->handle, hwparams, &chunk_size, NULL);
     if (err < 0) {
         adec_print("Unable to set period size \n");
         return err;
     }
-#if 0	
-    err = snd_pcm_hw_params_set_periods_near(alsa_params->handle, hwparams, &fragcount, NULL);
-    if (err < 0) {
-      adec_print("Unable to set periods \n");
-      return err;
-    }
-#endif	
+
+    //err = snd_pcm_hw_params_set_periods_near(handle, hwparams, &fragcount, NULL);
+    //if (err < 0) {
+    //  adec_print("Unable to set periods \n");
+    //  return err;
+    //}
+
     err = snd_pcm_hw_params(alsa_params->handle, hwparams);
     if (err < 0) {
         adec_print("Unable to install hw params:");
@@ -212,7 +203,6 @@ static int set_params(alsa_param_t *alsa_params)
         adec_print("Unable to get buffersize \n");
         return err;
     }
-	printf("alsa buffer frame size %d \n",bufsize);
     alsa_params->buffer_size = bufsize * alsa_params->bits_per_frame / 8;
 
 #if 1
@@ -284,7 +274,7 @@ static size_t pcm_write(alsa_param_t * alsa_param, u_char * data, size_t count)
         }
 
         if (r < 0) {
-            //printf("xun in\n");
+            printf("xun in\n");
             if ((r = snd_pcm_prepare(alsa_param->handle)) < 0) {
                 return 0;
             }
@@ -775,8 +765,10 @@ unsigned long alsa_latency(struct aml_audio_dec* audec)
  * \return 0 on success otherwise negative error code
  */
 static int alsa_mute(struct aml_audio_dec* audec, adec_bool_t en){
-	return 0;
+       return 0;
 }
+
+
 /**
  * \brief get output handle
  * \param audec pointer to audec

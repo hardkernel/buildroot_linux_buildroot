@@ -273,6 +273,15 @@ static int http_open(URLContext *h, const char *uri, int flags)
 	int open_retry=0;
     h->is_streamed = 1;
     s->hd = NULL;
+
+    int retry_times=0;
+    float value=0.0;
+    int config_ret=am_getconfig_float("libplayer.http.openretry",&value);
+    if(config_ret<0){
+    	 retry_times=OPEN_RETRY_MAX;
+    }else{
+        retry_times=(int)value;
+    }
 	
     s->filesize = -1;
     s->is_seek=1;
@@ -283,7 +292,7 @@ static int http_open(URLContext *h, const char *uri, int flags)
 	s->max_connects=MAX_CONNECT_LINKS;	
     s->bandwidth_measure=bandwidth_measure_alloc(100,0); 	
 	ret = http_open_cnx(h);
-	while(ret<0 && open_retry++<OPEN_RETRY_MAX && !url_interrupt_cb() && (s->http_code != 404 ||s->http_code != 503 || s->http_code != 500)){
+	while(ret<0 && open_retry++<retry_times && !url_interrupt_cb() && (s->http_code != 404 ||s->http_code != 503 || s->http_code != 500)){
 		s->is_seek=0;
 		s->canseek=0;
     	ret = http_open_cnx(h);
@@ -296,6 +305,16 @@ static int shttp_open(URLContext *h, const char *uri, int flags)
     HTTPContext *s = h->priv_data;
     int ret;
     int open_retry=0;
+
+    int retry_times=0;
+    float value=0.0;
+    int config_ret=am_getconfig_float("libplayer.http.openretry",&value);
+    if(config_ret<0){
+    	 retry_times=OPEN_RETRY_MAX;
+    }else{
+        retry_times=(int)value;
+    }
+    
     h->is_streamed = 1;
     s->hd = NULL;
     s->filesize = -1;
@@ -307,7 +326,7 @@ static int shttp_open(URLContext *h, const char *uri, int flags)
 	s->max_connects=MAX_CONNECT_LINKS;	
     s->bandwidth_measure=bandwidth_measure_alloc(100,0); 		
 	ret = http_open_cnx(h);
-	while(ret<0 && open_retry++<OPEN_RETRY_MAX && !url_interrupt_cb()){
+	while(ret<0 && open_retry++<retry_times && !url_interrupt_cb()){
 		s->is_seek=0;
 		s->canseek=0;
     	ret = http_open_cnx(h);
@@ -325,6 +344,8 @@ static int http_getc(HTTPContext *s)
     int retry=0;
     if (s->buf_ptr >= s->buf_end) {
 		do {
+		if(retry++>0)
+		 	return AVERROR(EIO);
 	        len = ffurl_read(s->hd, s->buffer, BUFFER_SIZE);
 	        if (len < 0 && len != AVERROR(EAGAIN)) {
 				av_log(NULL, AV_LOG_ERROR, "http_getc failed\n");
@@ -336,8 +357,8 @@ static int http_getc(HTTPContext *s)
 	        	s->buf_ptr = s->buffer;
 				s->buf_end = s->buffer + len;
 	        }	
-		 if(retry++>10)
-		 	return AVERROR(EIO);/*10 times,avoid alway no return problem*/
+		 //if(retry++>10)
+		 //	return AVERROR(EIO);/*10 times,avoid alway no return problem*/
 		}while (len == AVERROR(EAGAIN));		
     }
     return *s->buf_ptr++;
@@ -566,7 +587,6 @@ static int http_connect(URLContext *h, const char *path, const char *hoststr,
     for(;;) {
         if (http_get_line(s, line, sizeof(line)) < 0)
             return AVERROR(EIO);
-
         av_dlog(NULL, "header='%s'\n", line);	
 		
         err = process_line(h, line, s->line_count, new_location);
@@ -597,7 +617,15 @@ static int http_read(URLContext *h, uint8_t *buf, int size)
 
     HTTPContext *s = h->priv_data;
     int len;
-    int err_retry=READ_RETRY_MAX;
+    int retry_times=0;
+    float value=0.0;
+    int config_ret=am_getconfig_float("libplayer.http.readretry",&value);
+    if(config_ret<0){
+    	 retry_times=READ_RETRY_MAX;
+    }else{
+        retry_times=(int)value;
+    }
+    int err_retry=retry_times;
     if(s->filesize>0&&s->off == s->filesize){
         av_log(h, AV_LOG_INFO, "http_read maybe reach EOS,force to exit,current: %lld,file size:%lld\n",s->off,s->filesize);        
         return 0;
@@ -653,7 +681,7 @@ retry:
             len = ffurl_read(s->hd, buf, size);
         }else{
             av_log(h, AV_LOG_INFO, "http read hd not opened,force to retry open\n");
-            len=-1;/*hd not opened,force to retry open*/
+            len=-1000;/*hd not opened,force to retry open*/
             goto errors;
         }
         //av_log(h, AV_LOG_ERROR, "ffurl_read %d\n",len);
@@ -684,7 +712,7 @@ retry:
 	}
 	if(len==0 && (s->off < s->filesize-10) && s->read_seek_count < READ_SEEK_TIMES){
 		av_log(h, AV_LOG_INFO, "http_read return 0,but off not reach filesize,maybe close by server try again\n");
-		len=-1;/*force to retry,if else data <10,don't do it*/
+		len=-1000;/*force to retry,if else data <10,don't do it*/
 	}
 errors:
 	if(len<0){
@@ -696,7 +724,7 @@ errors:
 		}
 
 	}
-	if(len<0 && len!=AVERROR(EAGAIN)&&!h->is_segment_media&&err_retry-->0 /*&& !url_interrupt_cb()*/)
+	if(len<0 && len!=AVERROR(EAGAIN)/*&&!h->is_segment_media*/&&err_retry-->0 /*&& !url_interrupt_cb()*/)
 	{		
 		av_log(h, AV_LOG_INFO, "http_read failed err try=%d\n", err_retry);
 		http_reopen_cnx(h,-1);

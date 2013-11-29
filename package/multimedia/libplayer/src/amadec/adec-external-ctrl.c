@@ -49,17 +49,21 @@ int audio_decode_init(void **handle, arm_audio_info *a_ainfo)
     audec->samplerate=a_ainfo->sample_rate;
     audec->format=a_ainfo->format;
     audec->adsp_ops.dsp_file_fd=a_ainfo->handle;
+    audec->adsp_ops.amstream_fd = a_ainfo->handle;
     audec->extradata_size=a_ainfo->extradata_size;
 	audec->SessionID=a_ainfo->SessionID;
 	audec->dspdec_not_supported = a_ainfo->dspdec_not_supported;
 	audec->droppcm_flag = 0;	
+	audec->bitrate=a_ainfo->bitrate;
+	audec->block_align=a_ainfo->block_align;
+	audec->codec_id=a_ainfo->codec_id;
 	if (a_ainfo->droppcm_flag) {
 		audec->droppcm_flag = a_ainfo->droppcm_flag;
 		a_ainfo->droppcm_flag = 0;
 	}
     if(a_ainfo->extradata_size>0&&a_ainfo->extradata_size<=AUDIO_EXTRA_DATA_SIZE)
         memcpy((char*)audec->extradata,(char*)a_ainfo->extradata,a_ainfo->extradata_size);
-   
+    audec->adsp_ops.audec=audec;
 //	adec_print("audio_decode_init  pcodec = %d, pcodec->ctxCodec = %d!\n", pcodec, pcodec->ctxCodec);
     ret = audiodec_init(audec);
     if (ret) {
@@ -593,4 +597,37 @@ int audio_get_soundtrack(void *handle, int* strack )
     *strack= audec->soundtrack;
 
     return ret;    
+}
+
+int audio_get_pcm_level(void* handle)
+{
+  aml_audio_dec_t* audec = (aml_audio_dec_t*)handle;
+  if(!handle){
+    adec_print("audio handle is NULL !\n");
+    return -1;
+  }
+
+  return audiodsp_get_pcm_level(&audec->adsp_ops);
+
+}
+
+int audio_set_skip_bytes(void* handle, unsigned int bytes)
+{
+  aml_audio_dec_t* audec = (aml_audio_dec_t*) handle;
+  if(!handle){
+    adec_print("audio handle is NULL !!\n");
+    return -1;
+  }
+
+  return audiodsp_set_skip_bytes(&audec->adsp_ops,bytes);
+}
+
+int audio_get_pts(void* handle)
+{
+  aml_audio_dec_t* audec = (aml_audio_dec_t*)handle;
+  if(!handle){
+    adec_print("audio handle is NULL !\n");
+    return -1;
+  }
+  return audiodsp_get_pts(&audec->adsp_ops);
 }

@@ -70,6 +70,8 @@ typedef struct {
     int             check_first_pts;
     int             cur_subindex; //for change subtitle
     int             sub_has_found;
+    int             sub_stream;
+    char            *sub_buf[9];
 } s_stream_info_t;
 
 typedef  struct {
@@ -131,7 +133,6 @@ typedef  struct {
     int freerun_mode;
     int no_dec_ref_buf;
     int vsync_upint;
-    int pcrscr_state;
     int no_error_recovery;
 } p_ctrl_info_t;
 

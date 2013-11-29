@@ -40,7 +40,7 @@ typedef enum{
     EMU_STEP_GETAVMEDIAINFO = 25,   
     //EMU_STEP_LISTALLMEDIAID = 27,
 }EMU_STEP;
-#define SCREEN_SPLITER            "****************************************************************************\r\n"
+#define SCREEN_SPLITER            "***************************************************************************\r\n"
 
 static int axis[8] = {0};
 

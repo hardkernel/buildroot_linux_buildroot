@@ -904,6 +904,62 @@ int player_get_play_info(int pid, player_info_t *info)
 
     return PLAYER_SUCCESS;
 }
+/* --------------------------------------------------------------------------*/
+/**
+ * @function    player_get_lpbufbuffedsize
+ *
+ * @brief       get player current lpbufbuffedsize
+ *
+ * @param[in]   pid player tag which get from player_start return value
+ *
+ * @return      plbuffedsize;
+ *
+ * @details     state defined in player_type.h
+ */
+/* --------------------------------------------------------------------------*/
+int64_t player_get_lpbufbuffedsize(int pid)
+{
+	int64_t buffedsize = -1;
+    play_para_t *player_para;
+
+    player_para = player_open_pid_data(pid);
+    if (player_para == NULL) {
+        return PLAYER_NOT_VALID_PID;
+    }
+
+    buffedsize = getlpbuffer_buffedsize(player_para);
+    player_close_pid_data(pid);
+
+    return buffedsize;
+}
+/* --------------------------------------------------------------------------*/
+/**
+ * @function    player_get_streambufbuffedsize
+ *
+ * @brief       get player current streambufbuffedsize
+ *
+ * @param[in]   pid player tag which get from player_start return value
+ *
+ * @return      streambufbuffedsize;
+ *
+ * @details     state defined in player_type.h
+ */
+/* --------------------------------------------------------------------------*/
+int64_t player_get_streambufbuffedsize(int pid)
+{
+	int64_t buffedsize = -1;
+    play_para_t *player_para;
+
+    player_para = player_open_pid_data(pid);
+    if (player_para == NULL) {
+        return PLAYER_NOT_VALID_PID;
+    }
+
+    buffedsize = getstreambuffer_buffedsize(player_para);
+    player_close_pid_data(pid);
+
+    return buffedsize;
+}
 
 /* --------------------------------------------------------------------------*/
 /**
@@ -925,15 +981,30 @@ int player_get_media_info(int pid, media_info_t *minfo)
     play_para_t *player_para;
     player_status sta;
 
+	while (player_get_state(pid) < PLAYER_INITOK) {
+		sta = player_get_state(pid);
+		if (sta == NULL){
+			log_error("player_get_media_info failed pid [%d]\n",pid);
+			return PLAYER_FAILED;
+		}
+		if (sta >= PLAYER_ERROR && sta <= PLAYER_EXIT) {
+			player_close_pid_data(pid);
+			log_error("player_get_media_info status err [0x%x]\n",sta);
+			return PLAYER_INVALID_CMD;
+		}
+		if ((player_get_state(pid)) == PLAYER_ERROR ||
+			player_get_state(pid) == PLAYER_STOPED ||
+			player_get_state(pid) == PLAYER_PLAYEND ||
+			player_get_state(pid) == PLAYER_EXIT) {
+			log_error("player_get_media_info failed status [0x%x]\n",sta);
+			return PLAYER_FAILED;
+		}	
+		usleep(1000 * 10);
+	 }
+
     player_para = player_open_pid_data(pid);
     if (player_para == NULL) {
         return PLAYER_NOT_VALID_PID;    /*this data is 0 for default!*/
-    }
-
-    sta = get_player_state(player_para);
-    if (sta >= PLAYER_ERROR && sta <= PLAYER_EXIT) {
-        player_close_pid_data(pid);
-        return PLAYER_INVALID_CMD;
     }
 
     MEMSET(minfo, 0, sizeof(media_info_t));
@@ -1491,6 +1562,9 @@ static char* player_vformat2str(vformat_t value)
         case VFORMAT_H264MVC:
             return "VFORMAT_H264MVC";
             
+        case VFORMAT_H264_4K2K:
+            return "VFORMAT_H264_4K2K";
+
         default:
             return "NOT_SUPPORT VFORMAT";
     }

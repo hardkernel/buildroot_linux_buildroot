@@ -115,7 +115,8 @@ int am_setconfig(const char * path, const char *val)
     }
     if (val != NULL) {
         setval = strdup(val);
-        setval[CONFIG_VALUE_MAX] = '\0'; /*maybe val is too long,cut it*/
+        if(strlen(setval) >= CONFIG_VALUE_MAX)
+            setval[CONFIG_VALUE_MAX] = '\0'; /*maybe val is too long,cut it*/
     }
     lp_lock(&config_lock);
     i = get_matched_index(path);
@@ -150,7 +151,8 @@ int am_setconfig(const char * path, const char *val)
     strcpy(pconfig + CONFIG_VALUE_OFF, setval);
     ret = 0;
 end_out:
-    free(setval);
+    if(setval!=NULL)
+    	free(setval);
     lp_unlock(&config_lock);
     return ret;
 }

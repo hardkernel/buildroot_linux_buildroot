@@ -8,7 +8,7 @@ LOCAL_C_INCLUDES := $(TOP)/external/curl/include \
         $(LOCAL_PATH)/../include
 
 LOCAL_STATIC_LIBRARIES += libcurl_base libcurl_common
-LOCAL_SHARED_LIBRARIES += libcurl libutils libamavutils libamplayer
+LOCAL_SHARED_LIBRARIES += libcurl libutils libamavutils libamplayer liblog
 
 LOCAL_MODULE := libcurl_mod
 LOCAL_MODULE_TAGS := optional

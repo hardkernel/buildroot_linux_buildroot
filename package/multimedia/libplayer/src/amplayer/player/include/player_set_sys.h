@@ -72,15 +72,7 @@ int set_amutils_enable(int isOn);
 int set_amutils_cmd(const char* cmd);
 int get_amutils_cmd(char* cmd);
 int check_audio_output();
-//freescale
-int 	enable_freescale(int cfg);
-int 	disable_freescale(int cfg);
-int   disable_freescale_MBX();
-int   enable_2Xscale();
-int   enable_2XYscale();
-int   enable_freescale_MBX();
-int   disable_2X_2XYscale();
-int   GL_2X_scale(int mSwitch);
+
 
 #ifdef  __cplusplus
 }

@@ -25,7 +25,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../amffmpeg/\
 
 
 #LOCAL_STATIC_LIBRARIES := 
-LOCAL_SHARED_LIBRARIES := libamplayer libutils
+LOCAL_SHARED_LIBRARIES := libamplayer libutils liblog
 
 LOCAL_ARM_MODE := arm
 LOCAL_MODULE:= libamstreaming

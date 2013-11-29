@@ -684,6 +684,7 @@ int mpeg_check_sequence(play_para_t *para)
     int64_t cur_offset = 0;
     AVFormatContext *s = para->pFormatCtx;
     unsigned char buf[MPEG_PROBE_SIZE];
+    if(!s->pb) return 0;
     cur_offset = avio_tell(s->pb);
     offset = 0;
     len = 0;
@@ -839,11 +840,49 @@ static int generate_vorbis_header(unsigned char *extradata, unsigned extradata_s
     return 0;
 }
 
+static void vorbis_insert_syncheader(char **hdrdata, int *size,char**vorbis_headers,int *vorbis_header_sizes)
+{
+  
+    char *pdata = (char *)MALLOC(vorbis_header_sizes[0]+vorbis_header_sizes[1]+vorbis_header_sizes[2]+24);
+    int i;
+    if (pdata==NULL) {
+         log_print("malloc %d mem failed,at func %s,line %d\n", \
+         (vorbis_header_sizes[0] + vorbis_header_sizes[1] + vorbis_header_sizes[2]), __FUNCTION__, __LINE__);
+         return PLAYER_NOMEM;
+    }
+    *hdrdata=pdata;
+    *size=vorbis_header_sizes[0] + vorbis_header_sizes[1] + vorbis_header_sizes[2]+24;
+
+    MEMCPY(pdata,"HEAD",4);
+    pdata+=4;
+    MEMCPY(pdata,&vorbis_header_sizes[0],4);
+    pdata+=4;
+    MEMCPY(pdata, vorbis_headers[0], vorbis_header_sizes[0]);
+    pdata+=vorbis_header_sizes[0];
+    log_print("[%s %d]pktnum/0  pktsize/%d\n ",__FUNCTION__,__LINE__,vorbis_header_sizes[0]);
+
+    MEMCPY(pdata,"HEAD",4);
+    pdata+=4;
+    MEMCPY(pdata,&vorbis_header_sizes[1],4);
+    pdata+=4;
+    MEMCPY(pdata, vorbis_headers[1], vorbis_header_sizes[1]);
+    pdata+=vorbis_header_sizes[1];
+    log_print("[%s %d]pktnum/1  pktsize/%d\n ",__FUNCTION__,__LINE__,vorbis_header_sizes[0]);
+
+    MEMCPY(pdata,"HEAD",4);
+    pdata+=4;
+    MEMCPY(pdata,&vorbis_header_sizes[2],4);
+    pdata+=4;
+    MEMCPY(pdata,vorbis_headers[2], vorbis_header_sizes[2]);
+    log_print("[%s %d]pktnum/2  pktsize/%d\n ",__FUNCTION__,__LINE__,vorbis_header_sizes[2]);
+}
 static int audio_add_header(play_para_t *para)
 {
     unsigned ext_size = para->pFormatCtx->streams[para->astream_info.audio_index]->codec->extradata_size;
     unsigned char *extradata = para->pFormatCtx->streams[para->astream_info.audio_index]->codec->extradata;
     am_packet_t *pkt = para->p_pkt;
+    char value[256]={0};
+    int flag=0;
     if (ext_size > 0) {
         log_print("==============audio add header =======================\n");
         if (para->astream_info.audio_format ==  AFORMAT_VORBIS) {
@@ -856,6 +895,10 @@ static int audio_add_header(play_para_t *para)
             if (pkt->hdr->data) {
                 FREE(pkt->hdr->data);
             }
+            flag =property_get("media.arm.audio.decoder",value,NULL);
+            if(flag>0 && strstr(value,"vorbis")!=NULL){
+                vorbis_insert_syncheader(&pkt->hdr->data,&pkt->hdr->size,vorbis_headers,vorbis_header_sizes);
+            }else{
             pkt->hdr->data = (char *)MALLOC(vorbis_header_sizes[0] + vorbis_header_sizes[1] + vorbis_header_sizes[2]);
             if (!pkt->hdr->data) {
                 log_print("malloc %d mem failed,at func %s,line %d\n", \
@@ -867,7 +910,7 @@ static int audio_add_header(play_para_t *para)
             MEMCPY(pkt->hdr->data + vorbis_header_sizes[0] + vorbis_header_sizes[1], \
                    vorbis_headers[2], vorbis_header_sizes[2]);
             pkt->hdr->size = (vorbis_header_sizes[0] + vorbis_header_sizes[1] + vorbis_header_sizes[2]);
-
+            }
 
         } else {
             MEMCPY(pkt->hdr->data, extradata , ext_size);
@@ -882,6 +925,7 @@ static int audio_add_header(play_para_t *para)
         if (ext_size > 4) {
             log_print("audio header first four bytes[0x%x],[0x%x],[0x%x],[0x%x]\n", extradata[0], extradata[1], extradata[2], extradata[3]);
         }
+        pkt->avpkt->stream_index=para->astream_info.audio_index;
         return write_av_packet(para);
     }
     return 0;
@@ -957,7 +1001,7 @@ int pre_header_feeding(play_para_t *para)
             if (ret != PLAYER_SUCCESS) {
                 return ret;
             }
-        } else if ((VFORMAT_H264 == para->vstream_info.video_format) || (VFORMAT_H264MVC == para->vstream_info.video_format)) {
+        } else if ((VFORMAT_H264 == para->vstream_info.video_format) || (VFORMAT_H264MVC == para->vstream_info.video_format) || (VFORMAT_H264_4K2K == para->vstream_info.video_format)) {
             ret = h264_write_header(para);
             if (ret != PLAYER_SUCCESS) {
                 return ret;

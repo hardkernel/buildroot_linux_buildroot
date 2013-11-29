@@ -30,7 +30,7 @@ TARGET?=libamplayer.so
 
 TARGET_IS_LIB=$(TARGET:%so=yes)
 
-LDFLAGS+= -L$(INSTALL_DIR) -lavutil -lavformat -lavcodec -lm  -lpthread 
+LDFLAGS+= -L$(INSTALL_DIR) -lavutil -lavformat -lavcodec -lm  -lpthread -lamavutils
 
 INSTALL_DIR?=$(PREFIX)/lib/libplayer
 LDFLAGS+=-shared 
@@ -58,6 +58,9 @@ CFLAGS+=-Wall
 CFLAGS+=-O0  -gdwarf-2  -g
 #CFLAGS+=-O2
 
+ifdef DOLBY_DAP
+LOCAL_CFLAGS += -DDOLBY_DAP_EN
+endif
 
 all:$(target_all)
 

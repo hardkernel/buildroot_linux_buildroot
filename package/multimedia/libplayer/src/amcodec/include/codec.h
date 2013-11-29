@@ -80,7 +80,6 @@ int codec_audio_set_audioinfo(codec_para_t *p);
 int codec_get_apts(codec_para_t *pcodec);
 int codec_get_vpts(codec_para_t *pcodec);
 int codec_get_pcrscr(codec_para_t *pcodec);
-unsigned int codec_get_scrstate(codec_para_t *pcodec, unsigned long *time);
 int codec_set_pcrscr(codec_para_t *pcodec, int val);
 int codec_set_syncenable(codec_para_t *pcodec, int enable);
 int codec_set_sync_audio_discont(codec_para_t *pcodec, int discontinue);
@@ -105,7 +104,6 @@ int codec_set_audio_resample_ena(codec_para_t *pcodec, unsigned long mode);
 int codec_get_audio_resample_ena(codec_para_t *pcodec);
 int codec_set_audio_resample_type(codec_para_t *pcodec, unsigned long type);
 
-
 int codec_set_video_delay_limited_ms(codec_para_t *pcodec,int delay_ms);
 int codec_get_video_delay_limited_ms(codec_para_t *pcodec,int *delay_ms);
 int codec_set_audio_delay_limited_ms(codec_para_t *pcodec,int delay_ms);
@@ -116,4 +114,7 @@ int codec_get_video_cur_bitrate(codec_para_t *pcodec,int *bitrate);
 int codec_get_audio_cur_bitrate(codec_para_t *pcodec,int *bitrate);
 
 int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode);
+
+int codec_get_last_checkout_apts(codec_para_t* pcodec, unsigned long *apts);
+int codec_get_last_checkin_apts(codec_para_t* pcodec, unsigned long *apts);
 #endif

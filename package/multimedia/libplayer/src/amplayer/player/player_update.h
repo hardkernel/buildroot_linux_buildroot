@@ -6,7 +6,6 @@
 
 unsigned int get_pts_pcrscr(play_para_t *p_para);
 unsigned int get_pts_video(play_para_t *p_para);
-unsigned int get_scr_state(play_para_t *p_para, unsigned long *time);
 unsigned int get_pts_audio(play_para_t *p_para);
 int     update_playing_info(play_para_t *p_para);
 int     set_media_info(play_para_t *p_para);

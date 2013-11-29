@@ -37,9 +37,6 @@
 #include "libavutil/lfg.h"
 #include "libavutil/random_seed.h"
 #include "http.h"
-#include <stdio.h>
-#include <string.h>
-
 static struct list_demux *list_demux_list = NULL;
 #define unused(x)   (x=x)
 

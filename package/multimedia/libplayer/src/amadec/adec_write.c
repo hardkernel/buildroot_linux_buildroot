@@ -33,8 +33,8 @@ int reset_buffer(buffer_stream_t *bs)
 
 int release_buffer(buffer_stream_t *bs)
 {
-       if(bs->data)
-	free(bs->data);
+	if(bs->data)
+	   free(bs->data);
 	free(bs);
 	bs=NULL;
 	return 1;
@@ -85,6 +85,8 @@ static int read_data(char * out, buffer_stream_t *bs, int size)
 		memcpy(out,bs->rd_ptr,len);
 		bs->rd_ptr+=len;
 		bs->buf_level-=len;
+		if(bs->rd_ptr==(bs->data+bs->buf_length))
+		     bs->rd_ptr=bs->data;
 		printf("=====read ok: condition 1 read :%d byte \n",len);
 		return len;
 	}
@@ -93,6 +95,8 @@ static int read_data(char * out, buffer_stream_t *bs, int size)
 		memcpy(out,bs->rd_ptr,len);
 		bs->rd_ptr+=len;
 		bs->buf_level-=len;
+		if(bs->rd_ptr==(bs->data+bs->buf_length))
+		     bs->rd_ptr=bs->data;
 		printf("=====read ok: condition 2 read :%d byte \n",len);
 		return len;
 
@@ -104,6 +108,8 @@ static int read_data(char * out, buffer_stream_t *bs, int size)
 		memcpy(out+tail_len,bs->data,len-tail_len);
 		bs->rd_ptr=bs->data+len-tail_len;
 		bs->buf_level-=len;
+		if(bs->rd_ptr==(bs->data+bs->buf_length))
+		     bs->rd_ptr=bs->data;
 		printf("=====read ok: condition 3 read :%d byte \n",len);
 		return len;
 	}
@@ -140,6 +146,8 @@ static int write_data(char *in, buffer_stream_t *bs, int size)
 		memcpy(bs->wr_ptr,in,len);
 		bs->wr_ptr+=len;
 		bs->buf_level+=len;
+		if(bs->wr_ptr==(bs->data+bs->buf_length))
+		     bs->wr_ptr=bs->data;
 		printf("=====write ok: condition 1 write :%d byte \n",len);
 		return len;
 	}
@@ -148,6 +156,8 @@ static int write_data(char *in, buffer_stream_t *bs, int size)
 		memcpy(bs->wr_ptr,in,len);
 		bs->wr_ptr+=len;
 		bs->buf_level+=len;
+		if(bs->wr_ptr==(bs->data+bs->buf_length))
+		    bs->wr_ptr=bs->data;
 		printf("=====write ok: condition 2 write :%d byte \n",len);
 		return len;
 
@@ -159,6 +169,8 @@ static int write_data(char *in, buffer_stream_t *bs, int size)
 		memcpy(bs->data,in+tail_len,len-tail_len);
 		bs->wr_ptr=bs->data+len-tail_len;
 		bs->buf_level+=len;
+		if(bs->wr_ptr==(bs->data+bs->buf_length))
+		    bs->wr_ptr=bs->data;
 		printf("=====write ok: condition 3 write :%d byte \n",len);
 		return len;
 	}

@@ -9,6 +9,7 @@ extern "C" {
 #define HDMI_HDCP_FAILED      (0)
 #define HDMI_NOCONNECT        (-1)
 
+int     amvideo_utils_get_freescale_enable(void);
 int     amvideo_utils_get_global_offset();
 int     amvideo_utils_set_position(int32_t x, int32_t y, int32_t w, int32_t h, int rotation);
 int     amvideo_utils_set_virtual_position(int32_t x, int32_t y, int32_t w, int32_t h, int rotation);

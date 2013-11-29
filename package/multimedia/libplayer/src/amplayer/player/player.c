@@ -22,7 +22,6 @@
 #include "thread_mgt.h"
 #include "stream_decoder.h"
 #include "player_ffmpeg_ctrl.h"
-#include "amutils_msg.h"
 
 
 /******************************
@@ -78,6 +77,12 @@ static int player_para_release(play_para_t *para)
             if (para->media_info.sub_info[i] != NULL) {
                 FREE(para->media_info.sub_info[i]);
                 para->media_info.sub_info[i] = NULL;
+            }
+        }
+        for (i=0; i<9; i++) {
+            if (para->sstream_info.sub_buf[i] != NULL) {
+                FREE(para->sstream_info.sub_buf[i]);
+                para->sstream_info.sub_buf[i] = NULL;
             }
         }
     }
@@ -150,14 +155,15 @@ static int check_decoder_worksta(play_para_t *para)
                         para->vbuffer.check_rp_change_cnt = CHECK_VIDEO_HALT_CNT;
                     }
                     if ((para->vbuffer.check_rp_change_cnt <= 0 && para->playctrl_info.video_low_buffer) || 
-						((vdec.status >> 16) & PARSER_FATAL_ERROR)/*||
-                    (para->vbuffer.check_rp_change_cnt < CHECK_VIDEO_HALT_CNT && para->playctrl_info.video_low_buffer)) &&
-                    ((para->state.full_time - para->state.current_time) > 10 )*/) {
+		        ((vdec.status >> 16) & PARSER_FATAL_ERROR && para->playctrl_info.video_low_buffer) ||/* parser error,do reset on low buffer level.*/
+                        para->vbuffer.check_rp_change_cnt < - CHECK_VIDEO_HALT_CNT*2 ) {/*too long time no changes.*/
                         para->vbuffer.check_rp_change_cnt = CHECK_VIDEO_HALT_CNT;
-						if( para->state.full_time > 0&& (para->state.current_time < para->state.full_time - 5))
-                        	para->playctrl_info.time_point = para->state.current_time + 1;
-						else
-							para->playctrl_info.time_point =-1;/*do reset only.*/
+                        if(para->stream_type == STREAM_RM){
+			     para->playctrl_info.time_point =-1;/*do reset  only & find next key frame only,*/
+                        }else if( para->state.full_time > 0&& (para->state.current_time < para->state.full_time - 5))
+                            para->playctrl_info.time_point = para->state.current_time + 1;
+			else
+			    para->playctrl_info.time_point =-1;/*do reset only.*/
                         para->playctrl_info.reset_flag = 1;
                         set_black_policy(0);
                         para->playctrl_info.end_flag = 1;
@@ -334,10 +340,12 @@ void check_msg(play_para_t *para, player_cmd_t *msg)
                 para->playctrl_info.fast_backward = 0;
 					        
                 if (para->playctrl_info.pause_flag) {
+                    int has_audio_saved=para->codec->has_audio ;
 		    if (para->codec->has_audio) {
                         para->codec->has_audio = 0;
      	            }	
                     codec_resume(para->codec);      //clear pause state
+                    para->codec->has_audio=has_audio_saved;
                     para->playctrl_info.pause_flag = 0;
                 }
                 set_player_state(para, PLAYER_RUNNING);
@@ -356,10 +364,12 @@ void check_msg(play_para_t *para, player_cmd_t *msg)
                 para->playctrl_info.fast_backward = 1;
                 para->playctrl_info.fast_forward = 0;					        
                 if (para->playctrl_info.pause_flag) {
+                    int has_audio_saved=para->codec->has_audio ;
 		     if (para->codec->has_audio) {
                          para->codec->has_audio = 0;
      	             }	
                     codec_resume(para->codec);      //clear pause state
+                    para->codec->has_audio=has_audio_saved;
                     para->playctrl_info.pause_flag = 0;
                 }
                 set_player_state(para, PLAYER_RUNNING);
@@ -383,16 +393,17 @@ void check_msg(play_para_t *para, player_cmd_t *msg)
         para->buffering_threshhold_middle = msg->f_param1;
         para->buffering_threshhold_max = msg->f_param2;
     }else if (msg->set_mode & CMD_SET_FREERUN_MODE) {
-    	 /*low delay mode.
+        /*low delay mode.
         #define FREERUN_NONE 0 // no freerun mode
         #define FREERUN_NODUR 1 // freerun without duration
         #define FREERUN_DUR 2 // freerun with duration
         bit 2: iponly_flag
         bit 3: no decoder reference buffer
         bit 4: vsync_pts_inc to up
+        bit 5: no error recovery
         */
         int mode=msg->param;
-        log_print("set freerun_mode %d\n",mode);
+        log_print("set freerun_mode 0x%x\n",mode);
         if(mode || am_getconfig_bool("media.libplayer.wfd")){/*mode=1,2,is low buffer mode also*/
             if(para->pFormatCtx&& para->pFormatCtx->pb)
                 ffio_set_buf_size(para->pFormatCtx->pb,1024*4);//reset aviobuf to small.
@@ -516,12 +527,6 @@ int check_flag(play_para_t *p_para)
         message_free(msg);
         msg = NULL;
     } else {
-        player_cmd_t cmd;
-        memset(&cmd, 0, sizeof(cmd));
-        if (!get_amutils_msg(&cmd)) {
-            check_msg(p_para, &cmd);
-            check_amutils_msg(p_para, &cmd);
-        }
         if (p_para->avsynctmpchanged > 0) {
             set_tsync_enable(p_para->oldavsyncstate);
             p_para->avsynctmpchanged = 0;
@@ -594,50 +599,55 @@ int check_flag(play_para_t *p_para)
         p_para->playctrl_info.seek_base_audio = 0;
     }
 
-    if (p_para->sstream_info.has_sub == 0) {
-        return NONO_FLAG;
-    }
-
-    if (p_para->sstream_info.has_sub) {
-        subtitle_curr = av_get_subtitle_curr();
-    }
-    if (subtitle_curr >= 0 && subtitle_curr < p_para->sstream_num && \
-        subtitle_curr != p_para->sstream_info.cur_subindex) {
-        log_print("start change subtitle from %d to %d \n", p_para->sstream_info.cur_subindex, subtitle_curr);
-        //find new stream match subtitle_curr
-
-        for (i = 0; i < pFormat->nb_streams; i++) {
-            pStream = pFormat->streams[i];
-            pCodec = pStream->codec;
-            if (pCodec->codec_type == CODEC_TYPE_SUBTITLE) {
-                find_subtitle_index ++;
-            }
-            if (find_subtitle_index == subtitle_curr + 1) {
-                p_para->playctrl_info.switch_sub_id = pStream->id;
-                break;
-            }
+    if ((p_para->state.current_pts - p_para->state.last_pts) >= PTS_FREQ/10) {
+        p_para->state.last_pts = p_para->state.current_pts;
+        if (p_para->sstream_info.has_sub == 0) {
+            return NONO_FLAG;
         }
-        p_para->sstream_info.cur_subindex = subtitle_curr;
-        if (p_para->stream_type == STREAM_PS) {
-            p_para->codec->sub_pid = p_para->media_info.sub_info[subtitle_curr]->id;
-            p_para->codec->sub_type = CODEC_ID_DVD_SUBTITLE;
-            log_print("[%s]defatult:sub_info[1] id=0x%x\n", __FUNCTION__, p_para->media_info.sub_info[1]->id);
-            if (p_para->astream_info.start_time > 0) {
-                set_subtitle_startpts(p_para->astream_info.start_time);
-            } else if (p_para->vstream_info.start_time > 0) {
-                set_subtitle_startpts(p_para->vstream_info.start_time);
+
+        if (p_para->sstream_info.has_sub) {
+            subtitle_curr = av_get_subtitle_curr();
+        }
+	
+        if (subtitle_curr >= 0 && subtitle_curr < p_para->sstream_num && \
+            subtitle_curr != p_para->sstream_info.cur_subindex) {
+            log_print("start change subtitle from %d to %d \n", p_para->sstream_info.cur_subindex, subtitle_curr);
+            //find new stream match subtitle_curr
+
+            for (i = 0; i < pFormat->nb_streams; i++) {
+                pStream = pFormat->streams[i];
+                pCodec = pStream->codec;
+                if (pCodec->codec_type == CODEC_TYPE_SUBTITLE) {
+                    find_subtitle_index ++;
+                }
+                if (find_subtitle_index == subtitle_curr + 1) {
+                    p_para->playctrl_info.switch_sub_id = pStream->id;
+                    break;
+                }
+            }
+            p_para->sstream_info.cur_subindex = subtitle_curr;
+            if (p_para->stream_type == STREAM_PS) {
+                p_para->codec->sub_pid = p_para->media_info.sub_info[subtitle_curr]->id;
+                p_para->codec->sub_type = CODEC_ID_DVD_SUBTITLE;
+                log_print("[%s]defatult:sub_info[1] id=0x%x\n", __FUNCTION__, p_para->media_info.sub_info[1]->id);
+                if (p_para->astream_info.start_time > 0) {
+                    set_subtitle_startpts(p_para->astream_info.start_time);
+                } else if (p_para->vstream_info.start_time > 0) {
+                    set_subtitle_startpts(p_para->vstream_info.start_time);
+                } else {
+                    set_subtitle_startpts(0);
+                }
+                codec_set_sub_type(p_para->codec);
+                codec_set_sub_id(p_para->codec);
+                codec_reset_subtile(p_para->codec);
+            } else if (i == pFormat->nb_streams) {
+                log_print("can not find subtitle curr\n\n");
             } else {
-                set_subtitle_startpts(0);
+                player_switch_sub(p_para);
             }
-            codec_set_sub_type(p_para->codec);
-            codec_set_sub_id(p_para->codec);
-            codec_reset_subtile(p_para->codec);
-        } else if (i == pFormat->nb_streams) {
-            log_print("can not find subtitle curr\n\n");
-        } else {
-            player_switch_sub(p_para);
-        }
+        }	
     }
+	
     return NONO_FLAG;
 }
 
@@ -802,7 +812,6 @@ static void player_para_init(play_para_t *para)
     para->discontinue_flag = 0;
     para->first_index = -1;
     para->karaok_flag = get_karaok_flag();
-    para->playctrl_info.pcrscr_state = 0;
 }
 
 ///////////////////*main function *//////////////////////////////////////
@@ -884,7 +893,7 @@ void *player_thread(play_para_t *player)
     int maxbufsize = 2*1024*1024;
     int config_ret = am_getconfig_float("media.libplayer.startplaybuf", &config_value);
     int lpbufsize = MIN(config_value*1024, maxbufsize);
-    if(!config_ret && player->pFormatCtx->pb->is_streamed) {
+    if(!config_ret && player->pFormatCtx->pb &&player->pFormatCtx->pb->is_slowmedia) {
         do {
             if(url_interrupt_cb()) {
                 break;
@@ -902,7 +911,6 @@ void *player_thread(play_para_t *player)
     set_player_state(player, PLAYER_INITOK);
     update_playing_info(player);
     update_player_states(player, 1);
-    set_amutils_enable(1);
 #if 0
     switch (player->pFormatCtx->drm.drm_check_value) {
     case 1: // unauthorized
@@ -969,8 +977,12 @@ void *player_thread(play_para_t *player)
     ret = player_offset_init(player);
     if (ret != PLAYER_SUCCESS) {
         log_error("pid[%d]::prepare offset failed!\n", player->player_id);
-        set_player_state(player, PLAYER_ERROR);
-        goto release;
+        //set_player_state(player, PLAYER_ERROR);
+        //goto release;
+        if (player->playctrl_info.raw_mode) {
+        	//log_print("*****data offset 0x%x\n", p_para->data_offset);
+        	url_fseek(player->pFormatCtx->pb, player->data_offset, SEEK_SET);
+        }
     }
     log_print("pid[%d]::decoder prepare\n", player->player_id);
     ret = player_decoder_init(player);
@@ -1307,7 +1319,6 @@ release0:
     player_para_release(player);
     set_player_state(player, PLAYER_EXIT);
     update_player_states(player, 1);
-    set_amutils_enable(0);
     log_print("\npid[%d]::stop play, exit player thead!(sta:0x%x)\n", player->player_id, get_player_state(player));
     pthread_exit(NULL);
 

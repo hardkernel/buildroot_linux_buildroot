@@ -48,7 +48,7 @@ do { \
 #define MIN_RAW_DATA_SIZE   (0x1000)        //4k
 #define RESERVE_VIDEO_SIZE  (256)
 #define RESERVE_AUDIO_SIZE  (64)
-#define MAX_PACKET_SIZE     (4*1024*1024)
+#define MAX_PACKET_SIZE     (8*1024*1024+0x400)
 #define FILE_BUFFER_SIZE    (512)//(1024*512)   
 #define CHECK_END_COUNT     (40)
 #define CHECK_AUDIO_HALT_CNT (50)
@@ -184,6 +184,7 @@ typedef struct play_para {
 
     int byteiobufsize;
     int loopbufsize;
+	int lpbuffedsize;
     int enable_rw_on_pause;
     /*
     if (data%<min && data%<buffering_threshhold_max)

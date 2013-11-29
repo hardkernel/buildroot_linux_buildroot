@@ -79,6 +79,7 @@ typedef struct MOVParseTableEntry {
 
 static const MOVParseTableEntry mov_default_parse_table[];
 #define MAX_READ_SEEK (1024*1024*3-32*1024)//DEF_MAX_READ_SEEK-block_read_size
+#define LIMIT_BUFSIZE (6.8*1024*1024)
 
 static int mov_metadata_track_or_disc_number(MOVContext *c, AVIOContext *pb, unsigned len, const char *type)
 {
@@ -1675,7 +1676,7 @@ static void mov_build_index(MOVContext *mov, AVStream *st)
         unsigned int stts_sample = 0;
         unsigned int sample_size;
         unsigned int distance = 0;
-        int key_off = sc->keyframes && sc->keyframes[0] == 1;
+        int key_off = (sc->keyframe_count && sc->keyframes[0] > 0) || (sc->stps_count && sc->stps_data[0] > 0);
 
         current_dts -= sc->dts_shift;
 
@@ -2354,9 +2355,12 @@ static int mov_read_elst(MOVContext *c, AVIOContext *pb, MOVAtom atom)
             time     = (int32_t)avio_rb32(pb); /* media time */
         }
         avio_rb32(pb); /* Media rate */
+#if 0
+        // ignore time_offset
         if (i == 0 && time >= -1) {
             sc->time_offset = time != -1 ? time : -duration;
         }
+#endif
     }
 
     if(edit_count > 1)
@@ -2612,22 +2616,54 @@ static AVIndexEntry *mov_find_next_sample(AVFormatContext *s, AVStream **st)
     AVIndexEntry *sample = NULL;
     int64_t best_dts = INT64_MAX;
     int i;
+    float limit_sec = 0;
+    float bit_rateKB = 0;	
     for (i = 0; i < s->nb_streams; i++) {
         AVStream *avst = s->streams[i];
         MOVStreamContext *msc = avst->priv_data;
+        MOVStreamContext *best_sc;
+        int wantnew=0;
+        int beststream_readed_cnt=0;
+        if(*st){
+            best_sc=(*st)->priv_data;
+            beststream_readed_cnt=best_sc->readed_count;
+        }
         if (msc->pb && msc->current_sample < avst->nb_index_entries) {
             AVIndexEntry *current_sample = &avst->index_entries[msc->current_sample];
             int64_t dts = av_rescale(current_sample->timestamp, AV_TIME_BASE, msc->time_scale);
             av_dlog(s, "stream %d, sample %d, dts %"PRId64"\n", i, msc->current_sample, dts);
-            if (!sample || (!s->pb->seekable && current_sample->pos < sample->pos) ||
-                (s->pb->seekable &&
-                 ((msc->pb != s->pb && dts < best_dts) || (msc->pb == s->pb &&
-                 ((FFABS(best_dts - dts) <= AV_TIME_BASE && current_sample->pos < sample->pos) ||
-                  (FFABS(best_dts - dts) > AV_TIME_BASE && dts < best_dts)))))) {
+            if (!sample || (!s->pb->seekable && current_sample->pos < sample->pos)){/*not seekable streaming,*/
+               wantnew=1;
+            }else if(msc->pb != s->pb && dts < best_dts){/*read from different file,*/
+               wantnew=1;
+            }else if((s->pb->seekable && !s->pb->is_slowmedia) && /*local files.,*/
+            ((FFABS(best_dts - dts) <= AV_TIME_BASE && current_sample->pos < sample->pos) ||
+            (FFABS(best_dts - dts) > AV_TIME_BASE && dts < best_dts))) {
+                wantnew=1;
+            }else if((s->pb->seekable && s->pb->is_slowmedia)){/*seekable network,seek is slow...*/
+                int64_t curentpos=avio_tell(s->pb); 
+                bit_rateKB = (s->bit_rate/(1024 * 8));
+                limit_sec = (float)LIMIT_BUFSIZE / (bit_rateKB * 1024);
+                if (limit_sec > 10){
+                   limit_sec = 10;
+                }  				
+                if((FFABS(best_dts - dts) < AV_TIME_BASE*limit_sec)&& beststream_readed_cnt > 10 && msc->readed_count> 10){/*not first parse.*/
+                    if(FFABS(curentpos-current_sample->pos)<FFABS(curentpos-sample->pos)){
+                        wantnew=1;
+                    }
+                }else if(((FFABS(best_dts - dts) <= AV_TIME_BASE && current_sample->pos < sample->pos) ||
+                (FFABS(best_dts - dts) > AV_TIME_BASE && dts < best_dts))){
+                    wantnew=1;
+                }
+                ///av_log(s, AV_LOG_WARNING, "curentpos=%llx,dts=%llx,best_dts=%llx,%llx,%llx,new=%d\n",curentpos,dts,best_dts,current_sample->pos,sample->pos,wantnew);
+            }
+           
+            if(wantnew){
                 sample = current_sample;
                 best_dts = dts;
                 *st = avst;
             }
+            
         }
     }
     return sample;
@@ -2659,7 +2695,6 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
     sc = st->priv_data;
     /* must be done just before reading, to avoid infinite loop on sample */
     sc->current_sample++;
-
     if (st->discard != AVDISCARD_ALL) {
 		offset = avio_seek(sc->pb, sample->pos, SEEK_SET);
         if (offset != sample->pos) {
@@ -2673,6 +2708,7 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
         ret = av_get_packet(sc->pb, pkt, sample->size);
         if (ret < 0)
             return ret;
+        sc->readed_count++;
         if (sc->has_palette) {
             uint8_t *pal;
 

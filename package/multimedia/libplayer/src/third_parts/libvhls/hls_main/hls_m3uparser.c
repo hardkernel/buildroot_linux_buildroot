@@ -1,6 +1,6 @@
 //coded by peter,20130215
 
-#define LOG_NDEBUG 1
+#define LOG_NDEBUG 0
 #define LOG_TAG "M3uParser"
 
 
@@ -431,6 +431,13 @@ static void makeUrl(char *buf, int size, const char *base,const char *rel)
     char *sep;
     char* protol_prefix;
     char* option_start;
+
+    // ugly code. for some transformed url of local m3u8
+    if(!strncasecmp("android:AmlogicPlayer",base,21)){
+        strncpy(buf,rel,size);
+        return;
+    }
+    
     if (strncasecmp("http://", base, 7)
             && strncasecmp("https://", base, 8)
             && strncasecmp("file://", base, 7)

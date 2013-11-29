@@ -386,13 +386,13 @@ static void *ff_memrchr(const void *s, int c, size_t n)
 static int ff_strcasecmp(char *s, char *r)
 {
 	int i = 0;
-	for(i; '\0' != s[i]; i++){  //for?-?﹞㊣谷角迆s∩?
-		if(s[i] >= 'A' && s[i] <= 'Z') //?D??那?2?那?∩車D∩℅???
-			s[i] += 32;  //℅a??3谷D?D∩
+	for(i; '\0' != s[i]; i++){  
+		if(s[i] >= 'A' && s[i] <= 'Z') 
+			s[i] += 32; 
 	}
-    for(i; '\0' != r[i]; i++){  //for?-?﹞㊣谷角迆s∩?
-		if(r[i] >= 'A' && r[i] <= 'Z') //?D??那?2?那?∩車D∩℅???
-			r[i] += 32;  //℅a??3谷D?D∩
+    for(i; '\0' != r[i]; i++){ 
+		if(r[i] >= 'A' && r[i] <= 'Z') 
+			r[i] += 32; 
 	}
 	return strcmp(s, r);
 }

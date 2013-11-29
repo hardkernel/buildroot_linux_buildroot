@@ -31,8 +31,8 @@
 typedef struct _CURLFFContext {
     char uri[MAX_CURL_URI_SIZE];
     CFContext * cfc_h;
-    pthread_t monitor_pid;
-    int monitor_quited;
+    //pthread_t monitor_pid;
+    //int monitor_quited;
 } CURLFFContext;
 
 static const AVOption options[] = {{NULL}};
@@ -43,9 +43,16 @@ static const AVClass curlffmpeg_class = {
     .version            = LIBAVUTIL_VERSION_INT,
 };
 
-#define THREAD_SLEEP_TIME (10 * 1000)
+//static void * curl_ffmpeg_interrupt_monitor_thread(void *_handle);
 
-static void * curl_ffmpeg_interrupt_monitor_thread(void *_handle);
+static void curl_ffmpeg_register_interrupt(CURLFFContext *h, interruptcallback pfunc)
+{
+    if (!h || !h->cfc_h) {
+        return;
+    }
+    curl_fetch_register_interrupt(h->cfc_h, pfunc);
+    return;
+}
 
 static int curl_ffmpeg_open(URLContext *h, const char *uri, int flags)
 {
@@ -72,13 +79,23 @@ static int curl_ffmpeg_open(URLContext *h, const char *uri, int flags)
         CLOGE("curl_fetch_init failed\n");
         return ret;
     }
-    handle->cfc_h->open_quited = 0;
+    curl_ffmpeg_register_interrupt(handle, url_interrupt_cb);
+    /*
     handle->monitor_quited = 0;
     ffmpeg_pthread_create(&handle->monitor_pid, NULL, curl_ffmpeg_interrupt_monitor_thread, handle);
     //pthread_setname_np(handle->monitor_pid, "curlffmpeg-monitor");
+    */
     ret = curl_fetch_open(handle->cfc_h);
+    if(ret) {
+        curl_fetch_close(handle->cfc_h);
+        av_free(handle);
+        handle = NULL;
+        return ret;
+    }
+    /*
     handle->monitor_quited = 1;
     ffmpeg_pthread_join(handle->monitor_pid, NULL);
+    */
     h->http_code = handle->cfc_h->http_code;
     h->is_slowmedia = 1;
     h->is_streamed = handle->cfc_h->seekable ? 0 : 1;
@@ -105,7 +122,12 @@ static int curl_ffmpeg_read(URLContext *h, uint8_t *buf, int size)
         if (ret == C_ERROR_EAGAIN) {
             usleep(10 * 1000);
         }
-        if (ret >= 0 || (ret <= C_ERROR_UNKNOW && ret >= C_ERROR_TRANSFERTIMEOUT)) {
+        if (ret >= 0 || ret == C_ERROR_UNKNOW) {
+            break;
+        }
+        /* just temporary, need to modify later */
+        if (ret < C_ERROR_EAGAIN) {
+            ret = AVERROR(ENETRESET);
             break;
         }
     } while (counts-- > 0);
@@ -140,13 +162,14 @@ static int64_t curl_ffmpeg_seek(URLContext *h, int64_t off, int whence)
         return ret;
     }
     if (whence == AVSEEK_CURL_HTTP_KEEPALIVE) {
-        s->cfc_h->open_quited = 0;
+        /*
         s->monitor_quited = 0;
         ffmpeg_pthread_create(&s->monitor_pid, NULL, curl_ffmpeg_interrupt_monitor_thread, s);
         //pthread_setname_np(s->monitor_pid, "curlffmpeg-monitor");
+        */
         ret = curl_fetch_http_keepalive_open(s->cfc_h, NULL);
-        s->monitor_quited = 1;
-        ffmpeg_pthread_join(s->monitor_pid, NULL);
+        //s->monitor_quited = 1;
+        //ffmpeg_pthread_join(s->monitor_pid, NULL);
     } else if (whence == AVSEEK_SIZE) {
         ret = s->cfc_h->filesize;
     } else {
@@ -168,6 +191,7 @@ static int curl_ffmpeg_close(URLContext *h)
     return 0;
 }
 
+#if 0
 static void * curl_ffmpeg_interrupt_monitor_thread(void *_handle)
 {
     CURLFFContext * h = (CURLFFContext *)_handle;
@@ -176,17 +200,33 @@ static void * curl_ffmpeg_interrupt_monitor_thread(void *_handle)
     }
     while(!h->monitor_quited) {
         if(url_interrupt_cb()) {
-            h->cfc_h->open_quited = 1;
             curl_fetch_interrupt(h->cfc_h);
             return NULL;
         }
-        usleep(THREAD_SLEEP_TIME);
+        usleep(SLEEP_TIME_UNIT);
     }
     return NULL;
 }
+#endif
 
 static int curl_ffmpeg_get_info(URLContext *h, uint32_t  cmd, uint32_t flag, int64_t *info)
 {
+    CURLFFContext * s = (CURLFFContext *)h->priv_data;
+    if (!s) {
+        return -1;
+    }
+    int ret = 0;
+    if(cmd == AVCMD_GET_NETSTREAMINFO) {
+        if(flag == 1) {
+            int64_t tmp_info = 0;
+            ret = curl_fetch_get_info(s->cfc_h, C_INFO_SPEED_DOWNLOAD, flag, (void * )&tmp_info);
+            if(!ret) {
+                *info = tmp_info;
+            } else {
+                *info = 0;
+            }
+        }
+    }
     return 0;
 }
 

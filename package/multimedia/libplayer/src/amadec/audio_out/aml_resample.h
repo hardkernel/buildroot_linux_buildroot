@@ -9,7 +9,7 @@
 #define Q14_INT_GET(value)  ((value)>>14)
 #define Q14_FRA_GET(value)  ((value)&0x3fff)
 
-#define RESAMPLE_DELTA_NUMSAMPS 2
+#define RESAMPLE_DELTA_NUMSAMPS 1
 #define DEFALT_NUMSAMPS_PERCH   128
 #define MAX_NUMSAMPS_PERCH      (DEFALT_NUMSAMPS_PERCH + RESAMPLE_DELTA_NUMSAMPS)
 #define DEFALT_NUMCH            2
@@ -34,7 +34,7 @@ typedef struct af_resampe_ctl_s{
 
 void af_resample_linear_init();
 
-int af_get_reample_enable_flag();
+int af_get_resample_enable_flag();
 
 af_resampe_ctl_t* af_resampler_ctx_get();
 
@@ -53,7 +53,9 @@ int af_get_delta_inputsampnum(af_resampe_ctl_t *paf_resampe_ctl,int Nch);
 
 void  af_get_unpro_inputsampnum(af_resampe_ctl_t *paf_resampe_ctl,short *buf, int *num);
 
-void af_resample_api(char *buffer, unsigned int *size,int Chnum, aml_audio_dec_t *audec);
+void af_resample_api_normal(char *buffer, unsigned int *size,int Chnum, aml_audio_dec_t *audec);
+
+void af_resample_api(char* buffer, unsigned int * size, int Chnum, aml_audio_dec_t* audec, int enable, int delta);
 
 #endif
 

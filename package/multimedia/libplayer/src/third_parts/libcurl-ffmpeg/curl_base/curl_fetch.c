@@ -5,7 +5,6 @@
 ******/
 
 #include "curl_log.h"
-#include "curl_common.h"
 #include "curl_fetch.h"
 
 #define IPAD_IDENT  "AppleCoreMedia/1.0.0.9A405 (iPad; U; CPU OS 5_0_1 like Mac OS X; zh_cn)"
@@ -17,6 +16,43 @@ static int curl_fetch_start_local_run(CFContext * h);
 static void * curl_fetch_thread_run(void *_handle);
 
 static int curl_fetch_waitthreadquit(CFContext * h, int microseconds);
+
+/* defined for some abnormal uri, like ip port -> :80:80 */
+static int curl_fetch_url_process(CFContext * h)
+{
+    if (!h) {
+        CLOGE("CFContext invalid\n");
+        return -1;
+    }
+    char t_uri[MAX_CURL_URI_SIZE] = {0};
+    char ip[256] = {0};
+    char * fptr = c_stristr(h->uri, "//");
+    char * bptr = c_stristr(fptr + 2, "/");
+    if(fptr && bptr) {
+        int len1 = fptr - h->uri + 2;
+        memcpy(t_uri, h->uri, len1);
+        memcpy(ip, h->uri + len1, (bptr - h->uri - len1) > 256 ? 256 : (bptr - h->uri - len1));
+        char * ip_ptr = c_stristr(ip, ":");
+        if(ip_ptr) {
+            int len2 = ip_ptr - ip;
+            memcpy(t_uri + len1, ip, len2);
+            len1 += len2;
+            char * ip_rptr = c_strrstr(ip, ":");
+            if(ip_ptr) {
+                int len3 = strlen(ip) - (ip_rptr - ip);
+                memcpy(t_uri + len1, ip_rptr, len3);
+                len1 += len3;
+            }
+        } else {
+            memcpy(t_uri + len1, ip, strlen(ip));
+            len1 += strlen(ip);
+        }
+        int len4 = strlen(h->uri) - (bptr - h->uri);
+        memcpy(t_uri + len1, bptr, len4);
+        c_strlcpy(h->uri, t_uri, sizeof(h->uri));
+    }
+    return 0;
+}
 
 CFContext * curl_fetch_init(const char * uri, const char * headers, int flags)
 {
@@ -36,7 +72,6 @@ CFContext * curl_fetch_init(const char * uri, const char * headers, int flags)
         return NULL;
     }
 #if 1
-    CLOGI("curl_fetch_init, uri:[%s]\n", uri);
     if (c_stristart(uri, "http://", NULL) || c_stristart(uri, "shttp://", NULL)) {
         handle->prot_type = C_PROT_HTTP;
     }
@@ -46,6 +81,8 @@ CFContext * curl_fetch_init(const char * uri, const char * headers, int flags)
     } else {
         c_strlcpy(handle->uri, uri, sizeof(handle->uri));
     }
+    curl_fetch_url_process(handle);
+    CLOGI("curl_fetch_init, uri:[%s]\n", handle->uri);
 #endif
     handle->cwd = (Curl_Data *)c_malloc(sizeof(Curl_Data));
     if (!handle->cwd) {
@@ -66,6 +103,7 @@ CFContext * curl_fetch_init(const char * uri, const char * headers, int flags)
     //handle->is_seeking = 0;
     handle->relocation = NULL;
     handle->headers = NULL;
+    handle->interrupt = NULL;
     pthread_mutex_init(&handle->quit_mutex, NULL);
     pthread_cond_init(&handle->quit_cond, NULL);
     if (headers) {
@@ -93,7 +131,7 @@ int curl_fetch_open(CFContext * h)
         curl_fetch_http_set_headers(h, h->headers);
     }
 
-    /*
+#if 0
     int64_t tmp_size;
     if(!curl_wrapper_get_info_easy(h->cwh_h, C_INFO_CONTENT_LENGTH_DOWNLOAD, 0, &tmp_size, NULL)) {
         h->cwh_h->chunk_size = tmp_size;
@@ -101,11 +139,12 @@ int curl_fetch_open(CFContext * h)
         h->cwh_h->chunk_size = -1;
     }
     h->filesize = h->cwh_h->chunk_size;
-    */
+#endif
 
     //h->thread_first_run = 1;
     curl_fetch_start_local_run(h);
 
+#if 0
     struct timeval now;
     struct timespec timeout;
     int retcode = 0;
@@ -127,6 +166,34 @@ int curl_fetch_open(CFContext * h)
         h->http_code = h->cwh_h->http_code;
     }
     pthread_mutex_unlock(&h->cwh_h->info_mutex);
+#endif
+
+    int timeout = 0;
+    while(!h->cwh_h->open_quited && timeout < CONNECT_TIMEOUT_THRESHOLD) {
+        if(h->interrupt) {
+            if((*(h->interrupt))()) {
+                CLOGE("***** CURL INTERRUPTED *****");
+                return -1;  // consider for seek interrupt
+            }
+        }
+        usleep(SLEEP_TIME_UNIT);
+        timeout += SLEEP_TIME_UNIT;
+    }
+    if(h->cwh_h->perform_error_code < C_ERROR_EAGAIN) {
+        return -1;
+    }
+    if(h->cwh_h->open_quited) {
+        if (h->cwh_h->chunk_size > 0) {
+            h->filesize = h->cwh_h->chunk_size;
+        }
+        if (h->cwh_h->relocation) {
+            h->relocation = h->cwh_h->relocation;
+        }
+        h->http_code = h->cwh_h->http_code;
+    } else {
+        h->http_code = ETIMEDOUT;
+        return -1;
+    }
 
     if (h->http_code >= 400 && h->http_code < 600 && h->http_code != 401) {
         return -1;
@@ -156,7 +223,6 @@ int curl_fetch_http_keepalive_open(CFContext * h, const char * uri)
         curl_fifo_reset(h->cwh_h->cfifo);
     }
     if (uri) {
-        CLOGI("curl_fetch_http_keepalive_open, uri:[%s]\n", uri);
         if (c_stristart(uri, "http://", NULL) || c_stristart(uri, "shttp://", NULL)) {
             h->prot_type = C_PROT_HTTP;
         }
@@ -169,6 +235,8 @@ int curl_fetch_http_keepalive_open(CFContext * h, const char * uri)
         } else {
             c_strlcpy(h->uri, uri, sizeof(h->uri));
         }
+        curl_fetch_url_process(h);
+        CLOGI("curl_fetch_http_keepalive_open, uri:[%s]\n", h->uri);
         ret = curl_wrapper_http_keepalive_open(h->cwc_h, h->cwh_h, h->uri);
     } else {
         ret = curl_wrapper_http_keepalive_open(h->cwc_h, h->cwh_h, uri);
@@ -187,6 +255,7 @@ int curl_fetch_http_keepalive_open(CFContext * h, const char * uri)
 
     curl_fetch_start_local_run(h);
 
+#if 0
     struct timeval now;
     struct timespec timeout;
     int retcode = 0;
@@ -208,17 +277,44 @@ int curl_fetch_http_keepalive_open(CFContext * h, const char * uri)
         h->http_code = h->cwh_h->http_code;
     }
     pthread_mutex_unlock(&h->cwh_h->info_mutex);
+#endif
+
+    int timeout = 0;
+    while(!h->cwh_h->open_quited && timeout < CONNECT_TIMEOUT_THRESHOLD) {
+        if(h->interrupt) {
+            if((*(h->interrupt))()) {
+                CLOGE("***** CURL INTERRUPTED *****");
+                return -1;  // consider for seek interrupt
+            }
+        }
+        usleep(SLEEP_TIME_UNIT);
+        timeout += SLEEP_TIME_UNIT;
+    }
+    if(h->cwh_h->perform_error_code < C_ERROR_EAGAIN) {
+        return -1;
+    }
+    if(h->cwh_h->open_quited) {
+        if (h->cwh_h->chunk_size > 0) {
+            h->filesize = h->cwh_h->chunk_size;
+        }
+        if (h->cwh_h->relocation) {
+            h->relocation = h->cwh_h->relocation;
+        }
+        h->http_code = h->cwh_h->http_code;
+    } else {
+        h->http_code = ETIMEDOUT;
+        return -1;
+    }
 
     if (h->http_code >= 400 && h->http_code < 600 && h->http_code != 401) {
-        return ret;
+        return -1;
     }
 
     if (h->filesize > 0 || h->cwh_h->seekable) {
         h->seekable = 1;
     }
 
-    ret = 0;
-    return ret;
+    return 0;
 }
 
 static int curl_fetch_start_local_run(CFContext * h)
@@ -469,16 +565,38 @@ int curl_fetch_http_set_cookie(CFContext * h, const char * cookie)
 
 int curl_fetch_get_info(CFContext * h, curl_info cmd, uint32_t flag, void * info)
 {
-    CLOGI("curl_fetch_get_info enter\n");
-    return 0;
+    if (!h) {
+        CLOGE("CFContext invalid\n");
+        return -1;
+    }
+    if(!curl_wrapper_get_info(h->cwh_h, cmd, flag, info)) {
+        return 0;
+    }
+    return -1;
 }
 
+#if 0
 int curl_fetch_interrupt(CFContext * h)
 {
     CLOGI("***** curl_fetch_interrupt *****\n");
     if(!h || !h->cwh_h) {
         return -1;
     }
-    pthread_cond_signal(&h->cwh_h->info_cond);
+    h->cwh_h->open_quited = 1;
+    //pthread_cond_signal(&h->cwh_h->info_cond);
     return 0;
+}
+#endif
+
+void curl_fetch_register_interrupt(CFContext * h, interruptcallback pfunc)
+{
+    if(!h || !h->cwc_h || !h->cwh_h) {
+        return;
+    }
+    if(pfunc) {
+        h->interrupt = pfunc;
+        h->cwc_h->interrupt = pfunc;
+        h->cwh_h->interrupt = pfunc;
+    }
+    return;
 }

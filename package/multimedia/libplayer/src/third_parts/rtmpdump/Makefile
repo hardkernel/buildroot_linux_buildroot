@@ -1,8 +1,7 @@
 VERSION=v2.4
-STAGING=$(shell pwd)/../../../../staging
-prefix=$(shell pwd)/../../../../target
 
-CROSS_COMPILE=$(CC:%gcc=%)
+prefix=/usr/local
+
 CC=$(CROSS_COMPILE)gcc
 LD=$(CROSS_COMPILE)ld
 
@@ -20,7 +19,6 @@ CRYPTO_LIB=$(LIB_$(CRYPTO))
 DEF_=-DNO_CRYPTO
 CRYPTO_DEF=$(DEF_$(CRYPTO))
 
-INC=-I$(STAGING)/usr/include
 DEF=-DRTMPDUMP_VERSION=\"$(VERSION)\" $(CRYPTO_DEF) $(XDEF)
 OPT=-O2
 CFLAGS=-Wall $(XCFLAGS) $(INC) $(DEF) $(OPT)
@@ -57,7 +55,6 @@ EXT=$(EXT_$(SYS))
 PROGS=rtmpdump rtmpgw rtmpsrv rtmpsuck
 
 all:	$(LIBRTMP) $(PROGS)
-		make install
 
 $(PROGS): $(LIBRTMP)
 

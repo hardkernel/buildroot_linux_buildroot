@@ -41,7 +41,8 @@ static void vcodec_info_init(play_para_t *p_para, codec_para_t *v_codec)
     v_codec->noblock = !!p_para->buffering_enable;
     if ((vinfo->video_format == VFORMAT_MPEG4)
         || (vinfo->video_format == VFORMAT_H264)
-        || (vinfo->video_format == VFORMAT_H264MVC)) {
+        || (vinfo->video_format == VFORMAT_H264MVC)
+        || (vinfo->video_format == VFORMAT_H264_4K2K)) {
         v_codec->am_sysinfo.param = (void *)EXTERNAL_PTS;
         if (((vinfo->video_format == VFORMAT_H264) || (vinfo->video_format == VFORMAT_H264MVC)) && (p_para->file_type == AVI_FILE)) {
             v_codec->am_sysinfo.param     = (void *)(EXTERNAL_PTS | SYNC_OUTSIDE);
@@ -204,7 +205,7 @@ static int stream_es_init(play_para_t *p_para)
         codec_set_freerun_mode(v_codec, p_para->playctrl_info.freerun_mode);
         codec_set_vsync_upint(v_codec, p_para->playctrl_info.vsync_upint);
     }
-       
+    
     return PLAYER_SUCCESS;
 
 error1:

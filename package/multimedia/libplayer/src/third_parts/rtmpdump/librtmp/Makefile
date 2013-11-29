@@ -1,6 +1,6 @@
 VERSION=v2.4
 
-prefix=$(shell pwd)/../../../../../staging/usr
+prefix=/usr/local
 
 incdir=$(prefix)/include/librtmp
 bindir=$(prefix)/bin

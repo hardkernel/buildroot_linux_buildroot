@@ -52,6 +52,17 @@ typedef struct {
     char extradata[AUDIO_EXTRA_DATA_SIZE];;   ///< extra data information for decoder
 } audio_info_t;
 
+ typedef struct {
+    int valid;               ///< audio extradata valid(1) or invalid(0), set by dsp
+    int sample_rate;         ///< audio stream sample rate
+    int channels;            ///< audio stream channels
+    int bitrate;             ///< audio stream bit rate
+    int codec_id;            ///< codec format id
+    int block_align;         ///< audio block align from ffmpeg
+    int extradata_size;      ///< extra data size
+    char extradata[512];;   ///< extra data information for decoder
+} Asf_audio_info_t;
+
 typedef struct {
     CODEC_HANDLE handle;        ///< codec device handler
     CODEC_HANDLE cntl_handle;   ///< video control device handler
@@ -105,6 +116,9 @@ typedef struct {
     int sample_rate;         ///< audio stream sample rate
     int channels;            ///< audio stream channels
     int format;            ///< codec format id
+    int bitrate;
+    int block_align;
+    int codec_id;         //original codecid corespingding to ffmepg
     int handle;        ///< codec device handler
     int extradata_size;      ///< extra data size
     char extradata[AUDIO_EXTRA_DATA_SIZE];

@@ -1878,7 +1878,6 @@ AM_ErrorCode_t AM_AV_GetVideoDisplayMode(int dev_no, AM_AV_VideoDisplayMode_t *m
 AM_ErrorCode_t AM_AV_SetSyncMode(int dev_no, AM_AV_SyncMode_t mode)
 {
   AM_AV_Device_t *dev;
-  int fd;
   char *path = "/sys/class/tsync/enable";    
   char  bcmd[16];
   AM_ErrorCode_t ret = AM_SUCCESS;
@@ -1889,12 +1888,10 @@ AM_ErrorCode_t AM_AV_SetSyncMode(int dev_no, AM_AV_SyncMode_t mode)
 
   if(dev->sync_mode!=mode)
   {
-    fd=open(path, O_CREAT|O_RDWR | O_TRUNC, 0644);
-    if(fd>=0)
+
+    if(amsysfs_set_sysfs_str(path, bcmd) != -1)
     {
       sprintf(bcmd,"%d",(mode==AM_AV_SYNC_ENABLE));
-      write(fd,bcmd,strlen(bcmd));
-      close(fd);
       dev->sync_mode = mode;
       AM_EVT_Signal(dev->dev_no, AM_AV_EVT_SYNC_MODE_CHANGED, (void*)mode);
       if(dev->sync_mode==AM_AV_SYNC_ENABLE)
@@ -1954,12 +1951,9 @@ AM_ErrorCode_t AM_AV_SetPCRRecoverMode(int dev_no, AM_AV_PCRRecoverMode_t mode)
   
   if(dev->recover_mode!=mode)
   {
-    fd=open(path, O_CREAT|O_RDWR | O_TRUNC, 0644);
-    if(fd>=0)
+    if(amsysfs_set_sysfs_str(path, bcmd) != -1)
     {
       sprintf(bcmd,"%d",(mode==AM_AV_RECOVER_ENABLE));
-      write(fd,bcmd,strlen(bcmd));
-      close(fd);
       dev->recover_mode = mode;
       AM_EVT_Signal(dev->dev_no, AM_AV_EVT_PCRRECOVER_MODE_CHANGED, (void*)mode);
       if(dev->recover_mode==AM_AV_RECOVER_ENABLE)

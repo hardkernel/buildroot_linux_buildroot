@@ -8,7 +8,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include \
 
 
 LOCAL_STATIC_LIBRARIES += libmms libiconv 
-LOCAL_SHARED_LIBRARIES += libutils libamavutils libamplayer
+LOCAL_SHARED_LIBRARIES += libutils libamavutils libamplayer liblog
 
 LOCAL_MODULE := libmms_mod
 LOCAL_MODULE_TAGS := optional

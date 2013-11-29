@@ -67,6 +67,29 @@ typedef enum
 }player_status;
 
 
+typedef enum {
+    DRM_LEVEL1     = 1,
+    DRM_LEVEL2     = 2,
+    DRM_LEVEL3     = 3,
+    DRM_NONE       = 4, 
+} drm_level_t;
+
+typedef struct drm_info {
+    drm_level_t drm_level;
+	int drm_flag;
+	int drm_hasesdata;
+	int drm_priv;
+    unsigned int drm_pktsize;
+	unsigned int drm_pktpts;
+	unsigned int drm_phy;
+	unsigned int drm_vir;
+	unsigned int drm_remap;
+	int data_offset;
+	int extpad[8];
+} drminfo_t;
+
+
+
 typedef struct
 {   
 	int index;
@@ -183,6 +206,7 @@ typedef struct player_info
 	int	bufed_time;/* Second*/
     unsigned int drm_rental;
 	int64_t download_speed; //download speed
+    unsigned int last_pts;
 }player_info_t;
 
 typedef struct pid_info
@@ -218,6 +242,7 @@ typedef enum
 	PLAYER_EVENTS_HTTP_WV,				        ///<(need use DRMExtractor),ext1=0, ext2=0
 	PLAYER_EVENTS_HWBUF_DATA_SIZE_CHANGED,		///<(need use DRMExtractor),ext1=0, ext2=0
 	PLAYER_EVENTS_NOT_SUPPORT_SEEKABLE,     //not support seek;
+	PLAYER_EVENTS_VIDEO_SIZE_CHANGED,           ///<ext1 refers to video width,ext2 refers to video height
 }player_events;
 
 typedef struct
@@ -286,6 +311,7 @@ typedef struct
 	int buffing_force_delay_s;
 	int lowbuffermode_flag;
 	int lowbuffermode_limited_ms;
+	int is_ts_soft_demux;
 	int reserved [56];					//reserved  for furthur used,some one add more ,can del reserved num
 	int SessionID;
  }play_control_t; 

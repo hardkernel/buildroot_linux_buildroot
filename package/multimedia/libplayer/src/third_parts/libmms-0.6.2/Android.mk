@@ -18,7 +18,7 @@ LOCAL_CFLAGS	:= -DHAVE_CONFIG_H $(cflags_loglevels)
 LOCAL_CFLAGS	+= -DDEBUG
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include/\
 	 $(LOCAL_PATH)/../libiconv-1.14/include
-LOCAL_SHARED_LIBRARIES := libiconv libutils
+LOCAL_SHARED_LIBRARIES := libiconv libutils liblog
 include $(BUILD_SHARED_LIBRARY)
 
 
@@ -40,7 +40,7 @@ LOCAL_CFLAGS	:= -DHAVE_CONFIG_H $(cflags_loglevels)
 LOCAL_CFLAGS	+= -DDEBUG
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include/\
 	 $(LOCAL_PATH)/../libiconv-1.14/include
-LOCAL_SHARED_LIBRARIES := libutils
+LOCAL_SHARED_LIBRARIES := libutils liblog
 LOCAL_STATIC_LIBRARIES := libiconv 
 include $(BUILD_STATIC_LIBRARY)
 #
@@ -54,7 +54,7 @@ LOCAL_C_INCLUDES := \
 	
 LOCAL_ARM_MODE := arm
 LOCAL_MODULE := mms_testdnld
-LOCAL_SHARED_LIBRARIES := libutils
+LOCAL_SHARED_LIBRARIES := libutils liblog
 LOCAL_STATIC_LIBRARIES := libmms libiconv
 include $(BUILD_EXECUTABLE)
 

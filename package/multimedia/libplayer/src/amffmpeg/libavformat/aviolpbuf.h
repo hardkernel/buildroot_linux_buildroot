@@ -43,6 +43,7 @@ int url_lpfree(URLContext *s);
 int url_lp_intelligent_buffering(URLContext *s,int size);
 int url_lp_getbuffering_size(URLContext *s,int *forward_data,int *back_data);
 int64_t url_lp_get_buffed_pos(URLContext *s);
+int64_t url_buffed_size(AVIOContext *s);
 
 int url_lpopen_ex(URLContext *s,
 			int size,

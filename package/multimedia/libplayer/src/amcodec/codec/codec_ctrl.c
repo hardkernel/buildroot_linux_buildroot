@@ -690,13 +690,33 @@ int codec_init(codec_para_t *pcodec)
 		a_ainfo.SessionID=pcodec->SessionID;
 		a_ainfo.dspdec_not_supported = pcodec->dspdec_not_supported;
 		a_ainfo.droppcm_flag = 0;
+        a_ainfo.bitrate    =pcodec->audio_info.bitrate;
+        a_ainfo.block_align=pcodec->audio_info.block_align;
+        a_ainfo.codec_id   =pcodec->audio_info.codec_id;
         if(IS_AUIDO_NEED_EXT_INFO(pcodec->audio_type))
         {
-            a_ainfo.extradata_size=pcodec->audio_info.extradata_size;
-            if(a_ainfo.extradata_size>0&&a_ainfo.extradata_size<=AUDIO_EXTRA_DATA_SIZE)
-                memcpy((char*)a_ainfo.extradata,pcodec->audio_info.extradata,a_ainfo.extradata_size);
-            else
-                a_ainfo.extradata_size=0;
+            if(pcodec->audio_type!=AFORMAT_WMA && pcodec->audio_type!=AFORMAT_WMAPRO)
+            {
+                 a_ainfo.extradata_size=pcodec->audio_info.extradata_size;
+                 if(a_ainfo.extradata_size>0&&a_ainfo.extradata_size<=AUDIO_EXTRA_DATA_SIZE)
+                     memcpy((char*)a_ainfo.extradata,pcodec->audio_info.extradata,a_ainfo.extradata_size);
+                 else
+                    a_ainfo.extradata_size=0;
+            }else{
+                 Asf_audio_info_t asfinfo={0};
+                 asfinfo.bitrate    =pcodec->audio_info.bitrate;
+                 asfinfo.block_align=pcodec->audio_info.block_align;
+                 asfinfo.channels   =pcodec->audio_info.channels;
+                 asfinfo.codec_id   =pcodec->audio_info.codec_id;
+                 asfinfo.sample_rate=pcodec->audio_info.sample_rate;
+                 asfinfo.valid      =pcodec->audio_info.valid;
+                 if(pcodec->audio_info.extradata_size<=512){
+                     memcpy(asfinfo.extradata,pcodec->audio_info.extradata,pcodec->audio_info.extradata_size);  
+                     asfinfo.extradata_size=pcodec->audio_info.extradata_size;
+                 }
+                 memcpy((char*)a_ainfo.extradata,&asfinfo,sizeof(Asf_audio_info_t));
+                 a_ainfo.extradata_size=sizeof(Asf_audio_info_t);
+            }
         }
         audio_start(&pcodec->adec_priv, &a_ainfo);
         if(pcodec->avsync_threshold > 0)
@@ -806,6 +826,9 @@ void codec_resume_audio(codec_para_t *pcodec, unsigned int orig)
         a_ainfo.format=pcodec->audio_type;
         a_ainfo.handle=pcodec->handle;
 		a_ainfo.dspdec_not_supported = pcodec->dspdec_not_supported;
+        a_ainfo.bitrate    =pcodec->audio_info.bitrate;
+        a_ainfo.block_align=pcodec->audio_info.block_align;
+        a_ainfo.codec_id   =pcodec->audio_info.codec_id;
 		if (pcodec->switch_audio_flag) {
 			a_ainfo.droppcm_flag = pcodec->switch_audio_flag;
 			if(pcodec->stream_type == STREAM_TYPE_TS || pcodec->stream_type == STREAM_TYPE_PS)
@@ -814,13 +837,29 @@ void codec_resume_audio(codec_para_t *pcodec, unsigned int orig)
 		}
         if(IS_AUIDO_NEED_EXT_INFO(pcodec->audio_type))
         {
-            a_ainfo.extradata_size=pcodec->audio_info.extradata_size;
-            if(a_ainfo.extradata_size>0&&a_ainfo.extradata_size<=AUDIO_EXTRA_DATA_SIZE)
-                memcpy((char*)a_ainfo.extradata,pcodec->audio_info.extradata,a_ainfo.extradata_size);
-            else
-                a_ainfo.extradata_size=0;
+            if(pcodec->audio_type!=AFORMAT_WMA && pcodec->audio_type!=AFORMAT_WMAPRO)
+            {
+                 a_ainfo.extradata_size=pcodec->audio_info.extradata_size;
+                 if(a_ainfo.extradata_size>0&&a_ainfo.extradata_size<=AUDIO_EXTRA_DATA_SIZE)
+                     memcpy((char*)a_ainfo.extradata,pcodec->audio_info.extradata,a_ainfo.extradata_size);
+                 else
+                     a_ainfo.extradata_size=0;
+            }else{
+                 Asf_audio_info_t asfinfo={0};
+                 asfinfo.bitrate    =pcodec->audio_info.bitrate;
+                 asfinfo.block_align=pcodec->audio_info.block_align;
+                 asfinfo.channels   =pcodec->audio_info.channels;
+                 asfinfo.codec_id   =pcodec->audio_info.codec_id;
+                 asfinfo.sample_rate=pcodec->audio_info.sample_rate;
+                 asfinfo.valid	   =pcodec->audio_info.valid;
+                 if(pcodec->audio_info.extradata_size<=512){
+                     memcpy(asfinfo.extradata,pcodec->audio_info.extradata,pcodec->audio_info.extradata_size);  
+                     asfinfo.extradata_size=pcodec->audio_info.extradata_size;
+                 }
+                 memcpy((char*)a_ainfo.extradata,&asfinfo,sizeof(Asf_audio_info_t));
+                 a_ainfo.extradata_size=sizeof(Asf_audio_info_t);
+            }
         }
-		
         audio_start(&pcodec->adec_priv, &a_ainfo);
     }
     return;
@@ -1671,34 +1710,6 @@ int codec_get_pcrscr(codec_para_t *pcodec)
 
     return pcrscr;
 }
-/* --------------------------------------------------------------------------*/
-/**
-* @brief  codec_get_scrstate  get audio video codec state
-*
-* @param[in]  pcodec  Pointer of codec parameter structure
-*
-* @param[in]  valid sys start time.
-*
-* @return     2 TSYNC_STAT_PCRSCR_SETUP_AUDIO; 1 TSYNC_STAT_PCRSCR_SETUP_VIDEO
-*                 0 TSYNC_STAT_PCRSCR_SETUP_NONE
-*/
-/* --------------------------------------------------------------------------*/
-unsigned int codec_get_scrstate(codec_para_t *pcodec, unsigned long *time)
-{
-    int ret;
-
-    if (pcodec->cntl_handle < 0) {
-        return -1;
-    }
-	
-    ret = ioctl(pcodec->cntl_handle, AMSTREAM_IOC_GET_SCR_STATE, time);
-    if (ret < 0) {
-	//CODEC_PRINT("[%s] ioctl failed %d\n", __FUNCTION__, ret);
-        return ret;
-    }	
-	
-    return ret;
-}
 
 /* --------------------------------------------------------------------------*/
 /**
@@ -2020,8 +2031,9 @@ int codec_init_audio_utils(codec_para_t *pcodec)
     
     return CODEC_ERROR_NONE;
 }
+
 /* --------------------------------------------------------------------------*/
- /**
+/**
 * @brief  codec_release_audio_utils  Release the audio utils device
 *
 * @param[in]  pcodec  Pointer of codec parameter structure
@@ -2032,7 +2044,6 @@ int codec_init_audio_utils(codec_para_t *pcodec)
 int codec_release_audio_utils(codec_para_t *pcodec)
 {
     if (pcodec) {
-        codec_h_close(pcodec->audio_utils_handle);
         if(pcodec->audio_utils_handle>=0)
             codec_h_close(pcodec->audio_utils_handle);
     }
@@ -2041,6 +2052,7 @@ int codec_release_audio_utils(codec_para_t *pcodec)
     
     return CODEC_ERROR_NONE;
 }
+
 /* --------------------------------------------------------------------------*/
 /**
 * @brief  codec_set_audio_resample_ena  Set audio resample
@@ -2218,4 +2230,44 @@ int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode)
 {
     return codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_SET_VSYNC_UPINT, (unsigned long)mode);
 }
+int codec_set_drmmode(codec_para_t *pcodec)
+{
+    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_DRMMODE, 0);
+}
 
+/**
+ *
+ *
+ */
+int codec_get_last_checkout_apts(codec_para_t* pcodec, unsigned long *apts)
+{
+  return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_LAST_CHECKOUT_APTS, apts);
+}
+
+int codec_get_last_checkin_apts(codec_para_t* pcodec, unsigned long* apts)
+{
+  return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_LAST_CHECKIN_APTS, apts);
+}
+
+/**
+ *@brief  codec_get_pcm_level get the PCM data in buffer between DSP and output
+ *
+ * @param[in] pcodec Pointer of codec parameter structre
+ * @param[in] level  Address to store "level"
+ * @return 0 for success, or fail type if<0
+ */
+
+int codec_get_pcm_level(codec_para_t* pcodec, unsigned int* level)
+{
+  return audio_get_pcm_level(pcodec->adec_priv);
+}
+
+int codec_set_skip_bytes(codec_para_t* pcodec, unsigned int bytes)
+{
+  return audio_set_skip_bytes(pcodec->adec_priv);
+}
+
+int codec_get_dsp_apts(codec_para_t* pcodec, unsigned int * apts)
+{
+  return audio_get_pts(pcodec->adec_priv, apts);
+}
