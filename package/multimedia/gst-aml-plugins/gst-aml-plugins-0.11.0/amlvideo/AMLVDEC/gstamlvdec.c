@@ -26,7 +26,6 @@
 
 #include "gstamlvdec.h"
 #include  "gstamlvideoheader.h"
-#include  "../../common/include/codec.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -60,8 +59,6 @@ static GstStaticPadTemplate src_template_factory =
     GST_STATIC_CAPS ("video/x-raw-yuv")
     );
 
-static codec_para_t v_codec_para;
-static codec_para_t *vpcodec;
 static void gst_amlvdec_base_init (gpointer g_class);
 static void gst_amlvdec_class_init (GstAmlVdecClass * klass);
 static void gst_amlvdec_init (GstAmlVdec * amlvdec);
@@ -179,21 +176,21 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
             AML_DEBUG("\n");
         }
 		
-        vpcodec->video_type = VFORMAT_H264;
-        vpcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H264;
-        vpcodec->stream_type = STREAM_TYPE_ES_VIDEO;
-        vpcodec->am_sysinfo.param = (void *)( EXTERNAL_PTS);
-        vpcodec->am_sysinfo.height = frame_height;
-        vpcodec->am_sysinfo.width = frame_width;
+        amlvdec->pcodec->video_type = VFORMAT_H264;
+        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H264;
+        amlvdec->pcodec->stream_type = STREAM_TYPE_ES_VIDEO;
+        amlvdec->pcodec->am_sysinfo.param = (void *)( EXTERNAL_PTS);
+        amlvdec->pcodec->am_sysinfo.height = frame_height;
+        amlvdec->pcodec->am_sysinfo.width = frame_width;
         if(value_numerator>0)		
-            vpcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;
-	      AML_DEBUG(" Frame Width =%d,Height=%d,rate=%d\n", vpcodec->am_sysinfo.width, frame_height,vpcodec->am_sysinfo.rate);
+            amlvdec->pcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;
+	      AML_DEBUG(" Frame Width =%d,Height=%d,rate=%d\n", amlvdec->pcodec->am_sysinfo.width, frame_height,amlvdec->pcodec->am_sysinfo.rate);
     }else if (strcmp(name, "video/mpeg") == 0) {  
         gst_structure_get_int (structure, "mpegversion", &mpegversion);
         AML_DEBUG("here mpegversion =%d\n",mpegversion);
         if (mpegversion==2||mpegversion==1) {		
-            vpcodec->video_type = VFORMAT_MPEG12;
-            vpcodec->am_sysinfo.format = 0;
+            amlvdec->pcodec->video_type = VFORMAT_MPEG12;
+            amlvdec->pcodec->am_sysinfo.format = 0;
         }else if (mpegversion==4){
             gint32 frame_width=0,frame_height=0; 
             gint32 value_numerator=0,value_denominator=0;
@@ -219,32 +216,32 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
                     AML_DEBUG("%x ",hdrextdata[i]);
                 AML_DEBUG("\n");    
             }
-            vpcodec->video_type = VFORMAT_MPEG4;
-            vpcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
-            vpcodec->am_sysinfo.height = frame_height;
-            vpcodec->am_sysinfo.width = frame_width;
+            amlvdec->pcodec->video_type = VFORMAT_MPEG4;
+            amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
+            amlvdec->pcodec->am_sysinfo.height = frame_height;
+            amlvdec->pcodec->am_sysinfo.width = frame_width;
             if(value_numerator>0)		
-               vpcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;		 
+               amlvdec->pcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;		 
             }		
     }else if (strcmp(name, "video/x-msmpeg") == 0) {
         gst_structure_get_int (structure, "msmpegversion", &msmpegversion);
         if (msmpegversion==43){
-            vpcodec->video_type = VFORMAT_MPEG4;
-            vpcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
+            amlvdec->pcodec->video_type = VFORMAT_MPEG4;
+            amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
         }
     }else if (strcmp(name, "video/x-h263") == 0) {        
-        vpcodec->video_type = VFORMAT_MPEG4;
-        vpcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H263;        
+        amlvdec->pcodec->video_type = VFORMAT_MPEG4;
+        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H263;        
     }else if (strcmp(name, "video/x-jpeg") == 0) {        
-        vpcodec->video_type = VFORMAT_MJPEG;
-        vpcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MJPEG;        
+        amlvdec->pcodec->video_type = VFORMAT_MJPEG;
+        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MJPEG;        
     }else {
         g_print("unsupport video format, %s",name);
         return FALSE;	
     }
-    if (vpcodec&&vpcodec->stream_type == STREAM_TYPE_ES_VIDEO){ 
-        AML_DEBUG("vpcodec->videotype=%d\n",vpcodec->video_type);	
-        ret = codec_init(vpcodec);
+    if (amlvdec->pcodec&&amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO){ 
+        AML_DEBUG("pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
+        ret = codec_init(amlvdec->pcodec);
          if (ret != CODEC_ERROR_NONE){
              AML_DEBUG("codec init failed, ret=-0x%x", -ret);
              return FALSE;
@@ -259,7 +256,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
 }
 
 static GstFlowReturn
-gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
+gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
 {
     guint8 *data,ret;
     guint size;
@@ -276,7 +273,7 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
 
     if(amlvdec->codec_init_ok)
     {   
-        ret = codec_get_vbuf_state(vpcodec, &vbuf);
+        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
         if(ret == 0){
             if(vbuf.data_len*10 > vbuf.size*8){  
                 usleep(1000*40);
@@ -287,9 +284,9 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
         timestamp = GST_BUFFER_TIMESTAMP (buf);
         pts=timestamp*9LL/100000LL+1L;        
         if(!amlvdec->is_headerfeed&&amlvdec->codec_data_len){ 	
-            videopre_header_feeding(vpcodec,amlvdec,&buf);
+            videopre_header_feeding(amlvdec->pcodec,amlvdec,&buf);
             amlvdec->is_headerfeed=TRUE;   
-        }else if(VFORMAT_H264 == vpcodec->video_type) 
+        }else if(VFORMAT_H264 == amlvdec->pcodec->video_type) 
             h264_update_frame_header(&buf);
 		
         data = GST_BUFFER_DATA (buf);
@@ -297,14 +294,15 @@ gst_amlvdec_render (GstAmlVdec *amlvdec, GstBuffer * buf)
         if (timestamp!= GST_CLOCK_TIME_NONE){
             GST_DEBUG_OBJECT (amlvdec,"pts=%x\n",(unsigned long)pts);
             GST_DEBUG_OBJECT (amlvdec, "PTS to (%" G_GUINT64_FORMAT ") time: %"
-            GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp));    
-            if(codec_checkin_pts(vpcodec,(unsigned long)pts)!=0)
-                AML_DEBUG("pts checkin flied maybe lose sync\n");        	
+            GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp)); 
+            
+            if(codec_checkin_pts(amlvdec->pcodec,(unsigned long)pts)!=0)
+                AML_DEBUG("pts checkin flied maybe lose sync\n");  
         }
     	
         again:    
         GST_DEBUG_OBJECT (amlvdec, "writing %d bytes to stream buffer r\n", size);
-        written=codec_write(vpcodec, data, size);
+        written=codec_write(amlvdec->pcodec, data, size);
     
         /* check for errors */
         if (G_UNLIKELY (written < 0)) {
@@ -348,14 +346,14 @@ gst_amlvdec_chain (GstPad * pad, GstBuffer * buf)
     amlvdec = GST_AMLVDEC(GST_PAD_PARENT (pad));
   
     if (amlvdec->silent == FALSE){  	
-        gst_amlvdec_render (amlvdec, buf);	
+        gst_amlvdec_decode (amlvdec, buf);	
     }
     return gst_pad_push (amlvdec->srcpad, buf);
   
     /* just push out the incoming buffer without touching it */
   //  return GST_FLOW_OK;
 }
-static void wait_for_render_end()
+static void wait_for_render_end(GstAmlVdec *amlvdec)
 {
     unsigned rp_move_count = 40,count=0;
     struct buf_status vbuf;
@@ -364,7 +362,7 @@ static void wait_for_render_end()
     do {
 	  if(count>2000)//avoid infinite loop
 	      break;	
-        ret = codec_get_vbuf_state(vpcodec, &vbuf);
+        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
         if (ret != 0) {
             g_print("codec_get_vbuf_state error: %x\n", -ret);
             break;
@@ -386,18 +384,20 @@ static gboolean amlvdec_forward_process(GstAmlVdec *amlvdec,
     AmlState eCurrentState = AmlStateNormal;
     if(((rate - 1.0) < 0.000001) && ((rate - 1.0) > -0.000001)){
         set_tsync_enable(1);
-        codec_set_video_playrate(vpcodec, (int)(rate*(1<<16)));
+        codec_set_video_playrate(amlvdec->pcodec, (int)(rate*(1<<16)));
         eCurrentState = AmlStateNormal;
+        amlvdec->trickRate = rate;
     }
     else if(rate > 0){
         set_tsync_enable(0);
-        codec_set_video_playrate(vpcodec, (int)(rate*(1<<16)));
+        codec_set_video_playrate(amlvdec->pcodec, (int)(rate*(1<<16)));
         if(rate > 1.0){
             eCurrentState = AmlStateFastForward;
         }
         else{
             eCurrentState = AmlStateSlowForward;
         }
+        amlvdec->trickRate = rate;
     }
 
     if(eCurrentState != amlvdec->eState){
@@ -449,7 +449,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
         {
             if(amlvdec->codec_init_ok){
                 gint res = -1;
-                res = codec_reset(vpcodec);
+                res = codec_reset(amlvdec->pcodec);
                 if (res < 0) {
                     g_print("reset vcodec failed, res= %x\n", res);
                     return FALSE;
@@ -464,7 +464,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
             AML_DEBUG("ge GST_EVENT_EOS,check for video end\n");
             if(amlvdec->codec_init_ok)	
             {
-                wait_for_render_end();
+                wait_for_render_end(amlvdec);
                 amlvdec->is_eos = TRUE;
             }	
             ret = gst_pad_push_event (amlvdec->srcpad, event);
@@ -531,15 +531,16 @@ gst_amlvdec_start (GstAmlVdec *amlvdec)
 { 
     AML_DEBUG("amlvdec start....\n");
     amlvdec->codec_init_ok=0;
-    vpcodec = &v_codec_para;
-    memset(vpcodec, 0, sizeof(codec_para_t ));
-    vpcodec->has_video = 1;
-    vpcodec->am_sysinfo.rate = 0;
-    vpcodec->am_sysinfo.height = 0;
-    vpcodec->am_sysinfo.width = 0;  
-    vpcodec->has_audio = 0;
-    vpcodec->noblock = 0;
-    vpcodec->stream_type = STREAM_TYPE_ES_VIDEO;
+    //amlvdec->pcodec = &v_codec_para;
+    amlvdec->pcodec = g_malloc(sizeof(codec_para_t));
+    memset(amlvdec->pcodec, 0, sizeof(codec_para_t ));
+    amlvdec->pcodec->has_video = 1;
+    amlvdec->pcodec->am_sysinfo.rate = 0;
+    amlvdec->pcodec->am_sysinfo.height = 0;
+    amlvdec->pcodec->am_sysinfo.width = 0;  
+    amlvdec->pcodec->has_audio = 0;
+    amlvdec->pcodec->noblock = 0;
+    amlvdec->pcodec->stream_type = STREAM_TYPE_ES_VIDEO;
     amlvdec->is_headerfeed = FALSE;
     amlvdec->codec_data_len = 0;
     amlvdec->codec_data = NULL;
@@ -547,6 +548,7 @@ gst_amlvdec_start (GstAmlVdec *amlvdec)
     amlvdec->is_eos = FALSE;
     amlvdec->codec_init_ok = 0;
     amlvdec->prival = 0;
+    amlvdec->trickRate = 1.0;
     return TRUE;
 }
 
@@ -556,14 +558,14 @@ gst_amlvdec_stop (GstAmlVdec *amlvdec)
     gint ret = -1;
     if(amlvdec->codec_init_ok){
         if(amlvdec->is_paused == TRUE) {
-            ret=codec_resume(vpcodec);
+            ret=codec_resume(amlvdec->pcodec);
             if (ret != 0) {
                 g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
             }else
                 amlvdec->is_paused = FALSE;
         }	
         set_black_policy(1);
-        codec_close(vpcodec);
+        codec_close(amlvdec->pcodec);
     }
     amlvdec->codec_init_ok=0;
     amlvdec->is_headerfeed=FALSE;
@@ -575,6 +577,8 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
 {
     GstStateChangeReturn result;
     GstAmlVdec *amlvdec =  GST_AMLVDEC(element);
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec); 
+    GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
     gint ret= -1;
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
@@ -586,7 +590,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
             break;
         case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
             if(amlvdec->is_paused == TRUE &&  amlvdec->codec_init_ok) {
-                ret=codec_resume(vpcodec);
+                ret=codec_resume(amlvdec->pcodec);
                 if (ret != 0) {
                     g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else
@@ -602,7 +606,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
     switch (transition) {
         case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
             if(!amlvdec->is_eos &&  amlvdec->codec_init_ok){ 
-                ret=codec_pause(vpcodec);
+                ret=codec_pause(amlvdec->pcodec);
                 if (ret != 0) {
                     g_print("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else

@@ -63,6 +63,9 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLVSINK))
 #define GST_IS_AMLVSINK_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLVSINK))
+#define GST_AMLVSINK_GET_CLASS(klass)  \
+        (G_TYPE_INSTANCE_GET_CLASS((klass),\
+        GST_TYPE_AMLVSINK,GstAmlVsinkClass))
 
 typedef struct _GstAmlVsink      GstAmlVsink;
 typedef struct _GstAmlVsinkClass GstAmlVsinkClass;

@@ -47,8 +47,9 @@
 #define __GST_AMLVDEC_H__
 
 #include <gst/gst.h>
-//#include <gst/video/video.h>
+#include <gst/video/video.h>
 #include  "gstamlsysctl.h"
+#include  "../../common/include/codec.h"
 
 G_BEGIN_DECLS
 
@@ -63,6 +64,10 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLVDEC))
 #define GST_IS_AMLVDEC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLVDEC))
+#define GST_AMLVDEC_GET_CLASS(klass)  \
+    (G_TYPE_INSTANCE_GET_CLASS((klass),\
+    GST_TYPE_AMLVDEC,GstAmlVdecClass))
+
 
 typedef struct _GstAmlVdec      GstAmlVdec;
 typedef struct _GstAmlVdecClass GstAmlVdecClass;
@@ -80,7 +85,9 @@ struct _GstAmlVdec
     gboolean is_eos;
     gboolean     silent;
     gint      prival;
+    gdouble      trickRate;           //for Mpeg2/TS
 	AmlState eState;
+    codec_para_t *pcodec;
 };
 
 struct _GstAmlVdecClass 
