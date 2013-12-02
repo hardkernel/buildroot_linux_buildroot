@@ -20,5 +20,18 @@ int get_tsync_enable(void);
 int set_fb0_blank(int blank);
 int set_fb1_blank(int blank);
 
+typedef int (*AmlPropFunc)(GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec);
+
+typedef void (*AmlPropInstall)(GObjectClass *oclass,
+    guint property_id);
+
+typedef struct{
+    gint propID;
+    AmlPropInstall installprop;
+    AmlPropFunc getprop;
+    AmlPropFunc setprop;
+}AmlPropType;
+
 G_END_DECLS
 #endif

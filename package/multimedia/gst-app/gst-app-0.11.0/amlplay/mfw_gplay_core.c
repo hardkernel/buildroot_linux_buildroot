@@ -121,6 +121,7 @@ fsl_player_ret_val fsl_player_exit_message_loop(fsl_player_handle handle);
 
 fsl_player_ret_val fsl_player_post_eos_semaphore(fsl_player_handle handle);
 
+fsl_player_ret_val fsl_player_property_process(fsl_player_handle handle, char *prop_name);
 
 static fsl_player_bool poll_for_state_change(GstState sRecState, GstElement * elem, fsl_player_u32 timeout)
 {
@@ -553,7 +554,9 @@ fsl_player_ret_val fsl_player_class_init (fsl_player_class * klass)
     klass->exit_message_loop = &fsl_player_exit_message_loop;
 
     klass->post_eos_semaphore = &fsl_player_post_eos_semaphore;
-
+    
+    klass->property = &fsl_player_property_process;
+        
     return FSL_PLAYER_SUCCESS;
 }
 
@@ -2044,6 +2047,229 @@ fsl_player_ret_val fsl_player_post_eos_semaphore(fsl_player_handle handle)
     fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
     FSL_PLAYER_SEMA_POST( &(pproperty->eos_semaphore) );
 
+    return FSL_PLAYER_SUCCESS;
+}
+
+fsl_player_bool fsl_player_prop_options()
+{
+    char option[64] = {0};
+    FSL_PLAYER_PRINT("Select options:['get' or 'set'] (default option is get):");
+    scanf("%s", &option);
+    if(!strncmp(option, "set", strlen("set"))){
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static int fsl_player_prop_trickrate(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement * element = NULL;
+    GValue value = {0,};
+    gdouble rate = 1.0;
+    fsl_player_bool bset = FALSE;
+    
+    bset = fsl_player_prop_options();
+    
+    element = gst_bin_get_by_name_recurse_up(GST_BIN(pproperty->playbin), "amlvdec0");
+    g_print("get amlvdec point=%p\n", element);
+    g_value_init (&value, G_TYPE_DOUBLE);
+    if(bset){
+        FSL_PLAYER_PRINT("Input rate:");
+        scanf("%lf", &rate);
+        g_value_set_double (&value, rate);
+        g_object_set_property(G_OBJECT(element), "trickrate", &value);
+    }
+    else{
+        g_object_get_property(G_OBJECT(element), "trickrate", &value);
+        rate = g_value_get_double (&value);
+        FSL_PLAYER_PRINT("current trickrate is:%lf\n", rate);
+    }
+    g_value_unset (&value);
+
+    return 0;
+}
+
+static int fsl_player_prop_interlaced(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement * element = NULL;
+    GValue value = {0,};
+    gboolean interlaced = FALSE;
+
+    element = gst_bin_get_by_name(GST_BIN(pproperty->playbin), "amlvdec0");
+    g_value_init (&value, G_TYPE_BOOLEAN);
+    g_object_get_property(G_OBJECT(element), "interlaced", &value);
+    interlaced = g_value_get_boolean(&value);
+    FSL_PLAYER_PRINT("frame interlaced is:%d\n", interlaced);
+    g_value_unset (&value);
+
+    return 0;
+}
+
+static int fsl_player_prop_currentPTS(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement* auto_video_sink = NULL;
+    GstElement* actual_video_sink = NULL;
+    GstElement * element = NULL;
+    GValue value = {0,};
+    gint64 currentPTS = 0;
+    
+
+    g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
+    if( NULL == auto_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
+        return -1;
+    }
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-amlv");
+    if( NULL == actual_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
+        return -1;
+    }
+
+    //element = gst_bin_get_by_name_recurse_up(GST_BIN(pproperty->playbin), "amlvsink0");
+    //g_print("get amlvdec point=%p\n", element);
+    g_value_init (&value, G_TYPE_INT64);
+    g_object_get_property(G_OBJECT(actual_video_sink), "currentPTS", &value);
+    currentPTS = g_value_get_int64 (&value);
+    g_value_unset (&value);
+    FSL_PLAYER_PRINT("current PTS is:%d\n", currentPTS);
+
+    return 0;
+}
+
+static int fsl_player_prop_flushRepeatFrame(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement* auto_video_sink = NULL;
+    GstElement* actual_video_sink = NULL;
+    GstElement * element = NULL;
+    GValue value = {0,};
+    gboolean isRepeatFrame = FALSE;
+    fsl_player_bool bset = FALSE;
+    
+    bset = fsl_player_prop_options();
+    
+    g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
+    if( NULL == auto_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
+        return -1;
+    }
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-amlv");
+    if( NULL == actual_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
+        return -1;
+    }
+    g_value_init (&value, G_TYPE_BOOLEAN);
+    if(bset){
+        FSL_PLAYER_PRINT("Input flushRepeatFrame flag:");
+        scanf("%d", &isRepeatFrame);
+        g_value_set_boolean (&value, isRepeatFrame);
+        g_object_set_property(G_OBJECT(element), "flush-repeat-frame", &value);
+    }
+    else{
+        char *flag = "TRUE";
+        g_object_get_property(G_OBJECT(actual_video_sink), "flush-repeat-frame", &value);
+        isRepeatFrame = g_value_get_boolean (&value);
+        flag = isRepeatFrame ? "TRUE" : "FALSE";
+        FSL_PLAYER_PRINT("RepeatFrame is:%s\n", flag);
+    }
+    
+    g_value_unset (&value);
+    
+    return 0;
+}
+
+static int fsl_player_prop_pmt_info(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement * element = NULL;
+    gpointer pmtinfo;
+    guint16 program = 0;
+    guint8 version = 0;
+    guint16 pcr_pid = 0;
+    GValueArray *streaminfos;
+    GValueArray *descriptors;
+    int i = 0;
+    
+    element = gst_bin_get_by_name(GST_BIN(pproperty->playbin), "flutsdemux0");
+    //g_object_get(G_OBJECT(pproperty->playbin), "pmt-info", &pmtinfo, NULL);
+    g_object_get (element, "pmt-info", &pmtinfo, NULL);
+    g_object_get (pmtinfo, "program-number", &program, NULL);
+    g_object_get (pmtinfo, "version-number", &version, NULL);
+    g_object_get (pmtinfo, "pcr-pid", &pcr_pid, NULL);
+
+    g_object_get (pmtinfo, "stream-info", &streaminfos, NULL);
+    g_object_get (pmtinfo, "descriptors", &descriptors, NULL);
+
+    FSL_PLAYER_PRINT ("PMT: program: %04x" \
+        " version: %d " \
+        "pcr: %04x "    \
+        "streams: %d "  \
+        "descriptors: %d\n",
+        (guint16)program, 
+        version, 
+        (guint16)pcr_pid, 
+        streaminfos->n_values,
+        descriptors->n_values);
+    
+    //dump_descriptors (descriptors);
+    
+    for (i = 0 ; i < streaminfos->n_values; i++) {
+        GValue *value;
+        guint16 es_pid;
+        guint8 es_type;
+        GValueArray *languages;
+        GValueArray *streaminfo;
+        GValueArray *descriptor;
+        value = g_value_array_get_nth (streaminfos, i);
+        streaminfo = (GObject*) g_value_get_object (value);
+        g_object_get (streaminfo, "pid", &es_pid, NULL);
+        g_object_get (streaminfo, "stream-type", &es_type, NULL);
+        g_object_get (streaminfo, "languages", &languages, NULL);
+        g_object_get (streaminfo, "descriptors", &descriptor, NULL);
+        FSL_PLAYER_PRINT ("pid: %04x type: %x languages: %d descriptors: %d\n",
+            (guint16)es_pid, (guint8) es_type, languages->n_values,
+            descriptor->n_values);
+        
+        //dump_languages (languages);
+        //dump_descriptors (descriptor);
+    } 
+
+    return 0;
+}
+static const PropType property_pool[] = {
+    {"trickrate", fsl_player_prop_trickrate},
+    {"interlaced", fsl_player_prop_interlaced},
+    {"currentPTS", fsl_player_prop_currentPTS},
+    {"flush-repeat-frame", fsl_player_prop_flushRepeatFrame},
+    {"pmt-info", fsl_player_prop_pmt_info},
+    {NULL, NULL},
+};
+
+fsl_player_ret_val fsl_player_property_process(fsl_player_handle handle, char *prop_name)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+
+    PropType * p = property_pool;
+    while(p->name){
+        if(!strcmp(p->name, prop_name)){
+            if(p->property_func(handle) < 0){
+                return FSL_PLAYER_ERROR_BAD_PARAM;
+            }
+        }
+        p++;
+    }
     return FSL_PLAYER_SUCCESS;
 }
 

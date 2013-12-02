@@ -79,7 +79,10 @@ struct _GstAmlVsink
 
 struct _GstAmlVsinkClass 
 {
-  GstBaseSinkClass parent_class;
+    GstBaseSinkClass parent_class;
+    GHashTable *getPropTable;
+    GHashTable *setPropTable;
+    GMutex      lock;
 };
 
 GType gst_amlvsink_get_type (void);

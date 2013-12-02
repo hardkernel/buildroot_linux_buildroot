@@ -85,17 +85,26 @@ struct _GstAmlVdec
     gboolean is_eos;
     gboolean     silent;
     gint      prival;
+
     gdouble      trickRate;           //for Mpeg2/TS
-	AmlState eState;
+    gboolean    interlaced;         //for Mpeg2/TS
+    void*         decHandle;        //for Mpeg2/TS
+    AmlState eState;
     codec_para_t *pcodec;
 };
 
 struct _GstAmlVdecClass 
 {
     GstElementClass parent_class;
+    GHashTable *getPropTable;
+    GHashTable *setPropTable;
+    GMutex      lock;
 };
 
 GType gst_amlvdec_get_type (void);
+gboolean amlvdec_forward_process(GstAmlVdec *amlvdec, 
+    gboolean update, gdouble rate, GstFormat format, gint64 start,
+    gint64 stop, gint64 position);
 
 G_END_DECLS
 

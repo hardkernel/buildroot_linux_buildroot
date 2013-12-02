@@ -268,12 +268,21 @@ struct _fsl_player_class
     fsl_player_ret_val (*exit_message_loop) (fsl_player_handle that);
 
     fsl_player_ret_val (*post_eos_semaphore) (fsl_player_handle handle);
+
+    //extend property options
+    fsl_player_ret_val (*property) (fsl_player_handle that, char *prop_name);
 };
 struct _fsl_player
 {
     fsl_player_class *klass;
     fsl_player_property_handle property_handle;
 };
+
+typedef struct{
+    char * name;
+    int (*property_func)(fsl_player_handle handle);
+}PropType;
+
 
 /* api functions of fsl_player */
 fsl_player_handle fsl_player_init(fsl_player_config * config);

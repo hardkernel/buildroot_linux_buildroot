@@ -1106,6 +1106,19 @@ int main(int argc,char *argv[])
                 break;
             }
 
+            case 'P': //Property
+            {
+                char prop_name[64] = {0};
+                PRINT("Please input property name:");
+                scanf("%s",prop_name);
+                prop_name[63] = '\0';
+                if(FSL_PLAYER_SUCCESS != pplayer->klass->property(pplayer, prop_name)){
+                    PRINT("Invalid property parameter\n");
+                }
+                
+                break;
+            }
+            
             default:
                 //printf("Default: Nothing has been done!\n");
                 break;

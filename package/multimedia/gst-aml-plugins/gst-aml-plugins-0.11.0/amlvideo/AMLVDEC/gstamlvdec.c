@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include "amlvdec_prop.h"
 
 //#define AML_DEBUG g_print
 #define  AML_DEBUG(...)   GST_INFO_OBJECT(amlvdec,__VA_ARGS__) 
@@ -67,7 +68,31 @@ static gboolean gst_amlvdec_sink_event (GstPad * pad, GstEvent * event);
 static gboolean gst_amlvdec_setcaps (GstPad * pad, GstCaps * caps);
 static GstFlowReturn gst_amlvdec_chain (GstPad * pad, GstBuffer * buf);
 static GstStateChangeReturn gst_amlvdec_change_state (GstElement * element,GstStateChange transition);
-static GstElementClass *parent_class = NULL;
+static void gst_amlvdec_finalize (GObject * object);
+
+static void gst_amlvdec_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
+    AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->setPropTable, prop_id);
+    if(amlPropFunc){
+        g_mutex_lock(&amlclass->lock);
+        amlPropFunc(object, prop_id, value, pspec);
+        g_mutex_unlock(&amlclass->lock);
+    }
+}
+
+static void gst_amlvdec_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec)
+{
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
+    AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->getPropTable, prop_id);
+    if(amlPropFunc){
+        g_mutex_lock(&amlclass->lock);
+        amlPropFunc(object, prop_id, value, pspec);
+        g_mutex_unlock(&amlclass->lock);
+    }
+}
 
 GType
 gst_amlvdec_get_type (void)
@@ -120,9 +145,18 @@ gst_amlvdec_class_init (GstAmlVdecClass * klass)
   
     gobject_class = (GObjectClass *) klass;
     gstelement_class = (GstElementClass *) klass;  
-    parent_class = g_type_class_peek_parent (klass);  
+    
     gstelement_class->change_state = gst_amlvdec_change_state;
-
+    gobject_class->set_property = gst_amlvdec_set_property;
+    gobject_class->get_property = gst_amlvdec_get_property;
+    gobject_class->finalize = gst_amlvdec_finalize;
+    
+    klass->getPropTable = NULL;
+    klass->setPropTable = NULL;
+    aml_Install_Property(gobject_class, 
+        &(klass->getPropTable), 
+        &(klass->setPropTable), 
+        aml_get_vdec_prop_interface());
 }
 
 static void
@@ -142,6 +176,21 @@ gst_amlvdec_init (GstAmlVdec * amlvdec)
 
   /* initialize the amlvdec acceleration */
 }
+
+static void
+gst_amlvdec_finalize (GObject * object)
+{
+    GstAmlVdec *amlvdec = GST_AMLVDEC(object);
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
+    GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
+    g_free(amlvdec->pcodec);
+    amlvdec->pcodec = NULL;
+    aml_Uninstall_Property(amlclass->getPropTable, amlclass->setPropTable);
+    amlclass->getPropTable = NULL;
+    amlclass->setPropTable = NULL;
+    G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
 
 static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
 {    
@@ -344,9 +393,12 @@ gst_amlvdec_chain (GstPad * pad, GstBuffer * buf)
 {
     GstAmlVdec *amlvdec;  
     amlvdec = GST_AMLVDEC(GST_PAD_PARENT (pad));
-  
-    if (amlvdec->silent == FALSE){  	
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec);
+    
+    if (amlvdec->silent == FALSE){  
+        g_mutex_lock(&amlclass->lock);
         gst_amlvdec_decode (amlvdec, buf);	
+        g_mutex_unlock(&amlclass->lock);
     }
     return gst_pad_push (amlvdec->srcpad, buf);
   
@@ -377,7 +429,7 @@ static void wait_for_render_end(GstAmlVdec *amlvdec)
     } while (vbuf.data_len > 0x100 && rp_move_count > 0);
 }
 
-static gboolean amlvdec_forward_process(GstAmlVdec *amlvdec, 
+gboolean amlvdec_forward_process(GstAmlVdec *amlvdec, 
     gboolean update, gdouble rate, GstFormat format, gint64 start,
     gint64 stop, gint64 position)
 {

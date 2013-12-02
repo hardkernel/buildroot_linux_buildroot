@@ -74,6 +74,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include "amlasink_prop.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_amlasink_debug);
 #define GST_CAT_DEFAULT gst_amlasink_debug
@@ -87,14 +88,6 @@ enum
     LAST_SIGNAL
 };
 
-enum
-{
-    PROP_0,
-    PROP_SILENT,
-    PROP_SYNC,
-    PROP_ASYNC,
-    PROP_MUTE
-};
 
 /* the capabilities of the inputs and outputs.
  *
@@ -116,6 +109,8 @@ static GstFlowReturn gst_amlasink_render(GstBaseSink *sink, GstBuffer *buffer);
 static gboolean gst_amlasink_start(GstBaseSink *sink);
 static gboolean gst_amlasink_stop(GstBaseSink *sink);
 static gboolean gst_amlasink_event(GstBaseSink *sink, GstEvent *event);
+static void gst_amlasink_finalize (GObject * object);
+
 /* GObject vmethod implementations */
 
 /* GObject vmethod implementations */
@@ -146,12 +141,15 @@ gst_amlasink_class_init (GstAmlAsinkClass * klass)
     gobject_class->set_property = gst_amlasink_set_property;
     gobject_class->get_property = gst_amlasink_get_property;
     gstelement_class->change_state = gst_amlasink_change_state;
+    gobject_class->finalize = gst_amlasink_finalize;
 
-    g_object_class_install_property (gobject_class, PROP_SILENT, g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
-          FALSE, G_PARAM_READWRITE));
-    g_object_class_install_property (gobject_class, PROP_MUTE, g_param_spec_boolean ("mute", "Mute", "mute audio or not ?",
-            FALSE, G_PARAM_READWRITE));  
-
+    klass->getPropTable = NULL;
+    klass->setPropTable = NULL;
+    aml_Install_Property(gobject_class, 
+        &(klass->getPropTable), 
+        &(klass->setPropTable), 
+        aml_get_asink_prop_interface());
+    
     gstbasesink_class->render = gst_amlasink_render;  //data through
     gstbasesink_class->stop = gst_amlasink_stop; //data stop
     gstbasesink_class->start = gst_amlasink_start; //data start
@@ -176,6 +174,19 @@ gst_amlasink_init (GstAmlAsink * amlasink,
     AML_DEBUG("gst_amlasink_init\n");
 
 }
+
+static void
+gst_amlasink_finalize (GObject * object)
+{
+    GstAmlAsink *amlasink = GST_AMLASINK(object);
+    GstAmlAsinkClass *amlclass = GST_AMLASINK_GET_CLASS (object); 
+    GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
+    aml_Uninstall_Property(amlclass->getPropTable, amlclass->setPropTable);
+    amlclass->getPropTable = NULL;
+    amlclass->setPropTable = NULL;
+    G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
 
 static gboolean
 gst_amlasink_event (GstBaseSink * sink, GstEvent  *event)
@@ -225,19 +236,12 @@ gst_amlasink_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
     GstAmlAsink *amlasink = GST_AMLASINK(object);  
-    switch (prop_id) {
-        case PROP_SILENT:
-            amlasink->silent = g_value_get_boolean (value);
-            break;
-        case PROP_MUTE:
-
-            break;
-	case PROP_ASYNC:
-            gst_base_sink_set_async_enabled (amlasink, g_value_get_boolean (1));
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-            break;
+    GstAmlAsinkClass *amlclass = GST_AMLASINK_GET_CLASS (object);  
+    AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->setPropTable, prop_id);
+    if(amlPropFunc){
+        g_mutex_lock(&amlclass->lock);
+        amlPropFunc(object, prop_id, value, pspec);
+        g_mutex_unlock(&amlclass->lock);
     }
 }
 
@@ -246,16 +250,12 @@ gst_amlasink_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
     GstAmlAsink *amlasink = GST_AMLASINK(object);  
-    switch (prop_id) {
-        case PROP_SILENT:
-            g_value_set_boolean (value, amlasink->silent);
-            break;
-        case PROP_MUTE:
-
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-            break;
+    GstAmlAsinkClass *amlclass = GST_AMLASINK_GET_CLASS (object);  
+    AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->getPropTable, prop_id);
+    if(amlPropFunc){
+        g_mutex_lock(&amlclass->lock);
+        amlPropFunc(object, prop_id, value, pspec);
+        g_mutex_unlock(&amlclass->lock);
     }
 }
 /* this function handles the link with other elements */

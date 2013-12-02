@@ -74,6 +74,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include "amlvsink_prop.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_amlvsink_debug);
 #define GST_CAT_DEFAULT gst_amlvsink_debug
@@ -87,14 +88,6 @@ enum
     LAST_SIGNAL
 };
 
-enum
-{
-    PROP_0,
-    PROP_SILENT,
-    PROP_ASYNC,
-    PROP_MUTE,
-    PROP_FLUSH_REPEAT_FRAME
-};
 
 /* the capabilities of the inputs and outputs.
  *
@@ -116,6 +109,7 @@ static GstFlowReturn gst_amlvsink_render(GstBaseSink *sink, GstBuffer *buffer);
 static gboolean gst_amlvsink_start(GstBaseSink *sink);
 static gboolean gst_amlvsink_stop(GstBaseSink *sink);
 static gboolean gst_amlvsink_event(GstBaseSink *sink, GstEvent *event);
+static void gst_amlvsink_finalize (GObject * object);
 
 /* GObject vmethod implementations */
 
@@ -145,13 +139,17 @@ static void gst_amlvsink_class_init (GstAmlVsinkClass * klass)
     gobject_class->set_property = gst_amlvsink_set_property;
     gobject_class->get_property = gst_amlvsink_get_property;
     gstelement_class->change_state = gst_amlvsink_change_state;
+    gobject_class->finalize = gst_amlvsink_finalize;
 
-    g_object_class_install_property (gobject_class, PROP_SILENT, g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?", FALSE, G_PARAM_READWRITE));
-    g_object_class_install_property (gobject_class, PROP_MUTE, g_param_spec_boolean ("mute", "Mute", "Mute output or not ?", FALSE, G_PARAM_READWRITE));
-    g_object_class_install_property (gobject_class, PROP_FLUSH_REPEAT_FRAME, g_param_spec_boolean ("flush_repeat_frame", "Flush_repaeat_frame", "Keep last frame or not?", FALSE, G_PARAM_READWRITE));
-
+    klass->getPropTable = NULL;
+    klass->setPropTable = NULL;
+    aml_Install_Property(gobject_class, 
+        &(klass->getPropTable), 
+        &(klass->setPropTable), 
+        aml_get_vsink_prop_interface());
+    
     gstbasesink_class->render = gst_amlvsink_render;  //data through
-    gstbasesink_class->render = gst_amlvsink_render;  //data through
+    //gstbasesink_class->render = gst_amlvsink_render;  //data through
     gstbasesink_class->stop = gst_amlvsink_stop; //data stop
     gstbasesink_class->start = gst_amlvsink_start; //data start
     gstbasesink_class->event = gst_amlvsink_event; //event
@@ -173,6 +171,17 @@ static void gst_amlvsink_init (GstAmlVsink * amlvsink,
     AML_DEBUG("gst_amlvsink_init\n");
 }
 
+static void
+gst_amlvsink_finalize (GObject * object)
+{
+    GstAmlVsink *amlvsink = GST_AMLVSINK(object);
+    GstAmlVsinkClass *amlclass = GST_AMLVSINK_GET_CLASS (object); 
+    GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
+    aml_Uninstall_Property(amlclass->getPropTable, amlclass->setPropTable);
+    amlclass->getPropTable = NULL;
+    amlclass->setPropTable = NULL;
+    G_OBJECT_CLASS (parent_class)->finalize (object);
+}
 
 static gboolean gst_amlvsink_event (GstBaseSink * sink, GstEvent  *event)
 {
@@ -219,11 +228,11 @@ static gboolean gst_amlvsink_event (GstBaseSink * sink, GstEvent  *event)
     case GST_EVENT_EOS:
         /* end-of-stream, we should close down all stream leftovers here */ 
   	  
-        ret = TRUE;;//gst_pad_event_default (pad,event);
+        ret = TRUE;//gst_pad_event_default (pad,event);
         break;
     default:
         /* just call the default handler */
-        ret = TRUE;;// gst_pad_event_default (pad, event);
+        ret = TRUE;// gst_pad_event_default (pad, event);
         break;
     }
     return ret;
@@ -232,41 +241,24 @@ static gboolean gst_amlvsink_event (GstBaseSink * sink, GstEvent  *event)
 static void gst_amlvsink_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
-    GstAmlVsink *amlvsink = GST_AMLVSINK (object);  
-    switch (prop_id) {
-        case PROP_SILENT:
-            amlvsink->silent = g_value_get_boolean (value);
-            break;
-        case PROP_ASYNC:
-            gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), g_value_get_boolean (0));
-            break;
-        case PROP_MUTE:
-            break;
-        case PROP_FLUSH_REPEAT_FRAME:
-            set_black_policy (g_value_get_int (value));
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-            break;
+    GstAmlVsinkClass *amlclass = GST_AMLVSINK_GET_CLASS (object);  
+    AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->setPropTable, prop_id);
+    if(amlPropFunc){
+        g_mutex_lock(&amlclass->lock);
+        amlPropFunc(object, prop_id, value, pspec);
+        g_mutex_unlock(&amlclass->lock);
     }
 }
 
 static void gst_amlvsink_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
-    GstAmlVsink *filter = GST_AMLVSINK (object);  
-    switch (prop_id) {
-        case PROP_SILENT:
-            g_value_set_boolean (value, filter->silent);
-            break;
-        case PROP_MUTE:
-            break;
-        case PROP_FLUSH_REPEAT_FRAME:
-            g_value_set_boolean (value, get_black_policy());
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-            break;
+    GstAmlVsinkClass *amlclass = GST_AMLVSINK_GET_CLASS (object);  
+    AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->getPropTable, prop_id);
+    if(amlPropFunc){
+        g_mutex_lock(&amlclass->lock);
+        amlPropFunc(object, prop_id, value, pspec);
+        g_mutex_unlock(&amlclass->lock);
     }
 }
 
@@ -299,8 +291,9 @@ static GstStateChangeReturn
 gst_amlvsink_change_state (GstElement * element, GstStateChange transition)
 {
     GstAmlVsink *amlvsink= GST_AMLVSINK (element);
+    GstAmlVsinkClass *amlclass = GST_AMLVSINK_GET_CLASS (amlvsink);
     GstStateChangeReturn result;
-
+    GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
                 //prepared function

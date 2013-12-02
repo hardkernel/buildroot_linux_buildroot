@@ -14,13 +14,14 @@ plugin_LTLIBRARIES = libgstamlasink.la
 ##############################################################################
 
 # sources used to compile this plug-in
-libgstamlasink_la_SOURCES = gstamlasink.c gstamlasink.h 
+libgstamlasink_la_SOURCES = gstamlasink.c gstamlasink.h amlasink_prop.c amlasink_prop.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstamlasink_la_CFLAGS = $(GST_CFLAGS)
+libgstamlasink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl
 libgstamlasink_la_LIBADD = $(GST_LIBS)
 libgstamlasink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstamlasink_la_LIBADD += ../../common/libgstamlsysctl.a
 libgstamlasink_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
-noinst_HEADERS = gstamlasink.h 
+noinst_HEADERS = gstamlasink.h amlasink_prop.h

@@ -102,4 +102,57 @@ int set_fb1_blank(int blank)
     return  set_sysfs_int("/sys/class/graphics/fb1/blank", blank);
 }
 
+/*property functions*/
+static void aml_register_propfunc (GHashTable **propTable, gint key, AmlPropFunc func)
+{
+  gpointer ptr = (gpointer) func;
 
+  if (propTable && !(*propTable)){
+    *propTable = g_hash_table_new (g_direct_hash, g_direct_equal);
+  }
+  if (!g_hash_table_lookup (*propTable, key))
+    g_hash_table_insert (*propTable, key, (gpointer) ptr);
+}
+static void aml_unregister_propfunc(GHashTable *propTable)
+{
+    if(propTable){
+        g_hash_table_destroy(propTable);
+    }
+}
+
+AmlPropFunc aml_find_propfunc (GHashTable *propTable, gint key)
+{
+    AmlPropFunc func = NULL;
+    func = (AmlPropFunc)g_hash_table_lookup(propTable, key);
+    return func;
+}
+
+void aml_Install_Property(
+    GObjectClass *kclass, 
+    GHashTable **getPropTable, 
+    GHashTable **setPropTable, 
+    AmlPropType *prop_pool)
+{
+    GObjectClass*gobject_class = (GObjectClass *) kclass;
+    AmlPropType *p = prop_pool;
+
+    while(p && (p->propID != -1)){
+        if(p->installprop){
+            p->installprop(gobject_class, p->propID);
+        }
+        if(p->getprop){
+            aml_register_propfunc(getPropTable, p->propID, p->getprop);
+        }
+        if(p->setprop){
+            aml_register_propfunc(setPropTable, p->propID, p->setprop);
+        }
+        p++;
+    }
+
+}
+
+void aml_Uninstall_Property(GHashTable *getPropTable, GHashTable *setPropTable)
+{
+    aml_unregister_propfunc(getPropTable);
+    aml_unregister_propfunc(setPropTable);
+}

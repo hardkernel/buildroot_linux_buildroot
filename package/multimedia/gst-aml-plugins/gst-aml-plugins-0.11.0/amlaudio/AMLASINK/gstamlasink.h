@@ -48,6 +48,7 @@
 
 #include <gst/gst.h>
 #include <gst/base/gstbasesink.h>
+#include  "gstamlsysctl.h"
 
 G_BEGIN_DECLS
 
@@ -62,6 +63,9 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLASINK))
 #define GST_IS_AMLASINKCLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLASINK))
+#define GST_AMLASINK_GET_CLASS(klass)  \
+    (G_TYPE_INSTANCE_GET_CLASS((klass),\
+    GST_TYPE_AMLASINK,GstAmlAsinkClass))
 
 
 typedef struct _GstAmlAsink      GstAmlAsink;
@@ -80,6 +84,9 @@ struct _GstAmlAsinkClass
   //GstElementClass parent_class;
   GstBaseSinkClass parent_class;
   gint (*fuck)(GstAmlAsink *sink);
+    GHashTable *getPropTable;
+    GHashTable *setPropTable;
+    GMutex      lock;
 
 };
 
