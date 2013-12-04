@@ -122,7 +122,7 @@
 #define AMSTREAM_IOC_GET_VIDEO_AVG_BITRATE_BPS _IOR(AMSTREAM_IOC_MAGIC, 0xa7, unsigned long)
 
 /*add for gstreamer fast/slow forward*/
-#define AMSTREAM_IOC_SET_PLAYRATE    _IOW(AMSTREAM_IOC_MAGIC, 0xad, unsigned long)
+#define AMSTREAM_IOC_SET_PLAYRATE    _IOW(AMSTREAM_IOC_MAGIC, 0xb0, unsigned long)
 
 #define AMAUDIO_IOC_MAGIC  'A'
 #define AMAUDIO_IOC_SET_RESAMPLE_ENA        _IOW(AMAUDIO_IOC_MAGIC, 0x19, unsigned long)
