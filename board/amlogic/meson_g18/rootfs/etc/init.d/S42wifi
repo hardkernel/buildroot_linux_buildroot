@@ -15,7 +15,7 @@ case "$1" in
         echo -n "Stopping supplicant..."
         start-stop-daemon -K -o -p $PIDFILE
         rm -f $PIDFILE 
-        rmmod dhd
+        rmmod 8192cu
         ;;
     restart|reload)
         start-stop-daemon -K -s HUP -n wpa_supplicant
