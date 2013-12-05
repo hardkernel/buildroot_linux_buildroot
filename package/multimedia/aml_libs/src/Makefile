@@ -14,6 +14,8 @@ install:
 	-make -C amavutils install
 	-make -C amcodec install
 	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(TARGET_DIR)/usr/lib 
+	mkdir -p $(TARGET_DIR)/lib/firmware
+	install -D -m 0644 amadec/firmware/*.bin $(TARGET_DIR)/lib/firmware 
 	
 clean:
 	-make -C amadec clean

@@ -26,9 +26,9 @@ BUILD_DIR=${PKG_BUILD_DIR}/${FILE_DIR}
 QUITE_CMD=yes
 #export QUITE_CMD
 all:before_cmd config  	
+	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
 	make -C ${BUILD_DIR} all
 	make -C ${BUILD_DIR} install
-	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
 	
 configure:
         cd ${BUILD_DIR}/${AMFFMPEG_DIR} && ${PKG_TOP_DIR}/${FILE_DIR}/src/${AMFFMPEG_DIR}/configure  ${FFMPEG_CONFIG_FLAGS}
