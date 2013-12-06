@@ -21,7 +21,7 @@
 #include <adec-pts-mgt.h>
 #include <log-print.h>
 #include <alsa-out.h>
-
+#include "alsactl_parser.h"
 
 #define   PERIOD_SIZE  1024
 #define   PERIOD_NUM    4
@@ -634,6 +634,7 @@ int alsa_init(struct aml_audio_dec* audec)
 
     alsa_param->playback_tid = tid;
 
+   alsactl_parser();
     return 0;
 }
 
@@ -768,6 +769,83 @@ unsigned long alsa_latency(struct aml_audio_dec* audec)
     return (sample_num * (1000 / alsa_param->rate));
 }
 
+/**
+* alsa dumy codec controls interface
+*/
+int dummy_alsa_control(char * id_string , long vol, int rw, long * value){
+    int err;
+    snd_hctl_t *hctl;
+    snd_ctl_elem_id_t *id;
+    snd_hctl_elem_t *elem;
+    snd_ctl_elem_value_t *control;
+    snd_ctl_elem_info_t *info;
+    snd_ctl_elem_type_t type;
+    unsigned int idx = 0, count;
+    long tmp, min, max;
+
+    if ((err = snd_hctl_open(&hctl, PCM_DEVICE_DEFAULT, 0)) < 0) { 
+        printf("Control %s open error: %s\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+        return err;
+    }
+    if (err = snd_hctl_load(hctl)< 0) {
+        printf("Control %s open error: %s\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+        return err;
+    }
+    snd_ctl_elem_id_alloca(&id);
+    snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
+    snd_ctl_elem_id_set_name(id, id_string);
+    elem = snd_hctl_find_elem(hctl, id);
+    snd_ctl_elem_value_alloca(&control);
+    snd_ctl_elem_value_set_id(control, id);
+    snd_ctl_elem_info_alloca(&info);
+    if ((err = snd_hctl_elem_info(elem, info)) < 0) {
+        printf("Control %s snd_hctl_elem_info error: %s\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+		    return err;
+    }    
+    count = snd_ctl_elem_info_get_count(info);
+    type = snd_ctl_elem_info_get_type(info);
+    
+    for (idx = 0; idx < count; idx++) {
+        switch (type) {
+            case SND_CTL_ELEM_TYPE_BOOLEAN:
+                if(rw){
+                    tmp = 0;
+                    if (vol >= 1) {
+                        tmp = 1;
+                    }
+                    snd_ctl_elem_value_set_boolean(control, idx, tmp);
+                    err = snd_hctl_elem_write(elem, control);
+                }else             	
+		    *value = snd_ctl_elem_value_get_boolean(control, idx);
+		    break;
+            case SND_CTL_ELEM_TYPE_INTEGER:
+                if(rw){
+		    min = snd_ctl_elem_info_get_min(info);
+		    max = snd_ctl_elem_info_get_max(info);
+                    if ((vol >= min) && (vol <= max))
+                        tmp = vol;
+		    else if (vol < min)
+                        tmp = min;
+                    else if (vol > max)
+                        tmp = max;
+                    snd_ctl_elem_value_set_integer(control, idx, tmp);
+                    err = snd_hctl_elem_write(elem, control);
+                }else             	
+	            *value = snd_ctl_elem_value_get_integer(control, idx);
+		    break;
+            default:
+                printf("?");
+	        break;
+        }
+        if (err < 0){
+            printf ("control%s access error=%s,close control device\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+            snd_hctl_close(hctl);
+            return err;
+        }
+    }
+    
+    return 0;
+}
 /**
  * \brief mute output
  * \param audec pointer to audec

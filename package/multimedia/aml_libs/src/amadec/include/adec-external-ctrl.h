@@ -40,6 +40,9 @@ extern "C"
     int audio_get_soundtrack(void *, int* );	
 	int get_audio_decoder(void);
 	int get_decoder_status(void *p,struct adec_status *adec);
+    int dummy_decode_set_mute(int en);
+    int dummy_decode_set_volume(int vol);
+    int dummy_decode_get_volume(int *vol);
 
 #ifdef  __cplusplus
 }
