@@ -118,4 +118,7 @@ int codec_get_audio_cur_bitrate(codec_para_t *pcodec,int *bitrate);
 int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode);
 /*add for gstreamer fast/slow forward*/
 int codec_set_video_playrate(codec_para_t* pcodec, int rate);
+int dummy_codec_set_mute(int mute);
+int dummy_codec_set_volume(int vol);
+int dummy_codec_get_volume(int *vol);
 #endif
