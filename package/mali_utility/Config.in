@@ -1,0 +1,6 @@
+config BR2_PACKAGE_MALI_UTILITY
+	bool "mali_utility"
+    depends on BR2_PACKAGE_GPU
+	help
+	  Test utilities for Mali OpenGL ES.
+
