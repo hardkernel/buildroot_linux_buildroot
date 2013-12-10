@@ -1,6 +1,51 @@
 
 #include "gstamlvsink.h"
 #include "amlvsink_prop.h"
+#include "rectangleInfo.h"
+
+#define MAX_BIT 5
+gint parse_str2int(const gchar *input, const gchar boundary, const gchar end, gint *first, ...)
+{
+    va_list var_args;
+    gint *name = NULL;
+    const gchar *p = input;
+    gint i = 0;
+    gint index = 0;
+    gint size = 0;
+    gchar value[MAX_BIT]= {0};
+
+    if(NULL == p){
+        g_print("[%s:%d] null\n", __FUNCTION__, __LINE__);
+        return -1;
+    }
+    size = strlen(p);
+    va_start (var_args, first);
+    name = first;
+    while(name && (i <= size)){
+        value[index] = p[i];
+        if(index++ >= MAX_BIT){
+            va_end (var_args);
+             g_print("[%s:%d] error\n", __FUNCTION__, __LINE__);
+            return -1;
+        }
+        if(p[i+1] == boundary){
+            index = 0;
+            
+            *name = atoi(value);
+            memset(value, 0, sizeof(value));
+            i++;
+            name = va_arg (var_args, gint*);
+        }
+        else if(p[i+1] == end){
+            *name = atoi(value);
+            break;
+        }
+        i++;
+        
+    }
+    va_end (var_args);
+    return 0;
+}
 
 /*video sink property*/
 static void amlInstallPropSilent(GObjectClass *oclass,
@@ -21,8 +66,8 @@ static void amlInstallPropTvMode(GObjectClass *oclass,
     guint property_id)
 {
     GObjectClass*gobject_class = (GObjectClass *) oclass;
-    g_object_class_install_property (gobject_class, property_id, g_param_spec_int ("tvmode", "TvMode", "Define the television mode",
-          -10, 10, 0, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, property_id, g_param_spec_uint ("tvmode", "TvMode", "Define the television mode",
+          0, 5, 0, G_PARAM_READWRITE));
 }
 static void amlInstallPropPlane(GObjectClass *oclass,
     guint property_id)
@@ -35,8 +80,8 @@ static void amlInstallPropRectangle(GObjectClass *oclass,
     guint property_id)
 {
     GObjectClass*gobject_class = (GObjectClass *) oclass;
-    g_object_class_install_property (gobject_class, property_id, g_param_spec_int ("rectangle", "Rectangle", "The destination rectangle",
-          -2000, 2000, 0, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, property_id, g_param_spec_object ("rectangle", "Rectangle", "The destination rectangle",
+          GST_TYPE_RECTANGLE_INFO, G_PARAM_READWRITE));
 }
 static void amlInstallPropFlushRepeatFrame(GObjectClass *oclass,
     guint property_id)
@@ -112,7 +157,15 @@ static int amlGetPropTvMode(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
     GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    //g_value_set_int (value, filter->tvMode);
+    gchar data_array[64] = {0};
+    guint mode = 0;
+    get_sysfs_str("/sys/class/video/screen_mode", data_array, sizeof(data_array));
+    data_array[63] = '\0';
+    if(parse_str2int(data_array, ':', '\n', &mode, NULL) < 0){
+        return -1;
+    }
+    
+    g_value_set_uint (value, mode);
     return 0;
 }
 static int amlGetPropPlane(GObject * object, guint prop_id,
@@ -122,11 +175,29 @@ static int amlGetPropPlane(GObject * object, guint prop_id,
     //g_value_set_int (value, filter->plane);
     return 0;
 }
+
+
 static int amlGetPropRectangle(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
     GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    //g_value_set_int (value, filter->rectangle);
+    gchar data_array[64] = {0};
+    RectangleInfo *info_obj;
+    gint x = 0;
+    gint y = 0;
+    gint width = 0;
+    gint height = 0;
+
+    get_sysfs_str("/sys/class/video/axis", data_array, sizeof(data_array));
+    data_array[63] = '\0';
+
+    if(parse_str2int(data_array, ' ', '\n', &x, &y, &width, &height) < 0){
+        g_print("parse axis failed.\n");
+        return -1;
+    }
+    info_obj = rectangle_info_new (x, y, width, height);
+
+    g_value_take_object (value, info_obj);
     return 0;
 }
 static int amlGetPropFlushRepeatFrame(GObject * object, guint prop_id,
@@ -207,7 +278,10 @@ static int amlSetPropTvMode(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
     GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    gint tvMode = g_value_get_int(value);
+    guint mode = g_value_get_uint(value);
+
+    set_sysfs_int("/sys/class/video/screen_mode", mode);
+    
     return 0;
 }
 static int amlSetPropPlane(GObject * object, guint prop_id,
@@ -221,7 +295,11 @@ static int amlSetPropRectangle(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
     GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    gint rectangle = g_value_get_int(value);
+    RectangleInfo *info_obj = g_value_get_object(value);
+    gchar data_array[64] = {0};
+
+    sprintf(data_array, "%d %d %d %d", info_obj->x, info_obj->y, info_obj->width, info_obj->height);
+    set_sysfs_str("/sys/class/video/axis", data_array);
     return 0;
 }
 static int amlSetPropFlushRepeatFrame(GObject * object, guint prop_id,

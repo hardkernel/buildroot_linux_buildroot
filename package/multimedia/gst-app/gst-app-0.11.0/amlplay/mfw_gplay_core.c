@@ -2055,6 +2055,7 @@ fsl_player_bool fsl_player_prop_options()
     char option[64] = {0};
     FSL_PLAYER_PRINT("Select options:['get' or 'set'] (default option is get):");
     scanf("%s", &option);
+    option[63] = '\0';
     if(!strncmp(option, "set", strlen("set"))){
         return TRUE;
     }
@@ -2248,11 +2249,192 @@ static int fsl_player_prop_pmt_info(fsl_player_handle handle)
 
     return 0;
 }
+#define MAX_BIT 5
+gint parse_str2int(const gchar *input, const char boundary, guint *first, ...)
+{
+    va_list var_args;
+    guint *name = NULL;
+    const gchar *p = input;
+    gint i = 0;
+    gint index = 0;
+    gint size = 0;
+    gchar value[MAX_BIT]= {0};
+
+    if(NULL == p){
+        FSL_PLAYER_PRINT("[%s:%d] null\n", __FUNCTION__, __LINE__);
+        return -1;
+    }
+    size = strlen(p);
+    va_start (var_args, first);
+    name = first;
+    while(name && (i <= size)){
+        value[index] = p[i];
+        if(index++ >= MAX_BIT){
+            va_end (var_args);
+             FSL_PLAYER_PRINT("[%s:%d] error\n", __FUNCTION__, __LINE__);
+            return -1;
+        }
+        if(p[i+1] == boundary){
+            index = 0;
+            *name = atoi(value);
+            memset(value, 0, sizeof(value));
+            i++;
+            name = va_arg (var_args, guint*);
+        }
+        else if(p[i+1] == '\0'){
+            *name = atoi(value);
+            break;
+        }
+        i++;
+        
+    }
+    va_end (var_args);
+    return 0;
+}
+
+static int fsl_player_prop_rectangle_info(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement * element = NULL;
+    GValue value = {0,};
+    gpointer rectangleinfo;
+    guint x = 0;
+    guint y = 0;
+    guint width = 0;
+    guint height = 0;
+    GstElement* auto_video_sink = NULL;
+    GstElement* actual_video_sink = NULL;
+    fsl_player_bool bset = FALSE;
+    
+    bset = fsl_player_prop_options();
+
+    g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
+    if( NULL == auto_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
+        return -1;
+    }
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-amlv");
+    if( NULL == actual_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
+        return -1;
+    }
+
+    g_object_get (G_OBJECT(actual_video_sink), "rectangle", &rectangleinfo, NULL);
+    if(!bset){
+        g_value_init (&value, G_TYPE_UINT);
+        g_object_get_property (rectangleinfo, "x", &value);
+        x = g_value_get_uint (&value);
+        g_value_unset (&value);
+        
+        g_value_init (&value, G_TYPE_UINT);
+        g_object_get_property (rectangleinfo, "y", &value);
+        y = g_value_get_uint (&value);
+        g_value_unset (&value);
+
+        g_value_init (&value, G_TYPE_UINT);
+        g_object_get_property (rectangleinfo, "width", &value);
+        width = g_value_get_uint (&value);
+        g_value_unset (&value);
+
+        g_value_init (&value, G_TYPE_UINT);
+        g_object_get_property (rectangleinfo, "height", &value);
+        height = g_value_get_uint (&value);
+        g_value_unset (&value);
+    }
+    else{
+        char param[64] = {0};
+        FSL_PLAYER_PRINT("input parameters:");
+        scanf("%s", &param);
+        param[63] = '\0';
+
+        if(parse_str2int(param, ',', &x, &y, &width, &height) < 0){
+            return -1;
+        }
+        g_value_init (&value, G_TYPE_UINT);
+        g_value_set_uint(&value, x);
+        g_object_set_property (G_OBJECT(rectangleinfo), "x", &value);
+        g_value_unset (&value);
+        
+        g_value_init (&value, G_TYPE_UINT);
+        g_value_set_uint(&value, x);
+        g_object_set_property (G_OBJECT(rectangleinfo), "y", &value);
+        g_value_unset (&value);
+
+        g_value_init (&value, G_TYPE_UINT);
+        g_value_set_uint(&value, width);
+        g_object_set_property (G_OBJECT(rectangleinfo), "width", &value);
+        g_value_unset (&value);
+
+        g_value_init (&value, G_TYPE_UINT);
+        g_value_set_uint(&value, height);
+        g_object_set_property (G_OBJECT(rectangleinfo), "height", &value);
+        g_value_unset (&value);
+
+        g_object_set (G_OBJECT(actual_video_sink), "rectangle", G_OBJECT(rectangleinfo), NULL);
+    }
+
+    FSL_PLAYER_PRINT("Rectangle: x: %d y: %d width: %d height: %d\n", x, y, width, height);
+    return 0;
+}
+
+static int fsl_player_prop_tvmode(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement * element = NULL;
+    GValue value = {0,};
+
+    GstElement* auto_video_sink = NULL;
+    GstElement* actual_video_sink = NULL;
+    fsl_player_bool bset = FALSE;
+    guint mode = 0;
+    
+    bset = fsl_player_prop_options();
+
+    g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
+    if( NULL == auto_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
+        return -1;
+    }
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-amlv");
+    if( NULL == actual_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
+        return -1;
+    }
+
+    g_value_init (&value, G_TYPE_UINT);
+    if(bset){
+        FSL_PLAYER_PRINT("Input TV Mode:");
+        scanf("%d", &mode);
+        g_value_set_uint (&value, mode);
+        g_object_set_property(G_OBJECT(actual_video_sink), "tvmode", &value);
+    }
+    else{
+        const char *wide_str[] = {"normal", "full stretch", "4-3", "16-9", "non-linear", "normal-noscaleup"};
+        g_object_get_property(G_OBJECT(actual_video_sink), "tvmode", &value);
+        mode = g_value_get_uint (&value);
+        if(mode < sizeof(wide_str) && mode >= 0){
+            FSL_PLAYER_PRINT("current TV Mode is:%d:%s\n", mode, wide_str[mode]);
+        }
+        else{
+            FSL_PLAYER_PRINT("current TV Mode:%d is error\n", mode);
+        }
+    }
+    g_value_unset (&value);
+    return 0;
+}
 static const PropType property_pool[] = {
     {"trickrate", fsl_player_prop_trickrate},
     {"interlaced", fsl_player_prop_interlaced},
     {"currentPTS", fsl_player_prop_currentPTS},
     {"flush-repeat-frame", fsl_player_prop_flushRepeatFrame},
+    {"rectangle", fsl_player_prop_rectangle_info},
+    {"tvmode", fsl_player_prop_tvmode},
     {"pmt-info", fsl_player_prop_pmt_info},
     {NULL, NULL},
 };
