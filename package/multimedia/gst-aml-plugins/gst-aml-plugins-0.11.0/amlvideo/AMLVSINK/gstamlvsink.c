@@ -78,8 +78,6 @@
 
 GST_DEBUG_CATEGORY_STATIC (gst_amlvsink_debug);
 #define GST_CAT_DEFAULT gst_amlvsink_debug
-//#define AML_DEBUG   g_print
-#define  AML_DEBUG(...)   GST_INFO_OBJECT(amlvsink,__VA_ARGS__) 
 
 /* Filter signals and args */
 enum
@@ -168,7 +166,7 @@ static void gst_amlvsink_init (GstAmlVsink * amlvsink,
     pad = GST_BASE_SINK_PAD (amlvsink);
     gst_base_sink_set_sync (GST_BASE_SINK (amlvsink), FALSE);
     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), FALSE);
-    AML_DEBUG("gst_amlvsink_init\n");
+    AML_DEBUG(amlvsink, "gst_amlvsink_init\n");
 }
 
 static void
@@ -188,7 +186,7 @@ static gboolean gst_amlvsink_event (GstBaseSink * sink, GstEvent  *event)
     gboolean ret;
     GstTagList *tag_list;
     GstAmlVsink *amlvsink = GST_AMLVSINK(sink);
-    AML_DEBUG( "vsink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
+    AML_DEBUG(amlvsink, "vsink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
   
     switch (GST_EVENT_TYPE (event)) {  
     case GST_EVENT_NEWSEGMENT:{
@@ -213,7 +211,7 @@ static gboolean gst_amlvsink_event (GstBaseSink * sink, GstEvent  *event)
     case GST_EVENT_TAG:
         gst_event_parse_tag (event, &tag_list);
         if (gst_tag_list_is_empty (tag_list))
-            AML_DEBUG("null tag list\n");
+            AML_DEBUG(amlvsink, "null tag list\n");
         ret=TRUE;	
         break;
     case GST_EVENT_FLUSH_STOP:{

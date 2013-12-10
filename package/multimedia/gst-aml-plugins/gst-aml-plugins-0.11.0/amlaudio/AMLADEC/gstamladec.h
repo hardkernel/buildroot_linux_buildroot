@@ -49,6 +49,7 @@
 #include <gst/gst.h>
 //#include <gst/tag/tag.h>
 #include  "gstamlsysctl.h"
+#include  "../../common/include/codec.h"
 
 G_BEGIN_DECLS
 
@@ -63,6 +64,10 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLADEC))
 #define GST_IS_AMLADEC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLADEC))
+#define GST_AMLADEC_GET_CLASS(klass)  \
+        (G_TYPE_INSTANCE_GET_CLASS((klass),\
+        GST_TYPE_AMLADEC,GstAmlAdecClass))
+
 
 
 typedef struct _GstAmlAdec      GstAmlAdec;
@@ -91,7 +96,7 @@ struct _GstAmlAdec
   gboolean   is_eos;
 
   AmlState eState;
-  
+  codec_para_t *pcodec;
   GstSegment segment;
 };
 

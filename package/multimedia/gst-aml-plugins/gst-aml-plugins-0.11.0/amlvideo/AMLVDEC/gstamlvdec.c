@@ -40,8 +40,7 @@
 #include <ctype.h>
 #include "amlvdec_prop.h"
 
-//#define AML_DEBUG g_print
-#define  AML_DEBUG(...)   GST_INFO_OBJECT(amlvdec,__VA_ARGS__) 
+
 
 GST_DEBUG_CATEGORY_STATIC (amlvdec_debug);
 #define GST_CAT_DEFAULT (amlvdec_debug)
@@ -185,8 +184,10 @@ gst_amlvdec_finalize (GObject * object)
     GstAmlVdec *amlvdec = GST_AMLVDEC(object);
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
-    g_free(amlvdec->pcodec);
-    amlvdec->pcodec = NULL;
+    if(amlvdec->pcodec){
+        g_free(amlvdec->pcodec);
+        amlvdec->pcodec = NULL;
+    }
     aml_Uninstall_Property(amlclass->getPropTable, amlclass->setPropTable);
     amlclass->getPropTable = NULL;
     amlclass->setPropTable = NULL;
@@ -204,7 +205,8 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
 	
     structure = gst_caps_get_structure (caps, 0);
     name=gst_structure_get_name (structure); 
-    AML_DEBUG("here caps name =%s,\n",name); 
+    AML_DEBUG(amlvdec, "here caps name =%s,\n",name); 
+    
     if (strcmp(name, "video/x-h264") == 0) {
 	      gint32 frame_width=0,frame_height=0;
 	      gint32 value_numerator=0,value_denominator=0;
@@ -219,12 +221,12 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
             amlvdec->codec_data = gst_value_get_buffer(codec_data_buf);
             g_print("H.264 SET CAPS check for codec data \n");    
             amlvdec->codec_data_len = GST_BUFFER_SIZE(amlvdec->codec_data);
-            AML_DEBUG("\n>>H264 decoder: AVC Codec specific data length is %d\n",amlvdec->codec_data_len);
-            AML_DEBUG("AVC codec data is \n");
+            AML_DEBUG(amlvdec, "\n>>H264 decoder: AVC Codec specific data length is %d\n",amlvdec->codec_data_len);
+            AML_DEBUG(amlvdec, "AVC codec data is \n");
             hdrextdata = GST_BUFFER_DATA(amlvdec->codec_data);
             for(i=0;i<amlvdec->codec_data_len;i++)
-                AML_DEBUG("%x ",hdrextdata[i]);
-            AML_DEBUG("\n");
+                AML_DEBUG(amlvdec, "%x ",hdrextdata[i]);
+            AML_DEBUG(amlvdec, "\n");
         }
 		
         amlvdec->pcodec->video_type = VFORMAT_H264;
@@ -235,10 +237,10 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
         amlvdec->pcodec->am_sysinfo.width = frame_width;
         if(value_numerator>0)		
             amlvdec->pcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;
-	      AML_DEBUG(" Frame Width =%d,Height=%d,rate=%d\n", amlvdec->pcodec->am_sysinfo.width, frame_height,amlvdec->pcodec->am_sysinfo.rate);
+	      AML_DEBUG(amlvdec, " Frame Width =%d,Height=%d,rate=%d\n", amlvdec->pcodec->am_sysinfo.width, frame_height,amlvdec->pcodec->am_sysinfo.rate);
     }else if (strcmp(name, "video/mpeg") == 0) {  
         gst_structure_get_int (structure, "mpegversion", &mpegversion);
-        AML_DEBUG("here mpegversion =%d\n",mpegversion);
+        AML_DEBUG(amlvdec, "here mpegversion =%d\n",mpegversion);
         if (mpegversion==2||mpegversion==1) {		
             amlvdec->pcodec->video_type = VFORMAT_MPEG12;
             amlvdec->pcodec->am_sysinfo.format = 0;
@@ -252,7 +254,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
             profile=gst_structure_get_string(structure, "profile");
             getlevel=gst_structure_get_string(structure, "level");
             gst_structure_get_fraction(structure, "framerate",&value_numerator,&value_denominator);
-            AML_DEBUG(" Frame Width =%d,Height=%d,profile=%s,getlevel=%s,value_numerator=%d,value_denominator=%d\n", frame_width, frame_height,profile,getlevel,value_numerator,value_denominator);	
+            AML_DEBUG(amlvdec, " Frame Width =%d,Height=%d,profile=%s,getlevel=%s,value_numerator=%d,value_denominator=%d\n", frame_width, frame_height,profile,getlevel,value_numerator,value_denominator);	
             codec_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");   	
             if (NULL != codec_data_buf) {
                 guint8 *hdrextdata;
@@ -260,12 +262,12 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
                 amlvdec->codec_data = gst_value_get_buffer(codec_data_buf);
                 g_print("mp4v check for codec data \n");    
                 amlvdec->codec_data_len = GST_BUFFER_SIZE(amlvdec->codec_data);
-                AML_DEBUG("\n>>mp4v Codec specific data length is %d\n",amlvdec->codec_data_len);
-                AML_DEBUG("mp4v codec data is \n");
+                AML_DEBUG(amlvdec, "\n>>mp4v Codec specific data length is %d\n",amlvdec->codec_data_len);
+                AML_DEBUG(amlvdec, "mp4v codec data is \n");
                 hdrextdata = GST_BUFFER_DATA(amlvdec->codec_data);
                 for(i=0;i<amlvdec->codec_data_len;i++)
-                    AML_DEBUG("%x ",hdrextdata[i]);
-                AML_DEBUG("\n");    
+                    AML_DEBUG(amlvdec, "%x ",hdrextdata[i]);
+                AML_DEBUG(amlvdec, "\n");    
             }
             amlvdec->pcodec->video_type = VFORMAT_MPEG4;
             amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
@@ -291,11 +293,11 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
         return FALSE;	
     }
     if (amlvdec->pcodec&&amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO){ 
-        AML_DEBUG("pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
+        AML_DEBUG(amlvdec, "pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
         if(!amlvdec->codec_init_ok){
             ret = codec_init(amlvdec->pcodec);
              if (ret != CODEC_ERROR_NONE){
-                 AML_DEBUG("codec init failed, ret=-0x%x", -ret);
+                 AML_DEBUG(amlvdec, "codec init failed, ret=-0x%x", -ret);
                  return FALSE;
             }
             set_fb0_blank(1);
@@ -307,7 +309,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
                     codec_set_video_playrate(amlvdec->pcodec, (int)(amlvdec->trickRate*(1<<16)));
                 }
             }
-            AML_DEBUG("video codec_init ok\n");
+            AML_DEBUG(amlvdec, "video codec_init ok\n");
         }
         
     } 	
@@ -356,7 +358,7 @@ gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
             GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp)); 
             
             if(codec_checkin_pts(amlvdec->pcodec,(unsigned long)pts)!=0)
-                AML_DEBUG("pts checkin flied maybe lose sync\n");  
+                AML_DEBUG(amlvdec, "pts checkin flied maybe lose sync\n");  
         }
     	
         again:    
@@ -393,7 +395,7 @@ gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
             return GST_FLOW_ERROR;
         }		
     }else{
-        AML_DEBUG("decoder not init ok yet, we will do nothing in render\n");
+        AML_DEBUG(amlvdec, "decoder not init ok yet, we will do nothing in render\n");
     }
     return GST_FLOW_OK;
 }
@@ -527,7 +529,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
         } 
 		
         case GST_EVENT_EOS:
-            AML_DEBUG("ge GST_EVENT_EOS,check for video end\n");
+            AML_DEBUG(amlvdec, "ge GST_EVENT_EOS,check for video end\n");
             if(amlvdec->codec_init_ok)	
             {
                 wait_for_render_end(amlvdec);
@@ -600,7 +602,7 @@ gst_amlvdec_src_event (GstPad * pad, GstEvent * event)
 static gboolean
 gst_amlvdec_start (GstAmlVdec *amlvdec)
 { 
-    AML_DEBUG("amlvdec start....\n");
+    AML_DEBUG(amlvdec, "amlvdec start....\n");
     amlvdec->codec_init_ok=0;
     //amlvdec->pcodec = &v_codec_para;
     

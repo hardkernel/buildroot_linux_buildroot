@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-#define AML_DEBUG g_print
+
 static const guint32 sample_rates[] = {
     96000, 88200, 64000, 48000, 44100, 32000,
     24000, 22050, 16000, 12000, 11025, 8000
@@ -71,8 +71,8 @@ int extract_adts_header_info(GstAmlAdec *amladec)
             hdr.profile = ((*(p + 2) & 0x7f) >> 2) - 1; // 5 bits
 
         }
-        AML_DEBUG("extract aac insert adts header:profile %d,sr_index %d,ch_config %d\n", hdr.profile, hdr.sample_freq_idx, hdr.channel_configuration);
-        AML_DEBUG("extra data size %d,DATA:\n", GST_BUFFER_SIZE(amladec->codec_data));        
+        AML_DEBUG(amladec, "extract aac insert adts header:profile %d,sr_index %d,ch_config %d\n", hdr.profile, hdr.sample_freq_idx, hdr.channel_configuration);
+        AML_DEBUG(amladec, "extra data size %d,DATA:\n", GST_BUFFER_SIZE(amladec->codec_data));        
     }
 
     hdr.syncword = 0xfff;
@@ -112,7 +112,7 @@ int extract_adts_header_info(GstAmlAdec *amladec)
                         hdr.number_of_raw_data_blocks_in_frame); 
         gst_buffer_set_data(amladec->codec_data,buf,ADTS_HEADER_SIZE);
     } else {
-        AML_DEBUG("[%s:%d]no memory for extract adts header!\n", __FUNCTION__, __LINE__);
+        AML_DEBUG(amladec, "[%s:%d]no memory for extract adts header!\n", __FUNCTION__, __LINE__);
         return -1;
     }
     return 0;
@@ -145,7 +145,7 @@ void adts_add_header(GstAmlAdec *amladec,GstBuffer ** buffer)
             break;
         if((( (*(adts_header+ 3)&0x2)<<11)|( (*(adts_header + 4)&0xFF)<<3)|( (*(adts_header + 5)&0xE0)>>5))!=GST_BUFFER_SIZE(* buffer))//frame length
             break;	
-        AML_DEBUG(" AAC es has adts header,don't add again\n"); 
+        AML_DEBUG(amladec, " AAC es has adts header,don't add again\n"); 
         return;
     } 
 	
@@ -164,10 +164,10 @@ void adts_add_header(GstAmlAdec *amladec,GstBuffer ** buffer)
     }
  #if 0	
 	   gint8* bufferdata1 = GST_BUFFER_DATA(*buffer);
-	   AML_DEBUG("bufferdata1 as follow\n");
+	   AML_DEBUG(amladec, "bufferdata1 as follow\n");
             for(i=0;i<14;i++)
-                AML_DEBUG("%x ",bufferdata1[i]);
-            AML_DEBUG("\n");
+                AML_DEBUG(amladec, "%x ",bufferdata1[i]);
+            AML_DEBUG(amladec, "\n");
 #endif
 
     return ;

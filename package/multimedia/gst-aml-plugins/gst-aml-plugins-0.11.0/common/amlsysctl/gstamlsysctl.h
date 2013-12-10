@@ -33,5 +33,7 @@ typedef struct{
     AmlPropFunc setprop;
 }AmlPropType;
 
+#define  AML_DEBUG(x, ...)   GST_INFO_OBJECT(x, ##__VA_ARGS__) 
+
 G_END_DECLS
 #endif

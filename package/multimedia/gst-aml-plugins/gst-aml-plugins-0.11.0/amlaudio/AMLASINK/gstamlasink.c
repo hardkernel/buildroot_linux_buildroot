@@ -78,8 +78,7 @@
 
 GST_DEBUG_CATEGORY_STATIC (gst_amlasink_debug);
 #define GST_CAT_DEFAULT gst_amlasink_debug
-//#define AML_DEBUG   g_print
-#define  AML_DEBUG(...)   GST_INFO_OBJECT(amlasink,__VA_ARGS__) 
+
 
 /* Filter signals and args */
 enum
@@ -171,7 +170,7 @@ gst_amlasink_init (GstAmlAsink * amlasink,
     pad = GST_BASE_SINK_PAD (amlasink);
     gst_base_sink_set_sync (GST_BASE_SINK (amlasink), FALSE);
     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlasink), FALSE);
-    AML_DEBUG("gst_amlasink_init\n");
+    AML_DEBUG(amlasink, "gst_amlasink_init\n");
 
 }
 
@@ -194,7 +193,7 @@ gst_amlasink_event (GstBaseSink * sink, GstEvent  *event)
     gboolean ret;
     GstTagList *tag_list;
     GstAmlAsink *amlasink = GST_AMLASINK(sink);
-    AML_DEBUG ( "asink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
+    AML_DEBUG (amlasink, "asink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
   
     switch (GST_EVENT_TYPE (event)) {  
     case GST_EVENT_NEWSEGMENT:{
