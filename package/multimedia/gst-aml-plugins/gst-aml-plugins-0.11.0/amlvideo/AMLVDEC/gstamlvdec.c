@@ -293,17 +293,23 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
     if (amlvdec->pcodec&&amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO){ 
         AML_DEBUG("pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
         if(!amlvdec->codec_init_ok){
-        ret = codec_init(amlvdec->pcodec);
-         if (ret != CODEC_ERROR_NONE){
-             AML_DEBUG("codec init failed, ret=-0x%x", -ret);
-             return FALSE;
+            ret = codec_init(amlvdec->pcodec);
+             if (ret != CODEC_ERROR_NONE){
+                 AML_DEBUG("codec init failed, ret=-0x%x", -ret);
+                 return FALSE;
+            }
+            set_fb0_blank(1);
+            set_fb1_blank(1);
+            set_tsync_enable(1);
+            amlvdec->codec_init_ok=1;
+            if(amlvdec->trickRate > 0){
+                if(amlvdec->pcodec && amlvdec->pcodec->cntl_handle){
+                    codec_set_video_playrate(amlvdec->pcodec, (int)(amlvdec->trickRate*(1<<16)));
+                }
+            }
+            AML_DEBUG("video codec_init ok\n");
         }
-        set_fb0_blank(1);
-        set_fb1_blank(1);
-        set_tsync_enable(1);
-        amlvdec->codec_init_ok=1;
-        AML_DEBUG("video codec_init ok\n");
-        }
+        
     } 	
     return TRUE;	
 }
@@ -440,13 +446,17 @@ gboolean amlvdec_forward_process(GstAmlVdec *amlvdec,
     AmlState eCurrentState = AmlStateNormal;
     if(((rate - 1.0) < 0.000001) && ((rate - 1.0) > -0.000001)){
         set_tsync_enable(1);
-        codec_set_video_playrate(amlvdec->pcodec, (int)(rate*(1<<16)));
+        if(amlvdec->pcodec && amlvdec->pcodec->cntl_handle){
+            codec_set_video_playrate(amlvdec->pcodec, (int)(rate*(1<<16)));
+        }
         eCurrentState = AmlStateNormal;
         amlvdec->trickRate = rate;
     }
     else if(rate > 0){
         set_tsync_enable(0);
-        codec_set_video_playrate(amlvdec->pcodec, (int)(rate*(1<<16)));
+        if(amlvdec->pcodec && amlvdec->pcodec->cntl_handle){
+            codec_set_video_playrate(amlvdec->pcodec, (int)(rate*(1<<16)));
+        }
         if(rate > 1.0){
             eCurrentState = AmlStateFastForward;
         }
