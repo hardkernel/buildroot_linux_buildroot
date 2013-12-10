@@ -174,6 +174,8 @@ gst_amlvdec_init (GstAmlVdec * amlvdec)
     gst_pad_use_fixed_caps (amlvdec->srcpad);
     gst_element_add_pad (GST_ELEMENT (amlvdec), amlvdec->srcpad);
 
+    amlvdec->pcodec = g_malloc(sizeof(codec_para_t));
+    memset(amlvdec->pcodec, 0, sizeof(codec_para_t ));
   /* initialize the amlvdec acceleration */
 }
 
@@ -290,6 +292,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
     }
     if (amlvdec->pcodec&&amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO){ 
         AML_DEBUG("pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
+        if(!amlvdec->codec_init_ok){
         ret = codec_init(amlvdec->pcodec);
          if (ret != CODEC_ERROR_NONE){
              AML_DEBUG("codec init failed, ret=-0x%x", -ret);
@@ -300,6 +303,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
         set_tsync_enable(1);
         amlvdec->codec_init_ok=1;
         AML_DEBUG("video codec_init ok\n");
+        }
     } 	
     return TRUE;	
 }
@@ -545,12 +549,17 @@ newseg_wrong_format:
 static gboolean
 gst_amlvdec_setcaps (GstPad * pad, GstCaps * caps)
 {
-    GstAmlVdec *amlvdec;
+    GstAmlVdec *amlvdec = GST_AMLVDEC (gst_pad_get_parent (pad));
     GstPad *otherpad;
-    amlvdec = GST_AMLVDEC (gst_pad_get_parent (pad));
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec);
     otherpad = (pad == amlvdec->srcpad) ? amlvdec->sinkpad : amlvdec->srcpad;
-    if(caps)	
+    if(caps){
+        g_mutex_lock(&amlclass->lock);
+        amlvdec->is_headerfeed = FALSE;
         gst_set_vstream_info (amlvdec, caps );  
+        g_mutex_unlock(&amlclass->lock);
+    }   
+        
     gst_object_unref (amlvdec);
   
     return TRUE;
@@ -584,8 +593,7 @@ gst_amlvdec_start (GstAmlVdec *amlvdec)
     AML_DEBUG("amlvdec start....\n");
     amlvdec->codec_init_ok=0;
     //amlvdec->pcodec = &v_codec_para;
-    amlvdec->pcodec = g_malloc(sizeof(codec_para_t));
-    memset(amlvdec->pcodec, 0, sizeof(codec_para_t ));
+    
     amlvdec->pcodec->has_video = 1;
     amlvdec->pcodec->am_sysinfo.rate = 0;
     amlvdec->pcodec->am_sysinfo.height = 0;

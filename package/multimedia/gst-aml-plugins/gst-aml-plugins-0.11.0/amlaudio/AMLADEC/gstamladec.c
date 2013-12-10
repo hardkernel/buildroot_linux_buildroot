@@ -419,13 +419,15 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     if (apcodec&&apcodec->stream_type == STREAM_TYPE_ES_AUDIO){
         if (IS_AUIDO_NEED_EXT_INFO (apcodec->audio_type))
             audioinfo_need_set (apcodec,amladec); 
-        ret = codec_init (apcodec);
-        if (ret != CODEC_ERROR_NONE){
-            g_print("codec init failed, ret=-0x%x", -ret);
-            return -1;
+        if(!amladec->codec_init_ok){
+            ret = codec_init (apcodec);
+            if (ret != CODEC_ERROR_NONE){
+                g_print("codec init failed, ret=-0x%x", -ret);
+                return -1;
+            }
+            amladec->codec_init_ok = 1;
+            set_tsync_enable(1);	
         }
-        amladec->codec_init_ok = 1;
-        set_tsync_enable(1);		
     } 
 	return TRUE;
 }
