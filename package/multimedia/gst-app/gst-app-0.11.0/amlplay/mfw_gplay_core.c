@@ -2428,6 +2428,43 @@ static int fsl_player_prop_tvmode(fsl_player_handle handle)
     g_value_unset (&value);
     return 0;
 }
+
+static int fsl_player_prop_video_mute(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    GstElement * element = NULL;
+    GValue value = {0,};
+
+    GstElement* auto_video_sink = NULL;
+    GstElement* actual_video_sink = NULL;
+    gboolean mute = FALSE;
+    int v = 0;
+
+    g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
+    if( NULL == auto_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find auto_video_sink\n", __FUNCTION__);
+        return -1;
+    }
+    actual_video_sink = gst_bin_get_by_name((GstBin*)auto_video_sink, "videosink-actual-sink-amlv");
+    if( NULL == actual_video_sink )
+    {
+        FSL_PLAYER_PRINT("%s(): Can not find actual_video_sink\n", __FUNCTION__);    
+        return -1;
+    }
+
+    g_value_init (&value, G_TYPE_BOOLEAN);
+    FSL_PLAYER_PRINT("Input video mute set: {0 is display, 1 is disable display}");
+    scanf("%d", &v);
+    mute = v ? TRUE : FALSE;
+    g_value_set_boolean (&value, mute);
+    g_object_set_property(G_OBJECT(actual_video_sink), "mute", &value);
+    g_value_unset (&value);
+    return 0;
+}
+
+
 static const PropType property_pool[] = {
     {"trickrate", fsl_player_prop_trickrate},
     {"interlaced", fsl_player_prop_interlaced},
@@ -2435,6 +2472,7 @@ static const PropType property_pool[] = {
     {"flush-repeat-frame", fsl_player_prop_flushRepeatFrame},
     {"rectangle", fsl_player_prop_rectangle_info},
     {"tvmode", fsl_player_prop_tvmode},
+    {"mute", fsl_player_prop_video_mute},
     {"pmt-info", fsl_player_prop_pmt_info},
     {NULL, NULL},
 };

@@ -132,8 +132,8 @@ static void amlInstallPropMute(GObjectClass *oclass,
     guint property_id)
 {
     GObjectClass*gobject_class = (GObjectClass *) oclass;
-    g_object_class_install_property (gobject_class, property_id, g_param_spec_int ("mute", "Mute", "",
-          -1, 1, 0, G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, property_id, g_param_spec_boolean ("mute", "Mute", "Is video display?",
+          FALSE, G_PARAM_READWRITE));
 }
 
 static int amlGetPropSilent(GObject * object, guint prop_id,
@@ -343,7 +343,8 @@ static int amlSetPropMute(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
     GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    gint mute = g_value_get_int(value);
+    gboolean mute = g_value_get_boolean(value);
+    set_sysfs_int("/sys/class/video/disable_video", mute);
     return 0;
 }
 
@@ -360,7 +361,7 @@ static const AmlPropType amlvsink_prop_pool[] = {
     {PROP_SLOW_FRM_RATE, amlInstallPropSlowModeRate,          amlGetPropSlowModeRate,         amlSetPropSlowModeRate},
     {PROP_CONT_FRM_RATE,  amlInstallPropContentFrameRate,   amlGetPropContentFrameRate,   NULL},
     {PROP_STEP_FRM,            amlInstallPropStepFrame,               amlGetPropStepFrame,                amlSetPropStepFrame},
-    {PROP_MUTE,                  amlInstallPropMute,                         amlGetPropMute,                         amlSetPropMute},
+    {PROP_MUTE,                   amlInstallPropMute,                        NULL,                                           amlSetPropMute},
     {-1,                                NULL,                                                NULL,                                           NULL},
 };
 
