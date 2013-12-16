@@ -290,7 +290,9 @@ int audioinfo_need_set(codec_para_t *apcodec,GstAmlAdec *amladec)
         apcodec->audio_info.bitrate = amladec->bit_rate;
     }*/
    // audioinfo_get_codec_id(apcodec->audio_type,amladec);
-    //apcodec->audio_info.bitrate = amladec->bit_rate;
+    if(amladec->bitrate){
+        apcodec->audio_info.bitrate = amladec->bitrate;
+    }
     apcodec->audio_info.sample_rate = amladec->sample_rate;
     apcodec->audio_info.channels = amladec->channels;
     apcodec->audio_info.codec_id = amladec->codec_id;

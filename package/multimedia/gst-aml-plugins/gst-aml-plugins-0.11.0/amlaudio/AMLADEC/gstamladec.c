@@ -402,7 +402,41 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     }else if (strcmp(name, "audio/x-flac") == 0) {   	   
         amladec->pcodec->audio_type = AFORMAT_FLAC;       	 	
     }else if (strcmp(name, "audio/x-wma") == 0) {   	   
+        gint version;
         amladec->pcodec->audio_type = AFORMAT_WMA;       	 	
+            if (gst_structure_has_field (structure, "codec_data")) {	
+                extra_data_buf = (GValue *) gst_structure_get_value (structure, "codec_data");
+                if (NULL != extra_data_buf) {
+                    guint8 *hdrextdata;
+                    gint i;
+                    amladec->codec_data = gst_value_get_buffer (extra_data_buf);	 
+       		 AML_DEBUG(amladec, "WMA SET CAPS check for codec data \n");    
+                    amladec->codec_data_len = GST_BUFFER_SIZE (amladec->codec_data);
+                    AML_DEBUG(amladec, "\n>>wma decoder: WMA Codec specific data length is %d\n",amladec->codec_data_len);
+                    AML_DEBUG(amladec, "wma codec data is \n");
+                    
+                    hdrextdata = GST_BUFFER_DATA (amladec->codec_data);
+                    for(i=0;i<amladec->codec_data_len;i++)
+                        AML_DEBUG(amladec, "%x ",hdrextdata[i]);
+                    AML_DEBUG(amladec, "\n");				
+                }
+	    }
+
+            gst_structure_get_int (structure, "wmaversion", &version);
+                switch (version) {
+                  case 1:
+                    amladec->codec_id = CODEC_ID_WMAV1;
+                    break;
+                  case 2:
+                    amladec->codec_id = CODEC_ID_WMAV2;
+                    break;
+                  default:
+                    break;
+                }
+                gst_structure_get_int (structure, "rate", &amladec->sample_rate);
+                gst_structure_get_int (structure, "channels", &amladec->channels);
+                gst_structure_get_int (structure, "block_align", &amladec->block_align);
+                gst_structure_get_int (structure, "bitrate", &amladec->bitrate);
     }else if (strcmp(name, "audio/x-vorbis") == 0) {   	   
         amladec->pcodec->audio_type = AFORMAT_VORBIS;       	 	
     }else if (strcmp(name, "audio/x-mulaw") == 0) {   	   
@@ -486,6 +520,7 @@ static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer * buf)
         pts=timestamp*9LL/100000LL+1L;
         if (!amladec->is_headerfeed&&amladec->codec_data_len){
         audiopre_header_feeding (amladec->pcodec,amladec,&buf);
+            amladec->is_headerfeed = TRUE;
         }		
 		
         data = GST_BUFFER_DATA (buf);
