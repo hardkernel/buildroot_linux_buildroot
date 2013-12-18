@@ -1,11 +1,11 @@
-DEPS = line_in_select_channel
-OBJ = amAudio.o line_in_select_channel.o
+DEPS = 
+OBJ = amAudio.o
 
 %.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 amaudio: $(OBJ)
-	$(CXX) -lasound -o $@ $^ $(CFLAGS)
+	$(CXX) -lasound -lpthread -o $@ $^ $(CFLAGS)
 
 .PHONY: clean
 
