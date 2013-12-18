@@ -403,7 +403,7 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
         amladec->pcodec->audio_type = AFORMAT_FLAC;       	 	
     }else if (strcmp(name, "audio/x-wma") == 0) {   	   
         gint version;
-        amladec->pcodec->audio_type = AFORMAT_WMA;       	 	
+        
             if (gst_structure_has_field (structure, "codec_data")) {	
                 extra_data_buf = (GValue *) gst_structure_get_value (structure, "codec_data");
                 if (NULL != extra_data_buf) {
@@ -426,10 +426,15 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
                 switch (version) {
                   case 1:
                     amladec->codec_id = CODEC_ID_WMAV1;
+                    amladec->pcodec->audio_type = AFORMAT_WMA;  
                     break;
                   case 2:
                     amladec->codec_id = CODEC_ID_WMAV2;
+                    amladec->pcodec->audio_type = AFORMAT_WMA;  
                     break;
+                  case 3:
+                    amladec->codec_id = CODEC_ID_WMAPRO;
+                    amladec->pcodec->audio_type = AFORMAT_WMAPRO;  
                   default:
                     break;
                 }
