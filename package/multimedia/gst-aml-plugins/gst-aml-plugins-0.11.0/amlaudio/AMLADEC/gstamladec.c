@@ -556,7 +556,6 @@ static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer * buf)
         pts=timestamp*9LL/100000LL+1L;
         if (!amladec->is_headerfeed&&amladec->codec_data_len){
             audiopre_header_feeding (amladec->pcodec,amladec,&buf);
-            amladec->is_headerfeed = TRUE;
         }		
 		
         data = GST_BUFFER_DATA (buf);
