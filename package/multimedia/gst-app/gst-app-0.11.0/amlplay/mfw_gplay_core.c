@@ -1352,6 +1352,75 @@ fsl_player_ret_val fsl_player_set_video_output(fsl_player_handle handle, fsl_pla
     return FSL_PLAYER_SUCCESS;
 }
 
+GstElement * getAudioDecElement(fsl_player_property* pproperty ,fsl_player_s32 i)
+{
+  GstPad *pad = NULL;
+  GstPad *dec_pad = NULL;
+  GstElement *e = NULL;
+
+  if (!pproperty->playbin)
+    return NULL;
+
+  g_signal_emit_by_name(pproperty->playbin, "get-audio-pad", i, &pad);
+  if (pad) {
+    dec_pad = gst_pad_get_peer(pad);
+    while (dec_pad && GST_IS_GHOST_PAD(dec_pad)) {
+      gst_object_unref(dec_pad);
+      dec_pad = gst_ghost_pad_get_target(GST_GHOST_PAD(dec_pad));
+    }
+    if (dec_pad) {
+      e = gst_pad_get_parent_element(dec_pad);
+      gst_object_unref(dec_pad);
+    }
+    gst_object_unref(pad);
+  }
+
+  if (!e)
+    FSL_PLAYER_PRINT("getAudioDecElement Failed\n");
+
+  return e;
+} 
+
+static gint64 getcurpos(fsl_player_property* pproperty)
+{
+  GstFormat fmt = GST_FORMAT_TIME;
+  gint64 position = 0;
+  gst_element_query_position (pproperty->playbin, &fmt, &position);
+  return position;
+}
+
+static gint
+get_n_audio (GstElement *playbin)
+{
+  gint i;
+  g_object_get (playbin, "n-audio", &i, NULL);
+  return i;
+}
+
+set_passthrough(fsl_player_handle handle,fsl_player_s32 index)
+{
+    gint64 position = 0;
+    GstElement * adec = NULL;
+    gint n_audio; 
+    gint i;
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    n_audio=get_n_audio (pproperty->playbin);
+    for (i = 0; i < n_audio; i++) {
+        adec = getAudioDecElement(pproperty,i);
+        if (adec) {
+          g_object_set(G_OBJECT(adec), "pass-through", TRUE, NULL);
+          gst_object_unref(adec);
+        }
+    }
+    adec = getAudioDecElement(pproperty,index);
+    if (adec) {
+        g_object_set(G_OBJECT(adec), "pass-through", FALSE, NULL);
+        gst_object_unref(adec);
+    }
+    position=getcurpos(pproperty);
+    fsl_player_seek(handle,position/MILLISECOND2NANOSECOND,1); 
+}
 fsl_player_ret_val fsl_player_select_audio_track(fsl_player_handle handle, fsl_player_s32 track_no)
 {
     fsl_player* pplayer = (fsl_player*)handle;
@@ -1379,6 +1448,7 @@ fsl_player_ret_val fsl_player_select_audio_track(fsl_player_handle handle, fsl_p
     if( track_no != current_audio_index )
     {
         g_object_set( pproperty->playbin, "current-audio", track_no, NULL );
+        set_passthrough(handle,track_no);		
         g_object_get( G_OBJECT(pproperty->playbin), "current-audio", &current_audio_index, NULL );
         FSL_PLAYER_PRINT( "Current audio_index is %d after set current-audio.\n", current_audio_index );
         //g_signal_emit_by_name( G_OBJECT(pproperty->playbin), "get-audio-tags", track_no, &tags);

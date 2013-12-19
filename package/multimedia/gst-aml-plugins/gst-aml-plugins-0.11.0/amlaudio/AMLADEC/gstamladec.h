@@ -98,12 +98,20 @@ struct _GstAmlAdec
   AmlState eState;
   codec_para_t *pcodec;
   GstSegment segment;
+  gboolean passthrough;
+  GstCaps *tmpcaps;
 };
 
 struct _GstAmlAdecClass
 {
   GstElementClass parent_class;
 
+};
+
+struct AmlControl
+{
+  GstCaps *firstcaps;
+  gboolean passthrough;
 };
 
 GType gst_amladec_get_type (void);

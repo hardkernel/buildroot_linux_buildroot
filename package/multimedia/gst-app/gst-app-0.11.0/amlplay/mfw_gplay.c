@@ -386,7 +386,7 @@ void print_help(fsl_player_handle handle)
     PRINT("\t[r]Switch to repeated mode or not\n");
 //    PRINT("\t[n]Get the current video snapshot while playing\n");
 //    PRINT("\t[o]Set video output mode(LCD,NTSC,PAL,LCD&NTSC,LCD&PAL)\n");
-//    PRINT("\t[d]Select the audio track\n");
+    PRINT("\t[d]Select the audio track\n");
 //    PRINT("\t[b]Select the subtitle\n");
     PRINT("\t[f]Set full screen or not\n");
     PRINT("\t[z]resize the width and height\n");
