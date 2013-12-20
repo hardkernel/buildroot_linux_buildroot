@@ -281,7 +281,7 @@ typedef struct
 	union
 	{     
 		struct{
-			unsigned int loop_mode:1;		//file loop mode 0:loop 1:not loop
+			unsigned int loop_mode:16;		//file loop mode 0:loop 1:not loop
 			unsigned int nosound:1;			//0:play with audio  1:play without audio
 			unsigned int novideo:1;			//0:play with video  1:play without video
 			unsigned int hassub:1;			//0:ignore subtitle	 1:extract subtitle if have
