@@ -71,7 +71,7 @@ static play_control_t *amplayer_init(char *uri)
 		pCtrl->hassub = 0;
 		pCtrl->t_pos = -1;	// start position, if live streaming, need set to -1
 		pCtrl->need_start = 0; // if 0,you can omit player_start_play API.just play video/audio immediately. if 1,need call "player_start_play" API;
-		pCtrl->loop_mode = 1;
+		pCtrl->loop_mode = 0;
 	    if (uri){
 			pCtrl->file_name = parse_uri(uri); 
 			printf("player init with URI:%s\n", pCtrl->file_name);
@@ -352,9 +352,9 @@ void receive_event_from_yahoo( const char** json, const int stream_count )
 						if (player_pid>=0){
 							if (amplayer_status(player_pid)==PLAYER_PAUSE)
 								amplayer_resume(player_pid);
-                        }
-                        else{
-						    if (player_pid>=0){
+						}
+						else{
+							if (player_pid>=0){
 							    if (PLAYER_THREAD_IS_RUNNING(amplayer_status(player_pid)))
 								    amplayer_stop(player_pid);
 							    amplayer_exit(player_pid);
@@ -362,11 +362,15 @@ void receive_event_from_yahoo( const char** json, const int stream_count )
 								    free(player_ctrl);
 							    }
 							    player_pid = -1;
-						    }
-						    player_ctrl = amplayer_init((char*)dec->Input.URI.c_str());
+							}
+							player_ctrl = amplayer_init((char*)dec->Input.URI.c_str());
+							if (dec->PlayCount<0)
+								player_ctrl->loop_mode = 0xffff;
+							else
+								player_ctrl->loop_mode = dec->PlayCount;
 							player_pid = amplayer_start(player_ctrl);
                             
-                        }							
+						}							
 						YCTVMediaUpdateDecoderState(dec->SessionID,
 													dec->InputID,
 													YCTVMedia::StatePlaying,
@@ -428,23 +432,9 @@ int test_uri(char *uri)
 	callback_t callback_fn;
 	char* file_name = strdup(uri);
 	printf("filename %s\n", file_name);
-    if (player_pid>=0){
-        if (PLAYER_THREAD_IS_RUNNING(amplayer_status(player_pid)))
-                amplayer_stop(player_pid);
-        amplayer_exit(player_pid);
-        if (player_ctrl){
-                free(player_ctrl);
-        }
-        player_pid = -1;
-    }
-    player_ctrl = amplayer_init(file_name);
-    if (player_pid>=0){
-        if (amplayer_status(player_pid)==PLAYER_PAUSE)
-            amplayer_resume(player_pid);
-        else
-            amplayer_play(player_pid);
-    }
-    else
+
+	player_ctrl = amplayer_init(file_name);
+ 	player_ctrl->loop_mode = 3; //repeat 3 times
         player_pid = amplayer_start(player_ctrl);
 	while(!PLAYER_THREAD_IS_STOPPED(player_get_state(player_pid))){
 		usleep(100*1000);
