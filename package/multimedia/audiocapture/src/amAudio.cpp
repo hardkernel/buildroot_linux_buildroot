@@ -23,7 +23,7 @@
 #define LOGD(fmt, ...) printf("D/%s: ", LOG_TAG);printf(fmt, ##__VA_ARGS__);
 
 //#define WRITE_AUDIO_OUT_TO_FILE
-//#define SELF_TEST
+#define SELF_TEST
 
 #define AUDIO_IN									"/dev/amaudio_in"
 #define AUDIO_OUT									"/dev/amaudio_out"
@@ -50,6 +50,9 @@
 #define AMAUDIO_IOC_DIRECT_AUDIO					_IOW(AMAUDIO_IOC_MAGIC, 0x12, int)
 #define AMAUDIO_IOC_DIRECT_LEFT_GAIN  				_IOW(AMAUDIO_IOC_MAGIC, 0x13, int)
 #define AMAUDIO_IOC_DIRECT_RIGHT_GAIN 				_IOW(AMAUDIO_IOC_MAGIC, 0x14, int)
+
+#define AMAUDIO_IOC_GET_PLAYBACK_SR 					_IOW(AMAUDIO_IOC_MAGIC, 0x1f, int)
+
 
 #define M_AUDIO_THREAD_DELAY_TIME					4000
 #define AUDIO_BUFFER_SIZE							19200
@@ -341,6 +344,7 @@ static void *amAudio_Thread(void *data)
 {
 	int Ret = 0;
 	int Status = 0;
+	int read_size = 0;
 	newDataCallback callback = (newDataCallback)data;
 	while (1)
 	{
@@ -349,7 +353,21 @@ static void *amAudio_Thread(void *data)
 			amAudio_ThreadExitFlag = 0;
 			break;
 		}
-
+		/*
+		read the pcm samples which written to ALSA driver by alsa lib 
+		*/
+		
+		read_size = read (amAudio_OutHandle,amAudio_Out_BufAddr,amAudio_OutSize);
+		if(read_size  < 0){
+			LOGI("read the audio sample failed,error id %x \n",read_size);
+			break;
+		}
+		else if(read_size > 0){
+			callback(amAudio_Out_BufAddr,read_size);
+		}
+			
+		
+/*
 		switch (Status)
 		{
 			case 0:
@@ -396,10 +414,10 @@ static void *amAudio_Thread(void *data)
 			if(Status == 0 && Status == 1)
 				LOGE("error: new reset!\n");
 		}
-
+*/
 		usleep (M_AUDIO_THREAD_DELAY_TIME);
 	}
-
+	LOGI("amAudio_Thread exit finished \n");
 	pthread_exit (0);
 	
 	return ((void*)0);
@@ -435,7 +453,7 @@ static int amAudio_AmlogicInit (newDataCallback callback)
 	}
 
 	//ioctl (amAudio_InHandle, AMAUDIO_IOC_SET_I2S_IN_MODE, 1);
-	ioctl (amAudio_OutHandle, AMAUDIO_IOC_SET_I2S_OUT_MODE, 1);
+	ioctl (amAudio_OutHandle, AMAUDIO_IOC_SET_I2S_OUT_MODE, 2);
 
 	//ioctl (amAudio_InHandle, AMAUDIO_IOC_DIRECT_LEFT_GAIN, 0);
 	//ioctl (amAudio_InHandle, AMAUDIO_IOC_DIRECT_RIGHT_GAIN, 0);
@@ -453,32 +471,31 @@ static int amAudio_AmlogicInit (newDataCallback callback)
 	
 	amAudio_OutSize = ioctl (amAudio_OutHandle, AMAUDIO_IOC_GET_I2S_OUT_SIZE, 0);
 	LOGI("amAudio_OutSize = 0x%x !\n",amAudio_OutSize);
-	if (amAudio_OutSize == -1)
+	if (amAudio_OutSize <= 0)
 	{
 		close (amAudio_OutHandle);
 		amAudio_OutHandle = -1;
+		LOGI("get audio output buffer size failed \n");
 		//close (amAudio_InHandle);
 		//amAudio_InHandle = -1;
 		return -1;
 	}
 	
-	amAudio_In_BufAddr = (unsigned char *)malloc (AUDIO_BUFFER_SIZE);
-	amAudio_Out_BufAddr = (unsigned char *)malloc (AUDIO_BUFFER_SIZE);
+	//amAudio_In_BufAddr = (unsigned char *)malloc (AUDIO_BUFFER_SIZE);
+	amAudio_Out_BufAddr = (unsigned char *)malloc (amAudio_OutSize*2);
 	
-	/*if (amAudio_In_BufAddr == NULL || amAudio_Out_BufAddr == NULL)
+	if (/*amAudio_In_BufAddr == NULL || */amAudio_Out_BufAddr == NULL)
 	{
 		LOGE("Fail to malloc amaudio buffer!\n");
 		close (amAudio_OutHandle);
 		amAudio_OutHandle = -1;
+		/*
 		close (amAudio_InHandle);
 		amAudio_InHandle = -1;
+		*/
 		return -1;
-	}*/
+	}
 	
-	amAudio_In_BufAddr_half  = amAudio_In_BufAddr + AUDIO_BUFFER_SIZE/2;
-	amAudio_Out_BufAddr_half = amAudio_Out_BufAddr + AUDIO_BUFFER_SIZE/2;
-	Output_buffer_status.status = NODATA;
-	Output_buffer_status.user_read = NULL;
 	
 	pthread_attr_init (&attr);
 	pthread_attr_setschedpolicy (&attr, SCHED_RR);
@@ -491,13 +508,16 @@ static int amAudio_AmlogicInit (newDataCallback callback)
 	if (Ret != 0)
 	{
 		LOGE("Fail to create thread!\n");
+		/*
 		free(amAudio_In_BufAddr);
 		amAudio_In_BufAddr = NULL;
-		free(amAudio_Out_BufAddr);
+		*/
+		if(amAudio_Out_BufAddr)
+			free(amAudio_Out_BufAddr);
 		amAudio_Out_BufAddr = NULL;
-		
+		if(amAudio_OutHandle >= 0)
 		close (amAudio_OutHandle);
-		amAudio_OutHandle = -1;
+			amAudio_OutHandle = -1;
 		//close (amAudio_InHandle);
 		//amAudio_InHandle = -1;
 		return -1;
@@ -510,11 +530,12 @@ static int amAudio_AmlogicFinish (void)
 {
 	amAudio_ThreadExitFlag = 1;
 	pthread_join(amAudio_ThreadID, NULL);
-	
-	free(amAudio_In_BufAddr);
+
+	if(amAudio_In_BufAddr)
+		free(amAudio_In_BufAddr);
 	amAudio_In_BufAddr = NULL;
-	
-	free(amAudio_Out_BufAddr);
+	if(amAudio_Out_BufAddr)
+		free(amAudio_Out_BufAddr);
 	amAudio_Out_BufAddr = NULL;
 		
 	close (amAudio_OutHandle);
@@ -562,7 +583,20 @@ int amAudio_Finish (void)
 	LOGI("Audio capture finish!\n");
 	return 0;
 }
-
+/*
+if get the right sample rate. return sr
+else return -1
+*/
+int amAudio_Get_Playback_Samplerate()
+{
+	int sr = -1;
+	if(amAudio_OutHandle >= 0){
+		ioctl (amAudio_OutHandle, AMAUDIO_IOC_GET_PLAYBACK_SR, &sr);
+	}
+	if(sr  <= 0)
+		return -1;
+	return sr;
+}
 #ifdef SELF_TEST
 static FILE *pcm_dumpfile = NULL;
 void amAudio_Callback(unsigned char *buf, unsigned len)
@@ -573,9 +607,9 @@ void amAudio_Callback(unsigned char *buf, unsigned len)
 	}
 }
 
-int main (void)
+int test_capture(char *filename)
 {
-	pcm_dumpfile = fopen("output.pcm","wb");
+	pcm_dumpfile = fopen(filename,"wb");
 	amAudio_Init(&amAudio_Callback);
 	//while (1);
 	sleep(10);

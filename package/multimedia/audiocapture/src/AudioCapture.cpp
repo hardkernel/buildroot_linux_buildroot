@@ -86,6 +86,10 @@ int main(int argn, char **argv)
 
     LOG("HACS Interface Version: %s\n", YCTVACGetVersion());
 
+    if (argn>1){
+	test_capture(argv[1]);
+	return 0;
+    }
     // Fill audio geometry structure
     geo.iChannels    = GEOM_CH_STEREO;
     geo.iSampleRate  = GEOM_SR_44KHz;
