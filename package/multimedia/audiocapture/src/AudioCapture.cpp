@@ -82,6 +82,7 @@ void *endCapture(void *data)
 int main(int argn, char **argv)
 {
     iHACS_GEOMETRY geo;
+    int sr;
     pthread_t timerThread;
 
     LOG("HACS Interface Version: %s\n", YCTVACGetVersion());
@@ -91,8 +92,36 @@ int main(int argn, char **argv)
 	return 0;
     }
     // Fill audio geometry structure
+    amAudio_Init(&audioCaptureNewData);
+    sr = amAudio_Get_Playback_Samplerate();
     geo.iChannels    = GEOM_CH_STEREO;
-    geo.iSampleRate  = GEOM_SR_44KHz;
+    switch (sr){
+        case 48000:
+            geo.iSampleRate  = GEOM_SR_48KHz;
+            break;
+        case 44100:
+            geo.iSampleRate  = GEOM_SR_44KHz;
+            break;
+        case 32000:
+            geo.iSampleRate  = GEOM_SR_32KHz;
+            break;
+        case 22000:
+            geo.iSampleRate  = GEOM_SR_22KHz;
+            break;
+        case 16000:
+            geo.iSampleRate  = GEOM_SR_16KHz;
+            break;
+        case 11000:
+            geo.iSampleRate  = GEOM_SR_11KHz;
+            break;
+        case 8000:
+            geo.iSampleRate  = GEOM_SR_8KHz;
+            break;
+        default:
+            geo.iSampleRate  = GEOM_SR_44KHz;
+            break;
+    }
+    LOG("Audio Sample Rate: %d\n", sr);
     geo.iSampleDepth = GEOM_SD_S16;
     geo.iSampleType  = GEOM_FORMAT_SHORT;
     geo.iSwapped     = GEOM_DT_HOST;
