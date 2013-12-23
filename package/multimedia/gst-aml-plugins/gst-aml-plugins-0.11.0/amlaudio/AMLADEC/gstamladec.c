@@ -91,6 +91,8 @@ static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer *buffer)
 static GstStateChangeReturn gst_amladec_change_state (GstElement * element,
     GstStateChange transition);
 static void gst_amladec_finalize (GObject * object);
+static void start_eos_task (GstAmlAdec *amladec);
+static void stop_eos_task (GstAmlAdec *amladec);
 
 GST_BOILERPLATE (GstAmlAdec, gst_amladec, GstElement, GST_TYPE_ELEMENT);
 
@@ -259,31 +261,6 @@ static void gst_amladec_get_property (GObject * object, guint prop_id,
                 break;
       }
 }
-  
-static void wait_for_render_end (GstAmlAdec *amladec)
-{
-    unsigned rp_move_count = 40,count=0;
-    unsigned last_rp = 0;
-    struct buf_status abuf;
-    int ret=1;	
-    do {
-        if(count>2000)//avoid infinite loop
-	          break;	
-        ret = codec_get_abuf_state (amladec->pcodec, &abuf);
-        if (ret != 0) {
-            g_print("codec_get_abuf_state error: %x\n", -ret);
-            break;
-        }
-        if(last_rp != abuf.read_pointer){
-            last_rp = abuf.read_pointer;
-            rp_move_count = 40;
-        }else
-           rp_move_count--;        
-        usleep(1000*30);
-        count++;	
-    } while (abuf.data_len > 0x100 && rp_move_count > 0);
-
-}
 
 static gboolean amladec_forward_process (GstAmlAdec *amladec, 
     gboolean update, gdouble rate, GstFormat format, gint64 start,
@@ -320,6 +297,51 @@ static gboolean amladec_forward_process (GstAmlAdec *amladec,
     return TRUE;
 }
 
+static void gst_amladec_polling_eos (GstAmlAdec *amladec)  
+{
+    struct buf_status abuf;
+
+    int ret = codec_get_abuf_state (amladec->pcodec, &abuf);
+    if (ret) {
+        g_print ("codec_get_abuf_state error: %x\n", ret);
+        g_usleep (10 * 1000);
+        return;
+    }
+
+    if (abuf.data_len < 0x400) {
+        gst_pad_push_event (amladec->srcpad, gst_event_new_eos ());
+        gst_task_pause (amladec->eos_task);
+    } else {
+        g_usleep (10 * 1000);
+    }
+}
+
+static void
+    start_eos_task (GstAmlAdec *amladec)
+{
+    if (! amladec->eos_task) {
+        amladec->eos_task =
+            gst_task_create ((GstTaskFunction) gst_amladec_polling_eos, amladec);
+        g_static_rec_mutex_init (&amladec->eos_lock);
+        gst_task_set_lock (amladec->eos_task, &amladec->eos_lock);
+    }
+    gst_task_start (amladec->eos_task);
+}
+
+static void
+    stop_eos_task (GstAmlAdec *amladec)
+{
+    if (! amladec->eos_task)
+      return;
+    gst_task_stop (amladec->eos_task);
+    g_static_rec_mutex_lock (&amladec->eos_lock);
+    g_static_rec_mutex_unlock (&amladec->eos_lock);
+    gst_task_join (amladec->eos_task);
+    gst_object_unref (amladec->eos_task);
+    g_static_rec_mutex_free (&amladec->eos_lock);
+    amladec->eos_task = NULL;
+}
+
 
 static gboolean
 gst_amladec_sink_event (GstPad * pad, GstEvent * event)
@@ -334,7 +356,9 @@ gst_amladec_sink_event (GstPad * pad, GstEvent * event)
             gboolean update;
             gdouble rate, applied_rate;
             gint64 start, stop, pos;
-      
+
+            stop_eos_task (amladec);
+            
             gst_event_parse_new_segment_full (event, &update, &rate, &applied_rate,
                 &format, &start, &stop, &pos);
       
@@ -353,14 +377,15 @@ gst_amladec_sink_event (GstPad * pad, GstEvent * event)
         }
         case GST_EVENT_EOS:
             g_print ("GST_EVENT_EOS\n"); 
-            if (amladec->codec_init_ok){	
-                wait_for_render_end(amladec);
-                amladec->is_eos=TRUE;
-            }
-            result = gst_pad_push_event(amladec->srcpad, event);
+            if (amladec->codec_init_ok)
+                start_eos_task (amladec);
+            gst_event_unref (event);
+            result = TRUE;
+
             break;
         case GST_EVENT_FLUSH_STOP:{
             int ret = -1;
+            stop_eos_task (amladec);
             if(amladec->codec_init_ok){
                 if (amladec->is_paused == TRUE) {
                     ret=codec_resume (amladec->pcodec);
@@ -715,6 +740,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
         case GST_STATE_CHANGE_PAUSED_TO_READY:			
             break;
         case GST_STATE_CHANGE_READY_TO_NULL: 
+            stop_eos_task (amladec);
             gst_amladec_stop (amladec);
             break;
         default:

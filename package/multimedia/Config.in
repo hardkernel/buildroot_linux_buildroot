@@ -7,6 +7,8 @@ source "package/multimedia/faad2/Config.in"
 source "package/multimedia/flac/Config.in"
 source "package/multimedia/ffmpeg/Config.in"
 source "package/multimedia/amaudio/Config.in"
+source "package/multimedia/audiocapture/Config.in"
+source "package/multimedia/mediasupport/Config.in"
 
 # Gstreamer 0.10.x & Plugins
 source "package/multimedia/gstreamer/Config.in"

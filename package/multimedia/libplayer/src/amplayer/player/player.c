@@ -383,7 +383,7 @@ void check_msg(play_para_t *para, player_cmd_t *msg)
         para->playctrl_info.switch_audio_id = msg->param;
         set_black_policy(0);
     } else if (msg->set_mode & CMD_LOOP) {
-        para->playctrl_info.loop_flag = 1;
+        para->playctrl_info.loop_flag = 0xffff;
     } else if (msg->set_mode & CMD_NOLOOP) {
         para->playctrl_info.loop_flag = 0;
     } else if (msg->set_mode & CMD_EN_AUTOBUF) {
@@ -1225,7 +1225,9 @@ write_packet:
                   player->playctrl_info.loop_flag, player->playctrl_info.search_flag,
                   player->playctrl_info.fast_forward, player->playctrl_info.fast_backward,
                   player->playctrl_info.reset_flag, player->playctrl_info.f_step);
-
+	
+	if ((player->playctrl_info.loop_flag < 0xffff) && (player->playctrl_info.loop_flag > 0))
+		player->playctrl_info.loop_flag--;
         exit_flag = (!player->playctrl_info.loop_flag)   &&
                     (!player->playctrl_info.search_flag) &&
                     (!player->playctrl_info.fast_forward) &&

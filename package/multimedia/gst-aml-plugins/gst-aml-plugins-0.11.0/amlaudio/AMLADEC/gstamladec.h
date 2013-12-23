@@ -100,6 +100,8 @@ struct _GstAmlAdec
   GstSegment segment;
   gboolean passthrough;
   GstCaps *tmpcaps;
+  GstTask * eos_task;
+  GStaticRecMutex eos_lock;
 };
 
 struct _GstAmlAdecClass

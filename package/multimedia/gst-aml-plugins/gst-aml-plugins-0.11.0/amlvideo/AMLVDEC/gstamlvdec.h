@@ -91,6 +91,8 @@ struct _GstAmlVdec
     void*         decHandle;        //for Mpeg2/TS
     AmlState eState;
     codec_para_t *pcodec;
+    GstTask * eos_task;
+    GStaticRecMutex eos_lock;
 };
 
 struct _GstAmlVdecClass 

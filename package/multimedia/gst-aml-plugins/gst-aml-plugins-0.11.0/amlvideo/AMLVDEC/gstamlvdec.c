@@ -68,7 +68,8 @@ static gboolean gst_amlvdec_setcaps (GstPad * pad, GstCaps * caps);
 static GstFlowReturn gst_amlvdec_chain (GstPad * pad, GstBuffer * buf);
 static GstStateChangeReturn gst_amlvdec_change_state (GstElement * element,GstStateChange transition);
 static void gst_amlvdec_finalize (GObject * object);
-
+static void start_eos_task (GstAmlVdec *amlvdec);
+static void stop_eos_task (GstAmlVdec *amlvdec);
 static void gst_amlvdec_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -175,6 +176,7 @@ gst_amlvdec_init (GstAmlVdec * amlvdec)
 
     amlvdec->pcodec = g_malloc(sizeof(codec_para_t));
     memset(amlvdec->pcodec, 0, sizeof(codec_para_t ));
+    amlvdec->eos_task = NULL;
   /* initialize the amlvdec acceleration */
 }
 
@@ -426,28 +428,50 @@ gst_amlvdec_chain (GstPad * pad, GstBuffer * buf)
     /* just push out the incoming buffer without touching it */
   //  return GST_FLOW_OK;
 }
-static void wait_for_render_end(GstAmlVdec *amlvdec)
+static void 
+	gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
 {
-    unsigned rp_move_count = 40,count=0;
     struct buf_status vbuf;
-    unsigned last_rp = 0;
-    int ret=1;	
-    do {
-	  if(count>2000)//avoid infinite loop
-	      break;	
-        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
-        if (ret != 0) {
-            g_print("codec_get_vbuf_state error: %x\n", -ret);
-            break;
-        }
-        if(last_rp != vbuf.read_pointer){
-            last_rp = vbuf.read_pointer;
-            rp_move_count = 40;
-        }else
-            rp_move_count--;        
-            usleep(1000*30);
-            count++;	
-    } while (vbuf.data_len > 0x100 && rp_move_count > 0);
+    
+    int ret = codec_get_vbuf_state (amlvdec->pcodec, &vbuf);
+    if (ret) {
+        g_print ("codec_get_vbuf_state error: %x\n", ret);
+        g_usleep (10 * 1000);
+        return;
+    }
+
+    if (vbuf.data_len < 0x1000) {
+        gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
+        gst_task_pause (amlvdec->eos_task);
+    } else {
+        g_usleep (10 * 1000);
+    }
+}
+
+static void
+	start_eos_task (GstAmlVdec *amlvdec)
+{
+    if (! amlvdec->eos_task) {
+        amlvdec->eos_task =
+            gst_task_create ((GstTaskFunction) gst_amlvdec_polling_eos, amlvdec);
+        g_static_rec_mutex_init (&amlvdec->eos_lock);
+        gst_task_set_lock (amlvdec->eos_task, &amlvdec->eos_lock);
+    }
+    gst_task_start (amlvdec->eos_task);
+}
+
+static void
+	stop_eos_task (GstAmlVdec *amlvdec)
+{
+    if (! amlvdec->eos_task)
+        return;
+    gst_task_stop (amlvdec->eos_task);
+    g_static_rec_mutex_lock (&amlvdec->eos_lock);
+    g_static_rec_mutex_unlock (&amlvdec->eos_lock);
+    gst_task_join (amlvdec->eos_task);
+    gst_object_unref (amlvdec->eos_task);
+    g_static_rec_mutex_free (&amlvdec->eos_lock);
+    amlvdec->eos_task = NULL;
 }
 
 gboolean amlvdec_forward_process(GstAmlVdec *amlvdec, 
@@ -498,7 +522,8 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
             GstFormat format;
             gdouble rate, arate;
             gint64 start, stop, time;
-
+						
+						stop_eos_task (amlvdec);
             gst_event_parse_new_segment_full (event, &update, &rate, &arate, &format, &start, &stop, &time);
 
             if (format != GST_FORMAT_TIME)
@@ -524,6 +549,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
 	  
         case GST_EVENT_FLUSH_STOP:
         {
+        		stop_eos_task (amlvdec);
             if(amlvdec->codec_init_ok){
                 gint res = -1;
                 res = codec_reset(amlvdec->pcodec);
@@ -540,11 +566,9 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
         case GST_EVENT_EOS:
             AML_DEBUG(amlvdec, "ge GST_EVENT_EOS,check for video end\n");
             if(amlvdec->codec_init_ok)	
-            {
-                wait_for_render_end(amlvdec);
-                amlvdec->is_eos = TRUE;
-            }	
-            ret = gst_pad_push_event (amlvdec->srcpad, event);
+							start_eos_task (amlvdec);
+            gst_event_unref (event);
+            ret = TRUE;
             break;
 		 
         default:
@@ -700,6 +724,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
           break;
 		  
         case GST_STATE_CHANGE_READY_TO_NULL:
+        		stop_eos_task (amlvdec);
             gst_amlvdec_stop(amlvdec);
             break;
 			

@@ -15,7 +15,6 @@
 #include <codec_type.h>
 #include <codec_error.h>
 
-
 int codec_init(codec_para_t *);
 int codec_close(codec_para_t *);
 void codec_audio_basic_init(void);
@@ -117,4 +116,5 @@ int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode);
 
 int codec_get_last_checkout_apts(codec_para_t* pcodec, unsigned long *apts);
 int codec_get_last_checkin_apts(codec_para_t* pcodec, unsigned long *apts);
+int codec_set_drmmode(codec_para_t *pcodec);
 #endif
