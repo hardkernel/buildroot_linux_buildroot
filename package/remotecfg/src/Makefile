@@ -16,6 +16,7 @@ clean:
 
 install:
 	cp -f remotecfg $(TARGET_DIR)/usr/bin/
+	cp -f remote.conf $(TARGET_DIR)/etc
 
 .PHONY: uninstall
 
