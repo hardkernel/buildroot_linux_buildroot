@@ -726,9 +726,9 @@ int main(int argc,char *argv[])
     property[0].property_type = ELEMENT_PROPERTY_TYPE_INT;
     property[0].property_name = "flags";
     if (opt->enable_visual){
-      property[0].value_int = 0x5f; /* default+native_video+buffering+visual */
+      property[0].value_int = 0x7f; /* default+native_video+buffering+visual */
     }else{
-      property[0].value_int = 0x57; /* default+native_video+buffering */
+      property[0].value_int = 0x77; /* default+native_video+buffering */
     }
     property[0].next = NULL;
     config.ele_properties = property;

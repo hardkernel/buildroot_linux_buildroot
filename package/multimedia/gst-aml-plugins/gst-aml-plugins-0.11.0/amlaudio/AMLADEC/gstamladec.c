@@ -75,7 +75,7 @@ static GstStaticPadTemplate amladec_sink_template_factory =
     GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("audio/mpeg; audio/x-ac3; audio/x-adpcm; audio/x-flac;audio/x-wma;audio/x-vorbis;audio/x-mulaw;audio/x-raw-int")
+    GST_STATIC_CAPS ("audio/mpeg; audio/x-eac3; audio/x-ac3; audio/x-adpcm; audio/x-flac; audio/x-wma; audio/x-vorbis; audio/x-mulaw; audio/x-raw-int")
     );
 static void gst_amladec_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -430,6 +430,8 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
         }		
     }else if (strcmp(name, "audio/x-ac3") == 0) {   	   
         amladec->pcodec->audio_type = AFORMAT_AC3;       	 	
+    }else if (strcmp(name, "audio/x-eac3") == 0) {   	   
+        amladec->pcodec->audio_type = AFORMAT_EAC3;
     }else if (strcmp(name, "audio/x-adpcm") == 0) {   	   
         amladec->pcodec->audio_type = AFORMAT_ADPCM;       	 	
     }else if (strcmp(name, "audio/x-flac") == 0) {   	   
@@ -623,7 +625,7 @@ static GstFlowReturn gst_amladec_chain (GstPad * pad, GstBuffer * buf)
     }	
 
     /* dummy asink, so we return here to avoid cap negociation with sink at present*/
-    return GST_FLOW_OK;//gst_pad_push (amladec->srcpad, buf);
+    return gst_pad_push (amladec->srcpad, buf);//GST_FLOW_OK;//
 }
 
 static gboolean gst_amladec_start (GstAmlAdec *amladec)
