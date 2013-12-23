@@ -56,6 +56,7 @@
 
 #define M_AUDIO_THREAD_DELAY_TIME					4000
 #define AUDIO_BUFFER_SIZE							19200
+#define M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD			25
 
 static int amAudio_InHandle = -1;
 static int amAudio_OutHandle = -1;
@@ -345,6 +346,7 @@ static void *amAudio_Thread(void *data)
 	int Ret = 0;
 	int Status = 0;
 	int read_size = 0;
+	int no_output_detect_count = M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD;
 	newDataCallback callback = (newDataCallback)data;
 	while (1)
 	{
@@ -363,7 +365,23 @@ static void *amAudio_Thread(void *data)
 			break;
 		}
 		else if(read_size > 0){
-			callback(amAudio_Out_BufAddr,read_size);
+			if (no_output_detect_count==M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD){
+				LOGI("new output data to capture.\n");
+				callback(amAudio_Out_BufAddr,read_size, AUDIO_CAPTURE_NEW_DATA);
+			}
+			else{
+				callback(amAudio_Out_BufAddr,read_size, 0);
+			}
+			no_output_detect_count = 0;
+		}
+		else{
+			if (no_output_detect_count<M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD){
+				no_output_detect_count++;
+				if (no_output_detect_count==M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD){
+					LOGI("no output data to capture.\n");
+					callback(NULL, 0, AUDIO_CAPTURE_NO_DATA);
+				}
+			}
 		}
 			
 		
@@ -407,6 +425,7 @@ static void *amAudio_Thread(void *data)
 	                                	&&(Output_buffer_status.status & BUFFER2_READY))
 						(*callback)(Output_buffer_status.user_read, AUDIO_BUFFER_SIZE);
 					else
+G
 						(*callback)(Output_buffer_status.user_read, AUDIO_BUFFER_SIZE/2);
 					Output_buffer_status.status = NODATA;
 				}
@@ -599,9 +618,17 @@ int amAudio_Get_Playback_Samplerate()
 }
 #ifdef SELF_TEST
 static FILE *pcm_dumpfile = NULL;
-void amAudio_Callback(unsigned char *buf, unsigned len)
+void amAudio_Callback(unsigned char *buf, unsigned len, int state_change)
 {
-	if (pcm_dumpfile){
+	if (state_change==AUDIO_CAPTURE_NO_DATA){
+		LOGD("============ no data! ============\n");
+		return;
+	}
+	else if (state_change==AUDIO_CAPTURE_NEW_DATA){
+		LOGD("============ new data! ============\n");
+		LOGD("======= sample rate:%d ======\n", amAudio_Get_Playback_Samplerate());
+	}
+	if (pcm_dumpfile && buf && len){
 		LOGD("write %x %x to file\n", buf, len);
 		fwrite(buf, len, 1, pcm_dumpfile);
 	}
@@ -612,7 +639,7 @@ int test_capture(char *filename)
 	pcm_dumpfile = fopen(filename,"wb");
 	amAudio_Init(&amAudio_Callback);
 	//while (1);
-	sleep(10);
+	sleep(100);
 	amAudio_Finish();
 	if (pcm_dumpfile)
 		fclose(pcm_dumpfile);
