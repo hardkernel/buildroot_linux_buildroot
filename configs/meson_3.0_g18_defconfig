@@ -185,3 +185,6 @@ BR2_PACKAGE_WIFI_FW=y
 BR2_PACKAGE_WIFI_CUSTOM_GIT_VERSION="jb-mr1-amlogic"
 BR2_PACKAGE_WIFI_FW_CUSTOM_GIT_REPO_URL="git://git.myamlogic.com/platform/hardware/amlogic/wifi.git"
 BR2_PACKAGE_MALI_UTILITY=y
+BR2_PACKAGE_AML_NAND=y
+BR2_PACKAGE_AML_NAND_VERSION="amlogic-nand"
+BR2_PACKAGE_AML_NAND_GIT_URL="git://git.myamlogic.com/platform/hardware/amlogic/nand.git"

@@ -56,3 +56,6 @@ BR2_PACKAGE_AML_CUSTOMER_GIT_URL="git://scgit.amlogic.com/kernel/customer"
 
 
 BR2_PACKAGE_DIRECTFB=y
+BR2_PACKAGE_AML_NAND=y
+BR2_PACKAGE_AML_NAND_VERSION="amlogic-nand"
+BR2_PACKAGE_AML_NAND_GIT_URL="git://git.myamlogic.com/platform/hardware/amlogic/nand.git"
