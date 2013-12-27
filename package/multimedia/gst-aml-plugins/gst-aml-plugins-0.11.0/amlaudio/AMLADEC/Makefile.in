@@ -96,7 +96,7 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstamladec_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	../../common/libgstamlsysctl.a
+	../../common/libcommon.a
 am_libgstamladec_la_OBJECTS = libgstamladec_la-gstamladec.lo \
 	libgstamladec_la-gstamlaudioheader.lo
 libgstamladec_la_OBJECTS = $(am_libgstamladec_la_OBJECTS)
@@ -268,8 +268,8 @@ plugin_LTLIBRARIES = libgstamladec.la
 libgstamladec_la_SOURCES = gstamladec.c gstamladec.h gstamlaudioheader.c gstamlaudioheader.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstamladec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl
-libgstamladec_la_LIBADD = $(GST_LIBS) ../../common/libgstamlsysctl.a
+libgstamladec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
+libgstamladec_la_LIBADD = $(GST_LIBS) ../../common/libcommon.a
 libgstamladec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamladec_la_LIBTOOLFLAGS = --tag=disable-static
 

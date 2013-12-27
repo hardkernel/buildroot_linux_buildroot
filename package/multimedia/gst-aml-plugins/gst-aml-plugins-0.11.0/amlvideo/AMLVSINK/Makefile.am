@@ -17,10 +17,10 @@ plugin_LTLIBRARIES = libgstamlvsink.la
 libgstamlvsink_la_SOURCES = gstamlvsink.c gstamlvsink.h amlvsink_prop.c amlvsink_prop.h rectangleInfo.c rectangleInfo.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstamlvsink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl
+libgstamlvsink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
 libgstamlvsink_la_LIBADD = $(GST_LIBS) 
 libgstamlvsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstamlvsink_la_LIBADD += ../../common/libgstamlsysctl.a
+libgstamlvsink_la_LIBADD += ../../common/libcommon.a
 libgstamlvsink_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed

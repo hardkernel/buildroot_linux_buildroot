@@ -50,6 +50,7 @@
 //#include <gst/video/video.h>
 #include  "gstamlsysctl.h"
 #include  "../../common/include/codec.h"
+#include "amlvideoinfo.h"
 
 G_BEGIN_DECLS
 
@@ -85,6 +86,7 @@ struct _GstAmlVdec
     gboolean is_eos;
     gboolean     silent;
     gint      prival;
+    AmlStreamInfo *info;
 
     gdouble      trickRate;           //for Mpeg2/TS
     gboolean    interlaced;         //for Mpeg2/TS

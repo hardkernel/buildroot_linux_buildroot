@@ -14,14 +14,14 @@ plugin_LTLIBRARIES = libgstamlvdec.la
 ##############################################################################
 
 # sources used to compile this plug-in
-libgstamlvdec_la_SOURCES = gstamlvdec.c gstamlvideoheader.c gstamlvideoheader.h gstamlvdec.h amlvdec_prop.c amlvdec_prop.h
+libgstamlvdec_la_SOURCES = gstamlvdec.c gstamlvdec.h amlvdec_prop.c amlvdec_prop.h amlvideoinfo.c
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstamlvdec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl
+libgstamlvdec_la_CFLAGS = $(GST_CFLAGS) -I ../../common/amlsysctl -I../../common/amstreaminfo
 libgstamlvdec_la_LIBADD = $(GST_LIBS)
-libgstamlvdec_la_LIBADD += ../../common/libgstamlsysctl.a
+libgstamlvdec_la_LIBADD += ../../common/libcommon.a
 libgstamlvdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamlvdec_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
-noinst_HEADERS = gstamlvdec.h gstamlvideoheader.h amlvdec_prop.h
+noinst_HEADERS = gstamlvdec.h amlvdec_prop.h

@@ -95,8 +95,10 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstamlasink_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_libgstamlasink_la_OBJECTS = libgstamlasink_la-gstamlasink.lo
+libgstamlasink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	../../common/libcommon.a
+am_libgstamlasink_la_OBJECTS = libgstamlasink_la-gstamlasink.lo \
+	libgstamlasink_la-amlasink_prop.lo
 libgstamlasink_la_OBJECTS = $(am_libgstamlasink_la_OBJECTS)
 libgstamlasink_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libgstamlasink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
@@ -263,16 +265,16 @@ plugin_LTLIBRARIES = libgstamlasink.la
 ##############################################################################
 
 # sources used to compile this plug-in
-libgstamlasink_la_SOURCES = gstamlasink.c gstamlasink.h 
+libgstamlasink_la_SOURCES = gstamlasink.c gstamlasink.h amlasink_prop.c amlasink_prop.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstamlasink_la_CFLAGS = $(GST_CFLAGS)
-libgstamlasink_la_LIBADD = $(GST_LIBS)
+libgstamlasink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
+libgstamlasink_la_LIBADD = $(GST_LIBS) ../../common/libcommon.a
 libgstamlasink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamlasink_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
-noinst_HEADERS = gstamlasink.h 
+noinst_HEADERS = gstamlasink.h amlasink_prop.h
 all: all-am
 
 .SUFFIXES:
@@ -348,6 +350,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstamlasink_la-amlasink_prop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstamlasink_la-gstamlasink.Plo@am__quote@
 
 .c.o:
@@ -377,6 +380,13 @@ libgstamlasink_la-gstamlasink.lo: gstamlasink.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gstamlasink.c' object='libgstamlasink_la-gstamlasink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(libgstamlasink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamlasink_la_CFLAGS) $(CFLAGS) -c -o libgstamlasink_la-gstamlasink.lo `test -f 'gstamlasink.c' || echo '$(srcdir)/'`gstamlasink.c
+
+libgstamlasink_la-amlasink_prop.lo: amlasink_prop.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(libgstamlasink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamlasink_la_CFLAGS) $(CFLAGS) -MT libgstamlasink_la-amlasink_prop.lo -MD -MP -MF $(DEPDIR)/libgstamlasink_la-amlasink_prop.Tpo -c -o libgstamlasink_la-amlasink_prop.lo `test -f 'amlasink_prop.c' || echo '$(srcdir)/'`amlasink_prop.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libgstamlasink_la-amlasink_prop.Tpo $(DEPDIR)/libgstamlasink_la-amlasink_prop.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='amlasink_prop.c' object='libgstamlasink_la-amlasink_prop.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(libgstamlasink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamlasink_la_CFLAGS) $(CFLAGS) -c -o libgstamlasink_la-amlasink_prop.lo `test -f 'amlasink_prop.c' || echo '$(srcdir)/'`amlasink_prop.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

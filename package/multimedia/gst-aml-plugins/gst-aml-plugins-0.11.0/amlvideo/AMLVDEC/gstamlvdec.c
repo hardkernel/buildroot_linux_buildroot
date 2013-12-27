@@ -25,7 +25,7 @@
 #include <inttypes.h>
 
 #include "gstamlvdec.h"
-#include  "gstamlvideoheader.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -39,7 +39,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "amlvdec_prop.h"
-
+#include "amlvideoinfo.h"
 
 
 GST_DEBUG_CATEGORY_STATIC (amlvdec_debug);
@@ -186,6 +186,11 @@ gst_amlvdec_finalize (GObject * object)
     GstAmlVdec *amlvdec = GST_AMLVDEC(object);
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
+    AmlStreamInfo *videoinfo = amlvdec->info;
+    if(videoinfo->finalize){
+        videoinfo->finalize(videoinfo);
+        amlvdec->info = NULL;
+    }
     if(amlvdec->pcodec){
         g_free(amlvdec->pcodec);
         amlvdec->pcodec = NULL;
@@ -196,36 +201,6 @@ gst_amlvdec_finalize (GObject * object)
     G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
-static gboolean gst_aml_parse_caps(GstAmlVdec  *amlvdec,GstStructure * structure)
- {
-    gint32 frame_width=0,frame_height=0;
-    gint32 value_numerator=0,value_denominator=0;
-    GValue *codec_data_buf = NULL; 
-    gst_structure_get_int(structure, "width",&frame_width);
-    gst_structure_get_int(structure, "height",&frame_height);
-    gst_structure_get_fraction(structure, "framerate",&value_numerator,&value_denominator);
-
-    codec_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data"); 	
-    if (NULL != codec_data_buf) {
-        guint8 *hdrextdata;
-        gint i;
-        amlvdec->codec_data = gst_value_get_buffer(codec_data_buf);   
-        amlvdec->codec_data_len = GST_BUFFER_SIZE(amlvdec->codec_data);
-        AML_DEBUG(amlvdec, "\n>> decoder: AVC Codec specific data length is %d\n",amlvdec->codec_data_len);
-        AML_DEBUG(amlvdec, "AVC codec data is \n");
-        hdrextdata = GST_BUFFER_DATA(amlvdec->codec_data);
-        for(i=0;i<amlvdec->codec_data_len;i++)
-            AML_DEBUG(amlvdec, "%x ",hdrextdata[i]);
-        AML_DEBUG(amlvdec, "\n");
-    }
-		
-    amlvdec->pcodec->am_sysinfo.height = frame_height;
-    amlvdec->pcodec->am_sysinfo.width = frame_width;
-    if(value_numerator>0)		
-        amlvdec->pcodec->am_sysinfo.rate = 96000*value_denominator/value_numerator;
-        AML_DEBUG(amlvdec, " Frame Width =%d,Height=%d,rate=%d\n", amlvdec->pcodec->am_sysinfo.width, frame_height,amlvdec->pcodec->am_sysinfo.rate);
-    return TRUE;		
-}
 static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
 {    
     GstStructure  *structure;
@@ -233,76 +208,18 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
     gint32 ret = CODEC_ERROR_NONE;
     gint32 mpegversion,msmpegversion;
     GValue *codec_data_buf = NULL; 
+    AmlStreamInfo *videoinfo = NULL;
 	
     structure = gst_caps_get_structure (caps, 0);
-    name=gst_structure_get_name (structure); 
-    AML_DEBUG(amlvdec, "here caps name =%s,\n",name); 
+    name = gst_structure_get_name (structure); 
+    g_print("here caps name =%s,\n",name); 
     
-    if (strcmp(name, "video/x-h264") == 0) {
-        amlvdec->pcodec->video_type = VFORMAT_H264;
-        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H264;
-        amlvdec->pcodec->am_sysinfo.param = (void *)( EXTERNAL_PTS);
-        gst_aml_parse_caps(amlvdec,structure);
-
-    }else if (strcmp(name, "video/mpeg") == 0) {
-        gint mpegversion; 	
-        gst_structure_get_int (structure, "mpegversion", &mpegversion);
-        AML_DEBUG(amlvdec, "here mpegversion =%d\n",mpegversion);
-        if (mpegversion==2||mpegversion==1) {
-            amlvdec->pcodec->video_type = VFORMAT_MPEG12;
-            amlvdec->pcodec->am_sysinfo.format = 0;
-        }else if (mpegversion==4){
-            amlvdec->pcodec->video_type = VFORMAT_MPEG4;
-            amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
-            gst_aml_parse_caps(amlvdec,structure);
-       }			
-    }else if (strcmp(name, "video/x-msmpeg") == 0) {
-        gst_structure_get_int (structure, "msmpegversion", &msmpegversion);
-        if (msmpegversion==43){			
-            amlvdec->pcodec->video_type = VFORMAT_MPEG4;
-            amlvdec->pcodec->am_sysinfo.format = VFORMAT_MPEG4;
-        }
-    }else if (strcmp(name, "video/x-h263") == 0) {        
-        amlvdec->pcodec->video_type = VFORMAT_MPEG4;
-        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H263;        
-    }else if (strcmp(name, "video/x-jpeg") == 0) {        
-        amlvdec->pcodec->video_type = VFORMAT_MJPEG;
-        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MJPEG;        
-    }else if (strcmp(name, "video/x-wmv") == 0) { 
-        gint wmvversion;
-        guint32 format;        
-        gst_structure_get_int(structure, "wmvversion", &wmvversion);
-        format=gst_structure_get_fourcc(structure, "format", &format);
-        if(format){		
-            if (format == GST_MAKE_FOURCC ('W', 'V', 'C', '1')) {
-                amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_WVC1;
-                gst_aml_parse_caps(amlvdec,structure);
-            }else if(format == GST_MAKE_FOURCC ('W', 'V', 'C', '3')||format == GST_MAKE_FOURCC ('W', 'M', 'v', '3')){
-                amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_WMV3;
-                gst_aml_parse_caps(amlvdec,structure);
-            }
-        }		
-    }else if (strcmp(name, "video/x-divx") == 0) { 
-        gint divxversion;
-        amlvdec->pcodec->video_type = VFORMAT_MPEG4;		
-        gst_structure_get_int(structure, "divxversion", &divxversion);
-        if(divxversion==3)
-            amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
-        if(divxversion==4)
-            amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_4; 
-        if(divxversion==5)
-            amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5; 
-        gst_aml_parse_caps(amlvdec,structure);     
-          
-    }else if (strcmp(name, "video/x-xvid") == 0) { 
-
-        amlvdec->pcodec->video_type = VFORMAT_MPEG4;		
-        amlvdec->pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5; 
-	  gst_aml_parse_caps(amlvdec,structure);   	 
-    }else {
-        g_print("unsupport video format, %s",name);
-        return FALSE;	
+    videoinfo = amlStreamInfoInterface(name);
+    if(NULL == name){
+        return FALSE;
     }
+    amlvdec->info = videoinfo;
+    videoinfo->init(videoinfo, amlvdec->pcodec, structure);
     if (amlvdec->pcodec&&amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO) { 
         AML_DEBUG(amlvdec, "pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
         if(!amlvdec->codec_init_ok){
@@ -336,7 +253,8 @@ gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
     GstClockTime timestamp,pts;
     struct buf_status vbuf;
     GstCaps * caps = NULL;
-
+    AmlStreamInfo *videoinfo = amlvdec->info;
+    
     if (!amlvdec->codec_init_ok){
         caps = GST_BUFFER_CAPS (buf);
         if (caps)		
@@ -355,11 +273,16 @@ gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
 		
         timestamp = GST_BUFFER_TIMESTAMP (buf);
         pts=timestamp*9LL/100000LL+1L;        
-        if(!amlvdec->is_headerfeed&&amlvdec->codec_data_len){ 	
-            videopre_header_feeding(amlvdec->pcodec,amlvdec,&buf);
+        if(!amlvdec->is_headerfeed){
+            if(videoinfo->writeheader){
+                videoinfo->writeheader(videoinfo, amlvdec->pcodec);
+            }
             amlvdec->is_headerfeed=TRUE;   
-        }else if(VFORMAT_H264 == amlvdec->pcodec->video_type) 
-            h264_update_frame_header(&buf);
+        }
+
+        if(videoinfo->add_startcode){
+            videoinfo->add_startcode(videoinfo, amlvdec->pcodec, buf);
+        }
 		
         data = GST_BUFFER_DATA (buf);
         size = GST_BUFFER_SIZE (buf);
