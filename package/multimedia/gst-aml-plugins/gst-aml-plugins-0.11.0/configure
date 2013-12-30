@@ -11505,7 +11505,7 @@ else
 $as_echo "yes" >&6; }
 
 
-  GST_LIBS="$GST_LIBS -L\$(STAGING_DIR)\$(libdir)/aml_libs -lamcodec -ldl -lamadec -lasound -lamavutils"
+  GST_LIBS="$GST_LIBS -L\$(STAGING_DIR)\$(libdir)/aml_libs -lgstamcodec -ldl -lgstamadec -lasound -lgstamavutils"
 
 
 fi

@@ -4,7 +4,7 @@ HEADERS_DIR?=$(M_PREFIX)/include
 
 TARGET_OBJS=amaudioutils.o amconfigutils.o amdisplayutils.o ammodule.o amsysfsutils.o amutils_common.o Amvideoutils.o itemlist.o\
 
-TARGET=libamavutils.so
+TARGET=libgstamavutils.so
 
 INSTALL_DIR=${LIB_DIR}/aml_libs
 
