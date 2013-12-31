@@ -351,24 +351,31 @@ gst_amlvdec_chain (GstPad * pad, GstBuffer * buf)
     /* just push out the incoming buffer without touching it */
   //  return GST_FLOW_OK;
 }
-static void 
-	gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
+static void gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
 {
+    unsigned rp_move_count = 40,count=0;
     struct buf_status vbuf;
-    
-    int ret = codec_get_vbuf_state (amlvdec->pcodec, &vbuf);
-    if (ret) {
-        g_print ("codec_get_vbuf_state error: %x\n", ret);
-        g_usleep (10 * 1000);
-        return;
-    }
+    unsigned last_rp = 0;
+    int ret=1;	
+    do {
+	  if(count>2000)//avoid infinite loop
+	      break;	
+        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
+        if (ret != 0) {
+            g_print("codec_get_vbuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != vbuf.read_pointer){
+            last_rp = vbuf.read_pointer;
+            rp_move_count = 40;
+        }else
+            rp_move_count--;        
+            usleep(1000*30);
+            count++;	
+    } while (vbuf.data_len > 0x100 && rp_move_count > 0);
+    gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
+    gst_task_pause (amlvdec->eos_task);
 
-    if (vbuf.data_len < 0x1000) {
-        gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
-        gst_task_pause (amlvdec->eos_task);
-    } else {
-        g_usleep (10 * 1000);
-    }
 }
 
 static void

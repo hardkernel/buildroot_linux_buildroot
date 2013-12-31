@@ -299,21 +299,29 @@ static gboolean amladec_forward_process (GstAmlAdec *amladec,
 
 static void gst_amladec_polling_eos (GstAmlAdec *amladec)  
 {
+    unsigned rp_move_count = 40,count=0;
+    unsigned last_rp = 0;
     struct buf_status abuf;
+    int ret=1;	
+    do {
+        if(count>2000)//avoid infinite loop
+	          break;	
+        ret = codec_get_abuf_state (amladec->pcodec, &abuf);
+        if (ret != 0) {
+            g_print("codec_get_abuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != abuf.read_pointer){
+            last_rp = abuf.read_pointer;
+            rp_move_count = 40;
+        }else
+           rp_move_count--;        
+        usleep(1000*30);
+        count++;	
+    } while (abuf.data_len > 0x100 && rp_move_count > 0);
+    gst_pad_push_event (amladec->srcpad, gst_event_new_eos ());
+    gst_task_pause (amladec->eos_task);
 
-    int ret = codec_get_abuf_state (amladec->pcodec, &abuf);
-    if (ret) {
-        g_print ("codec_get_abuf_state error: %x\n", ret);
-        g_usleep (10 * 1000);
-        return;
-    }
-
-    if (abuf.data_len < 0x400) {
-        gst_pad_push_event (amladec->srcpad, gst_event_new_eos ());
-        gst_task_pause (amladec->eos_task);
-    } else {
-        g_usleep (10 * 1000);
-    }
 }
 
 static void
