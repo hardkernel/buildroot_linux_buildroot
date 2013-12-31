@@ -58,7 +58,7 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
     AmlVideoInfo *video = AML_VIDEOINFO_BASE(info);
     gint32 numerator=0;
     gint32 denominator=0;
-    GValue * data = NULL;
+    GValue * data_buf = NULL;
     gst_structure_get_int(structure, "width",&video->width);
     gst_structure_get_int(structure, "height",&video->height);
     gst_structure_get_fraction(structure, "framerate",&numerator,&denominator);
@@ -66,15 +66,15 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
         video->framerate = 96000 * denominator / numerator;
     }
     
-    data = (GValue *) gst_structure_get_value(structure, "codec_data"); 
-    if(data){
-        info->configdata = gst_value_get_buffer(data);
+    data_buf = (GValue *) gst_structure_get_value(structure, "codec_data"); 
+    if(data_buf){
+        info->configdata = gst_value_get_buffer(data_buf);
     }
     pcodec->am_sysinfo.height = video->height;
     pcodec->am_sysinfo.width = video->width;
     pcodec->am_sysinfo.rate = video->framerate;
     g_print("[%s:%d]width=%d height=%d framerate=%d codec_data=%p\n", 
-        __FUNCTION__, __LINE__, video->width, video->height, video->framerate, data);
+        __FUNCTION__, __LINE__, video->width, video->height, video->framerate, data_buf);
     return 0;
 }
 
@@ -394,6 +394,158 @@ AmlStreamInfo *newAmlInfoJpeg()
     return info;
 }
 
+static int wmv3_add_startcode(AmlStreamInfo* info, codec_para_t *vpcodec, GstBuffer *buf)
+{
+    unsigned i, check_sum = 0;
+    guint32 data_len = GST_BUFFER_SIZE(info->configdata) + 4;
+    GstBuffer *hdrBuf=NULL;
+    char *bufout = NULL;
+    int data_size = GST_BUFFER_SIZE(buf);
+    if(NULL == info->configdata){
+        g_print("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
+        return 0;
+    }
+    hdrBuf = gst_buffer_new_and_alloc(26);
+    bufout = GST_BUFFER_DATA(hdrBuf);
+    bufout[0] = 0;
+    bufout[1] = 0;
+    bufout[2] = 1;
+    bufout[3] = 0x10;
+
+    bufout[4] = 0;
+    bufout[5] = (data_len >> 16) & 0xff;
+    bufout[6] = 0x88;
+    bufout[7] = (data_len >> 8) & 0xff;
+    bufout[8] = data_len & 0xff;
+    bufout[9] = 0x88;
+
+    bufout[10] = 0xff;
+    bufout[11] = 0xff;
+    bufout[12] = 0x88;
+    bufout[13] = 0xff;
+    bufout[14] = 0xff;
+    bufout[15] = 0x88;
+
+    for (i = 4 ; i < 16 ; i++) {
+        check_sum += bufout[i];
+    }
+
+    bufout[16] = (check_sum >> 8) & 0xff;
+    bufout[17] = check_sum & 0xff;
+    bufout[18] = 0x88;
+    bufout[19] = (check_sum >> 8) & 0xff;
+    bufout[20] = check_sum & 0xff;
+    bufout[21] = 0x88;
+
+    bufout[22] = (vpcodec->am_sysinfo.width >> 8) & 0xff;
+    bufout[23] = vpcodec->am_sysinfo.width & 0xff;
+    bufout[24] = (vpcodec->am_sysinfo.height >> 8) & 0xff;
+    bufout[25] = vpcodec->am_sysinfo.height & 0xff;  
+	
+    hdrBuf = gst_buffer_merge(hdrBuf,info->configdata);	 
+    GST_BUFFER_SIZE(hdrBuf) = data_len + 26-4;
+    codec_write(vpcodec,GST_BUFFER_DATA(hdrBuf),GST_BUFFER_SIZE(hdrBuf));
+
+    if(hdrBuf)	
+        gst_buffer_unref(hdrBuf);
+    check_sum = 0;
+    hdrBuf = gst_buffer_new_and_alloc(22);
+    bufout = GST_BUFFER_DATA(hdrBuf);	
+    bufout[0] = 0;
+    bufout[1] = 0;
+    bufout[2] = 1;
+    bufout[3] = 0xd;
+
+    bufout[4] = 0;
+    bufout[5] = (data_size >> 16) & 0xff;
+    bufout[6] = 0x88;
+    bufout[7] = (data_size >> 8) & 0xff;
+    bufout[8] = data_size & 0xff;
+    bufout[9] = 0x88;
+
+    bufout[10] = 0xff;
+    bufout[11] = 0xff;
+    bufout[12] = 0x88;
+    bufout[13] = 0xff;
+    bufout[14] = 0xff;
+    bufout[15] = 0x88;
+
+    for (i = 4 ; i <  16 ; i++) {
+        check_sum +=  bufout[i];
+    }
+
+    bufout[16] = (check_sum >> 8) & 0xff;
+    bufout[17] = check_sum & 0xff;
+    bufout[18] = 0x88;
+    bufout[19] = (check_sum >> 8) & 0xff;
+    bufout[20] = check_sum & 0xff;
+    bufout[21] = 0x88;
+    codec_write(vpcodec,GST_BUFFER_DATA(hdrBuf),22);
+
+    if(hdrBuf)	
+        gst_buffer_unref(hdrBuf);
+    bufout = NULL;
+
+}
+static int wmv3_write_header(AmlStreamInfo* info, codec_para_t *vpcodec)
+{
+    unsigned i, check_sum = 0;
+    guint32 data_len = GST_BUFFER_SIZE(info->configdata) + 4;
+    GstBuffer *hdrBuf=NULL;
+    unsigned char *bufout = NULL;  
+    if(NULL == info->configdata){
+        g_print("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
+        return 0;
+    }
+
+    hdrBuf = gst_buffer_new_and_alloc(26);
+    bufout = GST_BUFFER_DATA(hdrBuf);
+
+    bufout[0] = 0;
+    bufout[1] = 0;
+    bufout[2] = 1;
+    bufout[3] = 0x10;
+
+    bufout[4] = 0;
+    bufout[5] = (data_len >> 16) & 0xff;
+    bufout[6] = 0x88;
+    bufout[7] = (data_len >> 8) & 0xff;
+    bufout[8] = data_len & 0xff;
+    bufout[9] = 0x88;
+
+    bufout[10] = 0xff;
+    bufout[11] = 0xff;
+    bufout[12] = 0x88;
+    bufout[13] = 0xff;
+    bufout[14] = 0xff;
+    bufout[15] = 0x88;
+
+    for (i = 4 ; i < 16 ; i++) {
+        check_sum += bufout[i];
+    }
+
+    bufout[16] = (check_sum >> 8) & 0xff;
+    bufout[17] = check_sum & 0xff;
+    bufout[18] = 0x88;
+    bufout[19] = (check_sum >> 8) & 0xff;
+    bufout[20] = check_sum & 0xff;
+    bufout[21] = 0x88;
+
+    bufout[22] = (vpcodec->am_sysinfo.width >> 8) & 0xff;
+    bufout[23] = vpcodec->am_sysinfo.width & 0xff;
+    bufout[24] = (vpcodec->am_sysinfo.height >> 8) & 0xff;
+    bufout[25] = vpcodec->am_sysinfo.height & 0xff;
+
+    hdrBuf = gst_buffer_merge(hdrBuf,info->configdata);	 
+    GST_BUFFER_SIZE(hdrBuf) = data_len + 26-4;
+	
+    codec_write(vpcodec,GST_BUFFER_DATA(hdrBuf),GST_BUFFER_SIZE(hdrBuf));
+
+    if(hdrBuf)	
+        gst_buffer_unref(hdrBuf);
+    return 0;
+}
+
 gint amlInitWmv(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 {   
     AmlInfoWmv *wmv = (AmlInfoWmv *)info;
@@ -401,14 +553,16 @@ gint amlInitWmv(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struct
     guint32 format;        
     gst_structure_get_int(structure, "wmvversion", &version);
     wmv->version = version;
-    format = gst_structure_get_fourcc(structure, "format", &format);
+    gst_structure_get_fourcc(structure, "format", &format);
+    pcodec->video_type = VFORMAT_VC1;
     switch(format){
         case GST_MAKE_FOURCC ('W', 'V', 'C', '1'):
             pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_WVC1;
             break;
         case GST_MAKE_FOURCC ('W', 'V', 'C', '3'):
-        case GST_MAKE_FOURCC ('W', 'M', 'v', '3'):
+        case GST_MAKE_FOURCC ('W', 'M', 'V', '3'):
             pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_WMV3;
+            info->add_startcode = wmv3_add_startcode;
             break;
         default:break;
     }
@@ -416,7 +570,6 @@ gint amlInitWmv(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struct
 
     return 0;
 }
-
 AmlStreamInfo *newAmlInfoWmv()
 {
     AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoWmv));
@@ -424,36 +577,9 @@ AmlStreamInfo *newAmlInfoWmv()
     info->writeheader = NULL;
     return info;
 }
-
-gint amlInitDivx(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
-{   
-    AmlInfoDivx *divx = (AmlInfoDivx *)info;
-    gint version;
-    pcodec->video_type = VFORMAT_MPEG4;	
-    
-    gst_structure_get_int(structure, "divxversion", &version);
-    divx->version = version;
-
-    switch(version){
-        case 3:
-            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
-            break;
-        case 4:
-            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_4;
-            break;
-        case 5:
-            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
-            break;
-        default:break;
-    }
-    amlVideoInfoInit(info, pcodec, structure);
-
-    return 0;
-}
-
 static int divx3_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
 {
-    unsigned i = (pcodec->am_sysinfo.width<< 12) | (pcodec->am_sysinfo.height & 0xfff);
+   unsigned i = (pcodec->am_sysinfo.width<< 12) | (pcodec->am_sysinfo.height & 0xfff);
     unsigned char divx311_add[10] = {
         0x00, 0x00, 0x00, 0x01,
         0x20, 0x00, 0x00, 0x00,
@@ -482,12 +608,40 @@ static gint divx3_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBu
     return 0;
 }
 
+gint amlInitDivx(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{   
+    AmlInfoDivx *divx = (AmlInfoDivx *)info;
+    gint version;
+    pcodec->video_type = VFORMAT_MPEG4;	
+    
+    gst_structure_get_int(structure, "divxversion", &version);
+    divx->version = version;
+
+    switch(version){
+        case 3:
+            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
+            info->writeheader = divx3_write_header;
+            info->add_startcode = divx3_add_startcode;
+            break;
+        case 4:
+            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_4;
+            break;
+        case 5:
+            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
+            break;
+        default:break;
+    }
+    amlVideoInfoInit(info, pcodec, structure);
+
+    return 0;
+}
+
 AmlStreamInfo *newAmlInfoDivx()
 {
     AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoDivx));
     info->init = amlInitDivx;
-    info->writeheader = divx3_write_header;
-    info->add_startcode = divx3_add_startcode;
+    info->writeheader = NULL;
+    info->add_startcode = NULL;
 
     return info;
 }

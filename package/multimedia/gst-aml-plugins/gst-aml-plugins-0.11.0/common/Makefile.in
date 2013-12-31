@@ -97,8 +97,8 @@ LIBRARIES = $(lib_LIBRARIES)
 ARFLAGS = cru
 libcommon_a_AR = $(AR) $(ARFLAGS)
 libcommon_a_LIBADD =
-am_libcommon_a_OBJECTS =  \
-	libcommon_a-common.$(OBJEXT)
+am_libcommon_a_OBJECTS = libcommon_a-gstamlsysctl.$(OBJEXT) \
+	libcommon_a-amlstreaminfo.$(OBJEXT)
 libcommon_a_OBJECTS = $(am_libcommon_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -265,12 +265,6 @@ libcommon_a_SOURCES = amlsysctl/gstamlsysctl.c amlsysctl/gstamlsysctl.h amstream
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
 libcommon_a_CFLAGS = $(GST_CFLAGS)
-#libgstamlsysctl_a_LIBADD = $(GST_LIBS)
-#libgstamlsysctl_a_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-#libgstamlsysctl_a_LDFLAGS = -avoid-version  -no-undefined $(LDFLAGS_NOUNDEFINED)
-#libgstamlsysctl_a_LIBTOOLFLAGS = --tag=disable-static
-#libgstamlsysctl_include_HEADERS = amlsysctl/gstamlsysctl.h
-# headers we need but don't want installed
 noinst_HEADERS = amlsysctl/gstamlsysctl.h amstreaminfo/amlstreaminfo.h
 all: all-am
 
@@ -348,8 +342,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-gstamlsysctl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-amlstreaminfo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-gstamlsysctl.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -399,6 +393,7 @@ libcommon_a-amlstreaminfo.obj: amstreaminfo/amlstreaminfo.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='amstreaminfo/amlstreaminfo.c' object='libcommon_a-amlstreaminfo.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcommon_a_CFLAGS) $(CFLAGS) -c -o libcommon_a-amlstreaminfo.obj `if test -f 'amstreaminfo/amlstreaminfo.c'; then $(CYGPATH_W) 'amstreaminfo/amlstreaminfo.c'; else $(CYGPATH_W) '$(srcdir)/amstreaminfo/amlstreaminfo.c'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 

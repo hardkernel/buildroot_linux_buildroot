@@ -94,7 +94,7 @@ enum
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("ANY")
+    GST_STATIC_CAPS ("video/x-raw-yuv; video/x-xvid; video/x-divx; video/x-h264; video/mpeg; video/x-msmpeg; video/x-h263; video/x-jpeg; video/x-wmv")
     );
 
 GST_BOILERPLATE (GstAmlVsink, gst_amlvsink, GstBaseSink ,GST_TYPE_BASE_SINK);
