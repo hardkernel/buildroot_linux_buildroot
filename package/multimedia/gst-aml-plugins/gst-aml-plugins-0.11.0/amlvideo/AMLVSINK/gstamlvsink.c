@@ -334,7 +334,7 @@ amlvsink_init (GstPlugin * amlvsink)
     GST_DEBUG_CATEGORY_INIT (gst_amlvsink_debug, "amlvsink",
         0, "Template amlvsink");
   
-    return gst_element_register (amlvsink, "amlvsink", GST_RANK_PRIMARY-1,
+    return gst_element_register (amlvsink, "amlvsink", GST_RANK_PRIMARY,
         GST_TYPE_AMLVSINK);
 }
 

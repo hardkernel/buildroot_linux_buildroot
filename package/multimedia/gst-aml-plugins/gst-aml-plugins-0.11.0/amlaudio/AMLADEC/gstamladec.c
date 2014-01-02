@@ -511,7 +511,10 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     }else if (strcmp(name, "audio/x-vorbis") == 0) {   	   
         amladec->pcodec->audio_type = AFORMAT_VORBIS;       	 	
     }else if (strcmp(name, "audio/x-mulaw") == 0) {   	   
-        amladec->pcodec->audio_type = AFORMAT_MULAW;       	 	
+       // amladec->pcodec->audio_type = AFORMAT_MULAW;   
+        amladec->pcodec->audio_type = AFORMAT_ADPCM;  //we use adpcm now
+        gst_structure_get_int (structure, "rate", &amladec->sample_rate);
+        gst_structure_get_int (structure, "channels", &amladec->channels);
     }else if (strcmp(name, "audio/x-raw-int") == 0) {
         gint endianness,depth;
         gboolean getsigned;
@@ -554,7 +557,8 @@ static gboolean gst_amladec_set_caps (GstPad * pad, GstCaps * caps)
         gst_set_astream_info (amladec, amladec->tmpcaps); 
     }		
     gst_object_unref (amladec);	
-    return gst_pad_set_caps (otherpad, caps);
+    return TRUE;
+  //  return gst_pad_set_caps (otherpad, caps);
 }
 
 static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer * buf)
@@ -762,7 +766,7 @@ static gboolean plugin_init (GstPlugin * plugin)
     GST_DEBUG_CATEGORY_INIT (gst_amladec_debug, "amladec", 0, "amladec decoding");  
     amlcontrol = g_malloc(sizeof(struct AmlControl));
     memset(amlcontrol, 0, sizeof(struct AmlControl));
-    return gst_element_register (plugin, "amladec", GST_RANK_PRIMARY,gst_amladec_get_type ());
+    return gst_element_register (plugin, "amladec", GST_RANK_PRIMARY+1,gst_amladec_get_type ());
 }
 
 GST_PLUGIN_DEFINE (

@@ -669,7 +669,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-    if (!gst_element_register (plugin, "amlvdec", GST_RANK_PRIMARY,
+    if (!gst_element_register (plugin, "amlvdec", GST_RANK_PRIMARY+1,
             GST_TYPE_AMLVDEC))
       return FALSE;
   
