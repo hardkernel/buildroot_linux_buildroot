@@ -1,7 +1,47 @@
 #!/bin/sh
-# devtmpfs does not get automounted for initramfs
+#Mount things needed by this script
+/bin/mount -t proc proc /proc
+/bin/mount -t sysfs sysfs /sys
 /bin/mount -t devtmpfs devtmpfs /dev
-exec 0</dev/console
-exec 1>/dev/console
-exec 2>/dev/console
-exec /sbin/init $*
+
+#Create device nodes
+mdev -s
+
+#insert our precious NFTL
+modprobe aml_nftl_dev
+
+#Function for parsing command line options with "=" in them
+# get_opt("init=/sbin/init") will return "/sbin/init"
+get_opt() {
+    echo "$@" | cut -d "=" -f 2
+}
+
+#Defaults
+init="/init2"
+root="/dev/cardblksd1"
+
+#Process command line options
+for i in $(cat /proc/cmdline); do
+    case $i in
+        root\=*)
+            root=$(get_opt $i)
+            ;;
+    esac
+done
+
+#Mount the root device
+mount "${root}" /mnt
+
+#Check if $init exists and is executable
+if [[ -x "/mnt/${init}" ]] ; then
+    #Unmount all other mounts so that the ram used by
+    #the initramfs can be cleared after switch_root
+    umount /sys /proc /dev
+
+    #Switch to the new root and execute init
+    exec chroot /mnt "${init}"
+fi
+
+#This will only be run if the exec above failed
+echo "Failed to switch_root, dropping to a shell"
+exec sh

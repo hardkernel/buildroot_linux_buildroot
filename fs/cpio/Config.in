@@ -45,5 +45,11 @@ config BR2_TARGET_ROOTFS_CPIO_XZ
 	help
 	  Do compress the cpio filesystem with xz.
 
+config BR2_TARGET_ROOTFS_INITRAMFS_LIST
+    string "initramfs_list"
+    depends on BR2_TARGET_ROOTFS_CPIO
+    help
+        location to load initramfs list
+
 endchoice
 
