@@ -87,7 +87,7 @@ static gboolean gst_amladec_start (GstAmlAdec *amladec);
 static gboolean gst_amladec_stop (GstAmlAdec *amladec);
 static gboolean gst_amladec_sink_event (GstPad * pad, GstEvent * event);
 static GstFlowReturn gst_amladec_chain (GstPad * pad, GstBuffer * buffer);
-static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer *buffer);
+static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer *buffer);
 static GstStateChangeReturn gst_amladec_change_state (GstElement * element,
     GstStateChange transition);
 static void gst_amladec_finalize (GObject * object);
@@ -561,8 +561,9 @@ static gboolean gst_amladec_set_caps (GstPad * pad, GstCaps * caps)
   //  return gst_pad_set_caps (otherpad, caps);
 }
 
-static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer * buf)
+static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
 { 
+    GstAmlAdecClass *amlclass = GST_AMLADEC_GET_CLASS (amladec); 
     guint8 *data;
     guint size;
     gint written;
@@ -615,9 +616,17 @@ static GstFlowReturn gst_amladec_render (GstAmlAdec *amladec, GstBuffer * buf)
     
         /* check for errors */
         if (G_UNLIKELY (written < 0)) {
+            if(amladec->is_paused){
+                return GST_FLOW_OK;    
+            } 
             /* try to write again on non-fatal errors */
-            if (errno == EAGAIN || errno == EINTR)
+            if (errno == EAGAIN || errno == EINTR){
+                g_mutex_unlock(&amlclass->lock);
+                usleep(20000);
+                g_mutex_lock(&amlclass->lock);
                 goto again;
+            }
+                
             /* else go to our error handler */
             goto write_error;
         }
@@ -658,7 +667,7 @@ static GstFlowReturn gst_amladec_chain (GstPad * pad, GstBuffer * buf)
     amladec = GST_AMLADEC (GST_OBJECT_PARENT (pad));
 
     if (amladec->silent == FALSE && amladec->eState == AmlStateNormal){  	
-        gst_amladec_render (amladec, buf);	
+        gst_amladec_decode (amladec, buf);	
     }	
 
     /* dummy asink, so we return here to avoid cap negociation with sink at present*/
@@ -716,7 +725,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
     amladec = GST_AMLADEC (element);
     GstAmlAdecClass *amlclass = GST_AMLADEC_GET_CLASS (element); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
-  
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
             gst_amladec_start (amladec); 
@@ -735,9 +744,9 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
         default:
             break;
       }
-  
+    g_mutex_unlock(&amlclass->lock);
     result = parent_class->change_state (element, transition);
-  
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
             if (!amladec->is_eos && amladec->codec_init_ok)
@@ -758,6 +767,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
         default:
             break;
     }
+    g_mutex_unlock(&amlclass->lock);
     return result;
 }
 

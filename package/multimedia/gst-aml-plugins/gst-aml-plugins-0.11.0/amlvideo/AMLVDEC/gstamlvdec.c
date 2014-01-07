@@ -244,17 +244,88 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
     return TRUE;	
 }
 
+gint amlcodec_timewait(GstAmlVdec *amlvdec, GstClockTime timeout)
+{
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec); 
+    GTimeVal *timeval = NULL;
+    GTimeVal abstimeout;
+
+    if (timeout != GST_CLOCK_TIME_NONE) {
+        glong add = timeout / 1000;
+
+        if (add != 0){
+            /* make timeout absolute */
+            g_get_current_time (&abstimeout);
+            g_time_val_add (&abstimeout, add);
+            timeval = &abstimeout;
+        }        
+    } 
+    g_cond_timed_wait(&amlclass->cond, &amlclass->lock, timeval);
+    return 0;
+}
+gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
+{
+    GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec); 
+    gint nRet = 0;
+    GstClockTime timestamp = 0;
+    GstClockTime pts = 0;
+    codec_para_t *pcodec = amlvdec->pcodec;
+    struct buf_status vbuf;
+    gint written = 0;
+    gsize available = 0;
+    guint8 *data = NULL;
+    gint size = 0;
+    GstClockTime timeout = 40000;
+    
+    nRet = codec_get_vbuf_state(pcodec, &vbuf);
+    if(nRet == 0){
+        if(vbuf.data_len*10 > vbuf.size*8){  
+            usleep(1000*40);
+        }
+    }
+    
+    if(NULL == buf){
+        return -1;
+    }    
+
+    data = GST_BUFFER_DATA (buf);
+    size = GST_BUFFER_SIZE (buf);
+    timestamp = GST_BUFFER_TIMESTAMP (buf);
+    pts = timestamp * 9LL /100000LL + 1L;   
+        
+    if (timestamp!= GST_CLOCK_TIME_NONE){
+        GST_DEBUG_OBJECT (amlvdec,"pts=%x\n",(unsigned long)pts);
+        GST_DEBUG_OBJECT (amlvdec, "PTS to (%" G_GUINT64_FORMAT ") time: %"
+            GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp)); 
+        
+        if(codec_checkin_pts(pcodec,(unsigned long)pts) != 0)
+            AML_DEBUG(amlvdec, "pts checkin flied maybe lose sync\n");  
+    }
+
+    while(size > 0){
+        written = codec_write(amlvdec->pcodec, data, size);
+        if(amlvdec->is_paused){
+            return 0;
+        }
+        if(written >= 0){
+            size -= written;
+            data += written;
+        }
+        else if (errno == EAGAIN || errno == EINTR){
+            timeout = 40000;
+            amlcodec_timewait(amlvdec, timeout);
+        }
+        else{
+            return -1;
+        }
+    }
+    return 0;
+}
 static GstFlowReturn
 gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
 {
-    guint8 *data,ret;
-    guint size;
-    gint written;
-    GstClockTime timestamp,pts;
-    struct buf_status vbuf;
     GstCaps * caps = NULL;
     AmlStreamInfo *videoinfo = amlvdec->info;
-    
     if (!amlvdec->codec_init_ok){
         caps = GST_BUFFER_CAPS (buf);
         if (caps)		
@@ -263,76 +334,23 @@ gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
 
     if(amlvdec->codec_init_ok)
     {   
-        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
-        if(ret == 0){
-            if(vbuf.data_len*10 > vbuf.size*8){  
-                usleep(1000*40);
-                //return GST_FLOW_OK;
-            }
-        }
-		
-        timestamp = GST_BUFFER_TIMESTAMP (buf);
-        pts=timestamp*9LL/100000LL+1L;        
         if(!amlvdec->is_headerfeed){
             if(videoinfo->writeheader){
                 videoinfo->writeheader(videoinfo, amlvdec->pcodec);
             }
             amlvdec->is_headerfeed=TRUE;   
         }
-
         if(videoinfo->add_startcode){
             videoinfo->add_startcode(videoinfo, amlvdec->pcodec, buf);
         }
-		
-        data = GST_BUFFER_DATA (buf);
-        size = GST_BUFFER_SIZE (buf);
-        if (timestamp!= GST_CLOCK_TIME_NONE){
-            GST_DEBUG_OBJECT (amlvdec,"pts=%x\n",(unsigned long)pts);
-            GST_DEBUG_OBJECT (amlvdec, "PTS to (%" G_GUINT64_FORMAT ") time: %"
-            GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp)); 
-            
-            if(codec_checkin_pts(amlvdec->pcodec,(unsigned long)pts)!=0)
-                AML_DEBUG(amlvdec, "pts checkin flied maybe lose sync\n");  
-        }
-    	
-        again:    
-        GST_DEBUG_OBJECT (amlvdec, "writing %d bytes to stream buffer r\n", size);
-        written=codec_write(amlvdec->pcodec, data, size);
-    
-        /* check for errors */
-        if (G_UNLIKELY (written < 0)) {
-          /* try to write again on non-fatal errors */
-            if (errno == EAGAIN || errno == EINTR)
-                goto again;
-            /* else go to our error handler */
-            goto write_error;
-        }
-        /* all is fine when we get here */
-        size -= written;
-        data += written;
-        GST_DEBUG_OBJECT (amlvdec, "wrote %d bytes, %d left", written, size);
-        /* short write, select and try to write the remainder */
-        if (G_UNLIKELY (size > 0))
-            goto again;  
-      
-        return GST_FLOW_OK;    
-        write_error:
-        {
-            switch (errno) {
-                case ENOSPC:
-                    GST_ELEMENT_ERROR (amlvdec, RESOURCE, NO_SPACE_LEFT, (NULL), (NULL));
-                    break;
-                default:{
-                    GST_ELEMENT_ERROR (amlvdec, RESOURCE, WRITE, (NULL),("Error while writing to file  %s",g_strerror (errno)));
-                }
-            }
+        if(amlcodec_decode(amlvdec, buf)){
             return GST_FLOW_ERROR;
-        }		
-    }else{
-        AML_DEBUG(amlvdec, "decoder not init ok yet, we will do nothing in render\n");
+        }
     }
     return GST_FLOW_OK;
 }
+
+
 
 static GstFlowReturn
 gst_amlvdec_chain (GstPad * pad, GstBuffer * buf)
@@ -615,6 +633,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
     gint ret= -1;
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
             gst_amlvdec_start(amlvdec);
@@ -635,9 +654,9 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
         default:
           break;
     }
-
+    g_mutex_unlock(&amlclass->lock);
     result =  parent_class->change_state (element, transition);
-
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
             if(!amlvdec->is_eos &&  amlvdec->codec_init_ok){ 
@@ -661,7 +680,8 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
         default:
             break;
     }
-
+    g_cond_broadcast(&amlclass->cond);
+    g_mutex_unlock(&amlclass->lock);
     return result;
   
 }

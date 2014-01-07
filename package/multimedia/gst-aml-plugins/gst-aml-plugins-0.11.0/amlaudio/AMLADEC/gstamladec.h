@@ -106,8 +106,8 @@ struct _GstAmlAdec
 
 struct _GstAmlAdecClass
 {
-  GstElementClass parent_class;
-
+    GstElementClass parent_class;
+    GMutex      lock;
 };
 
 struct AmlControl

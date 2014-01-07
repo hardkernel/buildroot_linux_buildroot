@@ -103,6 +103,7 @@ struct _GstAmlVdecClass
     GHashTable *getPropTable;
     GHashTable *setPropTable;
     GMutex      lock;
+    GCond       cond;
 };
 
 GType gst_amlvdec_get_type (void);
