@@ -275,15 +275,20 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
     gsize available = 0;
     guint8 *data = NULL;
     gint size = 0;
-    GstClockTime timeout = 40000;
-    
-    nRet = codec_get_vbuf_state(pcodec, &vbuf);
-    if(nRet == 0){
-        if(vbuf.data_len*10 > vbuf.size*8){  
-            usleep(1000*40);
+    GstClockTime timeout = 60000;
+
+    while(nRet == 0){
+        nRet = codec_get_vbuf_state(pcodec, &vbuf);
+        if(vbuf.data_len*10 < vbuf.size*7){
+            break;
+        }
+        timeout = 40000;
+        amlcodec_timewait(amlvdec, timeout);
+        if(amlvdec->is_paused){
+            break;
         }
     }
-    
+  
     if(NULL == buf){
         return -1;
     }    
@@ -304,14 +309,14 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
 
     while(size > 0){
         written = codec_write(amlvdec->pcodec, data, size);
-        if(amlvdec->is_paused){
-            return 0;
-        }
         if(written >= 0){
             size -= written;
             data += written;
         }
         else if (errno == EAGAIN || errno == EINTR){
+            if(amlvdec->is_paused){
+                return 0;
+            }
             timeout = 40000;
             amlcodec_timewait(amlvdec, timeout);
         }
@@ -513,8 +518,11 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
 		
         case GST_EVENT_EOS:
             AML_DEBUG(amlvdec, "ge GST_EVENT_EOS,check for video end\n");
-            if(amlvdec->codec_init_ok)	
-							start_eos_task (amlvdec);
+            if(amlvdec->codec_init_ok)	{
+                start_eos_task (amlvdec);
+                amlvdec->is_eos = TRUE;
+            }
+                
             gst_event_unref (event);
             ret = TRUE;
             break;
