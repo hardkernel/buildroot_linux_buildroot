@@ -187,7 +187,7 @@ gst_amlvdec_finalize (GObject * object)
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
     AmlStreamInfo *videoinfo = amlvdec->info;
-    if(videoinfo->finalize){
+    if(videoinfo && videoinfo->finalize){
         videoinfo->finalize(videoinfo);
         amlvdec->info = NULL;
     }
