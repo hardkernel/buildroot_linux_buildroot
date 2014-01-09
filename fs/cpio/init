@@ -19,6 +19,7 @@ get_opt() {
 #Defaults
 init="/init2"
 root="/dev/cardblksd1"
+firmware=""
 
 #Process command line options
 for i in $(cat /proc/cmdline); do
@@ -26,12 +27,32 @@ for i in $(cat /proc/cmdline); do
         root\=*)
             root=$(get_opt $i)
             ;;
+        firmware\=*)
+            firmware=$(get_opt $i)
+            ;;
     esac
 done
 
 #Mount the root device
 mount "${root}" /mnt
 
+if [ -n "${firmware}" ]; then
+    if [ -f "/mnt/${firmware}" ] ; then
+        echo "formating file system"
+        mkfs.ext4 /dev/system
+        mkdir -p system
+        mount -t ext4 /dev/system /system
+        echo "extracting file system"
+        gunzip -c /mnt/rootfs.tar.gz  | tar -xvf - -C /system
+        sync
+        echo "update complete"
+        umount /sys /proc /dev
+        exec chroot /system "/init2"
+    else
+        echo "cannot locate ${firmware}"
+        echo "boot normally..."
+    fi
+fi
 #Check if $init exists and is executable
 if [[ -x "/mnt/${init}" ]] ; then
     #Unmount all other mounts so that the ram used by
@@ -43,5 +64,5 @@ if [[ -x "/mnt/${init}" ]] ; then
 fi
 
 #This will only be run if the exec above failed
-echo "Failed to switch_root, dropping to a shell"
+echo "Failed to switch root, dropping to a shell"
 exec sh
