@@ -90,7 +90,7 @@ static int amlSetPropVolume(GObject * object, guint prop_id,
     GstAmlAsink *amlsink = GST_AMLASINK (object);  
     gint temp;
     temp = (gint)(g_value_get_double (value)*100);
-    g_print("asink vol=%d\n",temp);
+    GST_WARNING("asink vol=%d\n",temp);
     dummy_codec_set_volume(temp);
     return 0;
 }

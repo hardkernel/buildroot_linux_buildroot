@@ -166,7 +166,7 @@ static void gst_amlvsink_init (GstAmlVsink * amlvsink,
     pad = GST_BASE_SINK_PAD (amlvsink);
     gst_base_sink_set_sync (GST_BASE_SINK (amlvsink), FALSE);
     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), FALSE);
-    AML_DEBUG(amlvsink, "gst_amlvsink_init\n");
+    GST_WARNING("gst_amlvsink_init\n");
 }
 
 static void
@@ -186,7 +186,7 @@ static gboolean gst_amlvsink_event (GstBaseSink * sink, GstEvent  *event)
     gboolean ret;
     GstTagList *tag_list;
     GstAmlVsink *amlvsink = GST_AMLVSINK(sink);
-    AML_DEBUG(amlvsink, "vsink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
+    GST_WARNING("vsink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
   
     switch (GST_EVENT_TYPE (event)) {  
     case GST_EVENT_NEWSEGMENT:{

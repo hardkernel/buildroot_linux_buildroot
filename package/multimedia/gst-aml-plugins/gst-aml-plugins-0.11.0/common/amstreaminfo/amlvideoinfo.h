@@ -6,8 +6,7 @@
 
 #define AML_VIDEOINFO_BASE(x) ((AmlVideoInfo *)(x))
 
-#define ADTS_HEADER_SIZE        (7)
-#define HDR_BUF_SIZE                (1024)
+
 #define EXTERNAL_PTS    (1)
 #define SYNC_OUTSIDE    (2)
 #define UNIT_FREQ       96000
@@ -67,5 +66,6 @@ AmlStreamInfo *newAmlInfoWmv();
 AmlStreamInfo *newAmlInfoDivx();
 AmlStreamInfo *newAmlInfoXvid();
 AmlStreamInfo *createVideoInfo(gint size);
+AmlStreamInfo *amlVstreamInfoInterface(gchar *format);
 #endif
 

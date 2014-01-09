@@ -14,7 +14,7 @@ plugin_LTLIBRARIES = libgstamladec.la
 ##############################################################################
 
 # sources used to compile this plug-in
-libgstamladec_la_SOURCES = gstamladec.c gstamladec.h gstamlaudioheader.c gstamlaudioheader.h
+libgstamladec_la_SOURCES = gstamladec.c gstamladec.h amlaudioinfo.c
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
 libgstamladec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
@@ -24,4 +24,4 @@ libgstamladec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamladec_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
-noinst_HEADERS = gstamladec.h gstamlaudioheader.h
+noinst_HEADERS = gstamladec.h 

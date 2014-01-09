@@ -15,11 +15,16 @@ struct stAmlStreamInfo{
     gint (*add_startcode)(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buf); //pure virtual function
     void (*finalize)(AmlStreamInfo* info);
 //protected:
-    GValue *configdata;
+    GstBuffer *configdata;
 //private:
 };
 
-AmlStreamInfo *amlStreamInfoInterface(gchar *format);
+typedef struct{
+    const gchar *name;
+    AmlStreamInfo *(*newStreamInfo)();
+}AmlStreamInfoPool;
+
+AmlStreamInfo *amlStreamInfoInterface(gchar *format, AmlStreamInfoPool *amlStreamInfoPool);
 AmlStreamInfo *createStreamInfo(gint size);
 void amlStreamInfoFinalize(AmlStreamInfo *info);
 

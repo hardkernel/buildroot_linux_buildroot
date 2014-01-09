@@ -15,7 +15,7 @@ gint parse_str2int(const gchar *input, const gchar boundary, const gchar end, gi
     gchar value[MAX_BIT]= {0};
 
     if(NULL == p){
-        g_print("[%s:%d] null\n", __FUNCTION__, __LINE__);
+        GST_WARNING("[%s:%d] null\n", __FUNCTION__, __LINE__);
         return -1;
     }
     size = strlen(p);
@@ -25,7 +25,7 @@ gint parse_str2int(const gchar *input, const gchar boundary, const gchar end, gi
         value[index] = p[i];
         if(index++ >= MAX_BIT){
             va_end (var_args);
-             g_print("[%s:%d] error\n", __FUNCTION__, __LINE__);
+             GST_ERROR("[%s:%d] error\n", __FUNCTION__, __LINE__);
             return -1;
         }
         if(p[i+1] == boundary){
@@ -192,7 +192,7 @@ static int amlGetPropRectangle(GObject * object, guint prop_id,
     data_array[63] = '\0';
 
     if(parse_str2int(data_array, ' ', '\n', &x, &y, &width, &height) < 0){
-        g_print("parse axis failed.\n");
+        GST_ERROR("parse axis failed.\n");
         return -1;
     }
     info_obj = rectangle_info_new (x, y, width, height);
@@ -216,7 +216,7 @@ static int amlGetPropCurrentPTS(GObject * object, guint prop_id,
     int pts = get_sysfs_int("/sys/class/tsync/pts_video");
     //currentPTS = (gint64)codec_get_vpts(vpcodec);
     currentPTS = (gint64)pts;
-    g_print("amlGetPropCurrentPTS pts=%d currentPTS=%lld\n", pts, currentPTS);
+    GST_WARNING("amlGetPropCurrentPTS pts=%d currentPTS=%lld\n", pts, currentPTS);
     g_value_set_int64 (value, currentPTS);
     return 0;
 }

@@ -73,7 +73,7 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
     pcodec->am_sysinfo.height = video->height;
     pcodec->am_sysinfo.width = video->width;
     pcodec->am_sysinfo.rate = video->framerate;
-    g_print("[%s:%d]width=%d height=%d framerate=%d codec_data=%p\n", 
+    GST_WARNING("[%s:%d]width=%d height=%d framerate=%d codec_data=%p\n", 
         __FUNCTION__, __LINE__, video->width, video->height, video->framerate, data_buf);
     return 0;
 }
@@ -95,7 +95,7 @@ AmlStreamInfo *createVideoInfo(gint size)
     video->framerate = 0;
     info->init = amlVideoInfoInit;
     info->finalize = amlVdeoInfoFinalize;
-    g_print("[%s:]video info construct\n", __FUNCTION__);
+    GST_WARNING("[%s:]video info construct\n", __FUNCTION__);
     return info;
 }
 
@@ -122,13 +122,13 @@ static gint h264_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
     gint sppsLen = 0;
     int cnt = 0;
     if(NULL == info->configdata){
-        g_print("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
+        GST_WARNING("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
         return 0;
     }
     config_size = GST_BUFFER_SIZE(info->configdata);	
     config = GST_BUFFER_DATA(info->configdata);
     p = config;
-    g_print("add 264 header in stream\n");
+    GST_WARNING("add 264 header in stream\n");
     
     if (((p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 1)
         ||(p[0] == 0 && p[1] == 0 && p[2] == 1 )) && config_size < 1024) {
@@ -141,18 +141,18 @@ static gint h264_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
     }
 
     if (config_size < 10) {
-        g_print("avcC too short\n");
+        GST_WARNING("avcC too short\n");
         return -1;
     }
 
     if (*p != 1) {
-        g_print(" Unkonwn avcC version %d\n", *p);
+        GST_WARNING(" Unkonwn avcC version %d\n", *p);
         return -1;
     }
     spps = gst_buffer_new_and_alloc(config_size);
     sppsData = GST_BUFFER_DATA(spps);
     cnt = *(p + 5) & 0x1f; //number of sps
-    g_print("number of sps :%d\n", cnt);
+    GST_WARNING("number of sps :%d\n", cnt);
     p += 6;
     for (i = 0; i < cnt; i++) {
         nalsize = (*p << 8) | (*(p + 1));
@@ -164,7 +164,7 @@ static gint h264_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
     }
 
     cnt = *(p++); //Number of pps
-    g_print("number of pps :%d\n", cnt);
+    GST_WARNING("number of pps :%d\n", cnt);
     for (i = 0; i < cnt; i++) {
         nalsize = (*p << 8) | (*(p + 1));
         memcpy(&(sppsData[sppsLen]), nal_start_code, sizeof(nal_start_code));
@@ -174,7 +174,7 @@ static gint h264_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
         p += (nalsize + 2);
     }
     if (sppsLen >= 1024) {
-        g_print("header_len %d is larger than max length\n", sppsLen);
+        GST_ERROR("header_len %d is larger than max length\n", sppsLen);
         return -1;
     }
     GST_BUFFER_SIZE(spps) = sppsLen;
@@ -238,7 +238,7 @@ static gint h264_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuf
             gst_buffer_unref(hdrBuf);   
         }
     } else {
-        g_print("[%s]invalid pointer!\n", __FUNCTION__);
+        GST_ERROR("[%s]invalid pointer!\n", __FUNCTION__);
         return -1;
     }
    return 0; 
@@ -271,7 +271,7 @@ gint amlInitMpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struc
     gint version; 
     gst_structure_get_int (structure, "mpegversion", &version);
     mpeg->version = version;
-    g_print("[%s:%d]version=%d\n", __FUNCTION__, __LINE__, version);
+    GST_WARNING("[%s:%d]version=%d\n", __FUNCTION__, __LINE__, version);
     switch(version){
         case 1:
         case 2:
@@ -402,7 +402,7 @@ static int wmv3_add_startcode(AmlStreamInfo* info, codec_para_t *vpcodec, GstBuf
     char *bufout = NULL;
     int data_size = GST_BUFFER_SIZE(buf);
     if(NULL == info->configdata){
-        g_print("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
+        GST_WARNING("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
         return 0;
     }
     hdrBuf = gst_buffer_new_and_alloc(26);
@@ -494,7 +494,7 @@ static int wmv3_write_header(AmlStreamInfo* info, codec_para_t *vpcodec)
     GstBuffer *hdrBuf=NULL;
     unsigned char *bufout = NULL;  
     if(NULL == info->configdata){
-        g_print("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
+        GST_WARNING("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
         return 0;
     }
 
@@ -662,4 +662,23 @@ AmlStreamInfo *newAmlInfoXvid()
     return info;
 }
 
+static const AmlStreamInfoPool amlVstreamInfoPool[] = {
+    /*******video format information*******/
+    {"video/x-h264", newAmlInfoH264},
+    {"video/mpeg", newAmlInfoMpeg},
+    {"video/x-msmpeg", newAmlInfoMsmpeg},
+    {"video/x-h263", newAmlInfoH263},
+    {"video/x-jpeg", newAmlInfoJpeg},
+    {"video/x-wmv", newAmlInfoWmv},
+    {"video/x-divx", newAmlInfoDivx},
+    {"video/x-xvid", newAmlInfoXvid},
+    {NULL, NULL}
+};
+AmlStreamInfo *amlVstreamInfoInterface(gchar *format)
+{
+    AmlStreamInfoPool *p  = amlVstreamInfoPool;
+    AmlStreamInfo *info = NULL;
+    info =amlStreamInfoInterface(format,p);
+    return info;	
+}
 

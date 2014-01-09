@@ -49,6 +49,7 @@
 #include <gst/gst.h>
 //#include <gst/tag/tag.h>
 #include  "gstamlsysctl.h"
+#include "amlaudioinfo.h"
 #include  "../../common/include/codec.h"
 
 G_BEGIN_DECLS
@@ -86,7 +87,7 @@ struct _GstAmlAdec
   guint codec_data_len;    // Header Extension obtained through caps negotiation
   GstBuffer* codec_data;        // Header data needed for audio
   gboolean   is_headerfeed;	/* flag for decoder initialization */
-  
+  AmlStreamInfo *audioinfo;
   gint sample_rate;         ///< audio stream sample rate
   gint channels;            ///< audio stream channels
   gint bitrate;             ///< audio stream bit rate

@@ -38,7 +38,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gstamladec.h"
-#include "gstamlaudioheader.h"
+#include "amlaudioinfo.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -130,7 +131,7 @@ static void gst_amladec_class_init (GstAmlAdecClass * klass)
             FALSE, G_PARAM_READWRITE));  
     g_object_class_install_property (gobject_class, PROP_PASSTHROUGH, g_param_spec_boolean ("pass-through", "Pass-through", "pass-through this track or not ?",
             FALSE, G_PARAM_READWRITE)); 
-    g_print("gst_amladec_class_init\n");
+    GST_WARNING("gst_amladec_class_init\n");
 }
 
 static void gst_amladec_init (GstAmlAdec * amladec, GstAmlAdecClass * klass)
@@ -171,6 +172,10 @@ gst_amladec_finalize (GObject * object)
     if (amlcontrol) {	
         g_free(amlcontrol);
         amlcontrol = NULL;
+    }
+    if(amladec->audioinfo&&amladec->audioinfo->finalize){
+        amladec->audioinfo->finalize(amladec->audioinfo);
+        amladec->audioinfo = NULL;
     }		
     G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -201,14 +206,14 @@ static gboolean aml_decode_init(GstAmlAdec *amladec)
     int ret = CODEC_ERROR_NONE;
     ret = codec_init (amladec->pcodec);
      if (ret != CODEC_ERROR_NONE){
-        g_print("codec init failed, ret=-0x%x", -ret);
+        GST_ERROR("codec init failed, ret=-0x%x", -ret);
         return FALSE;
     }
     amladec->codec_init_ok = 1;
     amlcontrol->passthrough = TRUE;
     amlcontrol->firstcaps = amladec->tmpcaps;
     set_tsync_enable(1);
-    g_print("set1 amladec->apcodec=%x,codec_init_ok=%d\n",amladec->pcodec,amladec->codec_init_ok );
+    GST_WARNING("set1 amladec->apcodec=%x,codec_init_ok=%d\n",amladec->pcodec,amladec->codec_init_ok );
     return TRUE;
 }
 static void gst_amladec_set_property (GObject * object, guint prop_id,
@@ -308,7 +313,7 @@ static void gst_amladec_polling_eos (GstAmlAdec *amladec)
 	          break;	
         ret = codec_get_abuf_state (amladec->pcodec, &abuf);
         if (ret != 0) {
-            g_print("codec_get_abuf_state error: %x\n", -ret);
+            GST_ERROR("codec_get_abuf_state error: %x\n", -ret);
             break;
         }
         if(last_rp != abuf.read_pointer){
@@ -384,7 +389,7 @@ gst_amladec_sink_event (GstPad * pad, GstEvent * event)
             break;
         }
         case GST_EVENT_EOS:
-            g_print ("GST_EVENT_EOS\n"); 
+            GST_WARNING ("GST_EVENT_EOS\n"); 
             if (amladec->codec_init_ok)
                 start_eos_task (amladec);
             gst_event_unref (event);
@@ -398,13 +403,13 @@ gst_amladec_sink_event (GstPad * pad, GstEvent * event)
                 if (amladec->is_paused == TRUE) {
                     ret=codec_resume (amladec->pcodec);
                     if (ret != 0) {
-                        g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                        GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                     }else
                     amladec->is_paused = FALSE;
                 }	
                 ret = codec_reset (amladec->pcodec);
                 if (ret < 0) {
-                    g_print("reset acodec failed, res= %x\n", ret);
+                    GST_ERROR("reset acodec failed, res= %x\n", ret);
                     return FALSE;
                 }       
             }
@@ -425,117 +430,22 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
 {
     GstStructure *structure;
     const char *name;
+    AmlStreamInfo *info;
     int ret = CODEC_ERROR_NONE;
     int mpegversion; 
     GValue *extra_data_buf = NULL; 
     structure = gst_caps_get_structure (caps, 0);
     name = gst_structure_get_name (structure);  
-
-    if (strcmp(name, "audio/mpeg") == 0) {
-        gst_structure_get_int (structure, "mpegversion", &mpegversion); 
-        AML_DEBUG(amladec, "mpegversion=%d\n",mpegversion);      	   
-        if (mpegversion==1/*&&layer==3*/) { //mp3
-            amladec->pcodec->audio_type = AFORMAT_MPEG;
-            AML_DEBUG(amladec, "mp3 info set ok\n");
-        }else if (mpegversion==4||mpegversion==2) {
-            amladec->pcodec->audio_type = AFORMAT_AAC;
-            if (gst_structure_has_field (structure, "codec_data")) {	
-                extra_data_buf = (GValue *) gst_structure_get_value (structure, "codec_data");
-                if (NULL != extra_data_buf) {
-                    guint8 *hdrextdata;
-                    gint i;
-                    amladec->codec_data = gst_value_get_buffer (extra_data_buf);	 
-                    AML_DEBUG(amladec, "AAC SET CAPS check for codec data \n");    
-                    amladec->codec_data_len = GST_BUFFER_SIZE (amladec->codec_data);
-                    AML_DEBUG(amladec, "\n>>aac decoder: AAC Codec specific data length is %d\n",amladec->codec_data_len);
-                    AML_DEBUG(amladec, "aac codec data is \n");
-                    hdrextdata = GST_BUFFER_DATA (amladec->codec_data);
-                    for(i=0;i<amladec->codec_data_len;i++)
-                        AML_DEBUG(amladec, "%x ",hdrextdata[i]);
-                    AML_DEBUG(amladec, "\n");
-                    extract_adts_header_info (amladec);
-                    hdrextdata = GST_BUFFER_DATA(amladec->codec_data);
-                    for(i=0;i<GST_BUFFER_SIZE(amladec->codec_data);i++)
-                        AML_DEBUG(amladec, "%x ",hdrextdata[i]);
-                    AML_DEBUG(amladec, "\n");					
-                }
-            }		   
-        }		
-    }else if (strcmp(name, "audio/x-ac3") == 0) {   	   
-        amladec->pcodec->audio_type = AFORMAT_AC3;       	 	
-    }else if (strcmp(name, "audio/x-eac3") == 0) {   	   
-        amladec->pcodec->audio_type = AFORMAT_EAC3;
-    }else if (strcmp(name, "audio/x-adpcm") == 0) {   	   
-        amladec->pcodec->audio_type = AFORMAT_ADPCM;       	 	
-    }else if (strcmp(name, "audio/x-flac") == 0) {   	   
-        amladec->pcodec->audio_type = AFORMAT_FLAC;       	 	
-    }else if (strcmp(name, "audio/x-wma") == 0) {   	   
-        gint version;        
-        if (gst_structure_has_field (structure, "codec_data")) {	
-            extra_data_buf = (GValue *) gst_structure_get_value (structure, "codec_data");
-            if (NULL != extra_data_buf) {
-                    guint8 *hdrextdata;
-                    gint i;
-                    amladec->codec_data = gst_value_get_buffer (extra_data_buf);	 
-                    AML_DEBUG(amladec, "WMA SET CAPS check for codec data \n");    
-                    amladec->codec_data_len = GST_BUFFER_SIZE (amladec->codec_data);
-                    AML_DEBUG(amladec, "\n>>wma decoder: WMA Codec specific data length is %d\n",amladec->codec_data_len);
-                    AML_DEBUG(amladec, "wma codec data is \n");                    
-                    hdrextdata = GST_BUFFER_DATA (amladec->codec_data);
-                    for(i=0;i<amladec->codec_data_len;i++)
-                        AML_DEBUG(amladec, "%x ",hdrextdata[i]);
-                    AML_DEBUG(amladec, "\n");				
-            }
-        }
-
-        gst_structure_get_int (structure, "wmaversion", &version);
-        switch (version) {
-            case 1:
-                    amladec->codec_id = CODEC_ID_WMAV1;
-                    amladec->pcodec->audio_type = AFORMAT_WMA;  
-                    break;
-            case 2:
-                    amladec->codec_id = CODEC_ID_WMAV2;
-                    amladec->pcodec->audio_type = AFORMAT_WMA;  
-                    break;
-            case 3:
-                    amladec->codec_id = CODEC_ID_WMAPRO;
-                    amladec->pcodec->audio_type = AFORMAT_WMAPRO;  
-            default:
-                    break;
-        }
-        gst_structure_get_int (structure, "rate", &amladec->sample_rate);
-        gst_structure_get_int (structure, "channels", &amladec->channels);
-        gst_structure_get_int (structure, "block_align", &amladec->block_align);
-        gst_structure_get_int (structure, "bitrate", &amladec->bitrate);
-    }else if (strcmp(name, "audio/x-vorbis") == 0) {   	   
-        amladec->pcodec->audio_type = AFORMAT_VORBIS;       	 	
-    }else if (strcmp(name, "audio/x-mulaw") == 0) {   	   
-       // amladec->pcodec->audio_type = AFORMAT_MULAW;   
-        amladec->pcodec->audio_type = AFORMAT_ADPCM;  //we use adpcm now
-        gst_structure_get_int (structure, "rate", &amladec->sample_rate);
-        gst_structure_get_int (structure, "channels", &amladec->channels);
-    }else if (strcmp(name, "audio/x-raw-int") == 0) {
-        gint endianness,depth;
-        gboolean getsigned;
-        gst_structure_get_int (structure, "endianness", &endianness);
-        gst_structure_get_int (structure, "depth", &depth);
-        gst_structure_get_int (structure, "rate", &amladec->sample_rate);
-        gst_structure_get_int (structure, "channels", &amladec->channels);
-        gst_structure_get_boolean (structure, "signed", &getsigned);
-        g_print("depth=%d,endianness=%d\n",depth,endianness);
-        if (endianness==1234&&depth==16&&getsigned==true){	
-            amladec->pcodec->audio_type = AFORMAT_PCM_S16LE;
-            amladec->codec_id = CODEC_ID_PCM_S16LE;
-        }			
-    }else {
-        g_print("unsupport audio format name=%s\n",name);
+    info = amlAstreamInfoInterface(name);
+    if(!info) {
+        GST_ERROR("unsupport audio format name=%s\n",name);
         return  FALSE;
    }
-	
+    amladec->audioinfo = info;
+    info->init(info,amladec->pcodec,structure);
     if (amladec->pcodec&&amladec->pcodec->stream_type == STREAM_TYPE_ES_AUDIO){
-        if (IS_AUIDO_NEED_EXT_INFO (amladec->pcodec->audio_type))
-            audioinfo_need_set (amladec->pcodec,amladec); 
+        if (info->writeheader)
+            info->writeheader (info,amladec->pcodec); 
         if(!amladec->codec_init_ok && !amlcontrol->passthrough){
             if(!aml_decode_init(amladec))
                 return FALSE;				
@@ -579,6 +489,10 @@ static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
             return GST_FLOW_OK;        
         }else if (amladec->passthrough && !amladec->codec_init_ok){
             amlcontrol->passthrough= FALSE;
+            if(amladec->audioinfo){
+                amladec->audioinfo->finalize(amladec->audioinfo);
+                amladec->audioinfo = NULL;
+            }
             gst_set_astream_info (amladec, caps );     
         }
     }    
@@ -594,8 +508,8 @@ static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
         }
         timestamp = GST_BUFFER_TIMESTAMP (buf);    
         pts=timestamp*9LL/100000LL+1L;
-        if (!amladec->is_headerfeed&&amladec->codec_data_len){
-            audiopre_header_feeding (amladec->pcodec,amladec,&buf);
+        if (amladec->audioinfo->add_startcode){
+            amladec->audioinfo->add_startcode (amladec->audioinfo,amladec->pcodec,buf);
         }		
 		
         data = GST_BUFFER_DATA (buf);
@@ -653,7 +567,7 @@ static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
             return GST_FLOW_ERROR;
         }
     } else {
-        AML_DEBUG(amladec,"we will do nothing in render as audio decoder not ready yet\n");
+        GST_WARNING("we will do nothing in render as audio decoder not ready yet\n");
     }	
     return GST_FLOW_OK;
 }
@@ -686,6 +600,7 @@ static gboolean gst_amladec_start (GstAmlAdec *amladec)
     amladec->pcodec->audio_info.sample_rate = 0;
     amladec->pcodec->audio_info.valid = 0;
     amladec->pcodec->stream_type = STREAM_TYPE_ES_AUDIO;
+    amladec->audioinfo = NULL;
     amladec->codec_init_ok = 0;
     amladec->sample_rate = 0;
     amladec->channels = 0;
@@ -707,7 +622,7 @@ static gboolean gst_amladec_stop (GstAmlAdec *amladec)
         if (amladec->is_paused == TRUE) {
             ret=codec_resume (amladec->pcodec);
             if (ret != 0) {
-                g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
             }else
             amladec->is_paused = FALSE;
         }	
@@ -736,7 +651,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
             if (amladec->is_paused == TRUE && amladec->codec_init_ok) {
                 ret=codec_resume (amladec->pcodec);
                 if (ret != 0) {
-                      g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                      GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else
                 amladec->is_paused = FALSE;
               }
@@ -753,7 +668,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
             {
                 ret = codec_pause (amladec->pcodec);
                 if (ret != 0) {
-                    g_print("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                    GST_ERROR("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else
                     amladec->is_paused = TRUE;
             }	

@@ -98,7 +98,7 @@ am__DEPENDENCIES_1 =
 libgstamladec_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	../../common/libcommon.a
 am_libgstamladec_la_OBJECTS = libgstamladec_la-gstamladec.lo \
-	libgstamladec_la-gstamlaudioheader.lo
+	libgstamladec_la-amlaudioinfo.lo
 libgstamladec_la_OBJECTS = $(am_libgstamladec_la_OBJECTS)
 libgstamladec_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libgstamladec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
@@ -265,7 +265,7 @@ plugin_LTLIBRARIES = libgstamladec.la
 ##############################################################################
 
 # sources used to compile this plug-in
-libgstamladec_la_SOURCES = gstamladec.c gstamladec.h gstamlaudioheader.c gstamlaudioheader.h
+libgstamladec_la_SOURCES = gstamladec.c gstamladec.h amlaudioinfo.c
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
 libgstamladec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
@@ -274,7 +274,7 @@ libgstamladec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamladec_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
-noinst_HEADERS = gstamladec.h gstamlaudioheader.h
+noinst_HEADERS = gstamladec.h 
 all: all-am
 
 .SUFFIXES:
@@ -350,8 +350,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstamladec_la-amlaudioinfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstamladec_la-gstamladec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstamladec_la-gstamlaudioheader.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -381,12 +381,12 @@ libgstamladec_la-gstamladec.lo: gstamladec.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(libgstamladec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamladec_la_CFLAGS) $(CFLAGS) -c -o libgstamladec_la-gstamladec.lo `test -f 'gstamladec.c' || echo '$(srcdir)/'`gstamladec.c
 
-libgstamladec_la-gstamlaudioheader.lo: gstamlaudioheader.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(libgstamladec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamladec_la_CFLAGS) $(CFLAGS) -MT libgstamladec_la-gstamlaudioheader.lo -MD -MP -MF $(DEPDIR)/libgstamladec_la-gstamlaudioheader.Tpo -c -o libgstamladec_la-gstamlaudioheader.lo `test -f 'gstamlaudioheader.c' || echo '$(srcdir)/'`gstamlaudioheader.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libgstamladec_la-gstamlaudioheader.Tpo $(DEPDIR)/libgstamladec_la-gstamlaudioheader.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gstamlaudioheader.c' object='libgstamladec_la-gstamlaudioheader.lo' libtool=yes @AMDEPBACKSLASH@
+libgstamladec_la-amlaudioinfo.lo: amlaudioinfo.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(libgstamladec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamladec_la_CFLAGS) $(CFLAGS) -MT libgstamladec_la-amlaudioinfo.lo -MD -MP -MF $(DEPDIR)/libgstamladec_la-amlaudioinfo.Tpo -c -o libgstamladec_la-amlaudioinfo.lo `test -f 'amlaudioinfo.c' || echo '$(srcdir)/'`amlaudioinfo.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libgstamladec_la-amlaudioinfo.Tpo $(DEPDIR)/libgstamladec_la-amlaudioinfo.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='amlaudioinfo.c' object='libgstamladec_la-amlaudioinfo.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(libgstamladec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamladec_la_CFLAGS) $(CFLAGS) -c -o libgstamladec_la-gstamlaudioheader.lo `test -f 'gstamlaudioheader.c' || echo '$(srcdir)/'`gstamlaudioheader.c
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(libgstamladec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamladec_la_CFLAGS) $(CFLAGS) -c -o libgstamladec_la-amlaudioinfo.lo `test -f 'amlaudioinfo.c' || echo '$(srcdir)/'`amlaudioinfo.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -212,20 +212,20 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
 	
     structure = gst_caps_get_structure (caps, 0);
     name = gst_structure_get_name (structure); 
-    g_print("here caps name =%s,\n",name); 
+    GST_WARNING("here caps name =%s,\n",name); 
     
-    videoinfo = amlStreamInfoInterface(name);
+    videoinfo = amlVstreamInfoInterface(name);
     if(NULL == name){
         return FALSE;
     }
     amlvdec->info = videoinfo;
     videoinfo->init(videoinfo, amlvdec->pcodec, structure);
     if (amlvdec->pcodec&&amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO) { 
-        AML_DEBUG(amlvdec, "pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
+        GST_WARNING("pcodec->videotype=%d\n",amlvdec->pcodec->video_type);	
         if(!amlvdec->codec_init_ok){
             ret = codec_init(amlvdec->pcodec);
              if (ret != CODEC_ERROR_NONE){
-                 AML_DEBUG(amlvdec, "codec init failed, ret=-0x%x", -ret);
+                 GST_ERROR("codec init failed, ret=-0x%x", -ret);
                  return FALSE;
             }
             set_fb0_blank(1);
@@ -237,7 +237,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
                     codec_set_video_playrate(amlvdec->pcodec, (int)(amlvdec->trickRate*(1<<16)));
                 }
             }
-            AML_DEBUG(amlvdec, "video codec_init ok\n");
+            GST_WARNING("video codec_init ok\n");
         }
         
     } 	
@@ -385,7 +385,7 @@ static void gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
 	      break;	
         ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
         if (ret != 0) {
-            g_print("codec_get_vbuf_state error: %x\n", -ret);
+            GST_ERROR("codec_get_vbuf_state error: %x\n", -ret);
             break;
         }
         if(last_rp != vbuf.read_pointer){
@@ -507,7 +507,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
                 gint res = -1;
                 res = codec_reset(amlvdec->pcodec);
                 if (res < 0) {
-                    g_print("reset vcodec failed, res= %x\n", res);
+                    GST_ERROR("reset vcodec failed, res= %x\n", res);
                     return FALSE;
                 }            
                 amlvdec->is_headerfeed = FALSE; 
@@ -517,7 +517,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
         } 
 		
         case GST_EVENT_EOS:
-            AML_DEBUG(amlvdec, "ge GST_EVENT_EOS,check for video end\n");
+            GST_WARNING("ge GST_EVENT_EOS,check for video end\n");
             if(amlvdec->codec_init_ok)	{
                 start_eos_task (amlvdec);
                 amlvdec->is_eos = TRUE;
@@ -591,7 +591,7 @@ gst_amlvdec_src_event (GstPad * pad, GstEvent * event)
 static gboolean
 gst_amlvdec_start (GstAmlVdec *amlvdec)
 { 
-    AML_DEBUG(amlvdec, "amlvdec start....\n");
+    GST_WARNING("amlvdec start....\n");
     amlvdec->codec_init_ok=0;
     //amlvdec->pcodec = &v_codec_para;
     
@@ -621,7 +621,7 @@ gst_amlvdec_stop (GstAmlVdec *amlvdec)
         if(amlvdec->is_paused == TRUE) {
             ret=codec_resume(amlvdec->pcodec);
             if (ret != 0) {
-                g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
             }else
                 amlvdec->is_paused = FALSE;
         }	
@@ -641,7 +641,6 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
     gint ret= -1;
-    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
             gst_amlvdec_start(amlvdec);
@@ -654,7 +653,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
             if(amlvdec->is_paused == TRUE &&  amlvdec->codec_init_ok) {
                 ret=codec_resume(amlvdec->pcodec);
                 if (ret != 0) {
-                    g_print("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                    GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else
                     amlvdec->is_paused = FALSE;
             }
@@ -670,7 +669,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
             if(!amlvdec->is_eos &&  amlvdec->codec_init_ok){ 
                 ret=codec_pause(amlvdec->pcodec);
                 if (ret != 0) {
-                    g_print("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                    GST_ERROR("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
                 }else
                     amlvdec->is_paused = TRUE;
             }

@@ -170,7 +170,7 @@ gst_amlasink_init (GstAmlAsink * amlasink,
     pad = GST_BASE_SINK_PAD (amlasink);
     gst_base_sink_set_sync (GST_BASE_SINK (amlasink), FALSE);
     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlasink), FALSE);
-    AML_DEBUG(amlasink, "gst_amlasink_init\n");
+    GST_WARNING("gst_amlasink_init\n");
 
 }
 
@@ -193,7 +193,7 @@ gst_amlasink_event (GstBaseSink * sink, GstEvent  *event)
     gboolean ret;
     GstTagList *tag_list;
     GstAmlAsink *amlasink = GST_AMLASINK(sink);
-    AML_DEBUG (amlasink, "asink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
+    GST_WARNING ("asink got event %s\n",gst_event_type_get_name (GST_EVENT_TYPE (event))); 
   
     switch (GST_EVENT_TYPE (event)) {  
     case GST_EVENT_NEWSEGMENT:{
