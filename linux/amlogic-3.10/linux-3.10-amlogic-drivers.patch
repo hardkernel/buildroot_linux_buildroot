@@ -1,0 +1,82 @@
+--- linux-amlogic-3.10-bringup/drivers/amlogic/Makefile.orig	2014-01-13 17:15:29.426326941 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/Makefile	2014-01-13 18:51:16.470434767 +0800
+@@ -74,7 +74,7 @@ obj-y += power/
+ #obj-$(CONFIG_AM_GPIO) +=gpio/
+ 
+ obj-y += tvin_v4l2/
+-obj-$(CONFIG_TVIN) += ../../../hardware/tvin/
++obj-$(CONFIG_TVIN) += tvin/
+ 
+ obj-y += thermal/
+ 
+@@ -100,12 +100,12 @@ ifneq ($(CONFIG_AM_NEW_TV_ARCH),y)
+ endif
+ 
+ obj-$(CONFIG_AM_WIFI) += wifi/
+-obj-$(CONFIG_SDIO_DHD_CDC_WIFI_40181_MODULE) += ../../../hardware/wifi/broadcom/drivers/ap6xxx/broadcm_40181/
+-obj-$(CONFIG_RTL8188EU) += ../../../hardware/wifi/realtek/drivers/8188eu/rtl8xxx_EU/
+-obj-$(CONFIG_RTL8188EU_MP) += ../../../hardware/wifi/realtek/drivers/8188eu/rtl8xxx_EU_MP/
+-obj-$(CONFIG_RTL8192CU) += ../../../hardware/wifi/realtek/drivers/8192cu/rtl8xxx_CU/
+-obj-$(CONFIG_RTL8192DU) += ../../../hardware/wifi/realtek/drivers/8192du/rtl8xxx_DU/
+-obj-$(CONFIG_RTL8192EU) += ../../../hardware/wifi/realtek/drivers/8192eu/rtl8192EU/
++obj-$(CONFIG_SDIO_DHD_CDC_WIFI_40181_MODULE) += wifi/broadcm_40181/
++obj-$(CONFIG_RTL8188EU) += wifi/rtl8xxx_EU/
++obj-$(CONFIG_RTL8188EU_MP) += wifi/rtl8xxx_EU_MP/
++obj-$(CONFIG_RTL8192CU) += wifi/rtl8xxx_CU/
++obj-$(CONFIG_RTL8192DU) += wifi/rtl8xxx_DU/
++obj-$(CONFIG_RTL8192EU) += wifi/rtl8192EU/
+ obj-y += bluetooth/
+ obj-$(CONFIG_MESON_NFC) += nfc/
+ #obj-y += camera/
+@@ -127,8 +127,8 @@ obj-$(CONFIG_AMLOGIC_MIPI) += mipi/
+ 
+ #obj-$(CONFIG_DEFERRED_DRIVERINIT) +=  load_deferred_module/
+ 
+-obj-$(CONFIG_UMP) += ../../../hardware/arm/gpu/ump/
+-obj-$(CONFIG_MALI400) += ../../../hardware/arm/gpu/mali/
++obj-$(CONFIG_UMP) += ump/
++obj-$(CONFIG_MALI400) += mali/
+ 
+ obj-$(CONFIG_AMLOGIC_ION) += ion_dev/
+ 
+--- linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig.orig	2014-01-13 17:14:53.882326267 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig	2014-01-13 18:51:50.738435411 +0800
+@@ -51,12 +51,12 @@ source "drivers/amlogic/amlnf/Kconfig"
+ comment "Network devices"
+ source "drivers/amlogic/ethernet/Kconfig"
+ source "drivers/amlogic/wifi/Kconfig"
+-isource "../hardware/wifi/broadcom/drivers/ap6xxx/broadcm_40181/Kconfig"
+-isource "../hardware/wifi/realtek/drivers/8188eu/rtl8xxx_EU/Kconfig"
+-isource "../hardware/wifi/realtek/drivers/8188eu/rtl8xxx_EU_MP/Kconfig"
+-isource "../hardware/wifi/realtek/drivers/8192cu/rtl8xxx_CU/Kconfig"
+-isource "../hardware/wifi/realtek/drivers/8192du/rtl8xxx_DU/Kconfig"
+-isource "../hardware/wifi/realtek/drivers/8192eu/rtl8192EU/Kconfig"
++isource "drivers/amlogic/wifi/broadcm_40181/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_EU/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_EU_MP/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_CU/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_DU/Kconfig"
++isource "drivers/amlogic/wifi/rtl8192EU/Kconfig"
+ source "drivers/amlogic/bluetooth/Kconfig"
+ #3G module power manager
+ #source "drivers/amlogic/modem/Kconfig"
+@@ -77,7 +77,7 @@ source "drivers/amlogic/amports/Kconfig"
+ source "drivers/amlogic/canvas/Kconfig"
+ source "drivers/amlogic/display/Kconfig"
+ source "drivers/amlogic/hdmi/Kconfig"
+-isource "../hardware/tvin/Kconfig"
++isource "drivers/amlogic/tvin/Kconfig"
+ #source "drivers/amlogic/cmem/Kconfig"
+ #source "drivers/amlogic/jpeglogo/Kconfig"
+ #source "drivers/amlogic/dvb/Kconfig"
+@@ -101,8 +101,8 @@ comment "GPU (ARM Mali)"
+ #isource "drivers/amlogic/ump/Kconfig"
+ #isource "drivers/amlogic/mali/Kconfig"
+ #comment "GPU (ARM Mali (external))"
+-isource "../hardware/arm/gpu/ump/Kconfig"
+-isource "../hardware/arm/gpu/mali/Kconfig"
++isource "drivers/amlogic/ump/Kconfig"
++isource "drivers/amlogic/mali/Kconfig"
+ source "drivers/amlogic/ion_dev/Kconfig"
+ 
+ #

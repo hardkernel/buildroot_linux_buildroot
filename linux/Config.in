@@ -260,10 +260,10 @@ if BR2_LINUX_KERNEL_DTS_SUPPORT
 # The variable below address the second case, were you only want
 # limited actions from buildroot.
 config BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
-	bool
+	bool "dtb self built"
 
 config BR2_LINUX_KERNEL_APPENDED_DTB
-	bool
+	bool "append dtb"
 
 choice
 	prompt "Device tree source"
@@ -298,6 +298,8 @@ config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
 	help
 	  Path to the device tree source file
 
+config BR2_LINUX_KERNEL_AMLOGIC_DTD
+	bool "Amlogic DTD"
 endif
 
 config BR2_LINUX_KERNEL_INSTALL_TARGET
@@ -316,7 +318,13 @@ config BR2_LINUX_KERNEL_INSTALL_TARGET
 source "linux/Config.ext.in"
 source "package/gpu/Config.in"
 source "package/wifi-fw/Config.in"
+source "package/rtk8188eu/Config.in"
+source "package/rtk8192cu/Config.in"
+source "package/rtk8192du/Config.in"
+source "package/rtk8192eu/Config.in"
+source "package/brcmap6xxx/Config.in"
 source "package/aml_nand/Config.in"
+source "package/aml_tvin/Config.in"
 
 endif # BR2_LINUX_KERNEL
 

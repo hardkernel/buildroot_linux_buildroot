@@ -45,6 +45,34 @@ ifeq ($(BR2_LINUX_KERNEL_UBOOT_IMAGE),y)
 	LINUX_DEPENDENCIES += host-uboot-tools
 endif
 
+ifeq ($(BR2_PACKAGE_AML_CUSTOMER),y)
+	LINUX_DEPENDENCIES += aml_customer
+endif
+ifeq ($(BR2_PACKAGE_GPU),y)
+	LINUX_DEPENDENCIES += gpu
+endif
+ifeq ($(BR2_PACKAGE_AML_NAND),y)
+	LINUX_DEPENDENCIES += aml_nand
+endif
+ifeq ($(BR2_PACKAGE_RTK8188EU),y)
+	LINUX_DEPENDENCIES += rtk8188eu
+endif
+ifeq ($(BR2_PACKAGE_RTK8192CU),y)
+	LINUX_DEPENDENCIES += rtk8192cu
+endif
+ifeq ($(BR2_PACKAGE_RTK8192DU),y)
+	LINUX_DEPENDENCIES += rtk8192du
+endif
+ifeq ($(BR2_PACKAGE_RTK8192EU),y)
+	LINUX_DEPENDENCIES += rtk8192eu
+endif
+ifeq ($(BR2_PACKAGE_BRCMAP6XXX),y)
+	LINUX_DEPENDENCIES += brcmap6xxx
+endif
+ifeq ($(BR2_PACKAGE_AML_TVIN),y)
+	LINUX_DEPENDENCIES += aml_tvin
+endif
+
 LINUX_MAKE_FLAGS = \
 	HOSTCC="$(HOSTCC)" \
 	HOSTCFLAGS="$(HOSTCFLAGS)" \
@@ -76,6 +104,7 @@ endif
 endif
 
 KERNEL_DTBS = $(addsuffix .dtb,$(KERNEL_DTS_NAME))
+KERNEL_DTDS = $(addsuffix .dtd,$(KERNEL_DTS_NAME))
 
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
 LINUX_IMAGE_NAME=$(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
@@ -170,6 +199,21 @@ define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_PACKAGE_GPU),
 		cp -rf $(GPU_DIR)/mali $(LINUX_DIR)/drivers/amlogic/
 		cp -rf $(GPU_DIR)/ump $(LINUX_DIR)/drivers/amlogic/)
+	$(if $(BR2_PACKAGE_AML_NAND),
+		cp -rf $(AML_NAND_DIR)/aml_nftl_new $(LINUX_DIR)/drivers/amlogic/nand/)
+	$(if $(BR2_PACKAGE_RTK8188EU), 
+		cp -rf $(RTK8188EU_DIR)/rtl8xxx_EU $(LINUX_DIR)/drivers/amlogic/wifi/;
+		cp -rf $(RTK8188EU_DIR)/rtl8xxx_EU_MP $(LINUX_DIR)/drivers/amlogic/wifi/)
+	$(if $(BR2_PACKAGE_RTK8192CU),
+		cp -rf $(RTK8192CU_DIR)/rtl8xxx_CU $(LINUX_DIR)/drivers/amlogic/wifi/)
+	$(if $(BR2_PACKAGE_RTK8192DU),
+		cp -rf $(RTK8192DU_DIR)/rtl8xxx_DU $(LINUX_DIR)/drivers/amlogic/wifi/)
+	$(if $(BR2_PACKAGE_RTK8192EU),
+		cp -rf $(RTK8192EU_DIR)/rtl8192EU $(LINUX_DIR)/drivers/amlogic/wifi/)
+	$(if $(BR2_PACKAGE_BRCMAP6XXX),
+		cp -rf $(BRCMAP6XXX_DIR)/broadcm_40181 $(LINUX_DIR)/drivers/amlogic/wifi/)
+	$(if $(BR2_PACKAGE_AML_TVIN),
+		cp -rf $(AML_TVIN_DIR)/ $(LINUX_DIR)/drivers/amlogic/tvin/)
 	$(if $(BR2_LINUX_KERNEL_USE_DEFCONFIG),	
 		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig)
 	$(if $(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),
@@ -203,6 +247,29 @@ endef
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
 ifeq ($(BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT),)
+
+ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
+define LINUX_BUILD_DTB
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTDS)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTBS)
+endef
+define LINUX_INSTALL_DTB
+	# dtbs moved from arch/<ARCH>/boot to arch/<ARCH>/boot/dts since 3.8-rc1
+	cp $(addprefix \
+		$(KERNEL_ARCH_PATH)/boot/$(if $(wildcard \
+		$(addprefix $(KERNEL_ARCH_PATH)/boot/dts/amlogic/,$(KERNEL_DTBS))),dts/amlogic/),$(KERNEL_DTBS)) \
+		$(BINARIES_DIR)/
+endef
+define LINUX_INSTALL_DTB_TARGET
+	# dtbs moved from arch/<ARCH>/boot to arch/<ARCH>/boot/dts since 3.8-rc1
+	cp $(addprefix \
+		$(KERNEL_ARCH_PATH)/boot/$(if $(wildcard \
+		$(addprefix $(KERNEL_ARCH_PATH)/boot/dts/amlogic/,$(KERNEL_DTBS))),dts/amlogic/),$(KERNEL_DTBS)) \
+		$(TARGET_DIR)/boot/
+endef
+
+else #BR2_LINUX_KERNEL_AMLOGIC_DTD
+
 define LINUX_BUILD_DTB
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTBS)
 endef
@@ -220,6 +287,8 @@ define LINUX_INSTALL_DTB_TARGET
 		$(addprefix $(KERNEL_ARCH_PATH)/boot/dts/,$(KERNEL_DTBS))),dts/),$(KERNEL_DTBS)) \
 		$(TARGET_DIR)/boot/
 endef
+endif
+
 endif
 endif
 
@@ -244,6 +313,10 @@ LINUX_APPEND_DTB += $(sep) MKIMAGE_ARGS=`$(HOST_DIR)/usr/bin/mkimage -l $(LINUX_
         -T kernel -C none $${MKIMAGE_ARGS} \
         -d $(KERNEL_ARCH_PATH)/boot/zImage $(LINUX_IMAGE_PATH);
 endif
+endif
+
+ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
+TARGETS += mkbootimg
 endif
 
 # Compilation. We make sure the kernel gets rebuilt when the
@@ -336,6 +409,10 @@ $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LI
 # The initramfs building code must make sure this target gets called
 # after it generated the initramfs list of files.
 linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
+
+mkbootimg: $(LINUX_DIR)/.stamp_target_installed $(LINUX_DIR)/.stamp_images_installed $(BINARIES_DIR)/rootfs.cpio
+	@$(call MESSAGE,"Generating boot image")
+	$(LINUX_DIR)/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk  $(BINARIES_DIR)/rootfs.cpio --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
 
 # Checks to give errors that the user can understand
 ifeq ($(filter source,$(MAKECMDGOALS)),)

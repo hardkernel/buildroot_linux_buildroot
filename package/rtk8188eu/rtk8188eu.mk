@@ -1,9 +1,9 @@
 ################################################################################
 #
-# amlogic gpu driver
+# amlogic 8188eu driver
 #
 ################################################################################
 
-GPU_VERSION = $(call qstrip,$(BR2_PACKAGE_GPU_VERSION))
-GPU_SITE = $(call qstrip,$(BR2_PACKAGE_GPU_GIT_URL))
+RTK8188EU_VERSION = $(call qstrip,$(BR2_PACKAGE_RTK8188EU_GIT_VERSION))
+RTK8188EU_SITE = $(call qstrip,$(BR2_PACKAGE_RTK8188EU_GIT_REPO_URL))
 $(eval $(generic-package))

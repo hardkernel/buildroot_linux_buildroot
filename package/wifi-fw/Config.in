@@ -15,3 +15,10 @@ config BR2_PACKAGE_WIFI_FW_CUSTOM_GIT_REPO_URL
 	depends on BR2_PACKAGE_WIFI_FW
 	help
 		Wifi fw git
+
+config BR2_PACKAGE_WIFI_FW_WIFI_MODULE
+    string "wifi module"
+	depends on BR2_PACKAGE_WIFI_FW
+	help
+		Wifi module 
+

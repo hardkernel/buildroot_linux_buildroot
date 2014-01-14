@@ -1,9 +1,9 @@
 ################################################################################
 #
-# amlogic gpu driver
+# amlogic broadcom AP6xxx driver
 #
 ################################################################################
 
-GPU_VERSION = $(call qstrip,$(BR2_PACKAGE_GPU_VERSION))
-GPU_SITE = $(call qstrip,$(BR2_PACKAGE_GPU_GIT_URL))
+BRCMAP6XXX_VERSION = $(call qstrip,$(BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION))
+BRCMAP6XXX_SITE = $(call qstrip,$(BR2_PACKAGE_BRCMAP6XXX_GIT_REPO_URL))
 $(eval $(generic-package))

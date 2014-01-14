@@ -1,9 +1,9 @@
 ################################################################################
 #
-# amlogic gpu driver
+# amlogic tvin driver
 #
 ################################################################################
 
-GPU_VERSION = $(call qstrip,$(BR2_PACKAGE_GPU_VERSION))
-GPU_SITE = $(call qstrip,$(BR2_PACKAGE_GPU_GIT_URL))
+AML_TVIN_VERSION = $(call qstrip,$(BR2_PACKAGE_AML_TVIN_GIT_VERSION))
+AML_TVIN_SITE = $(call qstrip,$(BR2_PACKAGE_AML_TVIN_GIT_REPO_URL))
 $(eval $(generic-package))
