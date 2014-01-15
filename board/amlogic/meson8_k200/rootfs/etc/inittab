@@ -24,6 +24,7 @@
 ::sysinit:/sbin/mdev -s
 ::sysinit:/bin/mount -o remount,rw /
 ::sysinit:/bin/mount -a
+::sysinit:modprobe mali
 ::sysinit:/bin/hostname -F /etc/hostname
 ::sysinit:/sbin/ifconfig lo 127.0.0.1 up
 ::sysinit:/sbin/route add -net 127.0.0.0 netmask 255.0.0.0 lo
@@ -54,7 +55,7 @@ null::shutdown:/usr/bin/killall syslogd
 null::shutdown:/bin/umount -a -r
 null::shutdown:/sbin/swapoff -a
 
-null::sysinit:modprobe mali
+null::sysinit:ln -s /dev/mali0 /dev/mali
 null::sysinit:echo 1 > /sys/class/graphics/fb0/blank
 null::sysinit:echo 720p > /sys/class/display/mode
 null::sysinit:/usr/sbin/fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
