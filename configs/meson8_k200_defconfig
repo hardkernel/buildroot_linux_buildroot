@@ -212,3 +212,4 @@ BR2_PACKAGE_MALI_UTILITY=y
 BR2_PACKAGE_AML_NAND=n
 BR2_PACKAGE_AML_NAND_VERSION="amlogic-nand"
 BR2_PACKAGE_AML_NAND_GIT_URL="git://git.myamlogic.com/platform/hardware/amlogic/nand.git"
+BR2_PACKAGE_AML_UTIL=y
