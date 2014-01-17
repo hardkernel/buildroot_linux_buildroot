@@ -15,7 +15,7 @@ endef
 else
 # devtmpfs does not get automounted when initramfs is used.
 # Add a pre-init script to mount it before running init
-ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS), y)
+ifneq ($(BR2_TARGET_ROOTFS_INITRAMFS_LIST),"")
 define ROOTFS_CPIO_ADD_INIT
         if [ ! -e $(TARGET_DIR)/init ]; then \
                 $(INSTALL) -m 0755 fs/cpio/init $(TARGET_DIR)/init; \
@@ -30,7 +30,7 @@ define ROOTFS_CPIO_ADD_INIT
                 $(INSTALL) -m 0755 fs/cpio/init2 $(TARGET_DIR)/init; \
         fi
 endef
-endif # BR2_TARGET_ROOTFS_INITRAMFS
+endif # BR2_TARGET_ROOTFS_INITRAMFS_LIST
 
 PACKAGES_PERMISSIONS_TABLE += /dev/console c 622 0 0 5 1 - - -$(sep)
 
@@ -47,5 +47,15 @@ define ROOTFS_CPIO_CMD
 	cd $(TARGET_DIR) && find . | cpio --quiet -o -H newc > $@
 endef
 endif # BR2_TARGET_ROOTFS_INITRAMFS_LIST
+
+mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/rootfs.cpio
+	@$(call MESSAGE,"Generating boot image")
+	$(LINUX_DIR)/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk  $(BINARIES_DIR)/rootfs.cpio --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
+
+ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
+define ROOTFS_CPIO_POST_TARGETS
+	mkbootimg
+endef
+endif
 
 $(eval $(call ROOTFS_TARGET,cpio))

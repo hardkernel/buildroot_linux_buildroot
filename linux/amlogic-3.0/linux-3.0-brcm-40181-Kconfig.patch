@@ -5,7 +5,7 @@
  	depends on SDIO && SDIO_DHD_CDC_WIFI_40181_MODULE
  	string "Firmware path"
 -	default "/system/etc/wifi/40183/fw_bcmdhd.bin"
-+	default "/etc/wifi/40181/fw_bcmdhd.bin"
++	default "/etc/wifi/fw_bcmdhd.bin"
  	---help---
  	  Path to the firmware file.
  
@@ -13,7 +13,7 @@
  	depends on SDIO && SDIO_DHD_CDC_WIFI_40181_MODULE
  	string "NVRAM path"
 -	default "/system/etc/wifi/40183/nvram.txt"
-+	default "/etc/wifi/40181/nvram.txt"
++	default "/etc/wifi/nvram.txt"
  	---help---
  	  Path to the calibration file.
  

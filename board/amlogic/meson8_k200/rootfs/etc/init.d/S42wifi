@@ -1,0 +1,34 @@
+#!/bin/sh
+
+NAME=wpa_supplicant 
+DAEMON=/usr/sbin/$NAME 
+PIDFILE=/var/run/$NAME.pid 
+POWERCTL=/usr/bin/wifi_power
+
+case "$1" in
+    start)
+        echo "Starting supplicant..."
+        modprobe 8188eu
+        $POWERCTL 1
+        sleep 2
+        start-stop-daemon -S -m -p $PIDFILE -b -x $DAEMON -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf 
+        echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+        ;;
+    stop)
+        echo -n "Stopping supplicant..."
+        start-stop-daemon -K -o -p $PIDFILE
+        sleep 2
+        rm -f $PIDFILE 
+        rmmod 8188eu
+        $POWERCTL 0
+        ;;
+    restart|reload)
+        start-stop-daemon -K -s HUP -n wpa_supplicant
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
+

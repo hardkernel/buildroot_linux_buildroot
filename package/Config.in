@@ -4,6 +4,7 @@ source "package/busybox/Config.in"
 menu "amlogic customer"
 source "package/aml_customer/Config.in"
 endmenu
+source "package/aml_util/Config.in"
 # Audio and video applications
 source "package/multimedia/Config.in"
 
