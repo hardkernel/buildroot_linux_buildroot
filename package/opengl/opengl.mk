@@ -9,22 +9,21 @@ OPENGL_SOURCE=src
 OPENGL_SITE=.
 
 ifeq ($(BR2_PACKAGE_GPU_VERSION),"r3p2")
-MALI_LIB=libMali-r3p2.so
+MALI_LIB_DIR=r3p2-EAC
 else ifeq ($(BR2_PACKAGE_GPU_VERSION),"r3p2-01rel3")
-MALI_LIB=libMali-r3p2-01rel3.so
+MALI_LIB_DIR=r3p2-01rel3
 endif
 
 $(OPENGL_DIR)/.unpacked:
 	mkdir -p $(OPENGL_DIR)
 	cp -arf ./package/opengl/src/* $(OPENGL_DIR)
+	cp $(OPENGL_DIR)/lib/$(MALI_LIB_DIR)/libMali.so $(OPENGL_DIR)/lib/libMali.so
 	touch $(OPENGL_DIR)/.unpacked
 
 $(OPENGL_DIR)/.installed: $(OPENGL_DIR)/.unpacked
 	cp -arf $(OPENGL_DIR)/* $(STAGING_DIR)/usr
-	cp $(OPENGL_DIR)/lib/$(MALI_LIB) $(OPENGL_DIR)/lib/libMali.so
-	install -m 755 $(OPENGL_DIR)/lib/*.so $(TARGET_DIR)/usr/lib
-	rm  $(TARGET_DIR)/usr/lib/$(MALI_LIB)
-	rm  $(OPENGL_DIR)/lib/libMali.so
+	cp -d $(OPENGL_DIR)/lib/*.so $(TARGET_DIR)/usr/lib
+	install -m 755 $(OPENGL_DIR)/lib/$(MALI_LIB_DIR)/libMali.so $(TARGET_DIR)/usr/lib
 	touch $(OPENGL_DIR)/.installed
 
 opengl: $(OPENGL_DIR)/.installed
