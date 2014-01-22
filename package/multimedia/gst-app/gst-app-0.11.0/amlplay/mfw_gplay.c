@@ -736,7 +736,14 @@ int main(int argc,char *argv[])
     if ((config.playbin_version==1)&&(config.video_sink_name==NULL)){
         config.video_sink_name = "autovideosink";
     }
-
+    char *p;
+    p = strrchr(opt->current->name, '.');
+    PRINT("p=%s\n",p);	
+    if(p&&!strncmp(p,".wav",4)){
+	
+        player_handle = fsl_player_initwav(&config,opt->current->name);
+    }
+    else 	
     player_handle = fsl_player_init(&config);
     if( NULL == player_handle )
     {
@@ -753,6 +760,7 @@ int main(int argc,char *argv[])
     FSL_PLAYER_CREATE_THREAD( &msg_thread, msg_thread_fun, player_handle );
 
     // Play the multimedia file directory after starting command line player.
+
     pplayer->klass->set_media_location(pplayer, opt->current->name, &drm_format);
     pplayer->klass->play(pplayer);
 
@@ -778,6 +786,7 @@ int main(int argc,char *argv[])
                 break;
 
             case 'p': // Play.
+             
                 fsl_player_set_media_location(player_handle, filename2uri(uri_buffer,argv[1]), &drm_format);
                 //pplayer->klass->set_media_location(pplayer, opt->current->name, &drm_format);
                 pplayer->klass->play(pplayer);

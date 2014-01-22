@@ -286,6 +286,7 @@ typedef struct{
 
 /* api functions of fsl_player */
 fsl_player_handle fsl_player_init(fsl_player_config * config);
+fsl_player_handle fsl_player_initwav(fsl_player_config * config,fsl_player_s8* name);
 fsl_player_ret_val fsl_player_deinit(fsl_player_handle handle);
 
 

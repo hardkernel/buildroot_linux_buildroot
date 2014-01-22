@@ -560,6 +560,142 @@ fsl_player_ret_val fsl_player_class_init (fsl_player_class * klass)
     return FSL_PLAYER_SUCCESS;
 }
 
+fsl_player_handle fsl_player_initwav(fsl_player_config * config, fsl_player_s8* name)
+{ 
+
+    GstBus* bus = NULL;
+    fsl_player* pplayer = NULL;
+    fsl_player_property* pproperty = NULL;
+    fsl_player_element_property * ele_property;
+    fsl_player_element_signal_handler * ele_sighandle;
+    gchar *l;
+    GError *err = NULL;
+
+ /* Specify the log file. */
+    if (fsl_player_logfile == NULL)
+        fsl_player_logfile = stdout;
+
+    if (config->api_version!=GPLAYCORE_API_VERSION){
+        g_print("Wrong API version %d, expect %d!!\n", config->api_version, GPLAYCORE_API_VERSION);
+        goto init_failed;
+    }
+
+    pplayer = (fsl_player*)malloc(sizeof(fsl_player));
+    if( NULL == pplayer )
+    {
+        FSL_PLAYER_PRINT("%s(): Failed in g_malloc(fsl_player)!\n", __FUNCTION__);
+        goto init_failed;
+    }
+    memset(pplayer, 0, sizeof(fsl_player));
+       
+    pplayer->property_handle = malloc(sizeof(fsl_player_property));
+    if( NULL == pplayer->property_handle )
+    {
+        FSL_PLAYER_PRINT("%s(): Failed in malloc(fsl_player_property)!\n", __FUNCTION__);
+        goto init_failed;
+    }
+    pproperty = (fsl_player_property*)pplayer->property_handle;
+    memset(pproperty, 0, sizeof(fsl_player_property));
+
+    
+    pproperty->config.playbin_version = config->playbin_version;
+    pproperty->verbose = config->verbose;
+
+    pproperty->timeout = config->timeout_second;
+    
+    if (config->features & GPLAYCORE_FEATURE_AUTO_BUFFERING){
+        pproperty->auto_buffering = 1;
+    }
+    if (config->features & GPLAYCORE_FEATURE_AUTO_REDIRECT_URI){
+        pproperty->auto_redirect = 1;
+    }
+    if (config->features & GPLAYCORE_FEATURE_AUDIO_FADE){
+        pproperty->fade = TRUE;
+    }
+
+    gst_init(NULL, NULL);
+    pproperty->g_main_loop = g_main_loop_new(NULL, TRUE);
+	
+    l = g_strdup_printf (" filesrc location=\"%s\" !wavparse !amladec !amlasink",name);
+    pproperty->playbin = gst_parse_launch (l, &err);
+    if (pproperty->playbin== NULL || err != NULL) {
+      g_printerr ("Cannot build pipeline: %s\n", err->message);
+      g_error_free (err);
+      g_free (l);
+      if (pproperty->playbin)
+        gst_object_unref (pproperty->playbin);
+      return -1;
+    }
+    g_free (l);
+
+    bus = gst_pipeline_get_bus(GST_PIPELINE(pproperty->playbin));
+    if( NULL == bus )
+    {
+        FSL_PLAYER_PRINT("%s(): Failed in gst_pipeline_get_bus()!\n", __FUNCTION__);
+        goto init_failed;
+    }
+    pproperty->watchid = gst_bus_add_watch(bus, my_bus_callback, pplayer);
+    gst_object_unref(bus);
+
+    if( NULL == pproperty->g_main_loop_thread )
+    {
+		pproperty->g_main_loop_thread = g_thread_create((GThreadFunc)g_main_loop_thread_fun, pplayer, FSL_PLAYER_TRUE, NULL);
+    }
+
+    pproperty->player_state = FSL_PLAYER_STATUS_STOPPED;
+    pproperty->playback_rate = DEFAULT_PLAYBACK_RATE;
+    pproperty->volume = DEFAULT_VOLUME;
+    pproperty->bmute = 0;
+    pproperty->display_parameter.offsetx = DEFAULT_OFFSET_X;
+    pproperty->display_parameter.offsety = DEFAULT_OFFSET_Y;
+    pproperty->display_parameter.disp_width = DEFAULT_DISPLAY_WIDTH;
+    pproperty->display_parameter.disp_height = DEFAULT_DISPLAY_HEIGHT;
+    pproperty->rotate_value = FSL_PLAYER_ROTATION_NORMAL;
+    pproperty->bfullscreen = 0;
+    pproperty->btv_enable = 0;
+    pproperty->tv_mode = FSL_PLAYER_VIDEO_OUTPUT_LCD;
+
+    pproperty->duration = 0;
+    pproperty->elapsed = 0;
+
+    FSL_PLAYER_MUTEX_INIT( &(pproperty->status_switching_mutex) );
+
+    // Initialize queue.
+    fsl_player_queue_inst_init( &(pproperty->queue) );
+    //fsl_player_queue_class_init( pproperty->queue.klass );
+    //pproperty->queue.klass->config( &(pproperty->queue), CALLBACK_QUEUE_LENTH );
+
+    FSL_PLAYER_SEMA_INIT( &(pproperty->eos_semaphore), 0 );
+    FSL_PLAYER_SEMA_INIT( &(pproperty->stop_semaphore), 0 );
+
+    // assign the function pointers.
+    pplayer->klass = (fsl_player_class*)malloc( sizeof(fsl_player_class) );
+    if( NULL == pplayer->klass )
+    {
+        FSL_PLAYER_PRINT("klass: fail to init klass.\n");
+        goto init_failed;
+    }
+    fsl_player_class_init( pplayer->klass );
+
+    FSL_PLAYER_PRINT("%s(): Successfully initialize!\n", __FUNCTION__);
+
+    return pplayer;
+
+init_failed:
+    if(pproperty)
+    {
+        free(pproperty);
+        pproperty = NULL;
+    }
+    if(pplayer)
+    {
+        free(pplayer);
+        pplayer = NULL;
+    }
+    FSL_PLAYER_PRINT("%s(): Failed initialization!\n", __FUNCTION__);
+    return pplayer;
+} 
+
 fsl_player_handle fsl_player_init(fsl_player_config * config)
 {
     GstBus* bus = NULL;
@@ -870,6 +1006,12 @@ fsl_player_ret_val fsl_player_set_media_location(fsl_player_handle handle, fsl_p
     fsl_player* pplayer = (fsl_player*)handle;
     fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
     fsl_player_s8 uri_buffer[512];
+    char *p;
+	
+    p = strrchr(filename, '.');
+    FSL_PLAYER_PRINT("p=%s\n",p);	
+    if(p&&!strncmp(p,".wav",4))
+        goto Done;
     filename2uri(uri_buffer,filename);
 
     
@@ -881,7 +1023,7 @@ fsl_player_ret_val fsl_player_set_media_location(fsl_player_handle handle, fsl_p
         g_object_set(G_OBJECT(pproperty->playbin), "buffer-size", (fsl_player_s64)2000000, NULL);
     }
 #endif    
-    
+Done:    
     FSL_PLAYER_PRINT("%s(): filename=%s\n", __FUNCTION__, filename);
     return FSL_PLAYER_SUCCESS;
 }

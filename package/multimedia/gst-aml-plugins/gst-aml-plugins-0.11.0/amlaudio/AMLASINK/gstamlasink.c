@@ -95,7 +95,7 @@ enum
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("audio/mpeg; audio/x-eac3; audio/x-ac3; audio/x-adpcm; audio/x-flac; audio/x-wma; audio/x-vorbis; audio/x-mulaw; audio/x-raw")
+    GST_STATIC_CAPS ("audio/mpeg; audio/x-eac3; audio/x-ac3; audio/x-adpcm; audio/x-flac; audio/x-wma; audio/x-vorbis; audio/x-mulaw; audio/x-raw-int")
     );
 
 GST_BOILERPLATE (GstAmlAsink, gst_amlasink, GstBaseSink ,GST_TYPE_BASE_SINK);

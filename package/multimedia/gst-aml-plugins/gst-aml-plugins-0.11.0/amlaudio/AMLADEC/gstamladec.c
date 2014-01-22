@@ -70,13 +70,13 @@ static GstStaticPadTemplate amladec_src_template_factory =
     GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("audio/x-raw")  //not valid formt just use for cap link
+    GST_STATIC_CAPS ("audio/x-raw-int")  
     );
 static GstStaticPadTemplate amladec_sink_template_factory =
     GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("audio/mpeg; audio/x-eac3; audio/x-ac3; audio/x-adpcm; audio/x-flac; audio/x-wma; audio/x-vorbis; audio/x-mulaw,audio/x-raw-int")
+    GST_STATIC_CAPS ("audio/mpeg; audio/x-eac3; audio/x-ac3; audio/x-adpcm; audio/x-flac; audio/x-wma; audio/x-vorbis; audio/x-mulaw; audio/x-raw-int")
     );
 static void gst_amladec_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
