@@ -24,6 +24,7 @@
 ::sysinit:/sbin/mdev -s
 ::sysinit:/bin/mount -o remount,rw /
 ::sysinit:/bin/mount -a
+::sysinit:modprobe mali
 ::sysinit:/bin/hostname -F /etc/hostname
 ::sysinit:/sbin/ifconfig lo 127.0.0.1 up
 ::sysinit:/sbin/route add -net 127.0.0.0 netmask 255.0.0.0 lo
