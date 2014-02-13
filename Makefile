@@ -291,7 +291,10 @@ export BUILDROOT_CACHE_DIR
 HOSTCC  := $(CCACHE) $(HOSTCC)
 HOSTCXX := $(CCACHE) $(HOSTCXX)
 endif
-
+ifdef BR2_TARGET_BOARD_PLATFORM
+	export BR2_TARGET_BOARD_PLATFORM
+	#echo $ (BR2_TARGET_BOARD_PLATFORM)
+endif
 # Scripts in support/ or post-build scripts may need to reference
 # these locations, so export them so it is easier to use
 export BUILDROOT_CONFIG

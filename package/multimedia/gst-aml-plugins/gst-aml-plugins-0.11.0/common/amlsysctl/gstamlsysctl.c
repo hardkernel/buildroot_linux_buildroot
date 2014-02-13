@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <linux/fb.h>
 #include "gstamlsysctl.h"
-
+static int axis[8] = {0};
 int set_sysfs_str(const char *path, const char *val)
 {
     int fd;
@@ -100,6 +100,60 @@ int set_fb0_blank(int blank)
 int set_fb1_blank(int blank)
 {
     return  set_sysfs_int("/sys/class/graphics/fb1/blank", blank);
+}
+
+int parse_para(const char *para, int para_num, int *result)
+{
+    char *endp;
+    const char *startp = para;
+    int *out = result;
+    int len = 0, count = 0;
+    if (!startp) {
+        return 0;
+    }
+    len = strlen(startp);
+    do {
+        //filter space out
+        while (startp && (isspace(*startp) || !isgraph(*startp)) && len) {
+            startp++;
+            len--;
+        }
+        if (len == 0) {
+            break;
+        } 
+       *out++ = strtol(startp, &endp, 0);
+        len -= endp - startp;
+        startp = endp;
+        count++;
+    } while ((endp) && (count < para_num) && (len > 0));
+    return count;
+}
+
+int set_display_axis(int recovery)
+{    
+    int fd;    
+    char *path = "/sys/class/display/axis";
+    char str[128];
+    int count, i;
+    fd = open(path, O_CREAT|O_RDWR | O_TRUNC, 0644);
+    if (fd >= 0) {
+        if (!recovery) {
+            read(fd, str, 128);
+            printf("read axis %s, length %d\n", str, strlen(str));
+            count = parse_para(str, 8, axis);
+        }
+        if (recovery) {
+            sprintf(str, "%d %d %d %d %d %d %d %d",
+                 axis[0],axis[1], axis[2], axis[3], axis[4], axis[5], axis[6], axis[7]);
+        } else {
+            sprintf(str, "2048 %d %d %d %d %d %d %d",
+                 axis[1], axis[2], axis[3], axis[4], axis[5], axis[6], axis[7]);
+        }
+        write(fd, str, strlen(str));
+        close(fd);
+        return 0;
+    }
+    return -1;
 }
 
 /*property functions*/

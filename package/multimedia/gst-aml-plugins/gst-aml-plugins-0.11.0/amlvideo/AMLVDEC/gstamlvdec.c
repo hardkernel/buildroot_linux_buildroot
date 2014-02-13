@@ -231,6 +231,7 @@ static gboolean gst_set_vstream_info (GstAmlVdec  *amlvdec,GstCaps * caps )
             set_fb0_blank(1);
             set_fb1_blank(1);
             set_tsync_enable(1);
+            set_display_axis(0);
             amlvdec->codec_init_ok=1;
             if(amlvdec->trickRate > 0){
                 if(amlvdec->pcodec && amlvdec->pcodec->cntl_handle){

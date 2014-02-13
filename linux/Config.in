@@ -129,6 +129,11 @@ config BR2_LINUX_KERNEL_DEFCONFIG
 	 trailing _defconfig.  The defconfig is located in
 	 arch/<arch>/configs in the kernel tree.
 
+config BR2_TARGET_BOARD_PLATFORM
+        string "platform name"
+        help 
+         Name of platform type
+
 config BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE
 	string "Configuration file path"
 	depends on BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG

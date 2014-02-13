@@ -83,6 +83,7 @@ BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL="gituser@git-sc.amlogic.com:kernel/common.g
 BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION="amlogic-3.0"
 BR2_LINUX_KERNEL_PATCH="linux/amlogic-3.0"
 BR2_LINUX_KERNEL_DEFCONFIG="meson6tv_h101"
+BR2_TARGET_BOARD_PLATFORM="meson6"
 BR2_PACKAGE_GPU=y
 BR2_PACKAGE_GPU_VERSION="r3p2"
 BR2_PACKAGE_GPU_GIT_URL="git://git-sc.amlogic.com/platform/hardware/arm/gpu.git"

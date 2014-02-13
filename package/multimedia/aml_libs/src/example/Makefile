@@ -1,22 +1,14 @@
-PREFIX=$(LIBPLAYER_STAGING_DIR)/usr
-TARGET_DIR=$(LIBPLAYER_TARGET_DIR)/usr
-TARGET_FIRWARE_DIR=$(LIBPLAYER_TARGET_DIR)
-LIB_DIR=$(PREFIX)/lib/libplayer
-BUILD_DIR=$(shell pwd)
-INC_DIR=$(LIBPLAYER_STAGING_DIR)/usr/include
 CROSS=$(CC:%gcc=%)
 
-kplayer_s=esplayer.c
+esplayer_s=esplayer.c
 
 INSTALL_FLAGS=-m 755
 
 TARGET=esplayer
 
-LDFLAGS= -L$(PREFIX)/lib/libplayer  -lm -lz -lpthread -lamcodec -ldl  -lamadec -lasound  -lamavutils -lrt
+LDFLAGS= -L$(STAGING_DIR)/usr/lib/aml_libs -lgstamcodec -ldl -lgstamadec -lasound -lgstamavutils
 CFLAGS+= -I${BUILD_DIR}/../amcodec/include -I${BUILD_DIR}/../amadec/include 
-CFLAGS+= -I$(INC_DIR)
 CFLAGS+=-O2 -g
-
 
 #ifeq ($(BR2_TARGET_BOARD_PLATFORM),meson6)
     FIRMWARE_TYPE=firmware-m6
@@ -29,13 +21,11 @@ CFLAGS+=-O2 -g
 .PHONY: all config  before_cmd install clean distclean
 
 all: ${TARGET}
+	mkdir -p ${PREFIX}/lib/firmware
 
 install:all
 	install $(INSTALL_FLAGS) $(TARGET) $(TARGET_DIR)/bin
-	cp -rf $(LIB_DIR)/libamavutils* $(TARGET_DIR)/lib
-	mkdir -p $(TARGET_FIRWARE_DIR)/lib/firmware
-	cp -rf ${BUILD_DIR}/../amadec/$(FIRMWARE_TYPE)/*.bin $(TARGET_FIRWARE_DIR)/lib/firmware
-
+#	cp -rf ${BUILD_DIR}/../amadec/$(FIRMWARE_TYPE)/*.bin ${PREFIX}/lib/firmware
 distclean:clean
     
 clean:
