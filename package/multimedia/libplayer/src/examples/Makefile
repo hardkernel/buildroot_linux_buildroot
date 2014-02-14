@@ -19,13 +19,13 @@ CFLAGS+= -I$(INC_DIR)
 CFLAGS+=-O2 -g
 
 
-#ifeq ($(BR2_TARGET_BOARD_PLATFORM),meson6)
+ifeq ($(BR2_TARGET_BOARD_PLATFORM),"meson6")
     FIRMWARE_TYPE=firmware-m6
-#else ifeq ($(BR2_TARGET_BOARD_PLATFORM),meson8)
-#    FIRMWARE_TYPE=firmware-m8
-#else
-#    FIRMWARE_TYPE=firmware
-#endif
+else ifeq ($(BR2_TARGET_BOARD_PLATFORM),"meson8")
+    FIRMWARE_TYPE=firmware-m8
+else
+    FIRMWARE_TYPE=firmware
+endif
 
 .PHONY: all config  before_cmd install clean distclean
 
