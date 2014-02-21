@@ -156,6 +156,10 @@ static void gst_amladec_init (GstAmlAdec * amladec, GstAmlAdecClass * klass)
 
      amladec->pcodec = g_malloc(sizeof(codec_para_t));
      memset(amladec->pcodec, 0, sizeof(codec_para_t ));
+     if(!amlcontrol){
+     amlcontrol = g_malloc(sizeof(struct AmlControl));
+     memset(amlcontrol, 0, sizeof(struct AmlControl));
+    }	 
 
 }
 
@@ -445,7 +449,7 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     info->init(info,amladec->pcodec,structure);
     if (amladec->pcodec&&amladec->pcodec->stream_type == STREAM_TYPE_ES_AUDIO){
         if (info->writeheader)
-            info->writeheader (info,amladec->pcodec); 
+            info->writeheader (info,amladec->pcodec); 		
         if(!amladec->codec_init_ok && !amlcontrol->passthrough){
             if(!aml_decode_init(amladec))
                 return FALSE;				
