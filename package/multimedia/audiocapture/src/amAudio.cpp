@@ -56,7 +56,7 @@
 
 #define M_AUDIO_THREAD_DELAY_TIME					4000
 #define AUDIO_BUFFER_SIZE							19200
-#define M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD			25
+#define M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD			250
 
 static int amAudio_InHandle = -1;
 static int amAudio_OutHandle = -1;
@@ -362,7 +362,6 @@ static void *amAudio_Thread(void *data)
 		read_size = read (amAudio_OutHandle,amAudio_Out_BufAddr,amAudio_OutSize);
 		if(read_size  < 0){
 			LOGI("read the audio sample failed,error id %x \n",read_size);
-			break;
 		}
 		else if(read_size > 0){
 			if (no_output_detect_count==M_AUDIO_THREAD_NO_OUTPUT_DETECT_NUM_PERIOD){
