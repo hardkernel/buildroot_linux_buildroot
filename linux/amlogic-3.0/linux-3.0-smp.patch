@@ -1,0 +1,11 @@
+--- linux-custom/arch/arm/kernel/smp.c.orig	2014-02-27 11:15:07.926862654 +0800
++++ linux-custom/arch/arm/kernel/smp.c	2014-02-27 11:15:14.874862719 +0800
+@@ -235,7 +235,7 @@ void __cpu_die(unsigned int cpu)
+ 	if (!platform_cpu_kill(cpu))
+ 		printk("CPU%u: unable to kill\n", cpu);
+ #ifdef CONFIG_MESON_TRUSTZONE_SUSPEND
+-	extern inline void meson_set_cpu_ctrl_reg(int value);
++	extern void meson_set_cpu_ctrl_reg(int value);
+ 	meson_set_cpu_ctrl_reg(0);
+ #endif
+ }

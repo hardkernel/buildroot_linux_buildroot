@@ -1,0 +1,11 @@
+--- aml_uboot_customer-next/board/configs/m6_mbx_v1_tee.h.orig	2014-03-05 10:30:58.478538490 +0800
++++ aml_uboot_customer-next/board/configs/m6_mbx_v1_tee.h	2014-03-05 10:31:21.414539270 +0800
+@@ -483,7 +483,7 @@
+ // use secureboot, need enable the following 2 config, it is (CONFIG_M6_SECU_BOOT and CONFIG_AML_SPL_L1_CACHE_ON)
+ //#define CONFIG_AML_SPL_L1_CACHE_ON     1
+ 
+-//#define CONFIG_SECURE_STORAGE_BURNED
++#define CONFIG_SECURE_STORAGE_BURNED
+ #ifdef CONFIG_SECURE_STORAGE_BURNED
+ #define CONFIG_SECURESTORAGEKEY
+ #define CONFIG_RANDOM_GENERATE

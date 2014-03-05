@@ -241,4 +241,21 @@ config BR2_TARGET_UBOOT_ENVIMAGE_SIZE
 
 endif # BR2_TARGET_UBOOT_ENVIMAGE
 
+config BR2_TARGET_UBOOT_AMLOGIC
+    bool "amlogic uboot"
+    help
+        amlogic uboot
+
+config BR2_TARGET_UBOOT_WITH_SECURE_OS
+    bool "amlogic uboot + secure os"
+    help
+        build uboot with secure os
+
+config BR2_TARGET_UBOOT_SECUREOS_BINARY
+    string "location of secureos binary"
+    help
+        secure os binary
+
+source "package/aml_uboot_customer/Config.in"
+
 endif # BR2_TARGET_UBOOT

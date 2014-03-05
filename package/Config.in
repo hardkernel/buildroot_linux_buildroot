@@ -937,4 +937,9 @@ source "package/vim/Config.in"
 endif
 endmenu
 
+menu "Trustzone"
+source "package/aml_bdk_ca/Config.in"
+source "package/aml_bdk_ta/Config.in"
+endmenu
+
 endmenu

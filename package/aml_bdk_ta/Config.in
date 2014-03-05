@@ -1,0 +1,5 @@
+config BR2_PACKAGE_AML_BDK_TA
+    bool "trusted-app"
+    depends on BR2_LINUX_KERNEL
+    help
+        Trustzone trusted application
