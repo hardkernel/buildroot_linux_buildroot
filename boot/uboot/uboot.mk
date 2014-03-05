@@ -46,9 +46,14 @@ UBOOT_MAKE_TARGET  = $(UBOOT_BIN)
 UBOOT_DEPENDENCIES += host-elftosb
 else ifeq ($(BR2_TARGET_UBOOT_FORMAT_CUSTOM),y)
 UBOOT_BIN          = $(call qstrip,$(BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME))
+else ifeq ($(BR2_TARGET_UBOOT_WITH_SECURE_OS),y)
+UBOOT_BIN          = uboot-secureos.bin
 else
 UBOOT_BIN          = u-boot.bin
 UBOOT_BIN_IFT      = $(UBOOT_BIN).ift
+endif
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
+	UBOOT_BIN := build/$(UBOOT_BIN)
 endif
 
 UBOOT_ARCH=$(KERNEL_ARCH)
@@ -79,6 +84,23 @@ endef
 UBOOT_POST_PATCH_HOOKS += UBOOT_APPLY_CUSTOM_PATCHES
 endif
 
+ifneq ($(BR2_TARGET_UBOOT_SECUREOS_BINARY),)
+define UBOOT_SECUREOS_BINARY
+	mkdir -p $(@D)/secure_os
+	cp -f $(BR2_TARGET_UBOOT_SECUREOS_BINARY) $(@D)/secure_os
+endef
+UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_SECUREOS_BINARY
+endif
+
+ifneq ($(BR2_PACKAGE_AML_UBOOT_CUSTOMER_GIT_REPO_URL),)
+UBOOT_DEPENDENCIES += aml_uboot_customer
+define UBOOT_CUSTOMER_TREE
+	mkdir -p $(@D)/customer
+	cp -rf $(AML_UBOOT_CUSTOMER_DIR)/* $(@D)/customer
+endef
+UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_CUSTOMER_TREE
+endif
+
 define UBOOT_CONFIGURE_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS)		\
@@ -98,11 +120,18 @@ define UBOOT_CONFIGURE_CMDS
 	@echo "#endif /* __BR2_ADDED_CONFIG_H */" >> $(@D)/include/config.h
 endef
 
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
+define UBOOT_BUILD_CMDS
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
+		$(MAKE) -C $(@D) $(UBOOT_MAKE_TARGET)
+endef
+else
 define UBOOT_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS) 		\
 		$(UBOOT_MAKE_TARGET)
 endef
+endif
 
 define UBOOT_BUILD_OMAP_IFT
 	$(HOST_DIR)/usr/bin/gpsign -f $(@D)/u-boot.bin \

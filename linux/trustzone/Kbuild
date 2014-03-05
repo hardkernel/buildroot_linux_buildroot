@@ -1,0 +1,11 @@
+# Makefile for otz_client loadable module
+
+obj-m += otz_client.o
+otz_client-y += otz_client_main.o
+
+all: 
+	${MAKE} V=1 ARCH=arm -C $(KDIR) O=$(KERNEL_BUILT_DIR) M=$(PWD) modules
+
+clean:
+	${RM} *.ko *.mod.c *.o *.ppu Module.symvers .*.ko.cmd .*.o.cmd
+	${RM} -r .tmp_versions makeout modules.order
