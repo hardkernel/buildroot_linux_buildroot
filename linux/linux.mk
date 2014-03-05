@@ -294,6 +294,11 @@ endif
 
 ifeq ($(BR2_LINUX_KERNEL_APPENDED_DTB),y)
 # dtbs moved from arch/$ARCH/boot to arch/$ARCH/boot/dts since 3.8-rc1
+ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
+define LINUX_APPEND_DTB
+	cat $(KERNEL_ARCH_PATH)/boot/dts/amlogic/$(KERNEL_DTS_NAME).dtb >> $(KERNEL_ARCH_PATH)/boot/zImage
+endef
+else #BR2_LINUX_KERNEL_AMLOGIC_DTD
 define LINUX_APPEND_DTB
 	if [ -e $(KERNEL_ARCH_PATH)/boot/$(KERNEL_DTS_NAME).dtb ]; then \
 		cat $(KERNEL_ARCH_PATH)/boot/$(KERNEL_DTS_NAME).dtb; \
@@ -301,6 +306,7 @@ define LINUX_APPEND_DTB
 		cat $(KERNEL_ARCH_PATH)/boot/dts/$(KERNEL_DTS_NAME).dtb; \
 	fi >> $(KERNEL_ARCH_PATH)/boot/zImage
 endef
+endif
 ifeq ($(BR2_LINUX_KERNEL_APPENDED_UIMAGE),y)
 # We need to generate a new u-boot image that takes into
 # account the extra-size added by the device tree at the end
