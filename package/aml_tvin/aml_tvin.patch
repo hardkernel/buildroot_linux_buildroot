@@ -1,5 +1,5 @@
---- aml_tvin-amlogic-3.10-bringup/Kconfig.orig	2014-01-14 13:42:54.975708629 +0800
-+++ aml_tvin-amlogic-3.10-bringup/Kconfig	2014-01-14 13:43:14.419708955 +0800
+--- aml_tvin-amlogic-3.10-bringup/Kconfig.orig	2014-03-06 17:03:43.728601543 +0800
++++ aml_tvin-amlogic-3.10-bringup/Kconfig	2014-03-06 17:04:19.644602178 +0800
 @@ -8,14 +8,14 @@ menuconfig TVIN
  
  if TVIN
@@ -12,6 +12,7 @@
 -source "../hardware/tvin/viu/Kconfig"
 -source "../hardware/tvin/it660x/Kconfig"
 -source "../hardware/tvin/isp/Kconfig"
+-source "../hardware/tvin/vdin_ctrl/Kconfig"
 +source "drivers/amlogic/tvin/vdin/Kconfig"
 +source "drivers/amlogic/tvin/tvafe/Kconfig"
 +source "drivers/amlogic/tvin/hdmirx/Kconfig"
@@ -20,6 +21,6 @@
 +source "drivers/amlogic/tvin/viu/Kconfig"
 +source "drivers/amlogic/tvin/it660x/Kconfig"
 +source "drivers/amlogic/tvin/isp/Kconfig"
- 
++source "drivers/amlogic/tvin/vdin_ctrl/Kconfig"
  endif
  
