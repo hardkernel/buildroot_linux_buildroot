@@ -16,6 +16,8 @@ MALI_LIB_DIR=r3p2-01rel3/m400
 else ifeq ($(BR2_PACKAGE_OPENGL_MALI_VERSION),"MALI450")
 MALI_LIB_DIR=r3p2-01rel3/m450
 endif
+else ifeq ($(BR2_PACKAGE_GPU_VERSION),"r4p0-01")
+MALI_LIB_DIR=r4p0-01
 endif
 
 $(OPENGL_DIR)/.unpacked:
