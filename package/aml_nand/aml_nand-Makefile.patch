@@ -1,10 +1,21 @@
---- aml_nand-amlogic-nand/aml_nftl_new/Makefile.orig	2013-12-26 12:26:13.664824825 +0800
-+++ aml_nand-amlogic-nand/aml_nftl_new/Makefile	2013-12-26 12:27:10.208825886 +0800
-@@ -4,6 +4,6 @@ aml_nftl_dev-objs += block/aml_nftl_bloc
+--- aml_nand-amlogic-nand/amlnf/Makefile.orig	2014-03-05 20:10:58.127191351 +0800
++++ aml_nand-amlogic-nand/amlnf/Makefile	2014-03-05 20:11:21.691191843 +0800
+@@ -14,7 +14,7 @@ aml_nftl_dev-objs =
+ aml_nftl_dev-objs += block/aml_nftl_block.o
+ aml_nftl_dev-objs += block/aml_nftl_init.o
+ aml_nftl_dev-objs += block/aml_nftl_hw_interface.o
+-aml_nftl_dev-objs += ../../../../../../../../../hardware/amlogic/nand/amlnf/nftl/aml_nftl_core_20140213.z
++aml_nftl_dev-objs += nftl/aml_nftl_core_20140213.z
+ 
+ #aml_nftl_dev-objs += nftl/aml_nftl_phy.o
+ #aml_nftl_dev-objs  += nftl/aml_nftl_list.o
+--- aml_nand-amlogic-nand/nand/aml_nftl_new/Makefile.orig	2014-03-06 10:10:38.180136512 +0800
++++ aml_nand-amlogic-nand/nand/aml_nftl_new/Makefile	2014-03-06 10:10:54.416136749 +0800
+@@ -3,6 +3,6 @@ aml_nftl_dev-objs += block/aml_nftl_bloc
  aml_nftl_dev-objs += block/aml_nftl_init.o
  aml_nftl_dev-objs += block/aml_nftl_hw_interface.o
  
--aml_nftl_dev-objs += ../../../../../../../../../hardware/amlogic/nand/aml_nftl_new/nftl/aml_nftl_core_1111.z
-+aml_nftl_dev-objs += nftl/aml_nftl_core_1111.z
+-aml_nftl_dev-objs += ../../../../../../../../../../hardware/amlogic/nand/nand/aml_nftl_new/nftl/aml_nftl_core_1206.z
++aml_nftl_dev-objs += nftl/aml_nftl_core_1206.z
  
  obj-$(CONFIG_AML_NFTL_NEW)	+= aml_nftl_dev.o

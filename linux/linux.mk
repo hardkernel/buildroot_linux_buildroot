@@ -209,7 +209,7 @@ define LINUX_CONFIGURE_CMDS
 		mkdir -p $(LINUX_DIR)/../hardware/arm/gpu/
 		cp -rf $(GPU_DIR)/* $(LINUX_DIR)/../hardware/arm/gpu/)
 	$(if $(BR2_PACKAGE_AML_NAND),
-		cp -rf $(AML_NAND_DIR)/aml_nftl_new $(LINUX_DIR)/drivers/amlogic/nand/)
+		cp -rf $(AML_NAND_DIR) $(LINUX_DIR)/drivers/amlogic/nand/)
 	$(if $(BR2_PACKAGE_RTK8188EU), 
 		cp -rf $(RTK8188EU_DIR)/rtl8xxx_EU $(LINUX_DIR)/drivers/amlogic/wifi/;
 		cp -rf $(RTK8188EU_DIR)/rtl8xxx_EU_MP $(LINUX_DIR)/drivers/amlogic/wifi/)
