@@ -193,6 +193,12 @@ else ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
 KERNEL_SOURCE_CONFIG = $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
 endif
 
+ifeq ($(BR2_TARGET_ROOTFS_CPIO_GZIP),y)
+	ROOTFS_CPIO = rootfs.cpio.gz
+else
+	ROOTFS_CPIO = rootfs.cpio
+endif
+
 define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_PACKAGE_AML_CUSTOMER),
 		cp -rf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
@@ -233,9 +239,9 @@ define LINUX_CONFIGURE_CMDS
 	# replaced later by the real cpio archive, and the kernel will be
 	# rebuilt using the linux26-rebuild-with-initramfs target.
 	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
-		touch $(BINARIES_DIR)/rootfs.cpio
+		touch $(BINARIES_DIR)/$(ROOTFS_CPIO)
 		$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config)
-		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/rootfs.cpio\",$(@D)/.config)
+		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/$(ROOTFS_CPIO)\",$(@D)/.config)
 		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
 		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config))
 	$(if $(BR2_ROOTFS_DEVICE_CREATION_STATIC),,
@@ -402,7 +408,7 @@ endif
 
 # Support for rebuilding the kernel after the cpio archive has
 # been generated in $(BINARIES_DIR)/rootfs.cpio.
-$(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LINUX_DIR)/.stamp_images_installed $(BINARIES_DIR)/rootfs.cpio
+$(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LINUX_DIR)/.stamp_images_installed $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	@$(call MESSAGE,"Rebuilding kernel with initramfs")
 	# Build the kernel.
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(LINUX_IMAGE_NAME)
