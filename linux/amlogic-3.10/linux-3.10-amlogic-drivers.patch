@@ -1,5 +1,18 @@
 --- linux-amlogic-3.10-bringup/drivers/amlogic/Makefile.orig	2014-03-01 19:39:40.000000000 +0800
 +++ linux-amlogic-3.10-bringup/drivers/amlogic/Makefile	2014-03-06 11:14:21.648208244 +0800
+@@ -33,9 +33,9 @@ obj-y += cpufreq/
+ obj-$(CONFIG_GPIO_AMLOGIC) += gpio/
+ obj-y += pinctrl/
+ 
+-ifneq ($(wildcard $(srctree)/../hardware/amlogic/nand),)
+-	obj-$(CONFIG_AML_NEXT_GEN_NAND) += ../../../hardware/amlogic/nand/amlnf/
+-	obj-$(CONFIG_AM_NAND) += ../../../hardware/amlogic/nand/nand/
++ifneq ($(wildcard $(srctree)/drivers/amlogic/nand),)
++	obj-$(CONFIG_AML_NEXT_GEN_NAND) += nand/amlnf/
++	obj-$(CONFIG_AM_NAND) += nand/nand/
+ endif
+ 
+ obj-y += ethernet/
 @@ -68,8 +68,8 @@ obj-$(CONFIG_AML_RTC)+= rtc/
  obj-y += power/
  
@@ -50,6 +63,17 @@
  obj-$(CONFIG_AMLOGIC_ION) += ion_dev/
 --- linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig.orig	2014-03-01 19:39:40.000000000 +0800
 +++ linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig	2014-03-06 11:15:35.960209638 +0800
+@@ -34,8 +34,8 @@ source "drivers/amlogic/usb/Kconfig"
+ #source "drivers/amlogic/cardreader/Kconfig"
+ source "drivers/amlogic/mmc/Kconfig"
+ source "drivers/amlogic/spi_nor/Kconfig"
+-isource "../hardware/amlogic/nand/amlnf/Kconfig"
+-isource "../hardware/amlogic/nand/nand/Kconfig"
++isource "drivers/amlogic/nand/amlnf/Kconfig"
++isource "drivers/amlogic/nand/nand/Kconfig"
+ 
+ #
+ #	Network devices
 @@ -43,12 +43,12 @@ isource "../hardware/amlogic/nand/nand/K
  comment "Network devices"
  source "drivers/amlogic/ethernet/Kconfig"
@@ -89,3 +113,4 @@
  source "drivers/amlogic/ion_dev/Kconfig"
  
  #
+
