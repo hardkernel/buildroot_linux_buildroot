@@ -48,9 +48,15 @@ define ROOTFS_CPIO_CMD
 endef
 endif # BR2_TARGET_ROOTFS_INITRAMFS_LIST
 
-mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/rootfs.cpio
+ifeq ($(BR2_TARGET_ROOTFS_CPIO_GZIP),y)
+	ROOTFS_CPIO = rootfs.cpio.gz
+else
+	ROOTFS_CPIO = rootfs.cpio
+endif
+
+mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	@$(call MESSAGE,"Generating boot image")
-	$(LINUX_DIR)/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk  $(BINARIES_DIR)/rootfs.cpio --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
+	$(LINUX_DIR)/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
 
 ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
 define ROOTFS_CPIO_POST_TARGETS
