@@ -15,3 +15,9 @@ config BR2_PACKAGE_GPU_GIT_URL
 	depends on BR2_PACKAGE_GPU
 	help
 	  the URL of amlogic gpu driver git repo
+
+config BR2_PACKAGE_GPU_CUSTOM_TARBALL_LOCATION
+	string "amlogic gpu driver tarball url"
+	depends on BR2_PACKAGE_GPU
+	help
+	  the URL of amlogic gpu driver
