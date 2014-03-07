@@ -205,9 +205,6 @@ define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_PACKAGE_GPU),
 		cp -rf $(GPU_DIR)/mali $(LINUX_DIR)/drivers/amlogic/
 		cp -rf $(GPU_DIR)/ump $(LINUX_DIR)/drivers/amlogic/)
-	$(if $(BR2_PACKAGE_GPU_IN_HARDWARE),
-		mkdir -p $(LINUX_DIR)/../hardware/arm/gpu/
-		cp -rf $(GPU_DIR)/* $(LINUX_DIR)/../hardware/arm/gpu/)
 	$(if $(BR2_PACKAGE_AML_NAND),
 		cp -rf $(AML_NAND_DIR) $(LINUX_DIR)/drivers/amlogic/nand/)
 	$(if $(BR2_PACKAGE_RTK8188EU), 
