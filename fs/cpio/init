@@ -42,8 +42,18 @@ if [ -n "${firmware}" ]; then
         mkfs.ext4 /dev/system
         mkdir -p system
         mount -t ext4 /dev/system /system
-        echo "extracting file system"
-        gunzip -c /mnt/rootfs.tar.gz  | tar -xvf - -C /system
+        echo "extracting file system ..."
+        gunzip -c /mnt/rootfs.tar.gz  | tar -xf - -C /system
+        if [ $? -ne 0 ]; then
+           echo "Error: untar failed."
+        else
+           echo "Done"
+        fi
+        if [ -f "/mnt/boot.img" ]; then
+           echo "Writing boot.img into boot partition(mtdblock3)..."
+           dd if=/mnt/boot.img of=/dev/mtdblock3
+           echo "Done"
+        fi
         sync
         echo "update complete"
         umount /sys /proc /dev
