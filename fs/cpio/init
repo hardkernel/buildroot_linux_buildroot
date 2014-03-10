@@ -20,6 +20,7 @@ get_opt() {
 init="/init2"
 root="/dev/cardblksd1"
 firmware=""
+rootfstype=ext4
 
 #Process command line options
 for i in $(cat /proc/cmdline); do
@@ -30,11 +31,22 @@ for i in $(cat /proc/cmdline); do
         firmware\=*)
             firmware=$(get_opt $i)
             ;;
+        rootfstype\=*)
+            rootfstype=$(get_opt $i)
+            ;;
     esac
 done
 
 #Mount the root device
-mount "${root}" /mnt
+mount -t ${rootfstype} "${root}" /mnt
+
+get_boot() {
+    boot=`awk '/"boot"/ {print $1}' /proc/mtd`
+    boot=${boot#"mtd"}
+    boot=${boot%":"}
+    boot=/dev/mtdblock${boot}
+    echo ${boot}
+}
 
 if [ -n "${firmware}" ]; then
     if [ -f "/mnt/${firmware}" ] ; then
@@ -49,9 +61,14 @@ if [ -n "${firmware}" ]; then
         else
            echo "Done"
         fi
+        device=$(get_boot)
         if [ -f "/mnt/boot.img" ]; then
-           echo "Writing boot.img into boot partition(mtdblock3)..."
-           dd if=/mnt/boot.img of=/dev/mtdblock3
+           echo "Writing boot.img into boot partition(${device})..."
+           dd if=/mnt/boot.img of=${device}
+           echo "Done"
+        elif [ -f "/mnt/uImage" ]; then
+           echo "Writing uImage into boot partition(${device})..."
+           dd if=/mnt/uImage of=${device}
            echo "Done"
         fi
         sync
