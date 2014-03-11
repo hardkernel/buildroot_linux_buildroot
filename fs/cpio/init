@@ -20,7 +20,7 @@ get_opt() {
 init="/init2"
 root="/dev/cardblksd1"
 firmware=""
-rootfstype=ext4
+rootfstype=
 
 #Process command line options
 for i in $(cat /proc/cmdline); do
@@ -38,14 +38,14 @@ for i in $(cat /proc/cmdline); do
 done
 
 #Mount the root device
-mount -t ${rootfstype} "${root}" /mnt
+if [ "${rootfstype}" != "" ]; then
+    mount -t ${rootfstype} "${root}" /mnt
+else
+    mount "${root}" /mnt
+fi
 
 get_boot() {
-    boot=`awk '/"boot"/ {print $1}' /proc/mtd`
-    boot=${boot#"mtd"}
-    boot=${boot%":"}
-    boot=/dev/mtdblock${boot}
-    echo ${boot}
+    echo `awk '/"boot"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4); print "/dev/mtdblock"mtd}' /proc/mtd`
 }
 
 if [ -n "${firmware}" ]; then
