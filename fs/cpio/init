@@ -45,7 +45,15 @@ else
 fi
 
 get_boot() {
-    echo `awk '/"boot"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4); print "/dev/mtdblock"mtd}' /proc/mtd`
+    echo `awk '
+    BEGIN{
+       mtd = -1
+    }
+    /"boot"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4); 
+    } 
+    END{
+        if (mtd != -1) print "/dev/mtdblock"mtd
+    }' /proc/mtd`
 }
 
 if [ -n "${firmware}" ]; then
@@ -62,6 +70,9 @@ if [ -n "${firmware}" ]; then
            echo "Done"
         fi
         device=$(get_boot)
+        if [ "$device" == "" ]; then
+            device=/dev/boot
+        fi
         if [ -f "/mnt/boot.img" ]; then
            echo "Writing boot.img into boot partition(${device})..."
            dd if=/mnt/boot.img of=${device}
