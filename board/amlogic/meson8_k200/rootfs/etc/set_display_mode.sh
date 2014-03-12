@@ -1,4 +1,4 @@
-#!/system/bin/sh
+#!/bin/sh
 
 old_state=1
 outputmode=$(cat /sys/class/display/mode)

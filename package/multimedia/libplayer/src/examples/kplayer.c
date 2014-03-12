@@ -175,12 +175,14 @@ static int set_display_axis(int recovery)
         }
         if (recovery) {
             sprintf(str, "%d %d %d %d %d %d %d %d", 
-            axis[0],axis[1], axis[2], axis[3], axis[4], axis[5], axis[6], axis[7]);
+                    axis[0],axis[1], axis[2], axis[3], axis[4], axis[5], axis[6], axis[7]);
+            write(fd1, "0", strlen("1"));
+            write(fd, str, strlen(str));
         } else {
             sprintf(str, "2048 %d %d %d %d %d %d %d", 
-            axis[1], axis[2], axis[3], axis[4], axis[5], axis[6], axis[7]);
-			      write(fd1, "1", strlen("1"));
-			      write(fd, str, strlen(str));
+                    axis[1], axis[2], axis[3], axis[4], axis[5], axis[6], axis[7]);
+            write(fd1, "1", strlen("1"));
+            write(fd, str, strlen(str));
         }
         
         if (fd_video_axis >= 0 )
