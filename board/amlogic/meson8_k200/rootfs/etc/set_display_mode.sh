@@ -5,15 +5,16 @@ outputmode=$(cat /sys/class/display/mode)
 hpdstate=$(cat /sys/class/amhdmitx/amhdmitx0/hpd_state)
 old_state=$hpdstate
 
-if [ "$hpdstate" = "1" ]; then
-	if [ "$outputmode" = "480cvbs" -o "$outputmode" = "576cvbs" ] ; then
-    outputmode=720p
-  fi
-else
-	if [ "$outputmode" != "480cvbs" -a "$outputmode" != "576cvbs" ] ; then
-    outputmode=576cvbs
-  fi
-fi
+outputmode=720p
+#if [ "$hpdstate" = "1" ]; then
+#	if [ "$outputmode" = "480cvbs" -o "$outputmode" = "576cvbs" ] ; then
+#    outputmode=720p
+#  fi
+#else
+#	if [ "$outputmode" != "480cvbs" -a "$outputmode" != "576cvbs" ] ; then
+#    outputmode=576cvbs
+#  fi
+#fi
 
 echo $outputmode > /sys/class/display/mode
 

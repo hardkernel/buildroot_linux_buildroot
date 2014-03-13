@@ -8,19 +8,22 @@ old_state=$hpdstate
 echo 1 > /sys/class/graphics/fb0/blank
 echo 1 > /sys/class/graphics/fb1/blank
 
-if [ $hpdstate -eq 1 ] ; then
-    echo 720p > /sys/class/display/mode
-    echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
+#if [ $hpdstate -eq 1 ] ; then
+#    echo 720p > /sys/class/display/mode
+#    echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
+#
+#elif [ $hpdstate -eq 0 ] ; then
+#    echo 576cvbs > /sys/class/display/mode	
+#    echo 0 0 768 576 0 > /sys/class/ppmgr/ppscaler_rect
+#    
+#else
+#    echo 720p > /sys/class/display/mode
+#    echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
+#fi
 
-elif [ $hpdstate -eq 0 ] ; then
-    echo 576cvbs > /sys/class/display/mode	
-    echo 0 0 768 576 0 > /sys/class/ppmgr/ppscaler_rect
-    
-else
-    echo 720p > /sys/class/display/mode
-    echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
-   
-fi
+#default HDMI 720p
+echo 720p > /sys/class/display/mode
+echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
 
 echo 0 0 1280 720 0 0 18 18 > /sys/class/display/axis
 echo 0 > /sys/class/graphics/fb0/freescale_mode
