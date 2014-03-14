@@ -5,5 +5,6 @@ config BR2_PACKAGE_XDRIVER_XF86_VIDEO_FBTURBO
 	select BR2_PACKAGE_XPROTO_RENDERPROTO
 	select BR2_PACKAGE_XPROTO_VIDEOPROTO
 	select BR2_PACKAGE_XPROTO_XPROTO
+	select BR2_PACKAGE_UMP_USERSPACE_DRV
 	help
-	  ARM Allwinner-based framebuffer device
+	  ARM framebuffer device
