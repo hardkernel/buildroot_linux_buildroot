@@ -1,0 +1,4 @@
+config BR2_PACKAGE_UMP_USERSPACE_DRV
+        bool "ump user space driver"
+        help
+          ump user space driver from arm.
