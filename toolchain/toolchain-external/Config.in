@@ -773,7 +773,6 @@ choice
 
 config BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD
 	bool "Download toolchain automatically"
-	default n
 	depends on !BR2_TOOLCHAIN_EXTERNAL_CUSTOM
 	help
 	  Select this option if you want Buildroot to download and install the
