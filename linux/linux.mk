@@ -199,12 +199,75 @@ else
 	ROOTFS_CPIO = rootfs.cpio
 endif
 
+ifeq ($(BR2_LINUX_DRV_IN_HARDWARE_FOLDER),y)
+define LINUX_CONFIGURE_CMDS
+        $(if $(BR2_PACKAGE_AML_CUSTOMER),
+                cp -rf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
+        $(if $(BR2_PACKAGE_GPU),
+		mkdir -p  $(LINUX_DIR)/../hardware/arm/gpu;
+                cp -rf $(GPU_DIR)/* $(LINUX_DIR)/../hardware/arm/gpu/)
+        $(if $(BR2_PACKAGE_AML_NAND),
+		mkdir -p  $(LINUX_DIR)/../hardware/amlogic/nand;
+                cp -rf $(AML_NAND_DIR) $(LINUX_DIR)/../hardware/amlogic/nand/)
+        $(if $(BR2_PACKAGE_RTK8188EU), 
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu;
+                cp -rf $(RTK8188EU_DIR)/rtl8xxx_EU $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu;
+                cp -rf $(RTK8188EU_DIR)/rtl8xxx_EU_MP $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu/)
+        $(if $(BR2_PACKAGE_RTK8192CU),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu;
+                cp -rf $(RTK8192CU_DIR)/rtl8xxx_CU $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu/)
+        $(if $(BR2_PACKAGE_RTK8192DU),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du;
+                cp -rf $(RTK8192DU_DIR)/rtl8xxx_DU $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du/)
+        $(if $(BR2_PACKAGE_RTK8192EU),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu;
+                cp -rf $(RTK8192EU_DIR)/rtl8192EU $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu/)
+        $(if $(BR2_PACKAGE_BRCMAP6XXX),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx;
+                cp -rf $(BRCMAP6XXX_DIR)/broadcm_40181 $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx/)
+        $(if $(BR2_PACKAGE_AML_TVIN),
+		mkdir -p $(LINUX_DIR)/../hardware;
+                cp -rf $(AML_TVIN_DIR) $(LINUX_DIR)/../hardware/tvin)
+        $(if $(BR2_LINUX_KERNEL_USE_DEFCONFIG), 
+                $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig)
+        $(if $(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),
+                cp -f $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE) $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig;
+                $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) buildroot_defconfig;
+                rm -f $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig;
+        )
+        $(if $(BR2_PACKAGE_LINUX_SUPPORT_TRUSTZONE),
+                cp -rf linux/trustzone $(LINUX_DIR)/drivers/amlogic)
+        $(if $(BR2_arm)$(BR2_armeb),
+                $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
+        # As the kernel gets compiled before root filesystems are
+        # built, we create a fake cpio file. It'll be
+        # replaced later by the real cpio archive, and the kernel will be
+        # rebuilt using the linux26-rebuild-with-initramfs target.
+        $(if $(BR2_TARGET_ROOTFS_INITRAMFS),
+                touch $(BINARIES_DIR)/$(ROOTFS_CPIO)
+                $(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config)
+                $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/$(ROOTFS_CPIO)\",$(@D)/.config)
+                $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
+                $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config))
+        $(if $(BR2_ROOTFS_DEVICE_CREATION_STATIC),,
+                $(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS,$(@D)/.config)
+                $(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS_MOUNT,$(@D)/.config))
+        $(if $(BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV),
+                $(call KCONFIG_SET_OPT,CONFIG_UEVENT_HELPER_PATH,\"/sbin/mdev\",$(@D)/.config))
+        $(if $(BR2_PACKAGE_SYSTEMD),
+                $(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS,$(@D)/.config))
+        $(if $(BR2_LINUX_KERNEL_APPENDED_DTB),
+                $(call KCONFIG_ENABLE_OPT,CONFIG_ARM_APPENDED_DTB,$(@D)/.config))
+        yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) oldconfig
+endef
+else
 define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_PACKAGE_AML_CUSTOMER),
 		cp -rf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
 	$(if $(BR2_PACKAGE_GPU),
 		cp -rf $(GPU_DIR)/mali $(LINUX_DIR)/drivers/amlogic/
-		cp -rf $(GPU_DIR)/ump $(LINUX_DIR)/drivers/amlogic/)
+		cp -rf $(GPU_DIR)/ump $(LINUX_DIR)/drivers/amlogic/
+		cp -rf $(GPU_DIR)/umplock $(LINUX_DIR)/drivers/amlogic/)
 	$(if $(BR2_PACKAGE_AML_NAND),
 		cp -rf $(AML_NAND_DIR) $(LINUX_DIR)/drivers/amlogic/nand/)
 	$(if $(BR2_PACKAGE_RTK8188EU), 
@@ -252,6 +315,7 @@ define LINUX_CONFIGURE_CMDS
 		$(call KCONFIG_ENABLE_OPT,CONFIG_ARM_APPENDED_DTB,$(@D)/.config))
 	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) oldconfig
 endef
+endif
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
 ifeq ($(BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT),)

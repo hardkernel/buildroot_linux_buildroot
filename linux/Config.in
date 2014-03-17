@@ -324,6 +324,13 @@ config BR2_PACKAGE_LINUX_SUPPORT_TRUSTZONE
     help
         Install trustzone driver to kernel tree
 
+config BR2_LINUX_DRV_IN_HARDWARE_FOLDER
+    bool "support drivers in ../hardware"
+    depends on !BR2_LINUX_KERNEL_PATCH
+    help
+        Copy drivers to ../hardware of kernel tree to match android
+	and prevent kernel makefile patches.
+
 # Linux extensions
 source "linux/Config.ext.in"
 source "package/gpu/Config.in"
