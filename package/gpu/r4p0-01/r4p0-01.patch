@@ -96,9 +96,10 @@ diff -Naur gpu-r4p0-01.orig/ump/Kconfig gpu-r4p0-01/ump/Kconfig
 @@ -2,7 +2,7 @@
  config UMP
  	tristate "UMP support"
- 	depends on m
+-	depends on m
++	#depends on m
 -	default n
-+	default m
++	default y
  	---help---
  	  This enables support for the UMP memory allocation and sharing API.
  
