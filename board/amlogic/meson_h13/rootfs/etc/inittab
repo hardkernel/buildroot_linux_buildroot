@@ -24,6 +24,7 @@
 ::sysinit:/sbin/mdev -s
 ::sysinit:/bin/mount -o remount,rw /
 ::sysinit:/bin/mount -a
+::sysinit:modprobe ump
 ::sysinit:modprobe mali
 ::sysinit:/bin/hostname -F /etc/hostname
 ::sysinit:/sbin/ifconfig lo 127.0.0.1 up
