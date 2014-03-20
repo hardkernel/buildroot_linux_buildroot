@@ -61,8 +61,8 @@
  endif
  
  obj-$(CONFIG_AMLOGIC_ION) += ion_dev/
---- linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig.orig	2014-03-20 05:57:12.000000000 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig	2014-03-20 10:34:18.711906084 +0800
+--- linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig.orig	2014-03-01 19:39:40.000000000 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/Kconfig	2014-03-06 11:15:35.960209638 +0800
 @@ -34,8 +34,8 @@ source "drivers/amlogic/usb/Kconfig"
  #source "drivers/amlogic/cardreader/Kconfig"
  source "drivers/amlogic/mmc/Kconfig"
@@ -84,12 +84,12 @@
 -isource "../hardware/wifi/realtek/drivers/8192cu/rtl8xxx_CU/Kconfig"
 -isource "../hardware/wifi/realtek/drivers/8192du/rtl8xxx_DU/Kconfig"
 -isource "../hardware/wifi/realtek/drivers/8192eu/rtl8192EU/Kconfig"
-+isource "drivers/wifi/broadcom/drivers/ap6xxx/broadcm_40181/Kconfig"
-+isource "drivers/wifi/realtek/drivers/8188eu/rtl8xxx_EU/Kconfig"
-+isource "drivers/wifi/realtek/drivers/8188eu/rtl8xxx_EU_MP/Kconfig"
-+isource "drivers/wifi/realtek/drivers/8192cu/rtl8xxx_CU/Kconfig"
-+isource "drivers/wifi/realtek/drivers/8192du/rtl8xxx_DU/Kconfig"
-+isource "drivers/wifi/realtek/drivers/8192eu/rtl8192EU/Kconfig"
++isource "drivers/amlogic/wifi/broadcm_40181/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_EU/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_EU_MP/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_CU/Kconfig"
++isource "drivers/amlogic/wifi/rtl8xxx_DU/Kconfig"
++isource "drivers/amlogic/wifi/rtl8192EU/Kconfig"
  source "drivers/amlogic/bluetooth/Kconfig"
  source "drivers/amlogic/nfc/Kconfig"
  
@@ -98,25 +98,19 @@
  source "drivers/amlogic/display/Kconfig"
  source "drivers/amlogic/hdmi/Kconfig"
 -isource "../hardware/tvin/Kconfig"
-+isource "drivers/tvin/Kconfig"
- source "drivers/amlogic/ext_hdmiin/Kconfig"
++isource "drivers/amlogic/tvin/Kconfig"
  source "drivers/amlogic/ppmgr/Kconfig"
  source "drivers/amlogic/camera/Kconfig"
-@@ -86,8 +86,8 @@ comment "GPU (ARM Mali)"
+ source "drivers/amlogic/video_dev/Kconfig"
+@@ -84,8 +84,8 @@ comment "GPU (ARM Mali)"
  #isource "drivers/amlogic/ump/Kconfig"
  #isource "drivers/amlogic/mali/Kconfig"
  #comment "GPU (ARM Mali (external))"
 -isource "../hardware/arm/gpu/ump/Kconfig"
 -isource "../hardware/arm/gpu/mali/Kconfig"
-+isource "drivers/arm/gpu/ump/Kconfig"
-+isource "drivers/arm/gpu/mali/Kconfig"
++isource "drivers/amlogic/ump/Kconfig"
++isource "drivers/amlogic/mali/Kconfig"
  source "drivers/amlogic/ion_dev/Kconfig"
  
  #
-@@ -96,5 +96,5 @@ source "drivers/amlogic/ion_dev/Kconfig"
- source "drivers/amlogic/crypto/Kconfig"
- 
- source "drivers/amlogic/mhl/Kconfig"
--isource "../hardware/amlogic/pmu/Kconfig"
-+isource "drivers/amlogic/pmu/Kconfig"
- endmenu
+

@@ -27,8 +27,8 @@ QUITE_CMD=yes
 #export QUITE_CMD
 all:before_cmd config  	
 	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
-	make -C ${BUILD_DIR} all
-	make -C ${BUILD_DIR} install
+	$(MAKE) -C ${BUILD_DIR} all
+	$(MAKE) -C ${BUILD_DIR} install
 	
 configure:
         cd ${BUILD_DIR}/${AMFFMPEG_DIR} && ${PKG_TOP_DIR}/${FILE_DIR}/src/${AMFFMPEG_DIR}/configure  ${FFMPEG_CONFIG_FLAGS}
@@ -38,13 +38,13 @@ install:all
 distclean:clean
 	
 clean:
-	-make -C ${BUILD_DIR} CC=${HOST_GCC} clean
+	-$(MAKE) -C ${BUILD_DIR} CC=${HOST_GCC} clean
 
 
 before_cmd:depends
 
 depends:
 	@if [   "${DEPENDS}" != "" ]; then \
-                cd ${PKG_TOP_DIR};make lib_depends TOP_DEPENDS="${DEPENDS}";    \
+                cd ${PKG_TOP_DIR};$(MAKE) lib_depends TOP_DEPENDS="${DEPENDS}";    \
         fi
 #include $(MAKEFILES_DIR)/package.rules

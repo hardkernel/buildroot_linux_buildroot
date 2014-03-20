@@ -11,25 +11,25 @@ endif
 #export CC BUILD_DIR STAGING_DIR TARGET_DIR
 all:
 	mkdir -p $(shell pwd)/../../staging/usr/lib/aml_libs
-	-make -C amadec all
-	-make -C amavutils all
-	-make -C amcodec all
-	-make -C example all
+	-$(MAKE) -C amadec all
+	-$(MAKE) -C amavutils all
+	-$(MAKE) -C amcodec all
+	-$(MAKE) -C example all
 	echo $(BR2_TARGET_BOARD_PLATFORM)
 	echo $(FIRMDIR) 
 install:
-	-make -C amadec install
-	-make -C amavutils install
-	-make -C amcodec install
-	-make -C example install
+	-$(MAKE) -C amadec install
+	-$(MAKE) -C amavutils install
+	-$(MAKE) -C amcodec install
+	-$(MAKE) -C example install
 	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(TARGET_DIR)/usr/lib 
 	mkdir -p $(TARGET_DIR)/lib/firmware
 	install -D -m 0644 amadec/${FIRMDIR}/*.bin $(TARGET_DIR)/lib/firmware 
 	
 clean:
-	-make -C amadec clean
-	-make -C amavutils clean
-	-make -C amcodec clean
-	-make -C example clean
+	-$(MAKE) -C amadec clean
+	-$(MAKE) -C amavutils clean
+	-$(MAKE) -C amcodec clean
+	-$(MAKE) -C example clean
 
 

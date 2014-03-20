@@ -28,8 +28,8 @@ BUILD_DIR=${PKG_BUILD_DIR}/${FILE_DIR}
 QUITE_CMD=yes
 #export QUITE_CMD
 all:before_cmd config  	
-	make -C ${BUILD_DIR} all
-	make -C ${BUILD_DIR} install
+	$(MAKE) -C ${BUILD_DIR} all
+	$(MAKE) -C ${BUILD_DIR} install
 	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
 	
 configure:
@@ -40,13 +40,13 @@ install:all
 distclean:clean
 	
 clean:
-	-make -C ${BUILD_DIR} CC=${HOST_GCC} clean
+	-$(MAKE) -C ${BUILD_DIR} CC=${HOST_GCC} clean
 
 
 before_cmd:depends
 
 depends:
 	@if [   "${DEPENDS}" != "" ]; then \
-                cd ${PKG_TOP_DIR};make lib_depends TOP_DEPENDS="${DEPENDS}";    \
+                cd ${PKG_TOP_DIR};$(MAKE) lib_depends TOP_DEPENDS="${DEPENDS}";    \
         fi
 #include $(MAKEFILES_DIR)/package.rules

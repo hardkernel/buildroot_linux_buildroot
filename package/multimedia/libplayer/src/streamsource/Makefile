@@ -21,7 +21,7 @@ CFLAGS+=-I$(SRC) -I$(SRC)/../amffmpeg/ -I$(SRC)/../amavutils/include -I${M_PREFI
 export CC CFLAGS
 
 all: $(TARGET) 
-	make install
+	$(MAKE) install
 
 $(TARGET): $(TARGET_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(TARGET_OBJS:%.o=%.c) -o $@  
