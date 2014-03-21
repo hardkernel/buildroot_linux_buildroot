@@ -72,6 +72,9 @@ endif
 ifeq ($(BR2_PACKAGE_AML_TVIN),y)
 	LINUX_DEPENDENCIES += aml_tvin
 endif
+ifeq ($(BR2_PACKAGE_AML_PMU),y)
+	LINUX_DEPENDENCIES += aml_pmu
+endif
 
 LINUX_MAKE_FLAGS = \
 	HOSTCC="$(HOSTCC)" \
@@ -201,36 +204,39 @@ endif
 
 define LINUX_CONFIGURE_CMDS
         $(if $(BR2_PACKAGE_AML_CUSTOMER),
-                ln -s $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
+                ln -sf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
         $(if $(BR2_PACKAGE_GPU),
 		mkdir -p  $(LINUX_DIR)/../hardware/arm/gpu;
-                ln -s $(GPU_DIR)/* $(LINUX_DIR)/../hardware/arm/gpu/)
+                ln -sf $(GPU_DIR)/* $(LINUX_DIR)/../hardware/arm/gpu/)
         $(if $(BR2_PACKAGE_AML_NAND),
 		mkdir -p  $(LINUX_DIR)/../hardware/amlogic/nand;
-                ln -s $(AML_NAND_DIR)/* $(LINUX_DIR)/../hardware/amlogic/nand/)
+                ln -sf $(AML_NAND_DIR)/* $(LINUX_DIR)/../hardware/amlogic/nand/)
         $(if $(BR2_PACKAGE_RTK8188EU), 
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu;
-                ln -s $(RTK8188EU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu)
+                ln -sf $(RTK8188EU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu)
         $(if $(BR2_PACKAGE_RTK8192CU),
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu;
-                ln -s $(RTK8192CU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu/)
+                ln -sf $(RTK8192CU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu/)
         $(if $(BR2_PACKAGE_RTK8192DU),
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du;
-                ln -s $(RTK8192DU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du/)
+                ln -sf $(RTK8192DU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du/)
         $(if $(BR2_PACKAGE_RTK8192EU),
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu;
-                ln -s $(RTK8192EU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu/)
+                ln -sf $(RTK8192EU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu/)
         $(if $(BR2_PACKAGE_BRCMAP6XXX),
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx;
-                ln -s $(BRCMAP6XXX_DIR)/* $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx/)
+                ln -sf $(BRCMAP6XXX_DIR)/* $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx/)
         $(if $(BR2_PACKAGE_AML_TVIN),
-		mkdir -p $(LINUX_DIR)/../hardware;
-                ln -s $(AML_TVIN_DIR)/* $(LINUX_DIR)/../hardware/tvin)
+		mkdir -p $(LINUX_DIR)/../hardware/tvin;
+                ln -sf $(AML_TVIN_DIR)/* $(LINUX_DIR)/../hardware/tvin)
+        $(if $(BR2_PACKAGE_AML_PMU),
+		mkdir -p $(LINUX_DIR)/../hardware/amlogic/pmu;
+                ln -sf $(AML_PMU_DIR)/* $(LINUX_DIR)/../hardware/amlogic/pmu)
         $(if $(BR2_LINUX_KERNEL_USE_DEFCONFIG), 
                 $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig)
         $(if $(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),

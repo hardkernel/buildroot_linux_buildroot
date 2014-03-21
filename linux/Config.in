@@ -335,6 +335,7 @@ source "package/rtk8192eu/Config.in"
 source "package/brcmap6xxx/Config.in"
 source "package/aml_nand/Config.in"
 source "package/aml_tvin/Config.in"
+source "package/aml_pmu/Config.in"
 
 endif # BR2_LINUX_KERNEL
 
