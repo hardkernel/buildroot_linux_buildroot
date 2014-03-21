@@ -51,6 +51,12 @@ else
 QT5BASE_CONFIGURE_OPTS += -no-largefile
 endif
 
+ifeq ($(BR2_PACKAGE_QT5_EXAMPLES),y)
+QT5BASE_CONFIGURE_OPTS += -examplesdir /usr/share/qt5/examples 
+else
+QT5BASE_CONFIGURE_OPTS += -nomake examples -nomake tests
+endif
+
 ifeq ($(BR2_PACKAGE_QT5BASE_LICENSE_APPROVED),y)
 QT5BASE_CONFIGURE_OPTS += -opensource -confirm-license
 QT5BASE_LICENSE = LGPLv2.1 or GPLv3.0
@@ -165,7 +171,6 @@ define QT5BASE_CONFIGURE_CMDS
 		-sysroot $(STAGING_DIR) \
 		-plugindir /usr/lib/qt/plugins \
 		-no-rpath \
-		-nomake examples -nomake tests \
 		-device buildroot \
 		-device-option CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
 		-device-option BUILDROOT_COMPILER_CFLAGS="$(TARGET_CFLAGS)" \
@@ -204,6 +209,18 @@ define QT5BASE_INSTALL_TARGET_FONTS
 		cp -dpfr $(STAGING_DIR)/usr/lib/fonts/* $(TARGET_DIR)/usr/lib/fonts ; \
 	fi
 endef
+
+ifeq ($(BR2_PACKAGE_QT5_EXAMPLES),y)
+define QT5BASE_INSTALL_TARGET_EXAMPLES
+	if [ -d $(STAGING_DIR)/usr/share/qt5/ ] ; then \
+		mkdir -p $(TARGET_DIR)/usr/share/qt5/ ; \
+		cp -dpfr $(STAGING_DIR)/usr/share/qt5/* $(TARGET_DIR)/usr/share/qt5/ ; \
+	fi
+endef
+else
+define QT5BASE_INSTALL_TARGET_EXAMPLES
+endef
+endif
 
 ifeq ($(BR2_PREFER_STATIC_LIB),y)
 define QT5BASE_INSTALL_TARGET_CMDS

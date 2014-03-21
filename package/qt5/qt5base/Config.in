@@ -43,6 +43,11 @@ config BR2_PACKAGE_QT5BASE_SQL
 	help
 	  This options enables the Qt5Sql library.
 
+config BR2_PACKAGE_QT5_EXAMPLES
+    bool "qt5 examples"
+    help
+        This option installs example files to the target
+
 if BR2_PACKAGE_QT5BASE_SQL
 config BR2_PACKAGE_QT5BASE_MYSQL
 	bool "MySQL Plugin"
