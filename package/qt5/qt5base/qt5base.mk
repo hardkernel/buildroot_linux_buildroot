@@ -116,6 +116,8 @@ ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp
 endif
+QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
+	$(@D)/mkspecs/devices/linux-arm-amlogic-8726M-g++/qeglfshooks_8726m.cpp
 else
 QT5BASE_CONFIGURE_OPTS += -no-opengl -no-eglfs
 endif
