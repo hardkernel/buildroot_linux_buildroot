@@ -26,7 +26,6 @@ BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_3=y
 BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV=y
-BR2_ROOTFS_OVERLAY="board/amlogic/meson_skt/rootfs/"
 BR2_LINUX_KERNEL=y                                                                                         
 BR2_LINUX_KERNEL_CUSTOM_GIT=y                                               
 BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL="git://git.myamlogic.com/kernel/common.git"
