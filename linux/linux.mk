@@ -212,23 +212,18 @@ define LINUX_CONFIGURE_CMDS
 		mkdir -p  $(LINUX_DIR)/../hardware/amlogic/nand;
                 ln -sf $(AML_NAND_DIR)/* $(LINUX_DIR)/../hardware/amlogic/nand/)
         $(if $(BR2_PACKAGE_RTK8188EU), 
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu;
                 ln -sf $(RTK8188EU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu)
         $(if $(BR2_PACKAGE_RTK8192CU),
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu;
                 ln -sf $(RTK8192CU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu/)
         $(if $(BR2_PACKAGE_RTK8192DU),
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du;
                 ln -sf $(RTK8192DU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du/)
         $(if $(BR2_PACKAGE_RTK8192EU),
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu;
                 ln -sf $(RTK8192EU_DIR)/* $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu/)
         $(if $(BR2_PACKAGE_BRCMAP6XXX),
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic/wifi/;
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx;
                 ln -sf $(BRCMAP6XXX_DIR)/* $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx/)
         $(if $(BR2_PACKAGE_AML_TVIN),
