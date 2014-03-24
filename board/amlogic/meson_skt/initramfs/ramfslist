@@ -22,6 +22,11 @@
 ./lib/modules/3.10.33/modules.symbols
 ./lib/modules/3.10.33/modules.inputmap
 ./lib/modules/3.10.33/modules.softdep
+./lib/modules/3.10.33/hardware/
+./lib/modules/3.10.33/hardware/amlogic/
+./lib/modules/3.10.33/hardware/amlogic/nand/
+./lib/modules/3.10.33/hardware/amlogic/nand/amlnf
+./lib/modules/3.10.33/hardware/amlogic/nand/amlnf/aml_nftl_dev.ko
 ./lib/modules/3.10.33/modules.dep.bin
 ./lib/modules/3.10.33/modules.devname
 ./lib/modules/3.10.33/modules.builtin.bin
