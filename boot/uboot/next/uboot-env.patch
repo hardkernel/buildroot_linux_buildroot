@@ -1,0 +1,36 @@
+--- uboot-next/board/amlogic/configs/m6_mbx_v2.h.orig	2014-03-25 17:10:23.588457085 +0800
++++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-03-25 17:13:39.556459392 +0800
+@@ -198,7 +198,7 @@
+ 	"display_color_bg=0\0" \
+ 	"fb_addr=0x85900000\0" \
+ 	"sleep_threshold=20\0" \
+-	"upgrade_step=0\0" \
++	"upgrade_step=2\0" \
+ 	"batlow_threshold=10\0" \
+ 	"batfull_threshold=98\0" \
+ 	"outputmode=1080p\0" \
+@@ -236,7 +236,15 @@
+         "setenv bootargs ${bootargs} androidboot.firstboot=${firstboot}; "\
+         "imgread kernel boot ${loadaddr};"\
+         "hdcp prefetch nand;"\
+-        "bootm;run recovery\0" \
++        "bootm\0" \
++	"bootsdcard="\
++        "echo Booting ...;"\
++        "run nandargs;"\
++        "setenv bootargs ${bootsdargs}; "\
++        "mmcinfo;"\
++        "ext2load mmc 0 ${loadaddr} boot.img;"\
++        "hdcp prefetch nand;"\
++        "bootm\0" \
+ 	"recovery="\
+         "echo enter recovery;"\
+         "run nandargs;"\
+@@ -245,6 +253,7 @@
+         "fi; "\
+         "imgread kernel recovery ${loadaddr}; bootm\0" \
+ 	"bootargs=root=/dev/cardblksd2 rw rootfstype=ext3 rootwait init=/init console=ttyS0,115200n8 nohlt vmalloc=256m mem=1024m logo=osd1,0x85100000,1080p\0" \
++	"bootsdargs=root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 nohlt vmalloc=256m mem=1024m logo=osd1,0x85100000,1080p\0" \
+ 	"storage=null\0" \
+ 	"factoryreset_wipe_data="\
+         "echo ---wipe_data=${wipe_data}; "\

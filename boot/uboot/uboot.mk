@@ -96,7 +96,7 @@ ifneq ($(BR2_PACKAGE_AML_UBOOT_CUSTOMER_GIT_REPO_URL),)
 UBOOT_DEPENDENCIES += aml_uboot_customer
 define UBOOT_CUSTOMER_TREE
 	mkdir -p $(@D)/customer
-	cp -rf $(AML_UBOOT_CUSTOMER_DIR)/* $(@D)/customer
+	ln -sf $(AML_UBOOT_CUSTOMER_DIR) $(@D)/customer
 endef
 UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_CUSTOMER_TREE
 endif
