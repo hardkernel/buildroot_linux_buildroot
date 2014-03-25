@@ -1,0 +1,15 @@
+--- linux-amlogic-3.10-bringup/drivers/amlogic/uart/uart/meson_uart.c.orig	2014-03-25 16:27:50.488408818 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/uart/uart/meson_uart.c	2014-03-25 16:28:14.836409289 +0800
+@@ -381,8 +381,10 @@ am_uart_set_termios(struct uart_port *po
+     writel(tmp, &uart->mode);
+ 
+ 	baud = tty_termios_baud_rate(termios);
+-	meson_uart_change_speed(mup, baud);
+-	uart_update_timeout(port, termios->c_cflag, baud);
++    if(baud) {
++        meson_uart_change_speed(mup, baud);
++        uart_update_timeout(port, termios->c_cflag, baud);
++    }
+ 
+ 	return;
+ }
