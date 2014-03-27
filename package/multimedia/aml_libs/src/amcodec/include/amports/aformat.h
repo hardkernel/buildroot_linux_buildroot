@@ -80,7 +80,9 @@ typedef enum {
 								 ||(afmt == AFORMAT_EAC3) \								 
 								 ||(afmt == AFORMAT_APE) \
 								 ||(afmt == AFORMAT_FLAC)\
-								 ||(afmt == AFORMAT_PCM_WIFIDISPLAY))
+								 ||(afmt == AFORMAT_PCM_WIFIDISPLAY) \
+								 ||(afmt == AFORMAT_COOK) \
+								 ||(afmt == AFORMAT_RAAC))
 
 
 #define IS_AUDIO_NOT_SUPPORT_EXCEED_2CH(afmt) ((afmt == AFORMAT_RAAC) \

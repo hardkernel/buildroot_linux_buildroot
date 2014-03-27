@@ -30,7 +30,7 @@ QUITE_CMD=yes
 all:before_cmd config  	
 	$(MAKE) -C ${BUILD_DIR} all
 	$(MAKE) -C ${BUILD_DIR} install
-	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
+
 	
 configure:
 	cd ${BUILD_DIR}/${AMFFMPEG_DIR} && ${PKG_TOP_DIR}/${FILE_DIR}/src/${AMFFMPEG_DIR}/configure  ${FFMPEG_CONFIG_FLAGS}

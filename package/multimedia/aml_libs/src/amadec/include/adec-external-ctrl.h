@@ -16,7 +16,7 @@ extern "C"
 {
 #endif
 
-	int audio_decode_init(void **handle, codec_para_t *pcodec);
+    int audio_decode_init(void **handle, arm_audio_info *pcodec);
     int audio_decode_start(void *handle);
     int audio_decode_pause(void *handle);
     int audio_decode_resume(void *handle);

@@ -23,7 +23,7 @@ BUILDTREE=$(SRC)/out
 
 INSTALL_DIR=${LIB_DIR}/aml_libs
 
-TARGET?=libgstamcodec.so
+TARGET?=libamcodec.so
 
 DIRS=audio_ctl/ codec/
 

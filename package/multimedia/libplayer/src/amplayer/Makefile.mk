@@ -44,7 +44,7 @@ else
 endif
 
 
-CFLAGS+= -I${SRCTREE}/../amffmpeg -I${SRCTREE}/../amcodec/include -I${SRCTREE}/../amadec/include
+CFLAGS+= -I${SRCTREE}/../amffmpeg -I${SRCTREE}/../../../aml_libs/src/amcodec/include -I${SRCTREE}/../../../aml_libs/src/amadec/include
 CFLAGS+= -fPIC -g
 target_all=  $(TARGET)
 
@@ -83,5 +83,6 @@ clean:$(CLRDIR)
 install:$(target_all)
 	-install  $(INSTALL_FLAGS)  $(target_all)  $(INSTALL_DIR)
 	-install  $(INSTALL_FLAGS) $(DIRS:%/=$(SRC)/%/include/*)  $(PREFIX)/include
+	cp -rf player/include/sys  $(PREFIX)/include
     
 

@@ -2,9 +2,9 @@ M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
 HEADERS_DIR?=$(M_PREFIX)/include
 
-TARGET_OBJS=amaudioutils.o amconfigutils.o amdisplayutils.o ammodule.o amsysfsutils.o amutils_common.o Amvideoutils.o itemlist.o\
+TARGET_OBJS=amaudioutils.o amconfigutils.o amdisplayutils.o ammodule.o amsysfsutils.o Amvideoutils.o itemlist.o\
 
-TARGET=libgstamavutils.so
+TARGET=libamavutils.so
 
 INSTALL_DIR=${LIB_DIR}/aml_libs
 
@@ -37,7 +37,7 @@ install:
 force:
 
 clean:
-	-rm ${AMADEC_DIST} ${MP3LIB} $(PCMLIB) $(ADPCMLIB) $(AACLIB) $(A52LIB) $(TARGET) $(TARGET_OBJS)
+	-rm -rf *.o ${AMADEC_DIST} ${MP3LIB} $(PCMLIB) $(ADPCMLIB) $(AACLIB) $(A52LIB)
 
     
 
