@@ -5,8 +5,8 @@
 ################################################################################
 
 UTIL_LINUX_VERSION = $(UTIL_LINUX_VERSION_MAJOR).2
-UTIL_LINUX_VERSION_MAJOR = 2.22
-UTIL_LINUX_SOURCE = util-linux-$(UTIL_LINUX_VERSION).tar.bz2
+UTIL_LINUX_VERSION_MAJOR = 2.23
+UTIL_LINUX_SOURCE = util-linux-$(UTIL_LINUX_VERSION).tar.xz
 UTIL_LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/utils/util-linux/v$(UTIL_LINUX_VERSION_MAJOR)
 
 # README.licensing claims that some files are GPLv2-only, but this is not true.
@@ -84,7 +84,7 @@ HOST_UTIL_LINUX_CONF_OPT += \
 	--disable-login --disable-mount --disable-partx \
 	--disable-pivot_root --disable-rename --disable-schedutils \
 	--disable-su --disable-switch_root --disable-unshare \
-	--disable-uuidd --disable-wall
+	--disable-uuidd --disable-wall --without-ncurses
 
 # Avoid building the tools if they are disabled since we can't install on
 # a per-directory basis.
@@ -98,6 +98,31 @@ endef
 UTIL_LINUX_PRE_PATCH_HOOKS += UTIL_LINUX_DISABLE_TOOLS
 endif
 
+# Install PAM configuration files
+ifeq ($(BR2_PACKAGE_UTIL_LINUX_LOGIN_UTILS),y)
+define UTIL_LINUX_INSTALL_PAMFILES
+	$(INSTALL) -m 0644 package/util-linux/login.pam \
+		$(TARGET_DIR)/etc/pam.d/login
+	$(INSTALL) -m 0644 package/util-linux/su.pam \
+		$(TARGET_DIR)/etc/pam.d/su
+	$(INSTALL) -m 0644 package/util-linux/su.pam \
+		$(TARGET_DIR)/etc/pam.d/su-l
+endef
+endif
+
+UTIL_LINUX_POST_INSTALL_TARGET_HOOKS += UTIL_LINUX_INSTALL_PAMFILES
+
+# Install agetty->getty symlink to avoid breakage when there's no busybox
+ifeq ($(BR2_PACKAGE_UTIL_LINUX_AGETTY),y)
+ifeq ($(BR2_PACKAGE_BUSYBOX),)
+define UTIL_LINUX_GETTY_SYMLINK
+	ln -sf agetty $(TARGET_DIR)/sbin/getty
+endef
+endif
+endif
+
+UTIL_LINUX_POST_INSTALL_TARGET_HOOKS += UTIL_LINUX_GETTY_SYMLINK
+
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))
 
@@ -105,3 +130,4 @@ $(eval $(host-autotools-package))
 # one, so it disappears
 UTIL_LINUX_INSTALL_STAGING_OPT += MKINSTALLDIRS=$(@D)/config/mkinstalldirs
 UTIL_LINUX_INSTALL_TARGET_OPT += MKINSTALLDIRS=$(@D)/config/mkinstalldirs
+HOST_UTIL_LINUX_INSTALL_OPT += MKINSTALLDIRS=$(@D)/config/mkinstalldirs

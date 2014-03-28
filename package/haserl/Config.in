@@ -8,23 +8,24 @@ config BR2_PACKAGE_HASERL
 
 	  http://haserl.sourceforge.net/
 
+if BR2_PACKAGE_HASERL
+
 config BR2_PACKAGE_HASERL_WITH_LUA
-	bool "lua support"
-	depends on BR2_PACKAGE_HASERL
+	bool "Lua support"
 	depends on BR2_PACKAGE_HASERL_VERSION_0_9_X
 	select BR2_PACKAGE_LUA
 	help
-	  Enable LUA support for haserl
+	  Enable Lua support for haserl
 
 choice
 	prompt "Haserl version"
 	default BR2_PACKAGE_HASERL_VERSION_0_9_X
-	depends on BR2_PACKAGE_HASERL
 	help
 	  Select the older stable version, or the newer developer version
 
 config BR2_PACKAGE_HASERL_VERSION_0_8_X
 	bool	"v 0.8.x"
+	depends on BR2_DEPRECATED_SINCE_2014_02
 	help
 	  stable version
 
@@ -35,6 +36,7 @@ config BR2_PACKAGE_HASERL_VERSION_0_9_X
 
 endchoice
 
+endif
 
 config BR2_PACKAGE_HASERL_VERSION
 	string

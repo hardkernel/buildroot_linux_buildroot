@@ -30,21 +30,17 @@ static char sysroot[PATH_MAX];
  * that we only pass the predefined one to the real compiler if the inverse
  * option isn't in the argument list.
  * This specifies the worst case number of extra arguments we might pass
+ * Currently, we have:
+ * 	-mfloat-abi=
+ * 	-march=
+ * 	-mtune=
+ * 	-mcpu=
  */
-#define EXCLUSIVE_ARGS	1
+#define EXCLUSIVE_ARGS	4
 
 static char *predef_args[] = {
 	path,
 	"--sysroot", sysroot,
-#ifdef BR_ARCH
-	"-march=" BR_ARCH,
-#endif /* BR_ARCH */
-#ifdef BR_TUNE
-	"-mtune=" BR_TUNE,
-#endif /* BR_TUNE */
-#ifdef BR_CPU
-	"-mcpu=" BR_CPU,
-#endif
 #ifdef BR_ABI
 	"-mabi=" BR_ABI,
 #endif
@@ -63,6 +59,12 @@ static char *predef_args[] = {
 #ifdef BR_BINFMT_FLAT
 	"-Wl,-elf2flt",
 #endif
+#ifdef BR_MIPS_TARGET_LITTLE_ENDIAN
+	"-EL",
+#endif
+#ifdef BR_MIPS_TARGET_BIG_ENDIAN
+	"-EB",
+#endif
 #ifdef BR_ADDITIONAL_CFLAGS
 	BR_ADDITIONAL_CFLAGS
 #endif
@@ -74,7 +76,8 @@ int main(int argc, char **argv)
 	char *relbasedir, *absbasedir;
 	char *progpath = argv[0];
 	char *basename;
-	int ret, i, count = 0;
+	char *env_debug;
+	int ret, i, count = 0, debug;
 
 	/* Calculate the relative paths */
 	basename = strrchr(progpath, '/');
@@ -150,6 +153,31 @@ int main(int argc, char **argv)
 		*cur++ = "-mfloat-abi=" BR_FLOAT_ABI;
 #endif
 
+#if defined(BR_ARCH) || \
+    defined(BR_TUNE) || \
+    defined(BR_CPU)
+	/* Add our -march/cpu/tune/abi flags, but only if none are
+	 * already specified on the commandline
+	 */
+	for (i = 1; i < argc; i++) {
+		if (!strncmp(argv[i], "-march=", strlen("-march=")) ||
+		    !strncmp(argv[i], "-mtune=", strlen("-mtune=")) ||
+		    !strncmp(argv[i], "-mcpu=",  strlen("-mcpu=" )))
+			break;
+	}
+	if (i == argc) {
+#ifdef BR_ARCH
+		*cur++ = "-march=" BR_ARCH;
+#endif
+#ifdef BR_TUNE
+		*cur++ = "-mtune=" BR_TUNE;
+#endif
+#ifdef BR_CPU
+		*cur++ = "-mcpu=" BR_CPU;
+#endif
+	}
+#endif /* ARCH || TUNE || CPU */
+
 	/* append forward args */
 	memcpy(cur, &argv[1], sizeof(char *) * (argc - 1));
 	cur += argc - 1;
@@ -157,13 +185,21 @@ int main(int argc, char **argv)
 	/* finish with NULL termination */
 	*cur = NULL;
 
-	if (getenv("BR_DEBUG_WRAPPER")) {
-		fprintf(stderr, "Executing");
-
-		for (i = 0; args[i]; i++)
-			fprintf(stderr, " %s", args[i]);
-
-		fprintf(stderr, "\n");
+	/* Debug the wrapper to see actual arguments passed to
+	 * the compiler:
+	 * unset, empty, or 0: do not trace
+	 * set to 1          : trace all arguments on a single line
+	 * set to 2          : trace one argument per line
+	 */
+	if ((env_debug = getenv("BR_DEBUG_WRAPPER"))) {
+		debug = atoi(env_debug);
+		if (debug > 0) {
+			fprintf(stderr, "Toolchain wrapper executing:");
+			for (i = 0; args[i]; i++)
+				fprintf(stderr, "%s'%s'",
+					(debug == 2) ? "\n    " : " ", args[i]);
+			fprintf(stderr, "\n");
+		}
 	}
 
 	if (execv(path, args))

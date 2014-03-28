@@ -16,6 +16,9 @@ config BR2_PACKAGE_DIRECTFB_MULTI
 	help
 	  Enable use of multiple concurrent DirectFB applications
 
+comment "directfb multi application needs a Linux kernel to be built"
+	depends on !BR2_LINUX_KERNEL
+
 config BR2_PACKAGE_DIRECTFB_DEBUG
 	bool "directfb debugging"
 	help
@@ -129,5 +132,5 @@ config BR2_PACKAGE_DIRECTFB_TESTS
 
 endif # BR2_PACKAGE_DIRECTFB
 
-comment "directfb needs a toolchain with C++ and thread support"
+comment "directfb needs a toolchain w/ C++, threads"
 	depends on !BR2_TOOLCHAIN_HAS_THREADS || !BR2_INSTALL_LIBSTDCPP

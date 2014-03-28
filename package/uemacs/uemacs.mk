@@ -5,7 +5,7 @@
 ################################################################################
 
 UEMACS_VERSION = 4.0.15-lt
-UEMACS_SOURCE = em-$(UEMACS_VERSION).tar.bz2
+UEMACS_SOURCE = em-$(UEMACS_VERSION).tar.gz
 UEMACS_SITE = $(BR2_KERNEL_MIRROR)/software/editors/uemacs/
 UEMACS_DEPENDENCIES = ncurses
 
@@ -17,10 +17,6 @@ endef
 
 define UEMACS_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0755 -D $(@D)/em $(TARGET_DIR)/usr/bin/em
-endef
-
-define UEMACS_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/bin/em
 endef
 
 $(eval $(generic-package))

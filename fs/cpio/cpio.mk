@@ -64,4 +64,12 @@ define ROOTFS_CPIO_POST_TARGETS
 endef
 endif
 
+$(BINARIES_DIR)/rootfs.cpio.uboot: $(BINARIES_DIR)/rootfs.cpio host-uboot-tools
+	$(MKIMAGE) -A $(MKIMAGE_ARCH) -T ramdisk \
+		-C none -d $<$(ROOTFS_CPIO_COMPRESS_EXT) $@
+
+ifeq ($(BR2_TARGET_ROOTFS_CPIO_UIMAGE),y)
+ROOTFS_CPIO_POST_TARGETS += $(BINARIES_DIR)/rootfs.cpio.uboot
+endif
+
 $(eval $(call ROOTFS_TARGET,cpio))

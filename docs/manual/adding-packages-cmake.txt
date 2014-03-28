@@ -32,9 +32,9 @@ with an example :
 
 On line 7, we declare the version of the package.
 
-On line 8 and 9, we declare the name of the tarball and the location
-of the tarball on the Web. Buildroot will automatically download the
-tarball from this location.
+On line 8 and 9, we declare the name of the tarball (xz-ed tarball recommended)
+and the location of the tarball on the Web. Buildroot will automatically
+download the tarball from this location.
 
 On line 10, we tell Buildroot to install the package to the staging
 directory. The staging directory, located in +output/staging/+
@@ -126,17 +126,13 @@ typical packages will therefore only use a few of them.
   for most CMake packages, but it is still possible to override it if
   needed.
 
-* +LIBFOO_CLEAN_OPT+ contains the make options used to clean the
-  package. By default, the value is +clean+.
-
 With the CMake infrastructure, all the steps required to build and
 install the packages are already defined, and they generally work well
 for most CMake-based packages. However, when required, it is still
 possible to customize what is done in any particular step:
 
 * By adding a post-operation hook (after extract, patch, configure,
-  build or install). See the reference documentation of the generic
-  infrastructure for details.
+  build or install). See xref:hooks[] for details.
 
 * By overriding one of the steps. For example, even if the CMake
   infrastructure is used, if the package +.mk+ file defines its own

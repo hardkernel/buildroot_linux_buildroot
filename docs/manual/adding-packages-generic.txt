@@ -62,8 +62,8 @@ system is based on hand-written Makefiles or shell scripts.
 
 The Makefile begins on line 7 to 11 with metadata information: the
 version of the package (+LIBFOO_VERSION+), the name of the
-tarball containing the package (+LIBFOO_SOURCE+) the
-Internet location at which the tarball can be downloaded from
+tarball containing the package (+LIBFOO_SOURCE+) (xz-ed tarball recommended)
+the Internet location at which the tarball can be downloaded from
 (+LIBFOO_SITE+), the license (+LIBFOO_LICENSE+) and file with the
 license text (+LIBFOO_LICENSE_FILES+). All variables must start with
 the same prefix, +LIBFOO_+ in this case. This prefix is always the
@@ -99,24 +99,30 @@ of the shell script(s) needing fixing. All these names are relative to
 In addition, the scripts listed in +LIBFOO_CONFIG_SCRIPTS+ are removed
 from +$(TARGET_DIR)/usr/bin+, since they are not needed on the target.
 
-Example 1:
-
+.Config script: 'divine' package
+================================
 Package divine installs shell script '$(STAGING_DIR)/usr/bin/divine-config'.
 
-So it's fixup would be:
+So its fixup would be:
 
+--------------------------------
 DIVINE_CONFIG_SCRIPTS = divine-config
+--------------------------------
+================================
 
-Example 2:
-
+.Config script: 'imagemagick' package:
+================================
 Package imagemagick installs the following scripts:
 '$(STAGING_DIR)/usr/bin/{Magick,Magick++,MagickCore,MagickWand,Wand}-config'
 
 So it's fixup would be:
 
+--------------------------------
 IMAGEMAGICK_CONFIG_SCRIPTS = \
    Magick-config Magick++-config \
    MagickCore-config MagickWand-config Wand-config
+--------------------------------
+================================
 
 On line 14, we specify the list of dependencies this package relies
 on. These dependencies are listed in terms of lower-case package names,
@@ -224,7 +230,9 @@ information is (assuming the package name is +libfoo+) :
   URL or a local filesystem path. HTTP, FTP and SCP are supported URL
   types for retrieving package tarballs. Git, Subversion, Mercurial,
   and Bazaar are supported URL types for retrieving packages directly
-  from source code management systems. A filesystem path may be used
+  from source code management systems. There is a helper function to make
+  it easier to download source tarballs from github (refer to
+  xref:github-download-url[] for details). A filesystem path may be used
   to specify either a tarball or a directory containing the package
   source code. See +LIBFOO_SITE_METHOD+ below for more details on how
   retrieval works. +
@@ -238,9 +246,14 @@ information is (assuming the package name is +libfoo+) :
   Examples: +
     +LIBFOO_SITE=http://www.libfoosoftware.org/libfoo+ +
     +LIBFOO_SITE=http://svn.xiph.org/trunk/Tremor/+ +
-    +LIBFOO_SITE=git://github.com/kergoth/tslib.git+ +
     +LIBFOO_SITE=/opt/software/libfoo.tar.gz+ +
     +LIBFOO_SITE=$(TOPDIR)/../src/libfoo/+
+
+* +LIBFOO_EXTRA_DOWNLOADS+ lists a number of additional files that
+  Buildroot should download from +LIBFOO_SITE+ in addition to the main
+  +LIBFOO_SOURCE+ (which usually is a tarball). Buildroot will not do
+  anything with those additional files, except download files: it will
+  be up to the package recipe to use them from +$(BR2_DL_DIR)+.
 
 * +LIBFOO_SITE_METHOD+ determines the method used to fetch or copy the
   package source code. In many cases, Buildroot guesses the method
@@ -260,6 +273,13 @@ information is (assuming the package name is +libfoo+) :
      Buildroot performs a checkout which is preserved as a tarball in
      the download cache; subsequent builds use the tarball instead of
      performing another checkout.
+  ** +cvs+ for retrieving source code from a CVS repository.
+     Used by default when +LIBFOO_SITE+ begins with +cvs://+.
+     The downloaded source code is cached as with the +svn+ method.
+     Only anonymous pserver mode is supported.
+     +LIBFOO_SITE+ 'must' contain the source URL as well as the remote
+     repository directory. The module is the package name.
+     +LIBFOO_VERSION+ is 'mandatory' and 'must' be a timestamp.
   ** +git+ for retrieving source code from a Git repository.  Used by
      default when +LIBFOO_SITE+ begins with +git://+. The downloaded
      source code is cached as with the +svn+
@@ -358,6 +378,13 @@ LIBFOO_VERSION = 2.32
 Now, the variables that define what should be performed at the
 different steps of the build process.
 
+* +LIBFOO_EXTRACT_CMDS+ lists the actions to be performed to extract
+  the package. This is generally not needed as tarballs are
+  automatically handled by Buildroot. However, if the package uses a
+  non-standard archive format, such as a ZIP or RAR file, or has a
+  tarball with a non-standard organization, this variable allows to
+  override the package infrastructure default behavior.
+
 * +LIBFOO_CONFIGURE_CMDS+ lists the actions to be performed to
   configure the package before its compilation.
 
@@ -385,15 +412,6 @@ different steps of the build process.
   the directory given by +$(STAGING_DIR)+. All development files
   should be installed, since they might be needed to compile other
   packages.
-
-* +LIBFOO_CLEAN_CMDS+, lists the actions to perform to clean up
-  the build directory of the package.
-
-* +LIBFOO_UNINSTALL_TARGET_CMDS+ lists the actions to
-  uninstall the package from the target directory +$(TARGET_DIR)+
-
-* +LIBFOO_UNINSTALL_STAGING_CMDS+ lists the actions to
-  uninstall the package from the staging directory +$(STAGING_DIR)+.
 
 * +LIBFOO_INSTALL_INIT_SYSV+ and +LIBFOO_INSTALL_INIT_SYSTEMD+ list the
   actions to install init scripts either for the systemV-like init systems
@@ -425,41 +443,4 @@ In the action definitions, you can use the following variables:
 * Of course the +$(HOST_DIR)+, +$(STAGING_DIR)+ and +$(TARGET_DIR)+
   variables to install the packages properly.
 
-The last feature of the generic infrastructure is the ability to add
-hooks. These define further actions to perform after existing steps.
-Most hooks aren't really useful for generic packages, since the +.mk+
-file already has full control over the actions performed in each step
-of the package construction. The hooks are more useful for packages
-using the autotools infrastructure described below.  However, since
-they are provided by the generic infrastructure, they are documented
-here. The exception is +LIBFOO_POST_PATCH_HOOKS+.  Patching the
-package and producing legal info are not user definable, so
-+LIBFOO_POST_PATCH_HOOKS+ and +LIBFOO_POST_LEGAL_INFO_HOOKS+ are
-useful for generic packages.
-
-The following hook points are available:
-
-* +LIBFOO_POST_DOWNLOAD_HOOKS+
-* +LIBFOO_POST_EXTRACT_HOOKS+
-* +LIBFOO_PRE_PATCH_HOOKS+
-* +LIBFOO_POST_PATCH_HOOKS+
-* +LIBFOO_PRE_CONFIGURE_HOOKS+
-* +LIBFOO_POST_CONFIGURE_HOOKS+
-* +LIBFOO_POST_BUILD_HOOKS+
-* +LIBFOO_POST_INSTALL_HOOKS+ (for host packages only)
-* +LIBFOO_POST_INSTALL_STAGING_HOOKS+ (for target packages only)
-* +LIBFOO_POST_INSTALL_TARGET_HOOKS+ (for target packages only)
-* +LIBFOO_POST_LEGAL_INFO_HOOKS+
-
-These variables are 'lists' of variable names containing actions to be
-performed at this hook point. This allows several hooks to be
-registered at a given hook point. Here is an example:
-
-----------------------
-define LIBFOO_POST_PATCH_FIXUP
-	action1
-	action2
-endef
-
-LIBFOO_POST_PATCH_HOOKS += LIBFOO_POST_PATCH_FIXUP
-----------------------
+Finally, you can also use hooks. See xref:hooks[] for more information.

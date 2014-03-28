@@ -5,22 +5,13 @@
 ################################################################################
 
 LIBGLES_SOURCE =
-
-ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
-LIBGLES_DEPENDENCIES += rpi-userland
-endif
-
-ifeq ($(BR2_PACKAGE_TI_GFX),y)
-LIBGLES_DEPENDENCIES += ti-gfx
-endif
-
-ifeq ($(BR2_PACKAGE_SUNXI_MALI),y)
-LIBGLES_DEPENDENCIES += sunxi-mali
-endif
+LIBGLES_DEPENDENCIES = $(call qstrip,$(BR2_PACKAGE_PROVIDES_OPENGL_ES))
+LIBGLES_DEPENDENCIES += opengl
 
 ifeq ($(LIBGLES_DEPENDENCIES),)
 define LIBGLES_CONFIGURE_CMDS
-	echo "WARNING: No libEGL implementation selected."
+	echo "No libGLES implementation selected. Configuration error."
+	exit 1
 endef
 endif
 
