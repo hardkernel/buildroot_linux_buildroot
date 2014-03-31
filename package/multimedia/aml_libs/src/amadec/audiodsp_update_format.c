@@ -96,7 +96,6 @@ void adec_reset_track(aml_audio_dec_t *audec)
         audio_out_operations_t *out_ops = &audec->aout_ops;
         out_ops->mute(audec, 1);
         out_ops->pause(audec);
-        out_ops->resume(audec);		
         out_ops->stop(audec);
         //audec->SessionID +=1;
         out_ops->init(audec);
