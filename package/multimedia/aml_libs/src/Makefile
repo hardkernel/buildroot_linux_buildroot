@@ -11,7 +11,9 @@ endif
 #export CC BUILD_DIR STAGING_DIR TARGET_DIR
 all:
 	mkdir -p $(shell pwd)/../../staging/usr/lib/aml_libs
+	mkdir -p $(shell pwd)/../../staging/usr/lib/libplayer
 	-$(MAKE) -C amadec all
+	-${MAKE} -C audio_codec all
 	-$(MAKE) -C amavutils all
 	-$(MAKE) -C amcodec all
 	-$(MAKE) -C example all
@@ -22,7 +24,9 @@ install:
 	-$(MAKE) -C amavutils install
 	-$(MAKE) -C amcodec install
 	-$(MAKE) -C example install
+	-${MAKE} -C audio_codec install	
 	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(TARGET_DIR)/usr/lib 
+	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(AML_LIBS_STAGING_DIR)/usr/lib/libplayer 
 	mkdir -p $(TARGET_DIR)/lib/firmware
 	install -D -m 0644 amadec/${FIRMDIR}/*.bin $(TARGET_DIR)/lib/firmware 
 	
@@ -31,5 +35,6 @@ clean:
 	-$(MAKE) -C amavutils clean
 	-$(MAKE) -C amcodec clean
 	-$(MAKE) -C example clean
+	-${MAKE} -C audio_codec clean
 
 

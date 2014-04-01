@@ -6,7 +6,7 @@ INSTALL_FLAGS=-m 755
 
 TARGET=esplayer
 
-LDFLAGS= -L$(STAGING_DIR)/usr/lib/aml_libs -lgstamcodec -ldl -lgstamadec -lasound -lgstamavutils
+LDFLAGS= -L$(STAGING_DIR)/usr/lib/aml_libs -lamcodec -ldl -lamadec -lasound -lamavutils
 CFLAGS+= -I${BUILD_DIR}/../amcodec/include -I${BUILD_DIR}/../amadec/include 
 CFLAGS+=-O2 -g
 

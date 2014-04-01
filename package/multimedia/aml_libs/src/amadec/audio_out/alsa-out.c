@@ -717,7 +717,7 @@ int alsa_stop(struct aml_audio_dec* audec)
     alsa_param_t *alsa_params;
 
     alsa_params = (alsa_param_t *)audec->aout_ops.private_data;
-
+    alsa_params->pause_flag = 0; //we should clear pause flag ,as we can stop from paused state
     alsa_params->stop_flag = 1;
     alsa_params->wait_flag = 0;
     pthread_cond_signal(&alsa_params->playback_cond);

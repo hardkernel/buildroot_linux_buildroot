@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include "dts_enc.h"
 #include "dts_transenc_api.h"
-#include <amconfigutils.h>
+#include <cutils/properties.h>
 typedef enum {
     IDLE,
     TERMINATED,
@@ -33,15 +33,9 @@ static void *dts_enc_loop();
 
 static int get_dts_mode(void)
 {
-    int fd;
     int val = 0;
     char  bcmd[28];
-    fd = open(DIGITAL_RAW_PATH, O_RDONLY);
-    if (fd >= 0) {
-        read(fd, &bcmd, 28);
-        //val = strtol(bcmd, NULL, 1);
-        close(fd);
-    }
+    amsysfs_get_sysfs_str(DIGITAL_RAW_PATH, bcmd, 28);
     val=bcmd[21]&0xf;
     return val;
     
@@ -49,38 +43,26 @@ static int get_dts_mode(void)
 
 static int get_dts_format(void)
 {
-    int fd;
     char format[21];
     int len;
 
     format[0] = 0;
 
-    fd = open(FORMAT_PATH, O_RDONLY);
-    if (fd < 0) {
-        adec_print("amadec device not found");
-        return 0;
-    }
-    len = read(fd, format, 20);
-    if (len > 0) {
-        format[len] = 0;
-    }
+    amsysfs_get_sysfs_str(FORMAT_PATH, format, 21);
     if (strncmp(format, "NA", 2) == 0) {
-        close(fd);
         return 0;
     }
     adec_print("amadec format: %s", format);
     if (strncmp(format, "amadec_dts", 10) == 0) {
-        close(fd);
         return 1;
     }
-    close(fd);
     return 0;
 }
 
 static int get_cpu_type(void)
 {
-    char value[CONFIG_VALUE_MAX];
-    int ret = am_getconfig("ro.board.platform",value,NULL);
+    char value[PROPERTY_VALUE_MAX];
+    int ret = property_get("ro.board.platform",value,NULL);
     adec_print("ro.board.platform = %s\n", value);
     if (ret>0 && match_types("meson6",value))
     	return 1;
@@ -117,7 +99,7 @@ int dtsenc_init()
            dtsenc_release();
            return -1;
        }
-	//pthread_setname_np(tid,"AmadecDtsEncLP");	
+	pthread_setname_np(tid,"AmadecDtsEncLP");	
        dtsenc_info.thread_pid = tid;
     adec_print("====dts_enc init success \n");
     return 0;
