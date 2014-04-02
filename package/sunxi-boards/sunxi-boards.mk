@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-SUNXI_BOARDS_VERSION = 88d663db44f65b73ef65c4148a28c6fa3665d2b6
-SUNXI_BOARDS_SITE = https://github.com/linux-sunxi/sunxi-boards/tarball/$(SUNXI_BOARDS_VERSION)
+SUNXI_BOARDS_VERSION = 25a868189dbaa40872b2ac7d8a941dd73972eb08
+SUNXI_BOARDS_SITE = $(call github,linux-sunxi,sunxi-boards,$(SUNXI_BOARDS_VERSION))
 SUNXI_BOARDS_DEPENDENCIES = host-sunxi-tools
 SUNXI_BOARDS_INSTALL_IMAGES = YES
 SUNXI_BOARDS_INSTALL_TARGET = NO

@@ -51,12 +51,6 @@ else
 QT5BASE_CONFIGURE_OPTS += -no-largefile
 endif
 
-ifeq ($(BR2_PACKAGE_QT5_EXAMPLES),y)
-QT5BASE_CONFIGURE_OPTS += -examplesdir /usr/share/qt5/examples 
-else
-QT5BASE_CONFIGURE_OPTS += -nomake examples -nomake tests
-endif
-
 ifeq ($(BR2_PACKAGE_QT5BASE_LICENSE_APPROVED),y)
 QT5BASE_CONFIGURE_OPTS += -opensource -confirm-license
 QT5BASE_LICENSE = LGPLv2.1 or GPLv3.0
@@ -70,7 +64,7 @@ endif
 ifeq ($(BR2_PACKAGE_QT5BASE_SQL),y)
 ifeq ($(BR2_PACKAGE_QT5BASE_MYSQL),y)
 QT5BASE_CONFIGURE_OPTS += -plugin-sql-mysql -mysql_config $(STAGING_DIR)/usr/bin/mysql_config
-QT5BASE_DEPENDENCIES   += mysql_client
+QT5BASE_DEPENDENCIES   += mysql
 else
 QT5BASE_CONFIGURE_OPTS += -no-sql-mysql
 endif
@@ -145,6 +139,8 @@ QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_LIBGLIB2),libglib2)
 QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_ICU),-icu,-no-icu)
 QT5BASE_DEPENDENCIES   += $(if $(BR2_PACKAGE_QT5BASE_ICU),icu)
 
+QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_EXAMPLES),-make,-nomake) examples
+
 # Build the list of libraries to be installed on the target
 QT5BASE_INSTALL_LIBS_y                                 += Qt5Core
 QT5BASE_INSTALL_LIBS_$(BR2_PACKAGE_QT5BASE_NETWORK)    += Qt5Network
@@ -170,13 +166,16 @@ define QT5BASE_CONFIGURE_CMDS
 		-v \
 		-prefix /usr \
 		-hostprefix $(HOST_DIR)/usr \
+		-headerdir /usr/include/qt5 \
 		-sysroot $(STAGING_DIR) \
 		-plugindir /usr/lib/qt/plugins \
+		-examplesdir /usr/lib/qt/examples \
 		-no-rpath \
+		-nomake tests \
 		-device buildroot \
 		-device-option CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
-		-device-option BUILDROOT_COMPILER_CFLAGS="$(TARGET_CFLAGS)" \
-		-device-option BUILDROOT_COMPILER_CXXFLAGS="$(TARGET_CXXFLAGS)" \
+		-device-option BR_COMPILER_CFLAGS="$(TARGET_CFLAGS)" \
+		-device-option BR_COMPILER_CXXFLAGS="$(TARGET_CXXFLAGS)" \
 		-device-option EGLFS_PLATFORM_HOOKS_SOURCES="$(QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES)" \
 		-no-c++11 \
 		$(QT5BASE_CONFIGURE_OPTS) \
@@ -212,21 +211,17 @@ define QT5BASE_INSTALL_TARGET_FONTS
 	fi
 endef
 
-ifeq ($(BR2_PACKAGE_QT5_EXAMPLES),y)
 define QT5BASE_INSTALL_TARGET_EXAMPLES
-	if [ -d $(STAGING_DIR)/usr/share/qt5/ ] ; then \
-		mkdir -p $(TARGET_DIR)/usr/share/qt5/ ; \
-		cp -dpfr $(STAGING_DIR)/usr/share/qt5/* $(TARGET_DIR)/usr/share/qt5/ ; \
+	if [ -d $(STAGING_DIR)/usr/lib/qt/examples/ ] ; then \
+		mkdir -p $(TARGET_DIR)/usr/lib/qt/examples ; \
+		cp -dpfr $(STAGING_DIR)/usr/lib/qt/examples/* $(TARGET_DIR)/usr/lib/qt/examples ; \
 	fi
 endef
-else
-define QT5BASE_INSTALL_TARGET_EXAMPLES
-endef
-endif
 
 ifeq ($(BR2_PREFER_STATIC_LIB),y)
 define QT5BASE_INSTALL_TARGET_CMDS
 	$(QT5BASE_INSTALL_TARGET_FONTS)
+	$(QT5BASE_INSTALL_TARGET_EXAMPLES)
 endef
 else
 define QT5BASE_INSTALL_TARGET_CMDS

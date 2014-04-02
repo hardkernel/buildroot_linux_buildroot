@@ -12,7 +12,6 @@
 # later version.
 
 AVAHI_VERSION = 0.6.31
-AVAHI_SOURCE = avahi-$(AVAHI_VERSION).tar.gz
 AVAHI_SITE = http://www.avahi.org/download/
 AVAHI_LICENSE = LGPLv2.1+
 AVAHI_LICENSE_FILES = LICENSE
@@ -79,7 +78,7 @@ AVAHI_CONF_OPT = --localstatedir=/var \
 		--disable-monodoc \
 		--disable-stack-protector \
 		--with-distro=none \
-		$(if $(BR2_HAVE_DOCUMENTATION),--enable,--disable)-manpages \
+		--disable-manpages \
 		$(if $(BR2_PACKAGE_AVAHI_AUTOIPD),--enable,--disable)-autoipd \
 		--with-avahi-user=default \
 		--with-avahi-group=default \

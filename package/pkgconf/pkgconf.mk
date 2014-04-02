@@ -5,18 +5,16 @@
 ################################################################################
 
 PKGCONF_VERSION = 0.8.9
-PKGCONF_SITE = http://tortois.es/~nenolod/distfiles
+PKGCONF_SITE = http://rabbit.dereferenced.org/~nenolod/distfiles/
 PKGCONF_SOURCE = pkgconf-$(PKGCONF_VERSION).tar.bz2
 PKGCONF_LICENSE = pkgconf license
 PKGCONF_LICENSE_FILES = COPYING
 
 PKG_CONFIG_HOST_BINARY = $(HOST_DIR)/usr/bin/pkg-config
 
-ifeq ($(BR2_PACKAGE_PKG_CONFIG),)
 define PKGCONF_LINK_PKGCONFIG
 	ln -sf pkgconf $(TARGET_DIR)/usr/bin/pkg-config
 endef
-endif
 
 define HOST_PKGCONF_INSTALL_WRAPPER
 	$(INSTALL) -m 0755 -D package/pkgconf/pkg-config.in \

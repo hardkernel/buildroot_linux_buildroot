@@ -15,14 +15,19 @@ LIBVNCSERVER_CONFIG_SCRIPTS = libvncserver-config
 # only used for examples
 LIBVNCSERVER_CONF_OPT += --with-sdl-config=/bin/false
 
+ifneq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
+LIBVNCSERVER_CONF_OPT += --without-pthread
+endif
+
 ifneq ($(BR2_INET_IPV6),y)
 LIBVNCSERVER_CONF_OPT += --without-ipv6
 endif
 
-ifeq ($(BR2_PACKAGE_OPENSSL),y)
+# openssl supports needs pthread
+ifeq ($(BR2_PACKAGE_OPENSSL)$(BR2_TOOLCHAIN_HAS_THREADS),yy)
 LIBVNCSERVER_DEPENDENCIES += openssl
 else
-LIBVNCSERVER_CONF_OPT += --without-crypto
+LIBVNCSERVER_CONF_OPT += --without-crypto --without-ssl
 endif
 
 ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)

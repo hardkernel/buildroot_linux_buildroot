@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QEMU_VERSION = 1.3.1
+QEMU_VERSION = 1.6.0
 QEMU_SOURCE = qemu-$(QEMU_VERSION).tar.bz2
 QEMU_SITE = http://wiki.qemu.org/download
 QEMU_LICENSE = GPLv2 LGPLv2.1 MIT BSD-3c BSD-2c Others/BSD-1c
@@ -36,10 +36,7 @@ HOST_QEMU_DEPENDENCIES = host-pkgconf host-zlib host-libglib2 host-pixman
 #       mips64          ?
 #       mips64el        ?
 #       powerpc         ppc
-#       sh2             not supported
 #       sh2a            not supported
-#       sh3             not supported
-#       sh3eb           not supported
 #       sh4             sh4
 #       sh4eb           sh4eb
 #       sh4a            ?

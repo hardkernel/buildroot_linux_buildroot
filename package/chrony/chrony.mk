@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CHRONY_VERSION = 1.27
+CHRONY_VERSION = 1.29
 CHRONY_SITE = http://download.tuxfamily.org/chrony/
 CHRONY_LICENSE = GPLv2
 CHRONY_LICENSE_FILES = COPYING
@@ -37,10 +37,6 @@ endef
 
 define CHRONY_INSTALL_TARGET_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR="$(TARGET_DIR)" install
-endef
-
-define CHRONY_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/bin/chronyc $(TARGET_DIR)/usr/sbin/chronyd
 endef
 
 $(eval $(generic-package))

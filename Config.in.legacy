@@ -1,13 +1,9 @@
 #
 # Config.in.legacy - support for backward compatibility
 #
-# When an existing Config.in symbol is removed, it should be added again in this
-# file, and take appropriate action to approximate backward compatibility. If
-# there is an equivalent (set of) new symbols, these can just be select'ed by
-# the old symbol. This makes sure that running 'make oldconfig' will make things
-# "just work" when upgrading to a new buildroot version. If the change is too
-# fundamental and cannot be fixed by a simple select, then the old symbol should
-# select BR2_LEGACY.  If that symbol is set, the build will issue an error.
+# When an existing Config.in symbol is removed, it should be added again in
+# this file, and take appropriate action to approximate backward compatibility.
+# This will make the transition for the user more convenient.
 #
 # When adding legacy symbols to this file, add them to the front. The oldest
 # symbols will be removed again after about two years.
@@ -15,6 +11,46 @@
 # The symbol should be copied as-is from the place where it was previously
 # defined, but the help text should be removed or replaced with something that
 # explains how to fix it.
+#
+# For bool options, the old symbol should select BR2_LEGACY, so that the user
+# is informed at build-time about selected legacy options.
+# If there is an equivalent (set of) new symbols, these should be select'ed by
+# the old symbol for backwards compatibility.
+#
+# For string options, it is not possible to directly select another symbol. In
+# this case, a hidden wrap bool option has to be added, that defaults to y if
+# the old string is not set at its default value. The wrap symbol should select
+# BR2_LEGACY.
+# If the original symbol has been renamed, the new symbol should use the value
+# of the old symbol as default. This requires a change outside of
+# Config.in.legacy, and this should be clearly marked as such below, so that
+# removal of legacy options also include the removal of these external
+# references.
+#
+# [Example: renaming a string option from FOO to BAR]
+# original symbol:
+#     config BR2_FOO_STRING
+#             string "Some foo string"
+#
+# becomes:
+#     config BR2_BAR_STRING
+#             string "Some bar string"
+#             default BR2_FOO_STRING if BR2_FOO_STRING != ""  # legacy
+#
+# and in Config.in.legacy:
+#     config BR2_FOO_STRING
+#             string "The foo string has been renamed"
+#             help
+#               <suitable help text>
+#
+#     config BR2_FOO_STRING_WRAP
+#             bool
+#             default y if BR2_FOO_STRING != ""
+#             select BR2_LEGACY
+#
+#     # Note: BR2_FOO_STRING is still referenced from package/foo/Config.in
+#
+# [End of example]
 
 config BR2_LEGACY
 	bool
@@ -32,20 +68,335 @@ comment "Legacy detected: check the content of the menu below"
 menu "Legacy config options"
 
 if BR2_LEGACY
+comment "----------------------------------------------------"
 comment "Your old configuration uses legacy options that no  "
-comment "longer exist in buildroot.                          "
-comment "Please look at the options which have been selected "
-comment "and read their help text.                           "
-comment "As long as these options stay selected, the build   "
+comment "longer exist in buildroot, as indicated in the menu "
+comment "below. As long as these options stay selected, or in"
+comment "case of string options are non-empty, the build     "
 comment "will fail.                                          "
+comment "*                                                   "
+comment "Where possible, an automatic conversion from old to "
+comment "new symbols has been performed. Before making any   "
+comment "change in this legacy menu, make sure to exit the   "
+comment "configuration editor a first time and save the      "
+comment "configuration. Otherwise, the automatic conversion  "
+comment "of symbols will be lost.                            "
+comment "*                                                   "
+comment "After this initial save, reopen the configuration   "
+comment "editor, inspect the options selected below, read    "
+comment "their help texts, and verify/update the new         "
+comment "configuration in the corresponding configuration    "
+comment "menus. When everything is ok, you can disable the   "
+comment "legacy options in the menu below. Once you have     "
+comment "disabled all legacy options, this text will         "
+comment "disappear and you will be able to start the build.  "
+comment "*                                                   "
 comment "Note: at some point in the future, the oldest legacy"
 comment "options will be removed, and configuration files    "
 comment "that still have those options set, will fail to     "
 comment "build, or run, in unpredictable ways.               "
+comment "----------------------------------------------------"
 endif
 
 ###############################################################################
+comment "Legacy options removed in 2014.02"
+
+config BR2_sh2
+	bool "sh2 support removed"
+	help
+	  Due to an inexistent user base and generally poor Linux
+	  support, the support for the SH2 architecture was removed.
+
+config BR2_sh3
+	bool "sh3 support removed"
+	help
+	  Due to an inexistent user base and generally poor Linux
+	  support, the support for the SH3 architecture was removed.
+
+config BR2_sh3eb
+	bool "sh3eb support removed"
+	help
+	  Due to an inexistent user base and generally poor Linux
+	  support, the support for the SH3eb architecture was removed.
+
+config BR2_KERNEL_HEADERS_3_1
+	bool "kernel headers version 3.1.x are no longer supported"
+	select BR2_KERNEL_HEADERS_3_2
+	select BR2_LEGACY
+	help
+	  Version 3.1.x of the Linux kernel headers have been deprecated
+	  for more than four buildroot releases and are now removed.
+	  As an alternative, version 3.2.x of the headers have been
+	  automatically selected in your configuration.
+
+config BR2_KERNEL_HEADERS_3_3
+	bool "kernel headers version 3.3.x are no longer supported"
+	select BR2_KERNEL_HEADERS_3_4
+	select BR2_LEGACY
+	help
+	  Version 3.3.x of the Linux kernel headers have been deprecated
+	  for more than four buildroot releases and are now removed.
+	  As an alternative, version 3.4.x of the headers have been
+	  automatically selected in your configuration.
+
+config BR2_KERNEL_HEADERS_3_5
+	bool "kernel headers version 3.5.x are no longer supported"
+	select BR2_KERNEL_HEADERS_3_6
+	select BR2_LEGACY
+	help
+	  Version 3.5.x of the Linux kernel headers have been deprecated
+	  for more than four buildroot releases and are now removed.
+	  As an alternative, version 3.6.x of the headers have been
+	  automatically selected in your configuration.
+
+config BR2_GDB_VERSION_7_2
+	bool "gdb 7.2.x is no longer supported"
+	select BR2_GDB_VERSION_7_5
+	select BR2_LEGACY
+	help
+	  Version 7.2.x of gdb has been deprecated for more than four
+	  buildroot releases and is now removed. As an alternative, gdb
+	  7.5.x has been automatically selected in your configuration.
+
+config BR2_GDB_VERSION_7_3
+	bool "gdb 7.3.x is no longer supported"
+	select BR2_GDB_VERSION_7_5
+	select BR2_LEGACY
+	help
+	  Version 7.3.x of gdb has been deprecated for more than four
+	  buildroot releases and is now removed. As an alternative, gdb
+	  7.5.x has been automatically selected in your configuration.
+
+config BR2_PACKAGE_CCACHE
+	bool "ccache target package has been removed"
+	select BR2_LEGACY
+	help
+	  The 'ccache' target package has been removed since it has been
+	  deprecated for more than four buildroot releases.
+	  Note: using ccache for speeding up builds is still supported.
+
+config BR2_HAVE_DOCUMENTATION
+	bool "support for documentation on target has been removed"
+	select BR2_LEGACY
+	help
+	  Support for documentation on target has been removed since it has
+	  been deprecated for more than four buildroot releases.
+
+config BR2_PACKAGE_AUTOMAKE
+	bool "automake target package has been removed"
+	select BR2_LEGACY
+	help
+	  The 'automake' target package has been removed since it has been
+	  deprecated for more than four buildroot releases.
+	  Note: the host automake still exists.
+
+config BR2_PACKAGE_AUTOCONF
+	bool "autoconf target package has been removed"
+	select BR2_LEGACY
+	help
+	  The 'autoconf' target package has been removed since it has been
+	  deprecated for more than four buildroot releases.
+	  Note: the host autoconf still exists.
+
+config BR2_PACKAGE_XSTROKE
+	bool "xstroke has been removed"
+	select BR2_LEGACY
+	help
+	  The 'xstroke' package has been removed since it has been
+	  deprecated for more than four buildroot releases.
+
+config BR2_PACKAGE_LZMA
+	bool "lzma target package has been removed"
+	select BR2_LEGACY
+	help
+	  The 'lzma' target package has been removed since it has been
+	  deprecated for more than four buildroot releases.
+	  Note: generating lzma-compressed rootfs images is still supported.
+
+config BR2_PACKAGE_TTCP
+	bool "ttcp has been removed"
+	select BR2_LEGACY
+	help
+	  The 'ttcp' package has been removed since it has been
+	  deprecated for more than four buildroot releases.
+
+config BR2_PACKAGE_LIBNFC_LLCP
+	bool "libnfc-llcp has been replaced by libllcp"
+	select BR2_LEGACY
+	select BR2_PACKAGE_LIBLLCP
+	help
+	  The 'libnfc-llcp' package has been removed since upstream renamed
+	  to 'libllcp'. We have added a new package for 'libllcp' and bumped
+	  the version at the same time.
+
+config BR2_PACKAGE_MYSQL_CLIENT
+	bool "MySQL client renamed to MySQL"
+	select BR2_LEGACY
+	select BR2_PACKAGE_MYSQL
+	help
+	  The option has been renamed BR2_PACKAGE_MYSQL
+
+config BR2_PACKAGE_SQUASHFS3
+	bool "squashfs3 has been removed"
+	select BR2_LEGACY
+	select BR2_PACKAGE_SQUASHFS
+	help
+	  The 'squashfs3' package has been removed since it has been
+	  deprecated for more than four buildroot releases. Package
+	  'squashfs' (4) has been selected automatically as replacement.
+
+config BR2_TARGET_ROOTFS_SQUASHFS3
+	bool "squashfs3 rootfs support has been removed"
+	select BR2_LEGACY
+	help
+	  Together with the removal of the squashfs3 package, support
+	  for squashfs3 root filesystems has been removed too. Squashfs
+	  root filesystems will automatically use squashfs4 now.
+
+config BR2_PACKAGE_NETKITBASE
+	bool "netkitbase has been removed"
+	select BR2_LEGACY
+	help
+	  The 'netkitbase' package has been removed since it has been
+	  deprecated since 2012.11. This package provided 'inetd'
+	  which is replaced by 'xinet' and 'ping' which is replaced by
+	  'busybox' or 'fping'.
+
+config BR2_PACKAGE_NETKITTELNET
+	bool "netkittelnet has been removed"
+	select BR2_LEGACY
+	help
+	  The 'netkittelnet' package has been removed since it has
+	  been deprecated since 2012.11. 'busybox' provides a telnet
+	  client and should be used instead.
+
+config BR2_PACKAGE_LUASQL
+	bool "luasql has been replaced by luasql-sqlite3"
+	select BR2_PACKAGE_LUASQL_SQLITE3
+	select BR2_LEGACY
+	help
+	  The option has been renamed BR2_PACKAGE_LUASQL_SQLITE3.
+
+config BR2_PACKAGE_LUACJSON
+	bool "luacjson has been replaced by lua-cjson"
+	select BR2_PACKAGE_LUA_CJSON
+	select BR2_LEGACY
+	help
+	  The option has been renamed BR2_PACKAGE_LUA_CJSON.
+
+###############################################################################
+comment "Legacy options removed in 2013.11"
+
+config BR2_PACKAGE_LVM2_DMSETUP_ONLY
+	bool "lvm2's 'dmsetup only' option removed"
+	select BR2_LEGACY
+	help
+	  The BR2_PACKAGE_LVM2_DMSETUP_ONLY was a negative option, which
+	  led to problems with other packages that need the full lvm2
+	  suite. Therefore, the option has been replaced with the positive
+	  BR2_PACKAGE_LVM2_STANDARD_INSTALL option.
+
+# Note: BR2_PACKAGE_LVM2_DMSETUP_ONLY is still referenced in package/lvm2/Config.in
+# in order to automatically propagate old configs
+
+config BR2_PACKAGE_QT_JAVASCRIPTCORE
+	bool "qt javascriptcore option removed"
+	select BR2_LEGACY
+	help
+	  The BR2_PACKAGE_QT_JAVASCRIPTCORE option was available to
+	  force the activation or disabling of the JIT compiler in the
+	  Qt Javascript interpreter. However, the JIT compiler is not
+	  available for all architectures, so forcing its activation
+	  does not always work. Moreover, Qt knows by itself for which
+	  architectures JIT support is possible, and will
+	  automatically enable it if possible.
+
+	  Therefore, this option was in fact useless, and causing
+	  build problems when enabled on architectures for which the
+	  JIT support was not available. It has been removed, and
+	  there is no replacement: Qt will enable JIT at compile time
+	  when possible.
+
+config BR2_PACKAGE_MODULE_INIT_TOOLS
+	bool "module-init-tools replaced by kmod"
+	select BR2_PACKAGE_KMOD
+	select BR2_PACKAGE_KMOD_TOOLS
+	select BR2_LEGACY
+	help
+	  The 'module-init-tools' package has been removed, since it
+	  has been depracated upstream and replaced by 'kmod'.
+
+config BR2_TARGET_UBOOT_CUSTOM_GIT_REPO_URL
+	string "u-boot: the git repository URL option has been renamed"
+	help
+	  The option BR2_TARGET_UBOOT_CUSTOM_GIT_REPO_URL has
+	  been renamed to BR2_TARGET_UBOOT_CUSTOM_REPO_URL.
+
+config BR2_TARGET_UBOOT_CUSTOM_GIT_REPO_URL_WRAP
+	bool
+	default y if BR2_TARGET_UBOOT_CUSTOM_GIT_REPO_URL != ""
+	select BR2_LEGACY
+
+# Note: BR2_TARGET_UBOOT_CUSTOM_GIT_REPO_URL is still referenced from
+# boot/uboot/Config.in
+
+config BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION
+	string "u-boot: the git repository version option has been renamed"
+	help
+	  The option BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION has
+	  been renamed to BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION.
+
+config BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION_WRAP
+	bool
+	default y if BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION != ""
+	select BR2_LEGACY
+
+# Note: BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION is still referenced from
+# boot/uboot/Config.in
+
+config BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL
+	string "linux: the git repository URL option has been renamed"
+	help
+	  The option BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL has
+	  been renamed to
+	  BR2_LINUX_KERNEL_CUSTOM_REPO_URL.
+
+config BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL_WRAP
+	bool
+	default y if BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL != ""
+	select BR2_LEGACY
+
+# Note: BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL is still referenced from
+# linux/Config.in
+
+config BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION
+	string "linux: the git repository version option has been renamed"
+	help
+	  The option BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION has
+	  been renamed to
+	  BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION.
+
+config BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION_WRAP
+	bool
+	default y if BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION != ""
+	select BR2_LEGACY
+
+# Note: BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION is still referenced from
+# linux/Config.in
+
+###############################################################################
 comment "Legacy options removed in 2013.08"
+
+config BR2_ARM_OABI
+	bool "ARM OABI support has been removed"
+	select BR2_LEGACY
+	help
+	  The support for the ARM OABI was deprecated since a while,
+	  and has been removed completely from Buildroot. It is also
+	  deprecated in upstream gcc, since gcc 4.7. People should
+	  switch to EABI instead, which should not be a problem as
+	  long as you don't have pre-built OABI binaries in your
+	  system that you can't recompile.
 
 config BR2_PACKAGE_DOSFSTOOLS_DOSFSCK
 	bool "dosfstools dosfsck renamed to fsck.fat"
@@ -84,6 +435,23 @@ config BR2_VFP_FLOAT
 	  the ARM architecture support, the BR2_VFP_FLOAT option has
 	  been replaced with a choice of options that allows to select
 	  between various VFP versions/capabilities.
+
+config BR2_PACKAGE_GCC_TARGET
+	bool "gcc on the target filesystem has been removed"
+	select BR2_LEGACY
+	help
+	  The support for gcc in the target filesystem was deprecated
+	  since a while, and has been removed completely from Buildroot.
+	  See Buildroot's documentation for more explanations.
+
+config BR2_HAVE_DEVFILES
+	bool "development files in target filesystem has been removed"
+	select BR2_LEGACY
+	help
+	  The installation of the development files in the target
+	  filesystem was deprecated since a while, and has been removed
+	  completely from Buildroot.
+	  See Buildroot's documentation for more explanations.
 
 ###############################################################################
 comment "Legacy options removed in 2013.05"

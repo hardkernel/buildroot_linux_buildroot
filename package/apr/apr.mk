@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-APR_VERSION = 1.4.6
+APR_VERSION = 1.4.8
 APR_SITE = http://archive.apache.org/dist/apr
 APR_LICENSE = Apache-2.0
 APR_LICENSE_FILES = LICENSE
@@ -18,6 +18,11 @@ APR_CONF_ENV = \
 	ac_cv_sizeof_struct_iovec=8 \
 	apr_cv_mutex_recursive=yes
 APR_CONFIG_SCRIPTS = apr-1-config
+
+# Doesn't even try to guess when cross compiling
+ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
+APR_CONF_ENV += apr_cv_pthreads_lib="-lpthread"
+endif
 
 define APR_CLEANUP_UNNEEDED_FILES
 	$(RM) -rf $(TARGET_DIR)/usr/build-1/

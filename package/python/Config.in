@@ -9,7 +9,8 @@ config BR2_PACKAGE_PYTHON
 
 	  http://www.python.org/
 
-comment "python requires a toolchain with WCHAR support"
+comment "python needs a toolchain w/ wchar"
+	depends on BR2_USE_MMU
 	depends on !BR2_USE_WCHAR
 
 if BR2_PACKAGE_PYTHON
@@ -82,6 +83,24 @@ config BR2_PACKAGE_PYTHON_UNICODEDATA
 	default y
 	help
 	  Unicode character database (used by stringprep module) (large).
+
+if BR2_PACKAGE_PYTHON_UNICODEDATA
+
+choice
+	prompt "Python unicode database format"
+	default BR2_PACKAGE_PYTHON_UCS2
+	help
+	  Select Python unicode database format for target
+
+config BR2_PACKAGE_PYTHON_UCS2
+	bool "Universal Character Set 2-byte (UCS2)"
+
+config BR2_PACKAGE_PYTHON_UCS4
+	bool "Universal Character Set 4-byte (UCS4)"
+
+endchoice
+
+endif
 
 config BR2_PACKAGE_PYTHON_SQLITE
 	bool "sqlite module"

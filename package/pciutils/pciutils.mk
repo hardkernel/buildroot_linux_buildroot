@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PCIUTILS_VERSION = 3.2.0
+PCIUTILS_VERSION = 3.2.1
 PCIUTILS_SITE = ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci
 PCIUTILS_INSTALL_STAGING = YES
 PCIUTILS_LICENSE = GPLv2+
@@ -64,5 +64,6 @@ define PCIUTILS_INSTALL_STAGING_CMDS
 	$(MAKE1) BUILDDIR=$(@D) -C $(@D) PREFIX=$(STAGING_DIR)/usr \
 		SHARED=$(PCIUTILS_SHARED) install install-lib
 endef
+
 
 $(eval $(generic-package))

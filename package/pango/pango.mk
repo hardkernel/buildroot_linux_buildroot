@@ -54,6 +54,7 @@ ifeq ($(BR2_PACKAGE_XORG7),y)
 		--x-includes=$(STAGING_DIR)/usr/include/X11 \
 		--x-libraries=$(STAGING_DIR)/usr/lib --disable-glibtest
 	PANGO_DEPENDENCIES += xlib_libX11
+	PANGO_DEPENDENCIES += cairo
 else
         PANGO_CONF_OPT += --without-x
 endif

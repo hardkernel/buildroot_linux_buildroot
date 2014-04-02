@@ -8,9 +8,10 @@ config BR2_PACKAGE_DBUS
 
 	  http://www.freedesktop.org/wiki/Software/dbus
 
+if BR2_PACKAGE_DBUS
+
 choice
 	prompt "XML library to use"
-	depends on BR2_PACKAGE_DBUS
 	default BR2_DBUS_EXPAT
 	help
 	  Select the XML library to use with D-Bus. Select Expat
@@ -27,5 +28,8 @@ choice
 
 endchoice
 
-comment "dbus requires a toolchain with thread support"
+endif
+
+comment "dbus needs a toolchain w/ threads"
+	depends on BR2_USE_MMU
 	depends on !BR2_TOOLCHAIN_HAS_THREADS

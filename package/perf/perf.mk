@@ -8,7 +8,7 @@
 PERF_SOURCE =
 PERF_VERSION = $(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
 
-PERF_DEPENDENCIES = linux
+PERF_DEPENDENCIES = linux host-flex host-bison
 
 PERF_MAKE_FLAGS = \
 	$(LINUX_MAKE_FLAGS) \
@@ -19,7 +19,8 @@ PERF_MAKE_FLAGS = \
 	NO_LIBPYTHON=1 \
 	DESTDIR=$(TARGET_DIR) \
 	prefix=/usr \
-	WERROR=0
+	WERROR=0 \
+	ASCIIDOC=
 
 ifeq ($(BR2_PACKAGE_ELFUTILS),y)
 	PERF_DEPENDENCIES += elfutils
@@ -40,14 +41,14 @@ define PERF_BUILD_CMDS
 			exit 1 ; \
 		fi \
 	fi
-	$(MAKE) -C $(LINUX_DIR)/tools/perf \
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(LINUX_DIR)/tools/perf \
 		$(PERF_MAKE_FLAGS) O=$(@D)
 endef
 
 # After installation, we remove the Perl and Python scripts from the
 # target.
 define PERF_INSTALL_TARGET_CMDS
-	$(MAKE) -C $(LINUX_DIR)/tools/perf \
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(LINUX_DIR)/tools/perf \
 		$(PERF_MAKE_FLAGS) O=$(@D) install
 	$(RM) -rf $(TARGET_DIR)/usr/libexec/perf-core/scripts/
 endef

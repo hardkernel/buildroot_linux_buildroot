@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SYSLINUX_VERSION = 4.06
+SYSLINUX_VERSION = 4.07
 SYSLINUX_SOURCE  = syslinux-$(SYSLINUX_VERSION).tar.bz2
 SYSLINUX_SITE    = $(BR2_KERNEL_MIRROR)/linux/utils/boot/syslinux/4.xx/
 
@@ -39,10 +39,6 @@ endef
 
 define HOST_SYSLINUX_INSTALL_CMDS
 	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) INSTALLROOT=$(HOST_DIR) install
-endef
-
-define HOST_SYSLINUX_CLEAN_CMDS
-	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) clean
 endef
 
 $(eval $(generic-package))

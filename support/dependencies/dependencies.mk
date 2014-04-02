@@ -20,20 +20,18 @@ ifeq ($(BR2_STRIP_sstrip),y)
 DEPENDENCIES_HOST_PREREQ+=host-sstrip
 endif
 
+ifeq ($(BR2_CCACHE),y)
+DEPENDENCIES_HOST_PREREQ += host-ccache
+endif
+
 core-dependencies:
 	@HOSTCC="$(firstword $(HOSTCC))" MAKE="$(MAKE)" \
 		DL_TOOLS="$(sort $(DL_TOOLS_DEPENDENCIES))" \
 		$(TOPDIR)/support/dependencies/dependencies.sh
 
+dependencies: HOSTCC=$(HOSTCC_NOCCACHE)
+dependencies: HOSTCXX=$(HOSTCXX_NOCCACHE)
 dependencies: core-dependencies $(DEPENDENCIES_HOST_PREREQ)
-
-dependencies-source:
-
-dependencies-clean:
-	rm -f $(SSTRIP_TARGET)
-
-dependencies-dirclean:
-	true
 
 ################################################################################
 #
@@ -41,4 +39,3 @@ dependencies-dirclean:
 #
 ################################################################################
 .PHONY: dependencies core-dependencies
-

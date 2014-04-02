@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-BIND_VERSION = 9.6-ESV-R9-P1
+BIND_VERSION = 9.6-ESV-R10
 BIND_SITE = ftp://ftp.isc.org/isc/bind9/$(BIND_VERSION)
 BIND_MAKE = $(MAKE1)
 BIND_INSTALL_STAGING = YES
@@ -62,12 +62,5 @@ endif
 ifneq ($(BR2_PACKAGE_BIND_TOOLS),y)
 BIND_POST_INSTALL_TARGET_HOOKS += BIND_TARGET_REMOVE_TOOLS
 endif
-
-define BIND_UNINSTALL_TARGET_CMDS
-	$(BIND_TARGET_REMOVE_SERVER)
-	$(BIND_TARGET_REMOVE_TOOLS)
-	rm -f $(TARGET_DIR)/etc/init.d/S81named
-	rm -rf $(addprefix $(TARGET_DIR)/usr/lib/, $(BIND_TARGET_LIBS))
-endef
 
 $(eval $(autotools-package))

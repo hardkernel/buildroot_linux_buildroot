@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-NEON_VERSION = 0.29.6
+NEON_VERSION = 0.30.0
 NEON_SITE = http://www.webdav.org/neon/
 NEON_LICENSE = LGPLv2+ (library), GPLv2+ (manual and tests)
 NEON_LICENSE_FILES = src/COPYING.LIB test/COPYING README
@@ -42,7 +42,7 @@ else
 NEON_CONF_OPT += --with-libxml2=no
 endif
 
-ifeq ($(BR2_PACKAGE_NEON_NOXML),y)
+ifeq ($(BR2_PACKAGE_NEON_EXPAT)$(BR2_PACKAGE_NEON_LIBXML2),)
 # webdav needs xml support
 NEON_CONF_OPT += --disable-webdav
 endif

@@ -7,9 +7,10 @@ config BR2_PACKAGE_USBUTILS
 
 	  http://linux-usb.sourceforge.net/
 
+if BR2_PACKAGE_USBUTILS
+
 config BR2_PACKAGE_USBUTILS_ZLIB
 	bool "compressed data support"
-	depends on BR2_PACKAGE_USBUTILS
 	select BR2_PACKAGE_ZLIB
 	help
 	  Enable use of zlib for a compressed usb.ids.gz
@@ -17,5 +18,7 @@ config BR2_PACKAGE_USBUTILS_ZLIB
 	  filesystem, but it also makes lsusb slower since it has
 	  to decompress the file every time it's run.
 
-comment "usbutils needs a toolchain with thread support"
+endif
+
+comment "usbutils needs a toolchain w/ threads"
 	depends on !BR2_TOOLCHAIN_HAS_THREADS

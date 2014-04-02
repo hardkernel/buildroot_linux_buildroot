@@ -7,6 +7,8 @@
 SYSTEMD_VERSION = 44
 SYSTEMD_SITE = http://www.freedesktop.org/software/systemd/
 SYSTEMD_SOURCE = systemd-$(SYSTEMD_VERSION).tar.xz
+SYSTEMD_LICENSE = GPLv2+
+SYSTEMD_LICENSE_FILES = LICENSE
 SYSTEMD_INSTALL_STAGING = YES
 SYSTEMD_DEPENDENCIES = \
 	host-intltool \
@@ -19,6 +21,8 @@ SYSTEMD_DEPENDENCIES = \
 ifeq ($(BR2_PACKAGE_BUSYBOX),y)
 	SYSTEMD_DEPENDENCIES += busybox
 endif
+
+SYSTEMD_AUTORECONF = YES
 
 SYSTEMD_CONF_OPT += \
 	--with-distro=other \
@@ -52,6 +56,7 @@ endif
 SYSTEMD_MAKE_OPT += LIBS=-lrt
 SYSTEMD_MAKE_OPT += LDFLAGS+=-ldl
 
+ifeq ($(BR2_INIT_SYSTEMD),y)
 define SYSTEMD_INSTALL_INIT_HOOK
 	ln -fs ../usr/lib/systemd/systemd $(TARGET_DIR)/sbin/init
 	ln -fs ../usr/bin/systemctl $(TARGET_DIR)/sbin/halt
@@ -60,6 +65,9 @@ define SYSTEMD_INSTALL_INIT_HOOK
 
 	ln -fs ../../../usr/lib/systemd/system/multi-user.target $(TARGET_DIR)/etc/systemd/system/default.target
 endef
+SYSTEMD_POST_INSTALL_TARGET_HOOKS += \
+	SYSTEMD_INSTALL_INIT_HOOK
+endif
 
 define SYSTEMD_INSTALL_TTY_HOOK
 	rm -f $(TARGET_DIR)/etc/systemd/system/getty.target.wants/getty@tty1.service
@@ -67,7 +75,6 @@ define SYSTEMD_INSTALL_TTY_HOOK
 endef
 
 SYSTEMD_POST_INSTALL_TARGET_HOOKS += \
-	SYSTEMD_INSTALL_INIT_HOOK \
 	SYSTEMD_INSTALL_TTY_HOOK \
 
 $(eval $(autotools-package))
