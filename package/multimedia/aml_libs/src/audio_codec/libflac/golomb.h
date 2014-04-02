@@ -27,8 +27,8 @@
  * @author Michael Niedermayer <michaelni@gmx.at> and Alex Beregszaszi
  */
 
-#ifndef AVCODEC_GOLOMB_H
-#define AVCODEC_GOLOMB_H
+#ifndef LIBFLAC_GOLOMB_H
+#define LIBFLAC_GOLOMB_H
 
 #ifndef __MW__
 #include <stdint.h>

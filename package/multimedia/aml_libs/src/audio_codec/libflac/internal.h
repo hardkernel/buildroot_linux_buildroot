@@ -23,8 +23,8 @@
  * common internal API header
  */
 
-#ifndef AVUTIL_INTERNAL_H
-#define AVUTIL_INTERNAL_H
+#ifndef LIBFLAC_INTERNAL_H
+#define LIBFLAC_INTERNAL_H
 
 #if !defined(DEBUG) && !defined(NDEBUG)
 #    define NDEBUG

@@ -23,8 +23,8 @@
  * common internal and external API header
  */
 
-#ifndef AVUTIL_COMMON_H
-#define AVUTIL_COMMON_H
+#ifndef LIBFLAC_COMMON_H
+#define LIBFLAC_COMMON_H
 
 #include <string.h>
 #ifdef __MW__

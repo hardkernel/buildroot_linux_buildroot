@@ -23,8 +23,8 @@
  * bitstream reader API header.
  */
 
-#ifndef AVCODEC_GET_BITS_H
-#define AVCODEC_GET_BITS_H
+#ifndef LIBFLAC_GET_BITS_H
+#define LIBFLAC_GET_BITS_H
 
 #include "mathops.h"
 #include "bswap.h"

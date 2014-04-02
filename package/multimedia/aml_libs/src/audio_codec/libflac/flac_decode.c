@@ -246,25 +246,25 @@ void ff_flac_parse_streaminfo(AVCodecContext *avctx, struct FLACStreaminfo *s,
 }
 static void allocate_buffers(FLACContext *s);
 
-int ff_flac_is_extradata_valid(AVCodecContext *avctx,
+ int test_ff_flac_is_extradata_valid(AVCodecContext *avctx,
                                enum FLACExtradataFormat *format,
                                uint8_t **streaminfo_start)
 {
     if (!avctx->extradata || avctx->extradata_size < FLAC_STREAMINFO_SIZE) {
-        audio_codec_print( "extradata NULL or too small.\n");
+        audio_codec_print( "!!!extradata NULL or too small.\n");
         return 0;
     }
     if (AV_RL32(avctx->extradata) != MKTAG('f','L','a','C')) {
         /* extradata contains STREAMINFO only */
         if (avctx->extradata_size != FLAC_STREAMINFO_SIZE) {
-            audio_codec_print( "extradata contains %d bytes too many.\n",
+            printf( "extradata contains %d bytes too many.\n",
                    FLAC_STREAMINFO_SIZE-avctx->extradata_size);
         }
         *format = FLAC_EXTRADATA_FORMAT_STREAMINFO;
         *streaminfo_start = avctx->extradata;
     } else {
         if (avctx->extradata_size < 8+FLAC_STREAMINFO_SIZE) {
-            audio_codec_print( "extradata too small.\n");
+            printf( "extradata too small.\n");
             return 0;
         }
         *format = FLAC_EXTRADATA_FORMAT_FULL_HEADER;
@@ -272,6 +272,8 @@ int ff_flac_is_extradata_valid(AVCodecContext *avctx,
     }
     return 1;
 }
+
+
 static int decode_residuals(FLACContext *s, int channel, int pred_order)
 {
     int i, tmp, partition, method_type, rice_order;
@@ -839,36 +841,35 @@ end:
 
 int audio_dec_init(audio_decoder_operations_t *adec_ops)
 {
-	memset(&flactext	,0,sizeof(flactext));
-	memset(&acodec,0,sizeof(acodec));
-	enum FLACExtradataFormat format;
-	uint8_t *streaminfo;
-	AVCodecContext *avctx	 = &acodec;
-	FLACContext *s = &flactext;
-	s->avctx = &acodec;	
-    audio_codec_print("\n\n[%s]BuildDate--%s  BuildTime--%s",__FUNCTION__,__DATE__,__TIME__);
-	avctx->sample_fmt = SAMPLE_FMT_S16;
-	avctx->extradata = adec_ops->extradata;
-	avctx->extradata_size = adec_ops->extradata_size;
-
-	if (!avctx->extradata_size)
-		return 0;
-	if (!ff_flac_is_extradata_valid(avctx, &format, &streaminfo))
-		return -1;
-
-	/* initialize based on the demuxer-supplied streamdata header */
-	ff_flac_parse_streaminfo(avctx, (FLACStreaminfo *)s, streaminfo);
-	if (s->bps > 16)
-		avctx->sample_fmt = SAMPLE_FMT_S32;
-	else
-		avctx->sample_fmt = SAMPLE_FMT_S16;
-	allocate_buffers(s);
-	s->got_streaminfo = 1;
-	avctx->channels=(avctx->channels>2?2:avctx->channels);
-	audio_codec_print("applied flac  sr %d,ch num %d\n",avctx->sample_rate,avctx->channels);	
-
-	adec_ops->nInBufSize=DefaultReadSize;
+    int res=-1;
+    memset(&flactext	,0,sizeof(flactext));
+    memset(&acodec,0,sizeof(acodec));
+    enum FLACExtradataFormat format;
+    uint8_t *streaminfo;
+    AVCodecContext *avctx	 = &acodec;
+    FLACContext *s = &flactext;
+    s->avctx = &acodec;	
+    audio_codec_print("\n\n[%s]BuildDate--%s  BuildTime--%s\n",__FUNCTION__,__DATE__,__TIME__);
+    adec_ops->nInBufSize=DefaultReadSize;
     adec_ops->nOutBufSize=DefaultOutBufSize;
+    avctx->sample_fmt = SAMPLE_FMT_S16;
+    avctx->extradata = adec_ops->extradata;
+    avctx->extradata_size = adec_ops->extradata_size;	
+    if (!avctx->extradata_size)
+        return 0;
+    res= test_ff_flac_is_extradata_valid(avctx, &format, &streaminfo);
+    if (!res)
+        return -1;
+    /* initialize based on the demuxer-supplied streamdata header */
+    ff_flac_parse_streaminfo(avctx, (FLACStreaminfo *)s, streaminfo);
+    if (s->bps > 16)
+        avctx->sample_fmt = SAMPLE_FMT_S32;
+    else
+        avctx->sample_fmt = SAMPLE_FMT_S16;
+    allocate_buffers(s);
+    s->got_streaminfo = 1;
+    avctx->channels=(avctx->channels>2?2:avctx->channels);
+    audio_codec_print("applied flac  sr %d,ch num %d\n",avctx->sample_rate,avctx->channels);	
     audio_codec_print("ape_Init.--------------------------------\n");
 
 	return 0;
