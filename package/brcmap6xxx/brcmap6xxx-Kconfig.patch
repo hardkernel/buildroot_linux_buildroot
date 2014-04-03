@@ -1,5 +1,5 @@
---- brcmap6xxx-ap6xxx/broadcm_40181/Kconfig.orig	2014-01-13 18:18:50.926398265 +0800
-+++ brcmap6xxx-ap6xxx/broadcm_40181/Kconfig	2014-01-13 18:19:09.774398625 +0800
+--- brcmap6xxx-ap6xxx/broadcm_40181/Kconfig.orig	2014-04-02 15:19:02.581141546 +0800
++++ brcmap6xxx-ap6xxx/broadcm_40181/Kconfig	2014-04-02 15:19:20.249141877 +0800
 @@ -10,21 +10,21 @@ config SDIO_DHD_CDC_WIFI_40181_MODULE
  config BCMDHD_FW_PATH
  	depends on SDIO_DHD_CDC_WIFI_40181_MODULE
@@ -20,8 +20,8 @@
  config BCMDHD_CONFIG_PATH
  	depends on SDIO_DHD_CDC_WIFI_40181_MODULE
  	string "Config path"
--	default "/system/etc/firmware/config.txt"
-+	default "/etc/firmware/config.txt"
+-	default "/system/etc/wifi/config.txt"
++	default "/etc/wifi/config.txt"
  	---help---
  	  Path to the driver configuration file.
-
+ 
