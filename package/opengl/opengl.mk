@@ -17,7 +17,11 @@ else ifeq ($(BR2_PACKAGE_OPENGL_MALI_VERSION),"MALI450")
 MALI_LIB_DIR=r3p2-01rel3/m450
 endif
 else ifeq ($(BR2_PACKAGE_GPU_VERSION),"r4p0-01")
-MALI_LIB_DIR=r4p0-01
+ifeq ($(BR2_PACKAGE_OPENGL_MALI_VERSION),"MALI400")
+MALI_LIB_DIR=r4p0-01/m400
+else ifeq ($(BR2_PACKAGE_OPENGL_MALI_VERSION),"MALI450")
+MALI_LIB_DIR=r4p0-01/m450
+endif
 endif
 
 $(OPENGL_DIR)/.unpacked:
@@ -30,6 +34,7 @@ $(OPENGL_DIR)/.installed: $(OPENGL_DIR)/.unpacked
 	cp -arf $(OPENGL_DIR)/* $(STAGING_DIR)/usr
 	cp -d $(OPENGL_DIR)/lib/*.so* $(TARGET_DIR)/usr/lib
 	install -m 755 $(OPENGL_DIR)/lib/$(MALI_LIB_DIR)/libMali.so $(TARGET_DIR)/usr/lib
+	mkdir -p $(TARGET_DIR)/usr/lib/pkgconfig
 	install -m 644 $(OPENGL_DIR)/lib/pkgconfig/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
 	touch $(OPENGL_DIR)/.installed
 
