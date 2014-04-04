@@ -17,7 +17,7 @@ POCO_DEPENDENCIES = zlib pcre					\
 	$(if $(BR2_PACKAGE_POCO_CRYPTO),openssl)		\
 	$(if $(BR2_PACKAGE_POCO_NETSSL_OPENSSL),openssl)	\
 	$(if $(BR2_PACKAGE_POCO_DATA_SQLITE),sqlite)		\
-	$(if $(BR2_PACKAGE_POCO_DATA_MYSQL),mysql_client)
+	$(if $(BR2_PACKAGE_POCO_DATA_MYSQL),mysql)
 
 POCO_OMIT = Data/ODBC PageCompiler					\
 	$(if $(BR2_PACKAGE_POCO_XML),,XML)				\
@@ -32,6 +32,11 @@ POCO_OMIT = Data/ODBC PageCompiler					\
 
 ifeq ($(LIBC),uclibc)
 POCO_CONF_OPT += --no-fpenvironment --no-wstring
+endif
+
+# architectures missing some FE_* in their fenv.h
+ifeq ($(BR2_sh4a)$(BR2_nios2),y)
+POCO_CONF_OPT += --no-fpenvironment
 endif
 
 define POCO_CONFIGURE_CMDS

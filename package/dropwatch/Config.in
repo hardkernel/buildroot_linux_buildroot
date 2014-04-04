@@ -1,7 +1,7 @@
 config BR2_PACKAGE_DROPWATCH
 	bool "dropwatch"
 	select BR2_PACKAGE_BINUTILS
-	depends on !BR2_aarch64 # binutils
+	depends on !BR2_aarch64 && !BR2_nios2 # binutils
 	select BR2_PACKAGE_READLINE
 	select BR2_PACKAGE_LIBNL
 	depends on BR2_TOOLCHAIN_HAS_THREADS # libnl
@@ -11,5 +11,6 @@ config BR2_PACKAGE_DROPWATCH
 
 	  https://fedorahosted.org/dropwatch/
 
-comment "dropwatch requires threading support in toolchain"
+comment "dropwatch needs a toolchain w/ threads"
+	depends on !BR2_aarch64
 	depends on !BR2_TOOLCHAIN_HAS_THREADS

@@ -14,6 +14,7 @@ if BR2_PACKAGE_UTIL_LINUX
 
 config BR2_PACKAGE_UTIL_LINUX_LIBBLKID
 	select BR2_PACKAGE_UTIL_LINUX_LIBUUID
+	depends on BR2_USE_MMU # fork
 	bool "libblkid"
 	help
 	  Install libblkid.
@@ -22,6 +23,7 @@ config BR2_PACKAGE_UTIL_LINUX_LIBMOUNT
 	select BR2_PACKAGE_UTIL_LINUX_LIBBLKID
 	# libc lacks UTIME_NOW & UTIME_COMMIT
 	depends on !(BR2_microblazeel || BR2_microblazebe)
+	depends on BR2_USE_MMU # util-linux/libblkid
 	bool "libmount"
 	help
 	  Install libmount.
@@ -72,6 +74,7 @@ config BR2_PACKAGE_UTIL_LINUX_EJECT
 
 config BR2_PACKAGE_UTIL_LINUX_FALLOCATE
 	bool "fallocate"
+	depends on !BR2_avr32 # fallocate not implemented
 	help
 	  Preallocate space to a file
 
@@ -92,7 +95,7 @@ config BR2_PACKAGE_UTIL_LINUX_LOGIN_UTILS
 	help
 	  Build login utilities (last, login, su, sulogin)
 
-comment "login utilities require a toolchain with locale support"
+comment "login utilities needs a toolchain w/ locale"
 	depends on !BR2_ENABLE_LOCALE
 
 config BR2_PACKAGE_UTIL_LINUX_MESG
@@ -153,7 +156,7 @@ config BR2_PACKAGE_UTIL_LINUX_UTMPDUMP
 config BR2_PACKAGE_UTIL_LINUX_UUIDD
 	bool "uuidd"
 	help
-	 UUID generation daemon
+	  UUID generation daemon
 
 config BR2_PACKAGE_UTIL_LINUX_WALL
 	bool "wall"
@@ -174,5 +177,5 @@ endif
 
 endif
 
-comment "util-linux requires a toolchain with LARGEFILE + WCHAR support"
+comment "util-linux needs a toolchain w/ largefile, wchar"
 	depends on !(BR2_LARGEFILE && BR2_USE_WCHAR)

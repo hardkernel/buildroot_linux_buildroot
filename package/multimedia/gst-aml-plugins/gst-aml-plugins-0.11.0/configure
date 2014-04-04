@@ -2132,7 +2132,7 @@ GSTPB_REQUIRED=0.10.16
 ac_config_headers="$ac_config_headers config.h"
 
 
-am__api_version='1.11'
+am__api_version='1.14'
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -2331,7 +2331,7 @@ if test x"${MISSING+set}" != xset; then
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --run true"; then
-  am_missing_run="$MISSING --run "
+  am_missing_run="$MISSING "
 else
   am_missing_run=
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: \`missing' script is too old or missing" >&5

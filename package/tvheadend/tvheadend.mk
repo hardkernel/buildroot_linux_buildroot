@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-TVHEADEND_VERSION           = 5956233
+TVHEADEND_VERSION           = c7d0335eb10d02b780423bef8e7c740e422fff13
 TVHEADEND_SITE              = git://github.com/tvheadend/tvheadend.git
 TVHEADEND_LICENSE           = GPLv3+
 TVHEADEND_LICENSE_FILES     = LICENSE
@@ -21,6 +21,26 @@ endif
 # For buildroot, we add a patch that avoids doing that, but uses the
 # scan files installed by the dvb-apps package
 TVHEADEND_DEPENDENCIES     += dvb-apps
+
+define TVHEADEND_CONFIGURE_CMDS
+	(cd $(@D);				\
+	 $(TARGET_CONFIGURE_OPTS)		\
+	 $(TARGET_CONFIGURE_ARGS)		\
+	 ./configure				\
+	 --prefix=/usr				\
+	 --arch="$(ARCH)"			\
+	 --cpu="$(BR2_GCC_TARGET_CPU)"		\
+	 --python="$(HOST_DIR)/usr/bin/python"	\
+	)
+endef
+
+define TVHEADEND_BUILD_CMDS
+	$(MAKE) -C $(@D)
+endef
+
+define TVHEADEND_INSTALL_TARGET_CMDS
+	$(MAKE) -C $(@D) DESTDIR="$(TARGET_DIR)" install
+endef
 
 #----------------------------------------------------------------------------
 # To run tvheadend, we need:
@@ -43,7 +63,4 @@ define TVHEADEND_USERS
 tvheadend -1 tvheadend -1 * /home/tvheadend - video TVHeadend daemon
 endef
 
-#----------------------------------------------------------------------------
-# tvheadend is not an autotools-based package, but it is possible to
-# call its ./configure script as if it were an autotools one.
-$(eval $(autotools-package))
+$(eval $(generic-package))

@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-ELF2FLT_SOURCE =
-HOST_ELF2FLT_SOURCE =
-ELF2FLT_VERSION = cvs
+ELF2FLT_VERSION = 21c6a41885ad544763ccd19883c1353f3b0b7a47
+ELF2FLT_SITE = git://wh0rd.org/elf2flt.git
+ELF2FLT_SITE_METHOD = git
 ELF2FLT_LICENSE = GPLv2+
 ELF2FLT_LICENSE_FILES = LICENSE.TXT
 
@@ -22,9 +22,5 @@ HOST_ELF2FLT_CONF_OPT = \
 	--target=$(GNU_TARGET_NAME)
 
 HOST_ELF2FLT_CONF_ENV = LIBS=-lz
-
-define HOST_ELF2FLT_EXTRACT_CMDS
-	cp -r package/elf2flt/src/* $(@D)
-endef
 
 $(eval $(host-autotools-package))

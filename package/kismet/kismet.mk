@@ -5,6 +5,7 @@
 ################################################################################
 
 KISMET_VERSION = 2013-03-R1b
+KISMET_SOURCE = kismet-$(KISMET_VERSION).tar.xz
 KISMET_SITE = http://www.kismetwireless.net/code
 KISMET_DEPENDENCIES = host-pkgconf libpcap ncurses libnl
 KISMET_CONF_OPT += --with-netlink-version=3
@@ -44,23 +45,6 @@ endif
 define KISMET_INSTALL_TARGET_CMDS
 	$(KISMET_INSTALL_TARGET_BINARIES)
 	$(KISMET_INSTALL_TARGET_CONFIGS)
-endef
-
-ifdef KISMET_TARGET_BINARIES
-define KISMET_UNINSTALL_TARGET_BINARIES
-	rm -f $(addprefix $(TARGET_DIR)/usr/bin/, $(KISMET_TARGET_BINARIES))
-endef
-endif
-
-ifdef KISMET_TARGET_CONFIGS
-define KISMET_UNINSTALL_TARGET_CONFIGS
-	rm -f $(addprefix $(TARGET_DIR)/etc/, $(KISMET_TARGET_CONFIGS))
-endef
-endif
-
-define KISMET_UNINSTALL_TARGET_CMDS
-	$(KISMET_UNINSTALL_TARGET_BINARIES)
-	$(KISMET_UNINSTALL_TARGET_CONFIGS)
 endef
 
 $(eval $(autotools-package))

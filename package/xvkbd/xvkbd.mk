@@ -5,7 +5,6 @@
 ################################################################################
 
 XVKBD_VERSION = 3.2
-XVKBD_SOURCE = xvkbd-$(XVKBD_VERSION).tar.gz
 XVKBD_SITE = http://homepage3.nifty.com/tsato/xvkbd
 
 # Passing USRLIBDIR ensures that the stupid Makefile doesn't add
@@ -31,4 +30,3 @@ XVKBD_DEPENDENCIES = \
 	xlib_libXtst
 
 $(eval $(generic-package))
-

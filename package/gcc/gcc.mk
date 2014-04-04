@@ -19,13 +19,17 @@ ifneq ($(GCC_SNAP_DATE),)
 GCC_SITE = ftp://gcc.gnu.org/pub/gcc/snapshots/$(GCC_SNAP_DATE)/
 else ifeq ($(findstring avr32,$(GCC_VERSION)),avr32)
 GCC_SITE = ftp://www.at91.com/pub/buildroot/
-else ifeq ($(findstring arc,$(GCC_VERSION)),arc)
-GCC_SITE = $(BR2_ARC_SITE)
+else ifeq ($(BR2_arc),y)
+GCC_SITE = $(call github,foss-for-synopsys-dwc-arc-processors,gcc,$(GCC_VERSION))
+GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
+else ifeq ($(BR2_microblaze),y)
+GCC_SITE = $(call github,Xilinx,gcc,$(GCC_VERSION))
+GCC_SOURCE = gcc-$(GCC_VERSION).tar.gz
 else
 GCC_SITE = $(BR2_GNU_MIRROR:/=)/gcc/gcc-$(GCC_VERSION)
 endif
 
-GCC_SOURCE = gcc-$(GCC_VERSION).tar.bz2
+GCC_SOURCE ?= gcc-$(GCC_VERSION).tar.bz2
 
 #
 # Xtensa special hook
@@ -49,7 +53,9 @@ endif
 endif
 
 define HOST_GCC_APPLY_PATCHES
-	support/scripts/apply-patches.sh $(@D) package/gcc/$(GCC_VERSION) \*.patch
+	if test -d package/gcc/$(GCC_VERSION); then \
+	  support/scripts/apply-patches.sh $(@D) package/gcc/$(GCC_VERSION) \*.patch ; \
+	fi;
 	$(HOST_GCC_APPLY_POWERPC_PATCH)
 endef
 
@@ -58,7 +64,7 @@ endef
 #
 
 define HOST_GCC_EXTRACT_CMDS
-	$(BZCAT) $(DL_DIR)/$(GCC_SOURCE) | \
+	$(call suitable-extractor,$(GCC_SOURCE)) $(DL_DIR)/$(GCC_SOURCE) | \
 		$(TAR) $(TAR_STRIP_COMPONENTS)=1 -C $(@D) \
 		--exclude='libjava/*' \
 		--exclude='libgo/*' \
@@ -76,7 +82,7 @@ endef
 
 define HOST_GCC_CONFIGURE_SYMLINK
 	mkdir -p $(@D)/build
-	ln -s ../configure $(@D)/build/configure
+	ln -sf ../configure $(@D)/build/configure
 endef
 
 #
@@ -86,7 +92,8 @@ endef
 HOST_GCC_COMMON_DEPENDENCIES = \
 	host-binutils \
 	host-gmp \
-	host-mpfr
+	host-mpfr \
+	$(if $(BR2_BINFMT_FLAT),host-elf2flt)
 
 HOST_GCC_COMMON_CONF_OPT = \
 	--target=$(GNU_TARGET_NAME) \
@@ -96,7 +103,12 @@ HOST_GCC_COMMON_CONF_OPT = \
 	--disable-libssp \
 	--disable-multilib \
 	--with-gmp=$(HOST_DIR)/usr \
-	--with-mpfr=$(HOST_DIR)/usr \
+	--with-mpfr=$(HOST_DIR)/usr
+
+# Don't build documentation. It takes up extra space / build time,
+# and sometimes needs specific makeinfo versions to work
+HOST_GCC_COMMON_CONF_ENV = \
+	MAKEINFO=missing
 
 # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43810
 # Workaround until it's fixed in 4.5.4 or later
@@ -117,6 +129,12 @@ ifeq ($(BR2_GCC_ENABLE_TLS),y)
 HOST_GCC_COMMON_CONF_OPT += --enable-tls
 else
 HOST_GCC_COMMON_CONF_OPT += --disable-tls
+endif
+
+ifeq ($(BR2_GCC_ENABLE_LIBMUDFLAP),y)
+HOST_GCC_COMMON_CONF_OPT += --enable-libmudflap
+else
+HOST_GCC_COMMON_CONF_OPT += --disable-libmudflap
 endif
 
 ifeq ($(BR2_PTHREADS_NONE),y)
@@ -192,25 +210,9 @@ HOST_GCC_COMMON_CONF_OPT += \
 	--with-bugurl="http://bugs.buildroot.net/"
 endif
 
-# AVR32 GCC special configuration
-ifeq ($(BR2_avr32),y)
-HOST_GCC_COMMON_CONF_OPT += --disable-libmudflap
-endif
-
-# ARM Thumb and mudflap aren't friends
-ifeq ($(BR2_ARM_INSTRUCTIONS_THUMB),y)
-HOST_GCC_COMMON_CONF_OPT += --disable-libmudflap
-endif
-
-# Blackfin doesn't do mudflap
-ifeq ($(BR2_bfin),y)
-HOST_GCC_COMMON_CONF_OPT += --disable-libmudflap
-endif
-
-# Disable mudflap and enable proper double/long double for SPE ABI
+# Enable proper double/long double for SPE ABI
 ifeq ($(BR2_powerpc_SPE),y)
 HOST_GCC_COMMON_CONF_OPT += \
-	--disable-libmudflap \
 	--enable-e500_double \
 	--with-long-double-128
 endif

@@ -1,16 +1,22 @@
 menu "System configuration"
 
 config BR2_TARGET_GENERIC_HOSTNAME
-       string "System hostname"
-       default "buildroot"
-       help
-         Select system hostname to be stored in /etc/hostname.
+	string "System hostname"
+	default "buildroot"
+	help
+	  Select system hostname to be stored in /etc/hostname.
+
+	  Leave empty to not create /etc/hostname, or to keep the
+	  one from a custom skeleton.
 
 config BR2_TARGET_GENERIC_ISSUE
-       string "System banner"
-       default "Welcome to Buildroot"
-       help
-         Select system banner (/etc/issue) to be displayed at login.
+	string "System banner"
+	default "Welcome to Buildroot"
+	help
+	  Select system banner (/etc/issue) to be displayed at login.
+
+	  Leave empty to not create /etc/issue, or to keep the
+	  one from a custom skeleton.
 
 choice
 	bool "Passwords encoding"
@@ -67,31 +73,6 @@ config BR2_TARGET_GENERIC_PASSWD_METHOD
 	default "sha-512"   if BR2_TARGET_GENERIC_PASSWD_SHA512
 
 choice
-	prompt "/dev management"
-	default BR2_ROOTFS_DEVICE_CREATION_STATIC
-
-config BR2_ROOTFS_DEVICE_CREATION_STATIC
-	bool "Static using device table"
-
-config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS
-	bool "Dynamic using devtmpfs only"
-
-config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV
-	bool "Dynamic using mdev"
-	select BR2_PACKAGE_BUSYBOX
-
-config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_UDEV
-	bool "Dynamic using udev"
-	depends on BR2_LARGEFILE # udev
-	depends on BR2_USE_WCHAR # udev
-	select BR2_PACKAGE_UDEV
-
-comment "udev requires a toolchain with LARGEFILE + WCHAR support"
-	depends on !(BR2_LARGEFILE && BR2_USE_WCHAR)
-
-endchoice
-
-choice
 	prompt "Init system"
 	default BR2_INIT_BUSYBOX
 
@@ -101,6 +82,7 @@ config BR2_INIT_BUSYBOX
 
 config BR2_INIT_SYSV
 	bool "systemV"
+	select BR2_PACKAGE_BUSYBOX_SHOW_OTHERS # sysvinit
 	select BR2_PACKAGE_SYSVINIT
 
 config BR2_INIT_SYSTEMD
@@ -114,13 +96,47 @@ config BR2_INIT_SYSTEMD
 	select BR2_PACKAGE_DBUS
 	select BR2_PACKAGE_SYSTEMD
 
-comment 'systemd requires largefile, wchar, IPv6, threads and udev support'
+comment 'systemd needs udev /dev management and a toolchain w/ largefile, wchar, IPv6, threads'
+	depends on BR2_USE_MMU
 	depends on !(BR2_LARGEFILE && BR2_USE_WCHAR && \
 		     BR2_INET_IPV6 && BR2_TOOLCHAIN_HAS_THREADS && \
 		     BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_UDEV)
 
 config BR2_INIT_NONE
 	bool "None"
+
+endchoice
+
+choice
+	prompt "/dev management"
+	default BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS
+
+config BR2_ROOTFS_DEVICE_CREATION_STATIC
+	bool "Static using device table"
+
+config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS
+	bool "Dynamic using devtmpfs only"
+
+config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV
+	bool "Dynamic using mdev"
+	select BR2_PACKAGE_BUSYBOX
+
+config BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_UDEV
+	bool "Dynamic using udev"
+	depends on !BR2_avr32 # udev
+	depends on BR2_LARGEFILE # udev
+	depends on BR2_USE_WCHAR # udev
+	depends on !BR2_PREFER_STATIC_LIB # udev -> kmod
+	depends on BR2_USE_MMU # udev -> util-linux/libblkid
+	select BR2_PACKAGE_UDEV
+
+comment "udev needs a toolchain w/ largefile, wchar"
+	depends on !BR2_avr32 # udev
+	depends on !(BR2_LARGEFILE && BR2_USE_WCHAR)
+
+comment "udev doesn't work with 'prefer static libraries'"
+	depends on !BR2_avr32 # udev
+	depends on BR2_PREFER_STATIC_LIB
 
 endchoice
 
@@ -194,21 +210,26 @@ config BR2_TARGET_GENERIC_ROOT_PASSWD
 	  in the build log! Avoid using a valuable password if either the
 	  .config file or the build log may be distributed!
 
+config BR2_TARGET_GENERIC_GETTY
+	bool "Run a getty (login prompt) after boot"
+	default y
+
+if BR2_TARGET_GENERIC_GETTY
+menu "getty options"
 config BR2_TARGET_GENERIC_GETTY_PORT
-	string "Port to run a getty (login prompt) on"
+	string "TTY port"
 	default "ttyS0"
 	help
-	  Specify a port to run a getty (login prompt) on.
-	  Set to the empty string to not run a getty.
+	  Specify a port to run a getty on.
 
 choice
-	prompt "Baudrate to use"
+	prompt "Baudrate"
 	default BR2_TARGET_GENERIC_GETTY_BAUDRATE_115200
 	help
 	  Select a baudrate to use.
 
 config BR2_TARGET_GENERIC_GETTY_BAUDRATE_KEEP
-       bool "keep kernel default"
+	bool "keep kernel default"
 config BR2_TARGET_GENERIC_GETTY_BAUDRATE_9600
 	bool "9600"
 config BR2_TARGET_GENERIC_GETTY_BAUDRATE_19200
@@ -231,10 +252,19 @@ config BR2_TARGET_GENERIC_GETTY_BAUDRATE
 	default "115200"	if BR2_TARGET_GENERIC_GETTY_BAUDRATE_115200
 
 config BR2_TARGET_GENERIC_GETTY_TERM
-	string "Value to assign the TERM environment variable"
+	string "TERM environment variable"
 	default "vt100"
 	help
 	  Specify a TERM type.
+
+config BR2_TARGET_GENERIC_GETTY_OPTIONS
+	string "other options to pass to getty"
+	default ""
+	help
+	  Any other flags you want to pass to getty,
+	  Refer to getty --help for details.
+endmenu
+endif
 
 config BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW
 	bool "remount root filesystem read-write during boot"

@@ -18,6 +18,12 @@ config BR2_PACKAGE_SUNXI_MALI
 
 if BR2_PACKAGE_SUNXI_MALI
 
+config BR2_PACKAGE_PROVIDES_OPENGL_EGL
+	default "sunxi-mali"
+
+config BR2_PACKAGE_PROVIDES_OPENGL_ES
+	default "sunxi-mali"
+
 config BR2_PACKAGE_SUNXI_MALI_DBG
 	bool "install malitest and maliver tools"
 	help
@@ -57,5 +63,6 @@ endchoice
 
 endif
 
-comment "sunxi-mali requires an eglibc/glibc based toolchain"
-	depends on BR2_arm && !BR2_TOOLCHAIN_USES_GLIBC
+comment "sunxi-mali needs an (e)glibc toolchain"
+	depends on BR2_arm
+	depends on !BR2_TOOLCHAIN_USES_GLIBC

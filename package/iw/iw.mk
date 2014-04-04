@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-IW_VERSION = 3.10
-IW_SOURCE = iw-$(IW_VERSION).tar.bz2
+IW_VERSION = 3.14
+IW_SOURCE = iw-$(IW_VERSION).tar.xz
 IW_SITE = $(BR2_KERNEL_MIRROR)/software/network/iw
 IW_LICENSE = iw license
 IW_LICENSE_FILES = COPYING
@@ -25,11 +25,7 @@ define IW_BUILD_CMDS
 endef
 
 define IW_INSTALL_TARGET_CMDS
-	$(INSTALL) -m 0755 -D $(@D)/iw  $(TARGET_DIR)/usr/sbin/
-endef
-
-define IW_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/sbin/iw
+	$(IW_MAKE_ENV) $(MAKE) -C $(@D) PREFIX=$(TARGET_DIR)/usr install
 endef
 
 $(eval $(generic-package))

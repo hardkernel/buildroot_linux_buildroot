@@ -41,7 +41,7 @@ endif
 
 # The .tar.bz2 contains another .tar, which contains the source code.
 define LSOF_EXTRACT_CMDS
-        $(INFLATE.bz2) $(DL_DIR)/$(LSOF_SOURCE) | \
+        $(call suitable-extractor,$(LSOF_SOURCE)) $(DL_DIR)/$(LSOF_SOURCE) | \
                 $(TAR) -O $(TAR_OPTIONS) - lsof_$(LSOF_VERSION)/lsof_$(LSOF_VERSION)_src.tar | \
         $(TAR) $(TAR_STRIP_COMPONENTS)=1 -C $(LSOF_DIR) $(TAR_OPTIONS) -
 endef
@@ -60,14 +60,6 @@ endef
 
 define LSOF_INSTALL_TARGET_CMDS
 	install -D -m 755 $(@D)/lsof $(TARGET_DIR)/bin/lsof
-endef
-
-define LSOF_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/bin/lsof
-endef
-
-define LSOF_CLEAN_CMDS
-	-$(MAKE) -C $(@D) clean
 endef
 
 $(eval $(generic-package))

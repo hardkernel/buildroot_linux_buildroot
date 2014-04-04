@@ -21,7 +21,7 @@ choice
 	prompt "Kernel version"
 
 config BR2_LINUX_KERNEL_LATEST_VERSION
-	bool "3.10.4"
+	bool "3.13.5"
 
 config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	bool "Same as toolchain kernel headers"
@@ -37,8 +37,13 @@ config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 config BR2_LINUX_KERNEL_CUSTOM_VERSION
 	bool "Custom version"
 	help
-	  This option allows to use a specific 2.6.x or 2.6.x.y
-	  official versions, as available on kernel.org
+	  This option allows to use a specific official version from
+	  kernel.org, like 2.6.x, 2.6.x.y, 3.x.y, ...
+
+	  Note: you cannot use this option to select a _longterm_ 2.6
+	  kernel, because these kernels are not located at the standard
+	  URL at kernel.org. Instead, select "Custom tarball" and
+	  specify the right URL directly.
 
 config BR2_LINUX_KERNEL_CUSTOM_TARBALL
 	bool "Custom tarball"
@@ -47,15 +52,22 @@ config BR2_LINUX_KERNEL_CUSTOM_TARBALL
 	  specific kernel source tarball
 
 config BR2_LINUX_KERNEL_CUSTOM_GIT
-	bool "Custom Git tree"
+	bool "Custom Git repository"
 	help
 	  This option allows Buildroot to get the Linux kernel source
 	  code from a Git repository.
+
+config BR2_LINUX_KERNEL_CUSTOM_HG
+	bool "Custom Mercurial repository"
+	help
+	  This option allows Buildroot to get the Linux kernel source
+	  code from a Mercurial repository.
+
 config BR2_LINUX_KERNEL_CUSTOM_LOCAL
-	bool "Local kernel"
+	bool "Local directory"
 	help
 	  This option allows Buildroot to get the Linux kernel source
-	  code from a Git repository.
+	  code from a local directory.
 
 endchoice
 
@@ -63,35 +75,43 @@ config BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE
 	string "Kernel version"
 	depends on BR2_LINUX_KERNEL_CUSTOM_VERSION
 
-
-config BR2_LINUX_KERNEL_CUSTOM_LOCAL_LOCATION
-	string
-	prompt "Local kernel location"
-	depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
-
 config BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION
 	string "URL of custom kernel tarball"
 	depends on BR2_LINUX_KERNEL_CUSTOM_TARBALL
 
-config BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL
-	string "URL of custom Git repository"
-	depends on BR2_LINUX_KERNEL_CUSTOM_GIT
+if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG
 
-config BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION
-	string "Custom Git version"
-	default "HEAD"
-	depends on BR2_LINUX_KERNEL_CUSTOM_GIT
+config BR2_LINUX_KERNEL_CUSTOM_REPO_URL
+	string "URL of custom repository"
+	default BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL \
+		if BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL != ""  # legacy
+
+config BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION
+	string "Custom repository version"
+	default BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION \
+		if BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION != ""  # legacy
 	help
-	  Git revision to use in the format used by git rev-parse,
+	  Revision to use in the typical format used by Git/Mercurial
 	  E.G. a sha id, a tag, branch, ..
+
+endif
+
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH
+	string "Path to the local directory"
+	depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
+	help
+	  Path to the local directory with the Linux kernel source code.
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "3.10.4" if BR2_LINUX_KERNEL_LATEST_VERSION
+	default "3.13.5" if BR2_LINUX_KERNEL_LATEST_VERSION
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
-	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE if BR2_LINUX_KERNEL_CUSTOM_VERSION
+	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE \
+		if BR2_LINUX_KERNEL_CUSTOM_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL
-	default $BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION if BR2_LINUX_KERNEL_CUSTOM_GIT
+	default BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION \
+		if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG
+	default "custom" if BR2_LINUX_KERNEL_CUSTOM_LOCAL
 
 #
 # Patch selection
@@ -125,9 +145,9 @@ config BR2_LINUX_KERNEL_DEFCONFIG
 	string "Defconfig name"
 	depends on BR2_LINUX_KERNEL_USE_DEFCONFIG
 	help
-	 Name of the kernel defconfig file to use, without the
-	 trailing _defconfig.  The defconfig is located in
-	 arch/<arch>/configs in the kernel tree.
+	  Name of the kernel defconfig file to use, without the
+	  trailing _defconfig.  The defconfig is located in
+	  arch/<arch>/configs in the kernel tree.
 
 config BR2_TARGET_BOARD_PLATFORM
         string "platform name"
@@ -145,7 +165,7 @@ config BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE
 #
 
 config BR2_LINUX_KERNEL_UBOOT_IMAGE
-       bool
+	bool
 
 choice
 	prompt "Kernel binary format"
@@ -265,10 +285,10 @@ if BR2_LINUX_KERNEL_DTS_SUPPORT
 # The variable below address the second case, were you only want
 # limited actions from buildroot.
 config BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
-	bool "dtb self built"
+	bool
 
 config BR2_LINUX_KERNEL_APPENDED_DTB
-	bool "append dtb"
+	bool
 
 choice
 	prompt "Device tree source"
@@ -277,9 +297,9 @@ choice
 config BR2_LINUX_KERNEL_USE_INTREE_DTS
 	bool "Use a device tree present in the kernel."
 	help
-	   Use a device tree source distributed with
-	   the kernel sources. The dts files are located
-           in the arch/<arch>/boot/dts folder.
+	  Use a device tree source distributed with
+	  the kernel sources. The dts files are located
+	  in the arch/<arch>/boot/dts folder.
 
 config BR2_LINUX_KERNEL_USE_CUSTOM_DTS
 	bool "Use a custom device tree file"
@@ -293,9 +313,9 @@ config BR2_LINUX_KERNEL_INTREE_DTS_NAME
 	string "Device Tree Source file names"
 	depends on BR2_LINUX_KERNEL_USE_INTREE_DTS
 	help
-	 Name of the device tree source file, without
-	 the trailing .dts. You can provide a list of
-	 dts files to build, separated by spaces.
+	  Name of the device tree source file, without
+	  the trailing .dts. You can provide a list of
+	  dts files to build, separated by spaces.
 
 config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
 	string "Device Tree Source file path"

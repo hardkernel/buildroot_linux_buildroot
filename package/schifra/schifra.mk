@@ -23,11 +23,11 @@ endef
 define SCHIFRA_INSTALL_EXAMPLES
 	cd $(@D) && for i in `find -type f -name 'schifra_*' -executable` ; \
 	do \
-		$(INSTALL) -m 0755 -D $$i (TARGET_DIR)/usr/bin/$$i; \
+		$(INSTALL) -m 0755 -D $$i $(TARGET_DIR)/usr/bin/$$i; \
 	done
 endef
 
-SCHIFRA_POST_TARGET_INSTALL_HOOKS += SCHIFRA_INSTALL_EXAMPLES
+SCHIFRA_POST_INSTALL_TARGET_HOOKS += SCHIFRA_INSTALL_EXAMPLES
 endif
 
 define SCHIFRA_INSTALL_TARGET_CMDS
@@ -38,19 +38,6 @@ endef
 define SCHIFRA_INSTALL_STAGING_CMDS
 	cd $(@D) && for i in schifra_*.hpp; do \
 		$(INSTALL) -m 0644 -D $$i $(STAGING_DIR)/usr/include/$$i; done
-endef
-
-define SCHIFRA_UNINSTALL_TARGET_CMDS
-	$(RM) $(TARGET_DIR)/usr/include/schifra_*.hpp
-	$(RM) $(TARGET_DIR)/usr/bin/schifra_*
-endef
-
-define SCHIFRA_UNINSTALL_STAGING_CMDS
-	$(RM) $(STAGING_DIR)/usr/include/schifra_*.hpp
-endef
-
-define SCHIFRA_CLEAN_CMDS
-	$(MAKE) -C $(@D) $(SCHIFRA_MAKE_OPT) clean
 endef
 
 $(eval $(generic-package))
