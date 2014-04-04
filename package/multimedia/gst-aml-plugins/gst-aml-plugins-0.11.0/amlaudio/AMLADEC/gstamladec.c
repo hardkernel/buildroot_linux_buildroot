@@ -445,8 +445,13 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
         GST_ERROR("unsupport audio format name=%s\n",name);
         return  FALSE;
    }
+    GST_WARNING("got name=%s\n",name);	
     amladec->audioinfo = info;
     info->init(info,amladec->pcodec,structure);
+    if(amladec->pcodec->audio_type == AFORMAT_UNKNOWN) {
+        GST_ERROR("unsupport audio format\n");
+        return  FALSE;
+   }	
     if (amladec->pcodec&&amladec->pcodec->stream_type == STREAM_TYPE_ES_AUDIO){
         if (info->writeheader)
             info->writeheader (info,amladec->pcodec); 		
@@ -462,13 +467,18 @@ static gboolean gst_amladec_set_caps (GstPad * pad, GstCaps * caps)
 {
     GstAmlAdec *amladec;  
     GstPad *otherpad;
+    gboolean ret;	
 
     amladec = GST_AMLADEC (gst_pad_get_parent (pad));
     otherpad = (pad == amladec->srcpad) ? amladec->sinkpad : amladec->srcpad;
 	
     if(caps ){
         amladec->tmpcaps=caps;
-        gst_set_astream_info (amladec, amladec->tmpcaps); 
+        ret=gst_set_astream_info (amladec, amladec->tmpcaps);
+        if(ret==FALSE){
+            gst_object_unref (amladec);	
+            return FALSE;
+        }		
     }		
     gst_object_unref (amladec);	
     return TRUE;

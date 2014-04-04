@@ -1,4 +1,4 @@
-DW_NAME		= lpcm
+DW_NAME		= libpcm_wfd
 M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
 INSTALL_DIR	= $(LIB_DIR)/aml_libs

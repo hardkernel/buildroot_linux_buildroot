@@ -271,8 +271,20 @@ AmlStreamInfo * newAmlAinfoEac3()
 
 gint amlInitAdpcm(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 { 
-    pcodec->audio_type = AFORMAT_ADPCM;
-    pcodec->audio_info.valid = 1;
+    AmlAudioInfo *audio = AML_AUDIOINFO_BASE(info);
+    const gchar *getlayout;
+    gint getblock_align;
+    GST_WARNING("[%s:%d]\n ", __FUNCTION__, __LINE__);
+    getlayout =gst_structure_get_string(structure ,"layout");
+    gst_structure_get_int (structure, "block_align", &getblock_align);	
+     pcodec->audio_type = AFORMAT_ADPCM;
+    if(g_str_equal(getlayout,"microsoft"))	
+    pcodec->audio_info.codec_id = CODEC_ID_ADPCM_MS;
+    pcodec->audio_info.block_align = getblock_align;    
+    amlAudioInfoInit(info,pcodec,structure);
+     pcodec->audio_info.valid = 1;
+
+    GST_WARNING("[%s:%d] layout%s align%d\n ", __FUNCTION__, __LINE__,getlayout,getblock_align);
     return 0;  
 }
 
@@ -480,10 +492,22 @@ gint amlInitPcm(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struct
     gst_structure_get_int (structure, "endianness", &endianness);
     gst_structure_get_int (structure, "depth", &depth);
     gst_structure_get_boolean (structure, "signed", &getsigned);
-
-    if (endianness==1234&&depth==16&&getsigned ){	
-        pcodec->audio_type = AFORMAT_PCM_S16LE;
-        pcodec->audio_info.codec_id = CODEC_ID_PCM_S16LE;
+    GST_WARNING("[%s:%d],heredepth=%d\n",__FUNCTION__, __LINE__,depth);	
+    if (endianness==1234&&getsigned){
+        switch (depth){
+            case 16:
+                pcodec->audio_type = AFORMAT_PCM_S16LE;
+                pcodec->audio_info.codec_id = CODEC_ID_PCM_S16LE;
+                break;
+            case 24:
+                pcodec->audio_type = AFORMAT_UNKNOWN;
+                GST_WARNING("[%s:%d],unsupported\n",__FUNCTION__, __LINE__);	                
+                break;	
+            default:
+                pcodec->audio_type = AFORMAT_UNKNOWN;
+                GST_WARNING("[%s:%d],unsupported\n",__FUNCTION__, __LINE__);	                
+                break;	
+        }		
     }
     amlAudioInfoInit(info,pcodec,structure);
     pcodec->audio_info.valid = 1;

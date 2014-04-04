@@ -335,7 +335,10 @@ gst_amlvdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
     if (!amlvdec->codec_init_ok){
         caps = GST_BUFFER_CAPS (buf);
         if (caps)		
-            gst_set_vstream_info (amlvdec, caps );
+            if(gst_set_vstream_info (amlvdec, caps )==FALSE){
+	         GST_ERROR("set vstream info error\n"); 			
+                return FALSE;
+            }
     }
 
     if(amlvdec->codec_init_ok)
@@ -558,7 +561,11 @@ gst_amlvdec_setcaps (GstPad * pad, GstCaps * caps)
     if(caps){
         g_mutex_lock(&amlclass->lock);
         amlvdec->is_headerfeed = FALSE;
-        gst_set_vstream_info (amlvdec, caps );  
+        if(gst_set_vstream_info (amlvdec, caps )==FALSE){
+            GST_ERROR("set vstream info error\n");			
+            gst_object_unref (amlvdec);			
+            return FALSE; 
+        }			
         g_mutex_unlock(&amlclass->lock);
     }   
         
