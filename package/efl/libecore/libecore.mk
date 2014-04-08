@@ -80,6 +80,10 @@ else
 LIBECORE_CONF_OPT += --disable-ecore-x --disable-ecore-imf-xim
 endif
 
+ifeq ($(BR2_PACKAGE_XLIB_LIBXCOMPOSITE),y)
+LIBECORE_DEPENDENCIES += xlib_libXcomposite 
+endif
+
 ifeq ($(BR2_PACKAGE_LIBECORE_X_XCB),y)
 LIBECORE_CONF_OPT += --enable-ecore-x-xcb
 LIBECORE_DEPENDENCIES += libxcb xlib_libX11 xcb-util pixman
