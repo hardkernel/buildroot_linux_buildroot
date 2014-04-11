@@ -32,7 +32,7 @@ $(OPENGL_DIR)/.unpacked:
 
 $(OPENGL_DIR)/.installed: $(OPENGL_DIR)/.unpacked
 	cp -arf $(OPENGL_DIR)/* $(STAGING_DIR)/usr
-	cp -d $(OPENGL_DIR)/lib/*.so* $(TARGET_DIR)/usr/lib
+	cp -df $(OPENGL_DIR)/lib/*.so* $(TARGET_DIR)/usr/lib
 	install -m 755 $(OPENGL_DIR)/lib/$(MALI_LIB_DIR)/libMali.so $(TARGET_DIR)/usr/lib
 	mkdir -p $(TARGET_DIR)/usr/lib/pkgconfig
 	install -m 644 $(OPENGL_DIR)/lib/pkgconfig/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
