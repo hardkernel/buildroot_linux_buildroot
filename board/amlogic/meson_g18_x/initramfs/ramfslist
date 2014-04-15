@@ -293,7 +293,9 @@
 ./usr
 ./usr/lib
 ./usr/lib/libglib-2.0.so.0
+./usr/lib/libkmod.so
 ./usr/lib/libe2p.so.2
+./usr/lib/libkmod.so.2
 ./usr/lib/libglib-2.0.so.0.3800.2
 ./usr/lib/libext2fs.so
 ./usr/lib/libext2fs.so.2
@@ -303,10 +305,13 @@
 ./usr/lib/libudev.so
 ./usr/lib/libblkid.so
 ./usr/lib/libcom_err.so.2.1
+./usr/lib/libz.so.1
 ./usr/lib/libgudev-1.0.so
 ./usr/lib/libe2p.so.2.3
+./usr/lib/libz.so.1.2.8
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
+./usr/lib/libz.so
 ./usr/lib/libuuid.so
 ./usr/bin
 ./usr/bin/xzcat
@@ -516,3 +521,4 @@
 ./tmp/ldconfig
 ./tmp/ldconfig/aux-cache
 ./tmp/fontconfig
+./usr/lib/libkmod.so.2.2.6

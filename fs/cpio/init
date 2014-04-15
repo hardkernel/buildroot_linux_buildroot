@@ -85,7 +85,7 @@ if [ -n "${firmware}" ]; then
         sync
         echo "update complete"
         umount /sys /proc /dev
-        exec chroot /system "/init2"
+        exec chroot /system ${init}
     else
         echo "cannot locate ${firmware}"
         echo "boot normally..."
