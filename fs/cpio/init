@@ -5,9 +5,8 @@
 /bin/mount -t devtmpfs devtmpfs /dev
 
 #Create device nodes
-if [ -x "/sbin/mdev" ] ; then
-    mdev -s
-fi
+mdev -s
+
 #insert our precious NFTL
 modprobe aml_nftl_dev
 

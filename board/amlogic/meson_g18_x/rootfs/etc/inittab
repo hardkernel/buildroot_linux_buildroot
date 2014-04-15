@@ -14,14 +14,9 @@
 # process   == program to run
 
 # Startup the system
-::sysinit:/bin/mount -t proc none /proc
-::sysinit:/bin/mount -t sysfs none /sys
-::sysinit:/bin/mount -t tmpfs -o size=64k,mode=0755 none /dev
+::sysinit:/bin/mount -t proc proc /proc
 ::sysinit:/bin/mkdir /dev/shm
 ::sysinit:/bin/mkdir /dev/pts
-::sysinit:/bin/mount -t devpts devpts /dev/pts
-::sysinit:/bin/echo /sbin/mdev > /proc/sys/kernel/hotplug
-::sysinit:/sbin/mdev -s
 ::sysinit:/bin/mount -o remount,rw /
 ::sysinit:/bin/mount -a
 ::sysinit:modprobe ump
@@ -53,6 +48,7 @@ null::respawn:/usr/sbin/telnetd -l /bin/sh
 # Stuff to do before rebooting
 null::shutdown:/usr/bin/killall klogd
 null::shutdown:/usr/bin/killall syslogd
+null::shutdown:/etc/init.d/rcK
 null::shutdown:/bin/umount -a -r
 null::shutdown:/sbin/swapoff -a
 
