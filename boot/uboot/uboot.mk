@@ -74,10 +74,10 @@ UBOOT_MAKE_OPTS += \
 # If the option value is empty, this function does nothing.
 define insert_define
 $(if $(call qstrip,$(2)),
-	@echo "#ifdef $(strip $(1))" >> $(@D)/include/config.h
-	@echo "#undef $(strip $(1))" >> $(@D)/include/config.h
-	@echo "#endif" >> $(@D)/include/config.h
-	@echo '#define $(strip $(1)) $(call qstrip,$(2))' >> $(@D)/include/config.h)
+	@echo "#ifdef $(strip $(1))" >> $(@D)/build/include/config.h
+	@echo "#undef $(strip $(1))" >> $(@D)/build/include/config.h
+	@echo "#endif" >> $(@D)/build/include/config.h
+	@echo '#define $(strip $(1)) $(call qstrip,$(2))' >> $(@D)/build/include/config.h)
 endef
 
 ifneq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_PATCH_DIR)),)
@@ -109,10 +109,10 @@ define UBOOT_CONFIGURE_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS)		\
 		$(UBOOT_BOARD_NAME)_config
-	@echo >> $(@D)/include/config.h
-	@echo "/* Add a wrapper around the values Buildroot sets. */" >> $(@D)/include/config.h
-	@echo "#ifndef __BR2_ADDED_CONFIG_H" >> $(@D)/include/config.h
-	@echo "#define __BR2_ADDED_CONFIG_H" >> $(@D)/include/config.h
+	@echo >> $(@D)/build/include/config.h
+	@echo "/* Add a wrapper around the values Buildroot sets. */" >> $(@D)/build/include/config.h
+	@echo "#ifndef __BR2_ADDED_CONFIG_H" >> $(@D)/build/include/config.h
+	@echo "#define __BR2_ADDED_CONFIG_H" >> $(@D)/build/include/config.h
 	$(call insert_define,DATE,$(DATE))
 	$(call insert_define,CONFIG_LOAD_SCRIPTS,1)
 	$(call insert_define,CONFIG_IPADDR,$(BR2_TARGET_UBOOT_IPADDR))
@@ -121,7 +121,7 @@ define UBOOT_CONFIGURE_CMDS
 	$(call insert_define,CONFIG_SERVERIP,$(BR2_TARGET_UBOOT_SERVERIP))
 	$(call insert_define,CONFIG_ETHADDR,$(BR2_TARGET_UBOOT_ETHADDR))
 	$(call insert_define,CONFIG_ETH1ADDR,$(BR2_TARGET_UBOOT_ETH1ADDR))
-	@echo "#endif /* __BR2_ADDED_CONFIG_H */" >> $(@D)/include/config.h
+	@echo "#endif /* __BR2_ADDED_CONFIG_H */" >> $(@D)/build/include/config.h
 endef
 
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
