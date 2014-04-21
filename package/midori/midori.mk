@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-MIDORI_VERSION_MAJOR = 0.4
-MIDORI_VERSION = $(MIDORI_VERSION_MAJOR).6
+MIDORI_VERSION_MAJOR = 0.5
+MIDORI_VERSION = $(MIDORI_VERSION_MAJOR).2
 MIDORI_SOURCE = midori-$(MIDORI_VERSION).tar.bz2
 MIDORI_SITE = http://archive.xfce.org/src/apps/midori/$(MIDORI_VERSION_MAJOR)/
 MIDORI_LICENSE = LGPLv2.1+
@@ -33,6 +33,7 @@ define MIDORI_CONFIGURE_CMDS
 		./waf configure			\
 		--prefix=/usr			\
 		--disable-libnotify		\
+		--disable-zeitgeist		\
        )
 endef
 
