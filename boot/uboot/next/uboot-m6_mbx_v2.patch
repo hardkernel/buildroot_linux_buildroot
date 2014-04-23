@@ -20,7 +20,7 @@
          "if test ${reboot_mode} = usb_burning; then run usb_burning; fi; "\
          "if test ${reboot_mode} = update; then run update; fi\0" \
 +    "bootsdargs=root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode}\0"\
-+    "bootupdateargs=root=/dev/system rw rootfstype=ext4 rootwait init=/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
++    "bootupdateargs=root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
  	"nandboot="\
          "echo Booting ...;"\
          "run nandargs;"\
