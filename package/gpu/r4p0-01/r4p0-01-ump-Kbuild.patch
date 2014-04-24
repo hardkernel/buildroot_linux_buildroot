@@ -1,30 +1,3 @@
-diff -Naur gpu-r4p0-01.orig/mali/Kconfig gpu-r4p0-01/mali/Kconfig
---- gpu-r4p0-01.orig/mali/Kconfig	2014-03-17 15:43:25.461126868 -0700
-+++ gpu-r4p0-01/mali/Kconfig	2014-03-17 16:20:26.997074606 -0700
-@@ -2,6 +2,7 @@
- config MALI400
- 	tristate "Mali-300/400/450 support"
- 	depends on ARM
-+	depends on m
- 	default m
- 	select DMA_SHARED_BUFFER
- 	---help---
-@@ -14,6 +15,7 @@
- config MALI450
- 	bool "Enable Mali-450 support"
- 	depends on MALI400
-+	depends on UMP
- 	default y if ARCH_MESON8 || ARCH_MESON6TVD
- 	---help---
- 	  This enables support for Mali-450 specific features.
-@@ -55,6 +57,7 @@
- config MALI400_UMP
- 	bool "Enable UMP support"
- 	depends on MALI400
-+	default y if ARCH_MESON6TVD
- 	---help---
- 	  This enables support for the UMP memory sharing API in the Mali driver.
- 
 diff -Naur gpu-r4p0-01.orig/ump/Kbuild gpu-r4p0-01/ump/Kbuild
 --- gpu-r4p0-01.orig/ump/Kbuild	2014-03-17 15:43:25.461126868 -0700
 +++ gpu-r4p0-01/ump/Kbuild	2014-03-17 16:33:54.333055636 -0700
@@ -89,17 +62,4 @@ diff -Naur gpu-r4p0-01.orig/ump/Kbuild gpu-r4p0-01/ump/Kbuild
 -clean-files := __mali_osk*.c 
  
  obj-$(CONFIG_UMP) := ump.o
- 
-diff -Naur gpu-r4p0-01.orig/ump/Kconfig gpu-r4p0-01/ump/Kconfig
---- gpu-r4p0-01.orig/ump/Kconfig	2014-03-17 15:43:25.461126868 -0700
-+++ gpu-r4p0-01/ump/Kconfig	2014-03-17 16:18:36.917077420 -0700
-@@ -2,7 +2,7 @@
- config UMP
- 	tristate "UMP support"
--	depends on m
-+	#depends on m
--	default n
-+	default y
- 	---help---
- 	  This enables support for the UMP memory allocation and sharing API.
- 
+
