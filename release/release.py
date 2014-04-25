@@ -118,7 +118,7 @@ def getpkg(string):
     if loc != None:
         return loc.group(1), loc.group(2)
 
-def download_pkg(xml, config):
+def download_pkg(xml, config, download = 0):
     server_addr = None
     for pkgline in open(config, 'r'):
         for i in pkg.keys():
@@ -132,18 +132,19 @@ def download_pkg(xml, config):
                           server = server_addr + repos[i]
                           date = time.strftime("%Y-%m-%d")
                           folder = tar[i] + '-' + date + '-' + pkgloc[0:10]
-                          cmd = 'rm -rf %s' % folder
-                          print cmd
-                          os.system(cmd)
-                          cmd = 'git clone --depth=0 %s -b %s %s' % (server, b, folder)
-                          print cmd
-                          os.system(cmd)
-                          cmd = 'cd %s; git archive --format=tar.gz %s --prefix=%s/ -o %s.tar.gz' % (folder, pkgloc, folder, folder)
-                          print cmd
-                          os.system(cmd)
-                          cmd = 'mv %s/%s.tar.gz .' % (folder, folder)
-                          print cmd
-                          os.system(cmd)
+                          if download:
+                              cmd = 'rm -rf %s' % folder
+                              print cmd
+                              os.system(cmd)
+                              cmd = 'git clone --depth=0 %s -b %s %s' % (server, b, folder)
+                              print cmd
+                              os.system(cmd)
+                              cmd = 'cd %s; git archive --format=tar.gz %s --prefix=%s/ -o %s.tar.gz' % (folder, pkgloc, folder, folder)
+                              print cmd
+                              os.system(cmd)
+                              cmd = 'mv %s/%s.tar.gz .' % (folder, folder)
+                              print cmd
+                              os.system(cmd)
                           filename[i] = folder + ".tar.gz"
 
 def create_cfg(config):
@@ -180,6 +181,7 @@ def create_cfg(config):
 if __name__ == '__main__':
     xml = sys.argv[1]
     cfg = sys.argv[2]
-    download_pkg(xml, cfg)
+    download = len(sys.argv) == 4 and sys.argv[3] == "download"
+    download_pkg(xml, cfg, download)
     create_cfg(cfg)
 
