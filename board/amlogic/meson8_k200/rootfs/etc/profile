@@ -33,6 +33,7 @@ if [ "$PS1" ]; then
     export EDITOR='/bin/vi'
     export INPUTRC=/etc/inputrc
     export DMALLOC_OPTIONS=debug=0x34f47d83,inter=100,log=logfile
+    export DISPLAY=:0
 
     ### Some aliases
     alias ps2='ps facux '
