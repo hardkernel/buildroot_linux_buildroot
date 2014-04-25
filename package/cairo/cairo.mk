@@ -103,6 +103,22 @@ else
 	CAIRO_CONF_OPT += --disable-png
 endif
 
+ifeq ($(BR2_PACKAGE_UMP_USERSPACE_DRV),y)
+	CAIRO_DEPENDENCIES += ump_userspace_drv
+endif
+
+ifeq ($(BR2_PACKAGE_LIBDRM),y)
+	CAIRO_DEPENDENCIES += libdrm
+endif
+
+ifeq ($(BR2_PACKAGE_XLIB_LIBXFIXES),y)
+	CAIRO_DEPENDENCIES += xlib_libXfixes
+endif
+
+ifeq ($(BR2_PACKAGE_OPENGL),y)
+	CAIRO_DEPENDENCIES += opengl
+endif
+
 ifeq ($(BR2_PACKAGE_CAIRO_SCRIPT),y)
 	CAIRO_CONF_OPT += --enable-script
 else
