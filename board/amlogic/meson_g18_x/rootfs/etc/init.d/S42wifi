@@ -5,7 +5,7 @@ DAEMON=/usr/sbin/$NAME
 PIDFILE=/var/run/$NAME.pid 
 POWERDEV=/dev/wifi_power
 POWERCTL=/usr/bin/wifi_power
-MODULE=8192eu
+MODULE=8192cu
 
 case "$1" in
     start)
