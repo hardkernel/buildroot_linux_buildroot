@@ -1,0 +1,16 @@
+--- qt5base-5.1.1/src/plugins/platforms/eglfs/eglfs.pri.old	2014-04-30 14:45:19.078489278 +0800
++++ qt5base-5.1.1/src/plugins/platforms/eglfs/eglfs.pri	2014-04-30 14:44:46.882488674 +0800
+@@ -3,11 +3,11 @@ QT += core-private gui-private platforms
+ #DEFINES += QEGL_EXTRA_DEBUG
+ 
+ #Avoid X11 header collision
+-DEFINES += MESA_EGL_NO_X11_HEADERS
++#DEFINES += MESA_EGL_NO_X11_HEADERS
+ 
+ #To test the hooks on x11 (xlib), comment the above define too
+ #EGLFS_PLATFORM_HOOKS_SOURCES += qeglfshooks_x11.cpp
+-#LIBS += -lX11 -lX11-xcb -lxcb
++LIBS += -lX11 -lX11-xcb -lxcb
+ 
+ SOURCES +=  $$PWD/qeglfsintegration.cpp \
+             $$PWD/qeglfswindow.cpp \

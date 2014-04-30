@@ -12,7 +12,7 @@
  config MALI400_UMP
  	bool "Enable UMP support"
  	depends on MALI400
-+    default y if ARCH_MESON6TVD
++    default y
  	---help---
  	  This enables support for the UMP memory sharing API in the Mali driver.
  
