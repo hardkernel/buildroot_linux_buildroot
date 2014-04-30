@@ -110,7 +110,7 @@ ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
 QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/mkspecs/devices/linux-rasp-pi-g++/qeglfshooks_pi.cpp
 endif
-ifeq (BR2_PACKAGE_XSERVER_XORG_SERVER,y)
+ifeq ($(BR2_PACKAGE_XSERVER_XORG_SERVER),y)
 QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
 	$(@D)/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp
 else
