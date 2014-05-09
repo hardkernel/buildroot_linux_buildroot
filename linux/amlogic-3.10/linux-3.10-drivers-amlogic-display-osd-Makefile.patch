@@ -1,0 +1,21 @@
+--- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/Makefile.orig	2014-04-28 13:24:11.407156122 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/Makefile	2014-04-28 13:25:08.223157188 +0800
+@@ -13,9 +13,12 @@ endif
+ 
+ obj-$(CONFIG_VSYNC_RDMA) += osd_rdma.o
+ 
+-EXTRA_CFLAGS += -Iinclude/linux/osd/
+-
+-
+-
+-
+-
++EXTRA_CFLAGS += -Iinclude/linux/amlogic/osd/
++ifeq ($(CONFIG_FB_AMLOGIC_UMP),y)
++fb-objs += osd_ump.o
++endif
++
++ifeq ($(CONFIG_FB_AMLOGIC_UMP),y)
++EXTRA_CFLAGS += -I../hardware/arm/gpu/ump/include/
++endif
++ 

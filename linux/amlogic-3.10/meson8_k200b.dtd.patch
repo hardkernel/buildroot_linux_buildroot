@@ -1,0 +1,11 @@
+--- linux-amlogic-3.10-bringup/arch/arm/boot/dts/amlogic/meson8_k200b_1G.dtd.old	2014-04-30 16:46:38.550625846 +0800
++++ linux-amlogic-3.10-bringup/arch/arm/boot/dts/amlogic/meson8_k200b_1G.dtd	2014-04-30 16:46:49.762626056 +0800
+@@ -145,7 +145,7 @@ void root_func(){
+                 vmode = <3>; /**0:VMODE_720P 1:VMODE_LCD  2:VMODE_LVDS_1080P 3:VMODE_1080P*/
+ 		scale_mode = <1>; /*0:default 1:new*/
+ 		4k2k_fb = <0>;
+- 		display_size_default = <1920 1080 1920 3240 32>; //1920*1080*4*3 = 0x17BB000
++ 		display_size_default = <1920 1080 1920 2160 32>; //1920*1080*4*3 = 0x17BB000
+ 	};
+ 	
+ //$$ DEVICE="deinterlace"
