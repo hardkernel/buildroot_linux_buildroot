@@ -39,7 +39,7 @@ int audio_decode_init(void **handle, arm_audio_info *a_ainfo)
         adec_print("Existing an audio dec instance!Need not to create it !");
         return -1;
     }
-
+		
     audec = (aml_audio_dec_t *)malloc(sizeof(aml_audio_dec_t));
     if (audec == NULL) {
         adec_print("malloc failed! not enough memory !");

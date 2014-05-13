@@ -25,6 +25,13 @@ static void amlInstallPropDecodeHandle(GObjectClass *oclass,
           G_PARAM_READWRITE));
 }
 
+static void amlInstallPropSystemtimetoposition(GObjectClass *oclass,    
+	guint property_id)
+{    
+		GObjectClass *gobject_class = (GObjectClass *) oclass;    
+		g_object_class_install_property (gobject_class, property_id, g_param_spec_int64("position", NULL, NULL,0, G_MAXINT64, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+}
+
 static int amlGetPropTrickRate(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -55,6 +62,26 @@ static int amlGetPropDecodeHandle(GObject * object, guint prop_id,
     return 0;
 }
 
+static int amlGetPropSystemtimetoposition(GObject * object, guint prop_id,    
+		const GValue * value, GParamSpec * pspec)
+{		
+		GstAmlVdec *amlvdec = GST_AMLVDEC (object);  
+		gint64 pcrscr = 0;		
+		gint64 position = 0;		
+		if(amlvdec->bpass) {			
+			/*assume query first pcrscr is the basepcr*/			
+			amlvdec->basepcr = codec_get_pcrscr(amlvdec->pcodec);			
+			amlvdec->bpass = FALSE;		
+		}		
+		else {			
+			pcrscr = codec_get_pcrscr(amlvdec->pcodec);	
+			position = (pcrscr - amlvdec->basepcr) * (1000000 / 10) / 9LL;;			
+				
+		}	 
+		g_value_set_int64 (value, position);	
+		return 0;
+}
+
 static int amlSetPropTrickRate(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -80,6 +107,7 @@ static const AmlPropType amlvdec_prop_pool[] = {
     {PROP_TRICK_RATE,   amlInstallPropTrickRate,          amlGetPropTrickRate,         amlSetPropTrickRate       },
     {PROP_INTERLACED,   amlInstallPropInterlaced,         amlGetPropInterlaced,       NULL      },   
     {PROP_DEC_HDL,       amlInstallPropDecodeHandle,   amlGetPropDecodeHandle, amlSetPropDecodeHandle},
+    {PROP_PCRTOSYSTEMTIME, amlInstallPropSystemtimetoposition, amlGetPropSystemtimetoposition, NULL},
     {-1,                          NULL,                                         NULL,                                  NULL},
 };
 

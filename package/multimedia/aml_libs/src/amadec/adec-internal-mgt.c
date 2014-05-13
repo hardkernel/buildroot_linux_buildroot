@@ -642,6 +642,7 @@ int audiodec_init(aml_audio_dec_t *audec)
     set_audio_decoder(audec);
 #else
     set_linux_audio_decoder(audec);
+
 #endif
     audec->format_changed_flag=0;
 		

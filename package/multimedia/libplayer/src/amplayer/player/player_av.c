@@ -30,6 +30,8 @@
 int fdr_raw = -1, fdr_video = -1, fdr_audio = -1;
 int fdw_raw = -1, fdw_video = -1, fdw_audio = -1;
 
+int fdw_head = -1;
+
 es_sub_t es_sub_buf[9];
 
 static const media_type media_array[] = {
@@ -979,7 +981,8 @@ static int write_header(play_para_t *para)
                 if (fdw_video >= 0 && pkt->type == CODEC_VIDEO) {
                     size = write(fdw_video, pkt->hdr->data + len, write_bytes);
                 } else if (fdw_audio >= 0 && pkt->type == CODEC_AUDIO) {
-                    size = write(fdw_audio, pkt->hdr->data + len, write_bytes);
+                    //size = write(fdw_audio, pkt->hdr->data + len, write_bytes);
+										size = write(fdw_head, pkt->hdr->data + len, write_bytes);
                 } else if (fdw_raw >= 0 && pkt->type == CODEC_COMPLEX) {
                     size = write(fdw_raw, pkt->hdr->data + len, write_bytes);
                 }
@@ -1599,8 +1602,9 @@ int write_av_packet(play_para_t *para)
 	}
 	
     if (am_getconfig_float("media.libplayer.dumpmode", &value) == 0) {
-        dump_data_mode = (int)value;
+        //dump_data_mode = (int)value; 
     }
+		dump_data_mode = DUMP_WRITE_ES_AUDIO;
 
     if (dump_data_mode == DUMP_WRITE_RAW_DATA && fdw_raw == -1) {
         sprintf(dump_path, "/temp/pid%d_dump_write.dat", para->player_id);
@@ -1622,6 +1626,13 @@ int write_av_packet(play_para_t *para)
             if (fdw_audio < 0) {
                 log_print("creat %s failed!fd=%d\n", dump_path, fdw_audio);
             }
+						
+						sprintf(dump_path, "/temp/pid%d_dump_awritehead.dat", para->player_id);
+            fdw_head = open(dump_path, O_CREAT | O_RDWR, 0666);
+            if (fdw_head < 0) {
+                log_print("creat %s failed!fd=%d\n", dump_path, fdw_head);
+            }
+
         }
     }
     if ((para->playctrl_info.fast_forward || para->playctrl_info.fast_backward)
@@ -1939,6 +1950,7 @@ int write_av_packet(play_para_t *para)
         }
         if (fdw_audio >= 0) {
             close(fdw_audio);
+						close(fdw_head);
         }
         return PLAYER_WR_FINISH;
     }

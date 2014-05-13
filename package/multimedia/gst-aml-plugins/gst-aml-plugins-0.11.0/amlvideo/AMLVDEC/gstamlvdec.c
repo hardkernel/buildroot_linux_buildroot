@@ -86,6 +86,7 @@ static void gst_amlvdec_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (object); 
+		
     AmlPropFunc amlPropFunc = aml_find_propfunc(amlclass->getPropTable, prop_id);
     if(amlPropFunc){
         g_mutex_lock(&amlclass->lock);
@@ -618,6 +619,7 @@ gst_amlvdec_start (GstAmlVdec *amlvdec)
     amlvdec->codec_init_ok = 0;
     amlvdec->prival = 0;
     amlvdec->trickRate = 1.0;
+		amlvdec->bpass = TRUE;
     return TRUE;
 }
 
