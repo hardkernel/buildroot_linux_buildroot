@@ -151,6 +151,7 @@ PlayItem * playlist_next(fsl_player_handle handle, options* opt)
         }
         case FSL_PLAYER_REPEAT_CURRENT:
         {
+						next = opt->current;
             pplayer->klass->stop(pplayer);
             pplayer->klass->set_media_location(pplayer, opt->current->name, &drm_format);
             pplayer->klass->play(pplayer);
@@ -459,7 +460,7 @@ fsl_player_s32 display_thread_fun(fsl_player_handle handle)
             pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_MUTE, (void*)(&bmute));
             pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_VOLUME, (void*)(&volume));
           //  pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_TOTAL_FRAMES, (void*)(&total_frames));
-
+            elapsed = (elapsed >= duration) ? duration : elapsed;
             hour = (elapsed/ (fsl_player_u64)3600000000000);
             minute = (elapsed / (fsl_player_u64)60000000000) - (hour * 60);
             second = (elapsed / 1000000000) - (hour * 3600) - (minute * 60);
