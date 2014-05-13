@@ -1,15 +1,6 @@
---- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c.old	2014-04-30 16:56:01.970636454 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c	2014-04-30 16:56:50.042637318 +0800
-@@ -1798,7 +1798,7 @@ static   void  osd2_update_enable(void)
-     unsigned long flags;
-     if (osd_hw.free_scale_mode[OSD2]){
-         spin_lock_irqsave(&osd_onoff_lock, flags);
--        if (osd_hw.enable[OSD2] == ENABLE){
-+        if (osd_hw.enable[OSD2] == ENABLE){
-             aml_set_reg32_mask(P_VPP_MISC,VPP_OSD2_POSTBLEND);
-             aml_set_reg32_mask(P_VPP_MISC,VPP_POSTBLEND_EN);
-         }else{
-@@ -2571,6 +2571,33 @@ void osd_cursor_hw(s16 x, s16 y, s16 xst
+--- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c.orig	2014-05-13 14:38:48.715553888 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c	2014-05-13 14:40:36.747555911 +0800
+@@ -2604,6 +2604,33 @@ void osd_cursor_hw(s16 x, s16 y, s16 xst
  }
  #endif //CONFIG_FB_OSD2_CURSOR
  
