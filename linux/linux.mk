@@ -245,6 +245,11 @@ define LINUX_CONFIGURE_CMDS
                 cp -rf linux/trustzone $(LINUX_DIR)/drivers/amlogic)
         $(if $(BR2_arm)$(BR2_armeb),
                 $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
+	$(if $(BR2_PACKAGE_XSERVER_XORG_SERVER),
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM,$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM_MALI,$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_FB_OSD2_CURSOR,$(@D)/.config)
+                cp -rf linux/mali_drm $(LINUX_DIR)/drivers/gpu/drm)
 	$(if $(BR2_TARGET_ROOTFS_CPIO),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config))
         # As the kernel gets compiled before root filesystems are

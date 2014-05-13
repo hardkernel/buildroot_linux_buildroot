@@ -1,0 +1,11 @@
+--- linux-amlogic-3.10-bringup/arch/arm/boot/dts/amlogic/meson6_g18.dtd.old	2014-04-30 16:44:43.386623686 +0800
++++ linux-amlogic-3.10-bringup/arch/arm/boot/dts/amlogic/meson6_g18.dtd	2014-04-30 16:44:54.178623887 +0800
+@@ -115,7 +115,7 @@ void root_func(){
+ 		reserve-iomap = "true";
+ 	  vmode = <0>; /*0:VMODE_720P 1:VMODE_LCD  2:VMODE_LVDS_1080P 3:VMODE_1080P*/
+ 	  scale_mode = <0>; /*0:default 1:new*/
+-	  display_size_default = <1280 720 1280 2160 32>;  // osd0:8M, osd1:1m  1280*720*4*3 = 11,059,200
++	  display_size_default = <1280 720 1280 1440 32>;  // osd0:8M, osd1:1m  1280*720*4*3 = 11,059,200
+ 	};
+ //$$ DEVICE="deinterlace"
+ //$$ L2 PROP_STR = "status"

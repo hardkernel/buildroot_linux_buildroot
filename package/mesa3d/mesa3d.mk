@@ -9,6 +9,7 @@ MESA3D_SOURCE = MesaLib-$(MESA3D_VERSION).tar.bz2
 MESA3D_SITE = ftp://ftp.freedesktop.org/pub/mesa/$(MESA3D_VERSION)
 MESA3D_LICENSE = MIT, SGI, Khronos
 MESA3D_LICENSE_FILES = docs/license.html
+MESA3D_AUTORECONF = YES
 
 MESA3D_INSTALL_STAGING = YES
 
@@ -57,16 +58,6 @@ MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_SWRAST) += swrast
 MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_I965)   += i965
 MESA3D_DRI_DRIVERS-$(BR2_PACKAGE_MESA3D_DRI_DRIVER_RADEON) += radeon
 
-# at least one API is required, for buildroot enable OpenGL API by default
-# other APIs (EGL, EGL_ES) are optional
-ifeq ($(MESA3D_GALLIUM_DRIVERS-y)$(MESA3D_DRI_DRIVERS-y),)
-MESA3D_CONF_OPT += \
-	--disable-opengl
-else
-MESA3D_CONF_OPT += \
-	--enable-opengl
-endif
-
 ifeq ($(MESA3D_GALLIUM_DRIVERS-y),)
 MESA3D_CONF_OPT += \
 	--without-gallium-drivers
@@ -88,6 +79,11 @@ MESA3D_CONF_OPT += \
 endif
 
 # APIs
+
+# Always enable OpenGL:
+#   - it is needed for GLES (mesa3d's ./configure is a bit weird)
+#   - but if no DRI driver is enabled, then libgl is not built
+MESA3D_CONF_OPT += --enable-opengl
 
 ifeq ($(BR2_PACKAGE_MESA3D_OPENGL_EGL),y)
 # egl depends on gbm, gbm depends on udev

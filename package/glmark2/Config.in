@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GLMARK2
+	bool "glmark2"
+	help
+	  For benchmarking OpenGL-ES 2.  https://launchpad.net/glmark2

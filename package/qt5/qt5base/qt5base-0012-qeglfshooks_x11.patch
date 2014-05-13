@@ -1,0 +1,17 @@
+--- qt5base-5.1.1/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp.old	2014-04-30 16:22:29.390598657 +0800
++++ qt5base-5.1.1/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp	2014-04-30 16:23:02.686599284 +0800
+@@ -251,12 +251,12 @@ EGLNativeWindowType QEglFSX11Hooks::crea
+     XMapWindow(display, win);
+     XStoreName(display, win, "EGLFS");
+ 
+-    return win;
++    return (EGLNativeWindowType)win;
+ }
+ 
+ void QEglFSX11Hooks::destroyNativeWindow(EGLNativeWindowType window)
+ {
+-    XDestroyWindow(display, window);
++    XDestroyWindow(display, (Window)window);
+ }
+ 
+ bool QEglFSX11Hooks::hasCapability(QPlatformIntegration::Capability cap) const

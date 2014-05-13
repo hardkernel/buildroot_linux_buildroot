@@ -1,5 +1,5 @@
---- uboot-next/board/amlogic/configs/m8_k200_v1.h.orig	2014-04-16 14:46:33.403797826 +0800
-+++ uboot-next/board/amlogic/configs/m8_k200_v1.h	2014-04-16 14:53:37.791805788 +0800
+--- uboot-next/board/amlogic/configs/m8_k200_v1.h.orig	2014-04-23 11:29:14.030922136 +0800
++++ uboot-next/board/amlogic/configs/m8_k200_v1.h	2014-04-23 11:24:18.782916594 +0800
 @@ -255,7 +255,7 @@
  	"sdcburncfg=aml_sdc_burn.ini\0"\
  	"normalstart=1000000\0" \
@@ -9,30 +9,41 @@
  	"firstboot=1\0" \
  	"store=0\0"\
  	"preboot="\
-@@ -293,6 +293,9 @@
-    	"storeargs="\
-         "setenv bootargs ${bootargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${cecconfig}\0"\
+@@ -291,7 +291,13 @@
+         "fi;\0"\
      \
+    	"storeargs="\
+-        "setenv bootargs ${bootargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${cecconfig}\0"\
++        "setenv bootargs ${bootargs} root=/dev/system rootfstype=ext4 vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${hdmimode}\0"\
++    \
 +    "bootsdargs="\
 +        "root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig}\0"\
 +    \
++    "bootupdateargs="\
++        "root=/dev/system rw rootfstype=ext4 rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} firmware=rootfs.tar.gz\0"\
+     \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
- 			"run recovery;"\
-@@ -317,9 +320,14 @@
+@@ -317,8 +323,20 @@
              "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
          "fi;"\
          "imgread kernel boot ${loadaddr};"\
 -        "bootm;"\
 -        "run recovery\0" \
 +        "bootm\0"\
-     \
++    \
 +     "bootsdcard="\
 +        "echo Booting ...;"\
 +         "setenv bootargs ${bootsdargs}; "\
 +         "mmcinfo;"\
 +         "ext2load mmc 0 ${loadaddr} boot.img;"\
 +         "bootm\0" \
++     "bootupdate="\
++        "echo Updating...;"\
++         "setenv bootargs ${bootupdateargs}; "\
++         "mmcinfo;"\
++         "fatload mmc 0 ${loadaddr} boot.img;"\
++         "bootm\0" \
+     \
  	"recovery="\
          "echo enter recovery;"\
-         "if mmcinfo; then "\

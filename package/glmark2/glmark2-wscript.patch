@@ -1,0 +1,11 @@
+--- glmark2-2014.03/wscript.orig	2014-05-12 16:34:31.994063227 +0800
++++ glmark2-2014.03/wscript	2014-05-12 16:34:49.818063563 +0800
+@@ -94,7 +94,7 @@ def configure(ctx):
+                       uselib = uselib, mandatory = True)
+ 
+     # Check for a supported version of libpng
+-    supp_png_pkgs = (('libpng12', '1.2'), ('libpng15', '1.5'),)
++    supp_png_pkgs = (('libpng12', '1.2'), ('libpng15', '1.5'), ('libpng16', '1.6'))
+     have_png = False
+     for (pkg, atleast) in supp_png_pkgs:
+         try:

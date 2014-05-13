@@ -1,0 +1,10 @@
+--- linux-amlogic-3.10-bringup/drivers/gpu/drm/Makefile.orig	2014-04-17 15:38:02.933476704 +0800
++++ linux-amlogic-3.10-bringup/drivers/gpu/drm/Makefile	2014-04-17 15:38:45.157477497 +0800
+@@ -41,6 +41,7 @@ obj-$(CONFIG_DRM_MGAG200) += mgag200/
+ obj-$(CONFIG_DRM_CIRRUS_QEMU) += cirrus/
+ obj-$(CONFIG_DRM_SIS)   += sis/
+ obj-$(CONFIG_DRM_SAVAGE)+= savage/
++obj-$(CONFIG_DRM_MALI)  += mali_drm/
+ obj-$(CONFIG_DRM_VMWGFX)+= vmwgfx/
+ obj-$(CONFIG_DRM_VIA)	+=via/
+ obj-$(CONFIG_DRM_NOUVEAU) +=nouveau/

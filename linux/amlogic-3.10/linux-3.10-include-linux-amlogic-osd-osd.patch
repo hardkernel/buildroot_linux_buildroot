@@ -1,0 +1,14 @@
+--- linux-amlogic-3.10-bringup/include/linux/amlogic/osd/osd.h.orig	2014-04-30 17:04:34.958646041 +0800
++++ linux-amlogic-3.10-bringup/include/linux/amlogic/osd/osd.h	2014-04-30 17:04:59.586646449 +0800
+@@ -55,7 +55,10 @@ typedef  enum {
+ 	
+ }color_index_t;
+ 
+-
++typedef struct {
++	unsigned int addr;
++} aml_hwc_addr_t;
++
+ 
+ typedef  struct {
+ 	color_index_t	color_index;
