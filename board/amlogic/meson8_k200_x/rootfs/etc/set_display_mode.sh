@@ -59,4 +59,5 @@ echo 1 > /sys/class/graphics/fb0/freescale_mode
 esac
 
 echo 0x10001 > /sys/class/graphics/fb0/free_scale
+echo 0 > /sys/class/graphics/fb1/free_scale
 
