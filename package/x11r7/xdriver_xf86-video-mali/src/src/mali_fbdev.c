@@ -1026,6 +1026,7 @@ static void MaliHWLeaveVT(VT_FUNC_ARGS_DECL)
 void MaliHWDPMSSet(ScrnInfoPtr pScrn, int mode, int flags)
 {
 	MaliHWPtr fPtr = MALIHWPTR(pScrn);
+    aml_disp_t *disp = MALI_DISP(pScrn);
 	unsigned long fbmode;
 
 	TRACE_ENTER();
@@ -1062,6 +1063,11 @@ void MaliHWDPMSSet(ScrnInfoPtr pScrn, int mode, int flags)
 	{
 		ERROR_MSG("FBIOBLANK: %s\n", strerror(errno));
 	}
+    if (fbmode == 0)
+        aml_hw_cursor_show(disp);
+    else 
+        aml_hw_cursor_hide(disp);
+
 }
 
 static Bool MaliProbe(DriverPtr drv, int flags)
