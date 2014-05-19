@@ -3,6 +3,8 @@ config BR2_PACKAGE_AUTOTEST
 	select BR2_PACKAGE_PYTHON 
 	select BR2_PACKAGE_PYTHON_SPHINX
     select BR2_PACKAGE_PYTHON_UNICODEDATA
+    select BR2_PACKAGE_PYTHON_ZLIB
+    select BR2_PACKAGE_AUTOTEST_CLIENT_TESTS
 	help
         Autotest is a framework for fully automated testing.
 
