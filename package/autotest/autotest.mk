@@ -7,7 +7,7 @@ AUTOTEST_VERSION = master
 AUTOTEST_SITE = $(call github,autotest,autotest,$(AUTOTEST_VERSION))
 AUTOTEST_LICENSE = LGPLv3+
 AUTOTEST_LICENSE_FILES = LGPL_LICENSE
-AUTOTEST_DEPENDENCIES = host-python host-python-sphinx autotest-client-tests
+AUTOTEST_DEPENDENCIES = host-python host-python-sphinx
 AUTOTEST_SETUP_TYPE = distutils
 
 define AUTOTEST_ENV
