@@ -24,7 +24,7 @@ else ifeq ($(BR2_TARGET_UBOOT_CUSTOM_HG),y)
 UBOOT_SITE        = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_REPO_URL))
 UBOOT_SITE_METHOD = hg
 else ifeq ($(BR2_TARGET_UBOOT_CUSTOM_LOCAL),y)
-UBOOT_SITE        = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_LOCAL_PATH))
+UBOOT_SITE        = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_LOCAL_LOCATION))
 UBOOT_SITE_METHOD = local
 else
 # Handle stable official U-Boot versions
