@@ -63,4 +63,4 @@ null::sysinit:echo 0 > /sys/class/graphics/fb0/blank
 null::sysinit:echo 0 > /sys/class/graphics/fb1/free_scale
 null::sysinit:echo 0 > /sys/class/graphics/fb0/free_scale
 null::sysinit:sh /etc/set_display_mode.sh
-
+null::sysinit:echo "nameserver 8.8.8.8" >> /etc/resolv.conf
