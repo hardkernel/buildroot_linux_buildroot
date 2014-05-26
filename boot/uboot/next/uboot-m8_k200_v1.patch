@@ -26,7 +26,7 @@
 +        "root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig}\0"\
 +    \
 +    "bootupdateargs="\
-+        "root=/dev/system rw rootfstype=ext4 rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} firmware=rootfs.tar.gz\0"\
++        "root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} firmware=rootfs.tar.gz\0"\
 +     \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
