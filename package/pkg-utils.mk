@@ -13,23 +13,19 @@
 # as this macro is used a lot it matters
 # This works by creating translation character pairs (E.G. a:A b:B)
 # and then looping though all of them running $(subst from,to,text)
-[FROM] := a b c d e f g h i j k l m n o p q r s t u v w x y z . -
+[FROM] := a b c d e f g h i j k l m n o p q r s t u v w x y z - .
 [TO]   := A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ _
 
-UPPERCASE = $(strip $(eval __tmp := $1) \
-	$(foreach c, $(join $(addsuffix :,$([FROM])),$([TO])), \
-		$(eval __tmp :=	\
-		$(subst $(word 1,$(subst :, ,$c)),$(word 2,$(subst :, ,$c)),\
-	$(__tmp)))) \
-	$(__tmp))
-
-# LOWERCASE macro -- transforms its arguments to lowercase
-# The above non-tr implementation is not needed, because LOWERCASE is not
-# called very often
-
-define LOWERCASE
-$(shell echo $1 | tr '[:upper:]' '[:lower:]')
+define caseconvert-helper
+$(1) = $$(strip \
+	$$(eval __tmp := $$(1))\
+	$(foreach c, $(2),\
+		$$(eval __tmp := $$(subst $(word 1,$(subst :, ,$c)),$(word 2,$(subst :, ,$c)),$$(__tmp))))\
+	$$(__tmp))
 endef
+
+$(eval $(call caseconvert-helper,UPPERCASE,$(join $(addsuffix :,$([FROM])),$([TO]))))
+$(eval $(call caseconvert-helper,LOWERCASE,$(join $(addsuffix :,$([TO])),$([FROM]))))
 
 #
 # Manipulation of .config files based on the Kconfig
@@ -114,8 +110,8 @@ define legal-manifest # pkg, version, license, license-files, source, {HOST|TARG
 endef
 
 define legal-license-header # pkg, license-file, {HOST|TARGET}
-	echo -e "$(LEGAL_INFO_SEPARATOR)\n\t$(1):" \
-		"$(2)\n$(LEGAL_INFO_SEPARATOR)\n\n" >>$(LEGAL_LICENSES_TXT_$(3))
+	printf "$(LEGAL_INFO_SEPARATOR)\n\t$(1):\
+		$(2)\n$(LEGAL_INFO_SEPARATOR)\n\n\n" >>$(LEGAL_LICENSES_TXT_$(3))
 endef
 
 define legal-license-nofiles # pkg, {HOST|TARGET}

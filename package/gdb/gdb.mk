@@ -50,6 +50,9 @@ GDB_PRE_PATCH_HOOKS += GDB_XTENSA_PRE_PATCH
 HOST_GDB_PRE_PATCH_HOOKS += GDB_XTENSA_PRE_PATCH
 endif
 
+HOST_GDB_CONF_ENV = \
+	ac_cv_prog_MAKEINFO=missing
+
 GDB_CONF_ENV = \
 	ac_cv_prog_MAKEINFO=missing \
 	ac_cv_type_uintptr_t=yes \
@@ -125,6 +128,8 @@ define HOST_GDB_ADD_SYMLINK
 endef
 
 HOST_GDB_POST_INSTALL_HOOKS += HOST_GDB_ADD_SYMLINK
+
+HOST_GDB_POST_INSTALL_HOOKS += gen_gdbinit_file
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))

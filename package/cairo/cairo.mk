@@ -10,6 +10,7 @@ CAIRO_LICENSE = LGPLv2.1+
 CAIRO_LICENSE_FILES = COPYING
 CAIRO_SITE = http://cairographics.org/releases
 CAIRO_INSTALL_STAGING = YES
+CAIRO_AUTORECONF = YES
 
 CAIRO_CONF_ENV = ac_cv_func_posix_getpwuid_r=yes glib_cv_stack_grows=no \
 		glib_cv_uscore=no ac_cv_func_strtod=yes \
@@ -54,14 +55,14 @@ else
 	CAIRO_CONF_OPT += --disable-directfb
 endif
 
-ifeq ($(BR2_PACKAGE_HAS_OPENGL_ES),y)
+ifeq ($(BR2_PACKAGE_HAS_LIBGLES),y)
 	CAIRO_CONF_OPT += --enable-glesv2
 	CAIRO_DEPENDENCIES += libgles
 else
 	CAIRO_CONF_OPT += --disable-glesv2
 endif
 
-ifeq ($(BR2_PACKAGE_HAS_OPENVG),y)
+ifeq ($(BR2_PACKAGE_HAS_LIBOPENVG),y)
 	CAIRO_CONF_OPT += --enable-vg
 	CAIRO_DEPENDENCIES += libopenvg
 else
