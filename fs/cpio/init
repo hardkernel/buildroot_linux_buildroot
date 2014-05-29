@@ -17,7 +17,7 @@ get_opt() {
 }
 
 #Defaults
-init="/init2"
+init="/sbin/init"
 root="/dev/cardblksd1"
 firmware=""
 rootfstype=
@@ -98,6 +98,10 @@ if [[ -x "/mnt/${init}" ]] ; then
     umount /sys /proc /dev
 
     #Switch to the new root and execute init
+    /bin/mount -t devtmpfs devtmpfs /mnt/dev
+    exec 0</mnt/dev/console
+    exec 1>/mnt/dev/console
+    exec 2>/mnt/dev/console
     exec chroot /mnt "${init}"
 fi
 
