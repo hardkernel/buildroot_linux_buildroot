@@ -102,7 +102,7 @@ if [[ -x "/mnt/${init}" ]] ; then
     exec 0</mnt/dev/console
     exec 1>/mnt/dev/console
     exec 2>/mnt/dev/console
-    exec chroot /mnt "${init}"
+    exec switch_root -c /dev/console /mnt "${init}"
 fi
 
 #This will only be run if the exec above failed
