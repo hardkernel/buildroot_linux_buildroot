@@ -56,7 +56,7 @@ notdomain=$(patsubst $(call domain,$(1),$(2))$(call domainseparator,$(2))%,%,$(c
 domainseparator=$(if $(1),$(1),/)
 
 # github(user,package,version): returns site of github repository
-github = https://github.com/$(1)/$(2)/tarball/$(3)
+github = https://github.com/$(1)/$(2)/archive/$(3)
 
 ################################################################################
 # The DOWNLOAD_* helpers are in charge of getting a working copy
@@ -83,6 +83,20 @@ github = https://github.com/$(1)/$(2)/tarball/$(3)
 # Messages for the type of clone used are provided to ease debugging in case of
 # problems
 define DOWNLOAD_GIT
+if test "$($(PKG)_HISTORY)" == "YES"; then \
+	test -e $(DL_DIR)/$($(PKG)_SOURCE) || \
+	(pushd $(DL_DIR) > /dev/null && \
+	 ((test "`git ls-remote $($(PKG)_SITE) $($(PKG)_DL_VERSION)`" && \
+	   echo "Doing shallow clone" && \
+	   $(GIT) clone --depth 1 -b $($(PKG)_DL_VERSION) $($(PKG)_SITE) $($(PKG)_BASE_NAME)) || \
+	  (echo "Doing full clone" && \
+	   $(GIT) clone $($(PKG)_SITE) $($(PKG)_BASE_NAME))) && \
+	pushd $($(PKG)_BASE_NAME) > /dev/null && \
+	$(TAR) -C $(DL_DIR) -zcf $(DL_DIR)/$($(PKG)_SOURCE) $($(PKG)_BASE_NAME) && \
+	popd > /dev/null && \
+	rm -rf $($(PKG)_DL_DIR) && \
+	popd > /dev/null) \
+else \
 	test -e $(DL_DIR)/$($(PKG)_SOURCE) || \
 	(pushd $(DL_DIR) > /dev/null && \
 	 ((test "`git ls-remote $($(PKG)_SITE) $($(PKG)_DL_VERSION)`" && \
@@ -96,7 +110,8 @@ define DOWNLOAD_GIT
 	rm -f $(DL_DIR)/.$($(PKG)_SOURCE).tmp && \
 	popd > /dev/null && \
 	rm -rf $($(PKG)_DL_DIR) && \
-	popd > /dev/null)
+	popd > /dev/null) \
+fi
 endef
 
 # TODO: improve to check that the given PKG_DL_VERSION exists on the remote
@@ -238,14 +253,13 @@ endef
 # 3) BR2_BACKUP_SITE if enabled, unless BR2_PRIMARY_SITE_ONLY is set
 #
 # Argument 1 is the source location
-# Argument 2 is the source filename
 #
 # E.G. use like this:
-# $(call DOWNLOAD,$(FOO_SITE),$(FOO_SOURCE))
+# $(call DOWNLOAD,$(FOO_SITE))
 ################################################################################
 
 define DOWNLOAD
-	$(call DOWNLOAD_INNER,$(1),$(if $(2),$(2),$(notdir $(1))))
+	$(call DOWNLOAD_INNER,$(1),$(notdir $(1)))
 endef
 
 define DOWNLOAD_INNER

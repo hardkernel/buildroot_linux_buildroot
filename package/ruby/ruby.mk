@@ -5,14 +5,15 @@
 ################################################################################
 
 RUBY_VERSION_MAJOR = 1.9
-RUBY_VERSION = $(RUBY_VERSION_MAJOR).3-p484
+RUBY_VERSION = $(RUBY_VERSION_MAJOR).3-p545
 RUBY_SITE = ftp://ftp.ruby-lang.org/pub/ruby/$(RUBY_VERSION_MAJOR)
 RUBY_DEPENDENCIES = host-pkgconf host-ruby
 HOST_RUBY_DEPENDENCIES = host-pkgconf
 RUBY_MAKE_ENV = $(TARGET_MAKE_ENV)
 RUBY_MAKE = $(MAKE1)
 RUBY_CONF_OPT = --disable-install-doc --disable-rpath
-HOST_RUBY_CONF_OPT = --disable-install-doc --with-out-ext=curses,readline
+HOST_RUBY_CONF_OPT = --disable-install-doc \
+	--with-out-ext=curses,openssl,readline
 RUBY_LICENSE = Ruby or BSD-2c, BSD-3c, others
 RUBY_LICENSE_FILES = LEGAL COPYING BSDL
 

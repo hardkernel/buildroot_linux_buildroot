@@ -281,9 +281,13 @@ config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_CAIRO
 
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_FLAC
 	bool "flac (libFLAC)"
+	depends on BR2_USE_WCHAR # flac
 	select BR2_PACKAGE_FLAC
 	help
 	  The FLAC Lossless compressor Codec
+
+comment "flac needs a toolchain w/ wchar"
+	depends on !BR2_USE_WCHAR
 
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_GDKPIXBUF
 	bool "gdkpixbuf"
@@ -299,6 +303,7 @@ comment "gdkpixbuf needs a toolchain w/ wchar, threads"
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_PULSE
 	depends on BR2_TOOLCHAIN_HAS_THREADS # pulseaudio
 	depends on BR2_LARGEFILE # pulseaudio -> libsndfile
+	depends on BR2_USE_MMU # pulseaudio
 	select BR2_PACKAGE_PULSEAUDIO
 	bool "pulseaudio"
 	help
@@ -324,12 +329,13 @@ config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SPEEX
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_TAGLIB
 	bool "taglib"
 	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_USE_WCHAR
 	select BR2_PACKAGE_TAGLIB
 	help
 	  Taglib tagging plugin library
 
-comment "taglib needs a toolchain w/ C++"
-	depends on !BR2_INSTALL_LIBSTDCPP
+comment "taglib needs a toolchain w/ C++, wchar"
+	depends on !BR2_INSTALL_LIBSTDCPP || !BR2_USE_WCHAR
 
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VPX
 	bool "vpx (webm)"

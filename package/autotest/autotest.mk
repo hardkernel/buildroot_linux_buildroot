@@ -11,7 +11,7 @@ AUTOTEST_DEPENDENCIES = host-python host-python-sphinx
 AUTOTEST_SETUP_TYPE = distutils
 
 define AUTOTEST_ENV
-	export AUTOTEST_TOP_PATH=$(TARGET_DIR)/etc/autotest;
+	export AUTOTEST_TOP_PATH=$(TARGET_DIR)/etc/autotest; 
 endef
 
 $(eval $(python-package))

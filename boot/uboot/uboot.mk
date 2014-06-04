@@ -23,6 +23,9 @@ UBOOT_SITE_METHOD = git
 else ifeq ($(BR2_TARGET_UBOOT_CUSTOM_HG),y)
 UBOOT_SITE        = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_REPO_URL))
 UBOOT_SITE_METHOD = hg
+else ifeq ($(BR2_TARGET_UBOOT_CUSTOM_LOCAL),y)
+UBOOT_SITE        = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_LOCAL_LOCATION))
+UBOOT_SITE_METHOD = local
 else
 # Handle stable official U-Boot versions
 UBOOT_SITE    = ftp://ftp.denx.de/pub/u-boot
@@ -79,6 +82,16 @@ $(if $(call qstrip,$(2)),
 	@echo "#endif" >> $(@D)/build/include/config.h
 	@echo '#define $(strip $(1)) $(call qstrip,$(2))' >> $(@D)/build/include/config.h)
 endef
+
+# prior to u-boot 2013.10 the license info was in COPYING. Copy it so
+# legal-info finds it
+define UBOOT_COPY_OLD_LICENSE_FILE
+	if [ -f $(@D)/COPYING ]; then \
+		$(INSTALL) -m 0644 -D $(@D)/COPYING $(@D)/Licenses/gpl-2.0.txt; \
+	fi
+endef
+
+UBOOT_POST_EXTRACT_HOOKS += UBOOT_COPY_OLD_LICENSE_FILE
 
 ifneq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_PATCH_DIR)),)
 define UBOOT_APPLY_CUSTOM_PATCHES
@@ -192,5 +205,27 @@ ifeq ($(filter source,$(MAKECMDGOALS)),)
 ifeq ($(UBOOT_BOARD_NAME),)
 $(error NO U-Boot board name set. Check your BR2_TARGET_UBOOT_BOARDNAME setting)
 endif
-endif
-endif
+
+ifeq ($(BR2_TARGET_UBOOT_CUSTOM_VERSION),y)
+ifeq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_VERSION_VALUE)),)
+$(error No custom U-Boot version specified. Check your BR2_TARGET_UBOOT_CUSTOM_VERSION_VALUE setting)
+endif # qstrip BR2_TARGET_UBOOT_CUSTOM_VERSION_VALUE
+endif # BR2_TARGET_UBOOT_CUSTOM_VERSION
+
+ifeq ($(BR2_TARGET_UBOOT_CUSTOM_TARBALL),y)
+ifeq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_TARBALL_LOCATION)),)
+$(error No custom U-Boot tarball specified. Check your BR2_TARGET_UBOOT_CUSTOM_TARBALL_LOCATION setting)
+endif # qstrip BR2_TARGET_UBOOT_CUSTOM_TARBALL_LOCATION
+endif # BR2_TARGET_UBOOT_CUSTOM_TARBALL
+
+ifeq ($(BR2_TARGET_UBOOT_CUSTOM_GIT)$(BR2_TARGET_UBOOT_CUSTOM_HG),y)
+ifeq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_REPO_URL)),)
+$(error No custom U-Boot repository URL specified. Check your BR2_TARGET_UBOOT_CUSTOM_REPO_URL setting)
+endif # qstrip BR2_TARGET_UBOOT_CUSTOM_CUSTOM_REPO_URL
+ifeq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION)),)
+$(error No custom U-Boot repository URL specified. Check your BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION setting)
+endif # qstrip BR2_TARGET_UBOOT_CUSTOM_CUSTOM_REPO_VERSION
+endif # BR2_TARGET_UBOOT_CUSTOM_GIT || BR2_TARGET_UBOOT_CUSTOM_HG
+
+endif # filter source
+endif # BR2_TARGET_UBOOT

@@ -11,6 +11,13 @@ QT5BASE_SOURCE = qtbase-opensource-src-$(QT5BASE_VERSION).tar.xz
 QT5BASE_DEPENDENCIES = host-pkgconf zlib pcre
 QT5BASE_INSTALL_STAGING = YES
 
+define X11_PATCH
+	support/scripts/apply-patches.sh $(@D) package/qt5/qt5base/x11/  qt5base-\*.patch
+endef
+
+ifeq ($(BR2_PACKAGE_XSERVER_XORG_SERVER),y)
+QT5BASE_POST_PATCH_HOOKS += X11_PATCH
+endif
 # A few comments:
 #  * -no-pch to workaround the issue described at
 #     http://comments.gmane.org/gmane.comp.lib.qt.devel/5933.
@@ -23,10 +30,7 @@ QT5BASE_CONFIGURE_OPTS += \
 	-no-kms \
 	-no-cups \
 	-no-nis \
-	-no-libudev \
 	-no-iconv \
-	-no-gstreamer \
-	-no-gtkstyle \
 	-system-zlib \
 	-system-pcre \
 	-no-pch

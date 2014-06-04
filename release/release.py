@@ -112,11 +112,11 @@ def getserver(string):
         return loc.group(1)
 
 def getpkg(string):
-    rev = re.compile('<project name=.* revision=\"([a-z0-9]*)\" upstream=\"(.*)\"/>')
+    rev = re.compile('<project name=\"([a-z0-9/]*)\".* revision=\"([a-z0-9]*)\" upstream=\"(.*)\"/>')
     string = string.strip()
     loc = re.match(rev, string)
     if loc != None:
-        return loc.group(1), loc.group(2)
+        return loc.group(1), loc.group(2), loc.group(3)
 
 def download_pkg(xml, config, download = 0):
     server_addr = None
@@ -128,7 +128,9 @@ def download_pkg(xml, config, download = 0):
                       server_addr = getserver(line)
                   else:
                       if repos[i] in line:
-                          pkgloc, b = getpkg(line)
+                          name, pkgloc, b = getpkg(line)
+                          if name != repos[i]:
+                              break
                           server = server_addr + repos[i]
                           date = time.strftime("%Y-%m-%d")
                           folder = tar[i] + '-' + date + '-' + pkgloc[0:10]
@@ -155,7 +157,7 @@ def create_cfg(config):
             if pkg[i] in pkgline:
                 if tarball_cfg.has_key(i) != False:
                     cfg = tarball_cfg[i].split()
-                    new_cfg = '%s=\"%s\"\n' % (cfg[0], base_url + location[i] + filename[i])
+                    new_cfg = '%s=\"%s\"\n' % (cfg[0], base_url + location[i] + "/" + filename[i])
                     check = None
                     if len(cfg) > 1:
                         check = '%s=y\n' % cfg[1]

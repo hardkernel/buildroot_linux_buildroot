@@ -4,15 +4,4 @@
 #
 ################################################################################
 
-LIBGLES_SOURCE =
-LIBGLES_DEPENDENCIES = $(call qstrip,$(BR2_PACKAGE_PROVIDES_OPENGL_ES))
-LIBGLES_DEPENDENCIES += opengl
-
-ifeq ($(LIBGLES_DEPENDENCIES),)
-define LIBGLES_CONFIGURE_CMDS
-	echo "No libGLES implementation selected. Configuration error."
-	exit 1
-endef
-endif
-
-$(eval $(generic-package))
+$(eval $(virtual-package))

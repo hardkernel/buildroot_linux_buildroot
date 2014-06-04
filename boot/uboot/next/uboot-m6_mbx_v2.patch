@@ -1,6 +1,6 @@
---- uboot-next/board/amlogic/configs/m6_mbx_v2.h.orig	2014-04-23 10:53:21.070881745 +0800
-+++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-04-23 11:25:28.098917896 +0800
-@@ -198,7 +198,7 @@
+--- uboot-next/board/amlogic/configs/m6_mbx_v2.h.orig	2014-05-29 14:52:40.834796328 +0800
++++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-05-29 14:54:54.770798841 +0800
+@@ -200,7 +200,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85900000\0" \
  	"sleep_threshold=20\0" \
@@ -9,7 +9,7 @@
  	"batlow_threshold=10\0" \
  	"batfull_threshold=98\0" \
  	"outputmode=1080p\0" \
-@@ -226,18 +226,36 @@
+@@ -228,18 +228,36 @@
  	"cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0" \
  	"nandargs=run cvbscheck; "\
              "imgread res logo ${loadaddr_misc};unpackimg ${loadaddr_misc}; cp ${bootup_offset} 0x85100000 ${bootup_size}; "\
@@ -24,7 +24,7 @@
  	"nandboot="\
          "echo Booting ...;"\
          "run nandargs;"\
-         "setenv bootargs ${bootargs} androidboot.firstboot=${firstboot}; "\
+         "setenv bootargs ${initargs} androidboot.firstboot=${firstboot}; "\
          "imgread kernel boot ${loadaddr};"\
          "hdcp prefetch nand;"\
 -        "bootm;run recovery\0" \

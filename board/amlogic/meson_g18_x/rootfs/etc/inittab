@@ -58,11 +58,11 @@ null::sysinit:echo 1 > /sys/class/graphics/fb1/blank
 null::sysinit:echo 720p > /sys/class/display/mode
 null::sysinit:fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
 null::sysinit:fbset -fb /dev/fb1 -g 32 32 32 32 32
-null::sysinit:echo 480000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-null::sysinit:echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-null::sysinit:echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+#null::sysinit:echo 480000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+#null::sysinit:echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+#null::sysinit:echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 null::sysinit:/usr/bin/remotecfg /etc/remote.conf
-null::sysinit:/usr/sbin/dhcpcd
 null::sysinit:/usr/bin/X :0.0 &                                        
 null::sysinit:sleep 1                                           
 null::sysinit:enlightenment_start -display :0.0 &
+null::sysinit:echo "nameserver 8.8.8.8" >> /etc/resolv.conf

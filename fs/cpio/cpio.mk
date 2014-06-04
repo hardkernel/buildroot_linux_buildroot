@@ -15,22 +15,11 @@ endef
 else
 # devtmpfs does not get automounted when initramfs is used.
 # Add a pre-init script to mount it before running init
-ifneq ($(BR2_TARGET_ROOTFS_INITRAMFS_LIST),"")
 define ROOTFS_CPIO_ADD_INIT
         if [ ! -e $(TARGET_DIR)/init ]; then \
                 $(INSTALL) -m 0755 fs/cpio/init $(TARGET_DIR)/init; \
         fi
-        if [ ! -e $(TARGET_DIR)/init2 ]; then \
-                $(INSTALL) -m 0755 fs/cpio/init2 $(TARGET_DIR)/init2; \
-        fi
 endef
-else
-define ROOTFS_CPIO_ADD_INIT
-        if [ ! -e $(TARGET_DIR)/init2 ]; then \
-                $(INSTALL) -m 0755 fs/cpio/init2 $(TARGET_DIR)/init; \
-        fi
-endef
-endif # BR2_TARGET_ROOTFS_INITRAMFS_LIST
 
 PACKAGES_PERMISSIONS_TABLE += /dev/console c 622 0 0 5 1 - - -$(sep)
 

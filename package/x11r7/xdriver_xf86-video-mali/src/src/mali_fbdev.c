@@ -1026,6 +1026,7 @@ static void MaliHWLeaveVT(VT_FUNC_ARGS_DECL)
 void MaliHWDPMSSet(ScrnInfoPtr pScrn, int mode, int flags)
 {
 	MaliHWPtr fPtr = MALIHWPTR(pScrn);
+    aml_disp_t *disp = MALI_DISP(pScrn);
 	unsigned long fbmode;
 
 	TRACE_ENTER();
@@ -1062,6 +1063,11 @@ void MaliHWDPMSSet(ScrnInfoPtr pScrn, int mode, int flags)
 	{
 		ERROR_MSG("FBIOBLANK: %s\n", strerror(errno));
 	}
+    if (fbmode == 0)
+        aml_hw_cursor_show(disp);
+    else 
+        aml_hw_cursor_hide(disp);
+
 }
 
 static Bool MaliProbe(DriverPtr drv, int flags)
@@ -1290,12 +1296,13 @@ static void mali_drm_close_master(ScrnInfoPtr pScrn)
 {
 	MaliPtr fPtr = MALIPTR(pScrn);
 
-	if (fPtr && fPtr->drm_fd > 0)
-	{
-		INFO_MSG("closing DRM device");
-		drmClose(fPtr->drm_fd);
-		fPtr->drm_fd = -1;
-	}
+    if (fPtr && fPtr->drm_fd > 0)
+    {
+        INFO_MSG("closing DRM device");
+        drmClose(fPtr->drm_fd);
+        fPtr->drm_fd = -1;
+        global_drm_fd = -1;
+    }
 }
 
 static Bool mali_drm_open_master(ScrnInfoPtr pScrn)
@@ -1545,17 +1552,21 @@ static Bool MaliScreenInit(SCREEN_INIT_ARGS_DECL)
 #endif
 
 	if (fPtr->dri_render == DRI_NONE)
-	{
-		if (TRUE == MaliDRI2ScreenInit(pScreen))
-		{
-			fPtr->dri_render = DRI_2;
-			fPtr->dri_open = TRUE;
-		}
-		else
-		{
-			ERROR_MSG("DRI2 initialization failed");
-		}
-	}
+    {
+        if (FALSE == mali_drm_open_master(pScrn))
+        {
+            ERROR_MSG("fail to init mali drm");
+        }
+        if (TRUE == MaliDRI2ScreenInit(pScreen))
+        {
+            fPtr->dri_render = DRI_2;
+            fPtr->dri_open = TRUE;
+        }
+        else
+        {
+            ERROR_MSG("DRI2 initialization failed");
+        }
+    }
 
 	if (NULL == (fPtr->fbmem = MaliHWMapVidmem(pScrn)))
 	{
