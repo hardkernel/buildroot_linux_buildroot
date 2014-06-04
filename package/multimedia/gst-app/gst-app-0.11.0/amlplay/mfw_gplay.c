@@ -390,11 +390,17 @@ void print_help(fsl_player_handle handle)
     PRINT("\t[d]Select the audio track\n");
 //    PRINT("\t[b]Select the subtitle\n");
     PRINT("\t[f]Set full screen or not\n");
-    PRINT("\t[z]resize the width and height\n");
+    //PRINT("\t[z]resize the width and height\n");
     PRINT("\t[t]Rotate\n");
     PRINT("\t[c]Setting play rate\n");
 
 //    PRINT("\t[c]playing direction and speed control\n");
+    PRINT("\t[P]Please input property name:\n");
+    PRINT("\t      [tvmode]      (Usage:[set] [0/1] | [get])              :change or get tvmode \n");
+    PRINT("\t      [rectangle]   (Usage:[set] [x,y,width,height] | [get]) : resize the width and height \n");
+    PRINT("\t      [currentPTS]  get currentPTS\n");
+    PRINT("\t      [pmt-info]    get pmt infomation\n");
+    
     PRINT("\t[i]Display the metadata\n");
     PRINT("\t[x]eXit\n");
 }
@@ -1009,7 +1015,7 @@ int main(int argc,char *argv[])
                 pplayer->klass->display_screen_mode(pplayer, display_screen_mode);
                 break;
             }
-
+            #if 0
             case 'z': // resize the width and height
             {
             #if 0
@@ -1053,6 +1059,7 @@ int main(int argc,char *argv[])
                 break;
             #endif
             }
+            #endif
 
             case 't': // Rotate 90 degree every time
             {
