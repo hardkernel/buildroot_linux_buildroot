@@ -389,9 +389,9 @@ void print_help(fsl_player_handle handle)
 //    PRINT("\t[o]Set video output mode(LCD,NTSC,PAL,LCD&NTSC,LCD&PAL)\n");
     PRINT("\t[d]Select the audio track\n");
 //    PRINT("\t[b]Select the subtitle\n");
-    PRINT("\t[f]Set full screen or not\n");
+    //PRINT("\t[f]Set full screen or not\n");
     //PRINT("\t[z]resize the width and height\n");
-    PRINT("\t[t]Rotate\n");
+    //PRINT("\t[t]Rotate\n");
     PRINT("\t[c]Setting play rate\n");
 
 //    PRINT("\t[c]playing direction and speed control\n");
@@ -994,9 +994,11 @@ int main(int argc,char *argv[])
                 break;
             }
 #endif
+#if 0
             case 'f': // Set full screen or not
                 pplayer->klass->full_screen(pplayer);
                 break;
+
 
             case 'y': // Set display screen mode
             {
@@ -1015,6 +1017,9 @@ int main(int argc,char *argv[])
                 pplayer->klass->display_screen_mode(pplayer, display_screen_mode);
                 break;
             }
+#endif
+
+
             #if 0
             case 'z': // resize the width and height
             {
@@ -1060,7 +1065,7 @@ int main(int argc,char *argv[])
             #endif
             }
             #endif
-
+#if 0
             case 't': // Rotate 90 degree every time
             {
                 fsl_player_rotation rotate_value;
@@ -1080,7 +1085,7 @@ int main(int argc,char *argv[])
                 pplayer->klass->rotate(player_handle, rotate_value);
                 break;
             }
-
+#endif
             case 'c': // playing direction and speed Control.
             {
                 double playback_rate;
@@ -1110,7 +1115,7 @@ int main(int argc,char *argv[])
                 player_exit(pplayer);
                 break;
             }
-
+#if 0
             case '*': // Sleep 5 seconds
             {
                 FSL_PLAYER_SLEEP(5000);
@@ -1122,7 +1127,7 @@ int main(int argc,char *argv[])
                 FSL_PLAYER_SLEEP(10000);
                 break;
             }
-
+#endif
             case 'P': //Property
             {
                 char prop_name[64] = {0};
