@@ -95,6 +95,10 @@ struct _GstAmlVdec
     codec_para_t *pcodec;
     GstTask * eos_task;
     GStaticRecMutex eos_lock;
+
+		/*private*/
+		gboolean bpass;
+		gint64 basepcr;
 };
 
 struct _GstAmlVdecClass 

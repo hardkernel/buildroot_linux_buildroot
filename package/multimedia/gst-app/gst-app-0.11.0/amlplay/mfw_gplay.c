@@ -151,6 +151,7 @@ PlayItem * playlist_next(fsl_player_handle handle, options* opt)
         }
         case FSL_PLAYER_REPEAT_CURRENT:
         {
+						next = opt->current;
             pplayer->klass->stop(pplayer);
             pplayer->klass->set_media_location(pplayer, opt->current->name, &drm_format);
             pplayer->klass->play(pplayer);
@@ -388,12 +389,18 @@ void print_help(fsl_player_handle handle)
 //    PRINT("\t[o]Set video output mode(LCD,NTSC,PAL,LCD&NTSC,LCD&PAL)\n");
     PRINT("\t[d]Select the audio track\n");
 //    PRINT("\t[b]Select the subtitle\n");
-    PRINT("\t[f]Set full screen or not\n");
-    PRINT("\t[z]resize the width and height\n");
-    PRINT("\t[t]Rotate\n");
+    //PRINT("\t[f]Set full screen or not\n");
+    //PRINT("\t[z]resize the width and height\n");
+    //PRINT("\t[t]Rotate\n");
     PRINT("\t[c]Setting play rate\n");
 
 //    PRINT("\t[c]playing direction and speed control\n");
+    PRINT("\t[P]Please input property name:\n");
+    PRINT("\t      [tvmode]      (Usage:[set] [0/1] | [get])              :change or get tvmode \n");
+    PRINT("\t      [rectangle]   (Usage:[set] [x,y,width,height] | [get]) : resize the width and height \n");
+    PRINT("\t      [currentPTS]  get currentPTS\n");
+    PRINT("\t      [pmt-info]    get pmt infomation\n");
+    
     PRINT("\t[i]Display the metadata\n");
     PRINT("\t[x]eXit\n");
 }
@@ -459,7 +466,7 @@ fsl_player_s32 display_thread_fun(fsl_player_handle handle)
             pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_MUTE, (void*)(&bmute));
             pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_VOLUME, (void*)(&volume));
           //  pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_TOTAL_FRAMES, (void*)(&total_frames));
-
+            elapsed = (elapsed >= duration) ? duration : elapsed;
             hour = (elapsed/ (fsl_player_u64)3600000000000);
             minute = (elapsed / (fsl_player_u64)60000000000) - (hour * 60);
             second = (elapsed / 1000000000) - (hour * 3600) - (minute * 60);
@@ -987,9 +994,11 @@ int main(int argc,char *argv[])
                 break;
             }
 #endif
+#if 0
             case 'f': // Set full screen or not
                 pplayer->klass->full_screen(pplayer);
                 break;
+
 
             case 'y': // Set display screen mode
             {
@@ -1008,7 +1017,10 @@ int main(int argc,char *argv[])
                 pplayer->klass->display_screen_mode(pplayer, display_screen_mode);
                 break;
             }
+#endif
 
+
+            #if 0
             case 'z': // resize the width and height
             {
             #if 0
@@ -1052,7 +1064,8 @@ int main(int argc,char *argv[])
                 break;
             #endif
             }
-
+            #endif
+#if 0
             case 't': // Rotate 90 degree every time
             {
                 fsl_player_rotation rotate_value;
@@ -1072,7 +1085,7 @@ int main(int argc,char *argv[])
                 pplayer->klass->rotate(player_handle, rotate_value);
                 break;
             }
-
+#endif
             case 'c': // playing direction and speed Control.
             {
                 double playback_rate;
@@ -1102,7 +1115,7 @@ int main(int argc,char *argv[])
                 player_exit(pplayer);
                 break;
             }
-
+#if 0
             case '*': // Sleep 5 seconds
             {
                 FSL_PLAYER_SLEEP(5000);
@@ -1114,7 +1127,7 @@ int main(int argc,char *argv[])
                 FSL_PLAYER_SLEEP(10000);
                 break;
             }
-
+#endif
             case 'P': //Property
             {
                 char prop_name[64] = {0};

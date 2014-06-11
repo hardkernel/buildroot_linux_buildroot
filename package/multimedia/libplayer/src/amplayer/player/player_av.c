@@ -1599,9 +1599,9 @@ int write_av_packet(play_para_t *para)
 	}
 	
     if (am_getconfig_float("media.libplayer.dumpmode", &value) == 0) {
-        dump_data_mode = (int)value;
+        dump_data_mode = (int)value; 
     }
-
+		
     if (dump_data_mode == DUMP_WRITE_RAW_DATA && fdw_raw == -1) {
         sprintf(dump_path, "/temp/pid%d_dump_write.dat", para->player_id);
         fdw_raw = open(dump_path, O_CREAT | O_RDWR, 0666);

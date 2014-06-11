@@ -1,0 +1,18 @@
+--- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_dev.c.old	2014-04-30 16:51:49.794631684 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_dev.c	2014-04-30 16:52:18.578632224 +0800
+@@ -318,6 +318,15 @@ void osddev_cursor(struct myfb_dev *fbde
+ }
+ #endif
+ 
++int osddev_copy_data_tocursor(myfb_dev_t *g_fbi, aml_hwc_addr_t *cursor_mem)
++{
++	if (cursor_mem == NULL){
++		return 0;
++	}
++	osddev_copy_data_tocursor_hw((u32)g_fbi->fb_mem_vaddr, cursor_mem);
++	return 1;
++}
++
+ void  osddev_set_colorkey(u32 index,u32 bpp,u32 colorkey )
+ {
+ 	osd_set_colorkey_hw( index, bpp, colorkey );

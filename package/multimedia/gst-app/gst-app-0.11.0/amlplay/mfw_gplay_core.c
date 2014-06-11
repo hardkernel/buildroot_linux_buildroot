@@ -89,6 +89,12 @@ typedef struct
     fsl_player_bool has_mute;
 
     fsl_player_s32 timeout;
+
+		fsl_player_bool bchoose;
+		fsl_player_bool badec;
+		fsl_player_bool bvdec;
+		fsl_player_bool bts;
+    fsl_player_bool bape;
     
 } fsl_player_property;
 
@@ -122,6 +128,7 @@ fsl_player_ret_val fsl_player_exit_message_loop(fsl_player_handle handle);
 fsl_player_ret_val fsl_player_post_eos_semaphore(fsl_player_handle handle);
 
 fsl_player_ret_val fsl_player_property_process(fsl_player_handle handle, char *prop_name);
+GstElement * getAudioDecElement(fsl_player_property* pproperty ,fsl_player_s32 i);
 
 static fsl_player_bool poll_for_state_change(GstState sRecState, GstElement * elem, fsl_player_u32 timeout)
 {
@@ -1017,6 +1024,12 @@ fsl_player_ret_val fsl_player_set_media_location(fsl_player_handle handle, fsl_p
     
     g_object_set(G_OBJECT(pproperty->playbin), "uri", (gchar*)uri_buffer, NULL);
 
+		if(0 == strncmp(p, ".ts", 3))
+			pproperty->bts = TRUE;
+		
+		if(0 == strncmp(p, ".ape", 4))
+			pproperty->bape = TRUE;
+
 #if 0
     if (strncmp("file://", uri_buffer, 7)){
         //g_object_set(G_OBJECT(pproperty->playbin), "flags", 0x100, NULL);
@@ -1123,6 +1136,7 @@ fsl_player_ret_val fsl_player_seek(fsl_player_handle handle, fsl_player_u32 time
     fsl_player_u64 seekpos;
     GstSeekFlags seek_flags = GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT;
     GstFormat fmt;
+		GstElement *element = NULL;
 
     if( 0 == pproperty->duration )
     {
@@ -1148,7 +1162,10 @@ fsl_player_ret_val fsl_player_seek(fsl_player_handle handle, fsl_player_u32 time
     }
     
     g_print("seeking: %"GST_TIME_FORMAT"/%"GST_TIME_FORMAT"\n", GST_TIME_ARGS(seekpos), GST_TIME_ARGS(pproperty->duration));
-    
+    element = gst_bin_get_by_name(GST_BIN(pproperty->playbin), "flutsdemux0");
+		if(NULL != element) {
+    	g_object_set (element, "duration", pproperty->duration, NULL);
+		}
     seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
                     seek_flags,
                     GST_SEEK_TYPE_SET, seekpos,
@@ -1493,6 +1510,35 @@ fsl_player_ret_val fsl_player_set_video_output(fsl_player_handle handle, fsl_pla
     FSL_PLAYER_PRINT("%s()\n", __FUNCTION__);
     return FSL_PLAYER_SUCCESS;
 }
+static GstElement * 
+getVideoDecElement(fsl_player_property* pproperty ,fsl_player_s32 i)
+{
+  GstPad *pad = NULL;
+  GstPad *dec_pad = NULL;
+  GstElement *e = NULL;
+
+  if (!pproperty->playbin)
+    return NULL;
+
+  g_signal_emit_by_name(pproperty->playbin, "get-video-pad", i, &pad);
+  if (pad) {
+    dec_pad = gst_pad_get_peer(pad);
+    while (dec_pad && GST_IS_GHOST_PAD(dec_pad)) {
+      gst_object_unref(dec_pad);
+      dec_pad = gst_ghost_pad_get_target(GST_GHOST_PAD(dec_pad));
+    }
+    if (dec_pad) {
+      e = gst_pad_get_parent_element(dec_pad);
+      gst_object_unref(dec_pad);
+    }
+    gst_object_unref(pad);
+  }
+
+  if (!e)
+    FSL_PLAYER_PRINT("no VideoDecElement\n");
+
+  return e;
+}
 
 GstElement * getAudioDecElement(fsl_player_property* pproperty ,fsl_player_s32 i)
 {
@@ -1518,16 +1564,70 @@ GstElement * getAudioDecElement(fsl_player_property* pproperty ,fsl_player_s32 i
   }
 
   if (!e)
-    FSL_PLAYER_PRINT("getAudioDecElement Failed\n");
+    FSL_PLAYER_PRINT("no audioDecElement\n");
 
   return e;
 } 
+static gint64 
+fsl_player_prop_currentposition(fsl_player_property* pproperty)
+{
+	GstElement* element = NULL;
+	gint64 currentposition = 0;
+	/*default get adec0*/
+	if(FALSE == pproperty->bchoose){
+		if(FALSE == pproperty->badec) {
+			element = getAudioDecElement(pproperty ,0);
+		  if( NULL == element ){
+				if(FALSE == pproperty->bvdec) {
+						element = getVideoDecElement(pproperty, 0);
+						if(NULL == element) {
+							FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
+							return -1;
+						}
+						else {
+							pproperty->bvdec = TRUE;
+						}
+				}
+		  }
+			else {
+				pproperty->badec = TRUE;
+		  }
+		}
+
+		pproperty->bchoose= TRUE;
+	}
+	else {
+		if(TRUE == pproperty->badec) {
+			element = getAudioDecElement(pproperty ,0);
+			if(NULL == element) {
+				FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
+				return -1;
+			}
+		}
+
+		if(TRUE == pproperty->bvdec) {
+			element = getVideoDecElement(pproperty, 0);
+			if(NULL == element) {
+				FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
+				return -1;
+			}
+		}
+	}
+
+	g_object_get(element, "position", &currentposition, NULL);
+
+	return currentposition;
+}
 
 static gint64 getcurpos(fsl_player_property* pproperty)
 {
+  #if 0
   GstFormat fmt = GST_FORMAT_TIME;
   gint64 position = 0;
   gst_element_query_position (pproperty->playbin, &fmt, &position);
+	#else
+	gint64 position = fsl_player_prop_currentposition(pproperty);
+	#endif
   return position;
 }
 
@@ -1900,22 +2000,54 @@ fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_
     {
         case FSL_PLAYER_PROPERTY_DURATION:
         {
-            gboolean bquery;
-            GstFormat fmt = GST_FORMAT_TIME;
-            bquery = gst_element_query_duration(pproperty->playbin, &fmt, (gint64 *)&(pproperty->duration));
-            if( FSL_PLAYER_TRUE == bquery )
-            {
-                *((fsl_player_u64*)pstructure) = pproperty->duration;
-            }
-            else
-            {
-                *((fsl_player_u64*)pstructure) = 0;
-                ret_val = FSL_PLAYER_FAILURE;
-            }
+            if(TRUE == pproperty->bts) {
+							GstElement* filesource = NULL;
+	            guint64 duration;
+	            filesource = gst_bin_get_by_name((GstBin*)pproperty->playbin, "source");
+	            if(NULL != filesource) {
+	              g_object_get(filesource, "VBRduration", &duration, NULL);
+	              *((fsl_player_u64*)pstructure) = duration;
+								pproperty->duration = duration;
+	            }
+	            else {
+	              ret_val = FSL_PLAYER_FAILURE;
+	            }
+						}
+						else {
+							if(TRUE == pproperty->bape) {
+								GstElement* element = NULL;
+								gint64 duration;
+								element = getAudioDecElement(pproperty ,0);
+								if(NULL != element) {
+									g_object_get(element, "apeduration", &duration, NULL);
+		              *((fsl_player_u64*)pstructure) = duration;
+									pproperty->duration = duration;
+								}
+								else {
+		              ret_val = FSL_PLAYER_FAILURE;
+		            }
+							}
+							else {
+								gboolean bquery;
+		            GstFormat fmt = GST_FORMAT_TIME;
+		            bquery = gst_element_query_duration(pproperty->playbin, &fmt, (gint64 *)&(pproperty->duration));
+		            if( FSL_PLAYER_TRUE == bquery )
+		            {
+		                *((fsl_player_u64*)pstructure) = pproperty->duration;
+		            }
+		            else
+		            {
+		                *((fsl_player_u64*)pstructure) = 0;
+		                ret_val = FSL_PLAYER_FAILURE;
+		            }
+							}
+						}
+				
             break;
         }
         case FSL_PLAYER_PROPERTY_ELAPSED:
         {
+            #if 0
             gboolean bquery;
             GstFormat fmt = GST_FORMAT_TIME;
             bquery = gst_element_query_position(pproperty->playbin, &fmt, (gint64 *)&(pproperty->elapsed));
@@ -1924,6 +2056,16 @@ fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_
             }else{
                 ret_val = FSL_PLAYER_FAILURE;
             }
+						#else
+						gint64 currentposition = fsl_player_prop_currentposition(pproperty);
+						if(-1 == currentposition) {
+							ret_val = FSL_PLAYER_FAILURE;
+						}
+						else {
+							*((fsl_player_u64*)pstructure) = currentposition;
+							pproperty->elapsed = currentposition;
+						}
+						#endif
             break;
         }
         case FSL_PLAYER_PROPERTY_PLAYER_STATE:

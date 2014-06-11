@@ -74,6 +74,60 @@ G_BEGIN_DECLS
 typedef struct _GstAmlAdec      GstAmlAdec;
 typedef struct _GstAmlAdecClass GstAmlAdecClass;
 
+
+typedef struct {
+    gint64 pos;
+    gint32 nblocks;
+    gint32 size;
+    gint32 skip;
+    gint64 pts;
+} APEFrame;
+
+typedef struct gst_ape_head_st
+{
+		/* Derived fields */
+		guint32 junklength;
+		guint32 firstframe;
+		guint32 totalsamples;
+		gint32 currentframe;
+		APEFrame *frames;
+
+		/* Info from Descriptor Block */
+		gint8 magic[4];
+		gint16 fileversion;
+		gint16 padding1;
+		guint32 descriptorlength;
+		guint32 headerlength;
+		guint32 seektablelength;
+		guint32 wavheaderlength;
+		guint32 audiodatalength;
+		guint32 audiodatalength_high;
+		guint32 wavtaillength;
+		guint8 md5[16];
+
+		/* Info from Header Block */
+		guint16 compressiontype;
+		guint16 formatflags;
+		guint32 blocksperframe;
+		guint32 finalframeblocks;
+		guint32 totalframes;
+		guint16 bps;
+		guint16 channels;
+		guint32 samplerate;
+
+		/* Seektable */
+		guint32 *seektable;
+
+		gboolean bhead;
+}gst_ape_head;
+
+typedef struct gst_ape_st
+{
+	gst_ape_head ape_head;
+	gint64 accusize;
+	gint32 currentframe;
+}gst_ape_parser;
+
 struct _GstAmlAdec
 {
   GstElement element;
@@ -103,6 +157,18 @@ struct _GstAmlAdec
   GstCaps *tmpcaps;
   GstTask * eos_task;
   GStaticRecMutex eos_lock;
+
+	guint order;
+	gboolean bpass;
+	/*for elapsed*/
+	gint64 basepcr;
+
+  /*private for ape format*/
+	gst_ape_parser *apeparser;
+	gboolean       is_ape;
+	gint64         duration;
+	guint64        filesize;
+
 };
 
 struct _GstAmlAdecClass
@@ -115,6 +181,7 @@ struct AmlControl
 {
   GstCaps *firstcaps;
   gboolean passthrough;
+	guint adecnumber;
 };
 
 GType gst_amladec_get_type (void);

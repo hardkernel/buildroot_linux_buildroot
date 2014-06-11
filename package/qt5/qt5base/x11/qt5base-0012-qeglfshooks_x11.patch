@@ -1,0 +1,17 @@
+--- qtbase-opensource-src-5.2.1/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp.orig	2014-05-27 18:48:22.195819791 +0800
++++ qtbase-opensource-src-5.2.1/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp	2014-05-27 19:02:49.099836057 +0800
+@@ -330,12 +330,12 @@ EGLNativeWindowType QEglFSX11Hooks::crea
+ 
+     xcb_flush(m_connection);
+ 
+-    return m_window;
++    return (EGLNativeWindowType) m_window;
+ }
+ 
+ void QEglFSX11Hooks::destroyNativeWindow(EGLNativeWindowType window)
+ {
+-    xcb_destroy_window(m_connection, window);
++    xcb_destroy_window(m_connection, (xcb_window_t) window);
+ }
+ 
+ bool QEglFSX11Hooks::hasCapability(QPlatformIntegration::Capability cap) const

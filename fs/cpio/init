@@ -5,9 +5,8 @@
 /bin/mount -t devtmpfs devtmpfs /dev
 
 #Create device nodes
-if [ -x "/sbin/mdev" ] ; then
-    mdev -s
-fi
+mdev -s
+
 #insert our precious NFTL
 modprobe aml_nftl_dev
 
@@ -18,7 +17,7 @@ get_opt() {
 }
 
 #Defaults
-init="/init2"
+init="/sbin/init"
 root="/dev/cardblksd1"
 firmware=""
 rootfstype=
@@ -86,7 +85,7 @@ if [ -n "${firmware}" ]; then
         sync
         echo "update complete"
         umount /sys /proc /dev
-        exec chroot /system "/init2"
+        exec chroot /system ${init}
     else
         echo "cannot locate ${firmware}"
         echo "boot normally..."
@@ -99,7 +98,11 @@ if [[ -x "/mnt/${init}" ]] ; then
     umount /sys /proc /dev
 
     #Switch to the new root and execute init
-    exec chroot /mnt "${init}"
+    /bin/mount -t devtmpfs devtmpfs /mnt/dev
+    exec 0</mnt/dev/console
+    exec 1>/mnt/dev/console
+    exec 2>/mnt/dev/console
+    exec switch_root -c /dev/console /mnt "${init}"
 fi
 
 #This will only be run if the exec above failed

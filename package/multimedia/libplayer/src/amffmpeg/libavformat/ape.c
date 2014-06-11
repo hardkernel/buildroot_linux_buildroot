@@ -347,7 +347,7 @@ static int ape_read_header(AVFormatContext * s, AVFormatParameters * ap)
         av_add_index_entry(st, ape->frames[i].pos, ape->frames[i].pts, 0, 0, AVINDEX_KEYFRAME);
         pts += ape->blocksperframe / MAC_SUBFRAME_SIZE;
     }
-
+		
     return 0;
 }
 

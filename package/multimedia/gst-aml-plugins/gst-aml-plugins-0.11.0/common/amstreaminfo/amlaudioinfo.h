@@ -403,6 +403,9 @@ typedef struct{
     AmlAudioInfo audioinfo;
 }AmlAinfoPcm;
 
+typedef struct{
+    AmlAudioInfo audioinfo;
+}AmlAinfoApe;
 
 AmlStreamInfo *createAudioInfo(gint size);
 AmlStreamInfo * newAmlAinfoMpeg();

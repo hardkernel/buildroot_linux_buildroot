@@ -177,8 +177,13 @@ static void aml_unregister_propfunc(GHashTable *propTable)
 AmlPropFunc aml_find_propfunc (GHashTable *propTable, gint key)
 {
     AmlPropFunc func = NULL;
-    func = (AmlPropFunc)g_hash_table_lookup(propTable, key);
-    return func;
+		if(propTable == NULL) {
+			return func;
+		}
+		else {
+    	func = (AmlPropFunc)g_hash_table_lookup(propTable, key);
+    	return func;
+		}
 }
 
 void aml_Install_Property(

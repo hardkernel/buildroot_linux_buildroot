@@ -14,18 +14,13 @@
 # process   == program to run
 
 # Startup the system
-::sysinit:/bin/mount -t proc none /proc
-::sysinit:/bin/mount -t sysfs none /sys
-::sysinit:/bin/mount -t tmpfs -o size=64k,mode=0755 none /dev
+::sysinit:/bin/mount -t proc proc /proc
 ::sysinit:/bin/mkdir /dev/shm
 ::sysinit:/bin/mkdir /dev/pts
-::sysinit:/bin/mount -t devpts devpts /dev/pts
-::sysinit:/bin/echo /sbin/mdev > /proc/sys/kernel/hotplug
-::sysinit:/sbin/mdev -s
 ::sysinit:/bin/mount -o remount,rw /
 ::sysinit:/bin/mount -a
-::sysinit:modprobe ump
 ::sysinit:modprobe mali
+::sysinit:modprobe mali_drm
 ::sysinit:/bin/hostname -F /etc/hostname
 ::sysinit:/sbin/ifconfig lo 127.0.0.1 up
 ::sysinit:/sbin/route add -net 127.0.0.0 netmask 255.0.0.0 lo
@@ -53,6 +48,7 @@ null::respawn:/usr/sbin/telnetd -l /bin/sh
 # Stuff to do before rebooting
 null::shutdown:/usr/bin/killall klogd
 null::shutdown:/usr/bin/killall syslogd
+null::shutdown:/etc/init.d/rcK
 null::shutdown:/bin/umount -a -r
 null::shutdown:/sbin/swapoff -a
 
@@ -60,11 +56,13 @@ null::sysinit:echo 0 > /sys/module/aml_wdt/parameters/user_pet
 null::sysinit:echo 0 > /sys/class/graphics/fb0/blank
 null::sysinit:echo 1 > /sys/class/graphics/fb1/blank
 null::sysinit:echo 720p > /sys/class/display/mode
-null::sysinit:/usr/sbin/fbset -fb /dev/fb0 -g 1280 720 1280 1440 24
-null::sysinit:echo 480000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-null::sysinit:echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-null::sysinit:echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+null::sysinit:fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
+null::sysinit:fbset -fb /dev/fb1 -g 32 32 32 32 32
+#null::sysinit:echo 480000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+#null::sysinit:echo 1200000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+#null::sysinit:echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 null::sysinit:/usr/bin/remotecfg /etc/remote.conf
 null::sysinit:/usr/bin/X :0.0 &                                        
 null::sysinit:sleep 1                                           
 null::sysinit:enlightenment_start -display :0.0 &
+null::sysinit:echo "nameserver 8.8.8.8" >> /etc/resolv.conf

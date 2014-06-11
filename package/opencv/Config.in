@@ -173,9 +173,11 @@ config BR2_PACKAGE_OPENCV_WITH_QT
 	depends on BR2_USE_MMU # qt
 	select BR2_PACKAGE_QT
 	select BR2_PACKAGE_QT_STL
+	select BR2_PACKAGE_QT_GUI_MODULE if BR2_PACKAGE_OPENCV_LIB_HIGHGUI
+	select BR2_PACKAGE_QT_TEST       if BR2_PACKAGE_OPENCV_LIB_HIGHGUI
 	default y
 	help
-	  Use Qt with STL support
+	  Use Qt with QtTest module and STL support
 
 config BR2_PACKAGE_OPENCV_WITH_TIFF
 	bool "tiff support"
@@ -187,12 +189,14 @@ config BR2_PACKAGE_OPENCV_WITH_V4L
 	bool "v4l support"
 	depends on BR2_LARGEFILE
 	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_USE_MMU # libv4l fork
 	select BR2_PACKAGE_LIBV4L
 	help
 	  Enable Video 4 Linux support.
 
 comment "v4l support needs a toolchain w/ largefile, threads"
 	depends on !BR2_LARGEFILE || !BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_USE_MMU
 
 comment "Install options"
 

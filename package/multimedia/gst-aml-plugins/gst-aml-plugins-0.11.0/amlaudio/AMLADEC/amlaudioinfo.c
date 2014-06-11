@@ -13,8 +13,9 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
     pcodec->audio_info.sample_rate = audio->sample_rate;
     pcodec->audio_info.channels = audio->channels;
 
-    if (gst_structure_has_field (structure, "codec_data"))
+    if (gst_structure_has_field (structure, "codec_data")) {
         extra_data_buf = (GValue *) gst_structure_get_value (structure, "codec_data");
+    }
     if(extra_data_buf){
         info->configdata = gst_value_get_buffer(extra_data_buf);	
         guint8 *hdrextdata;
@@ -210,6 +211,7 @@ gint amlInitAmpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *stru
     switch (audio->version) {
         case 1:
             pcodec->audio_type = AFORMAT_MPEG;			
+            amlAudioInfoInit(info,pcodec,structure);
             break;
         case 2:
         case 4:
@@ -522,6 +524,28 @@ AmlStreamInfo * newAmlAinfoPcm()
     return info;
 }
 
+gint amlInitApe(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{
+	pcodec->audio_type = AFORMAT_APE;	
+	pcodec->audio_info.codec_id = CODEC_ID_APE;
+	pcodec->audio_info.valid = 1;
+
+	GST_WARNING("[%s:%d]", __FUNCTION__, __LINE__);
+
+  return 0; 
+}
+
+AmlStreamInfo * newAmlAinfoApe()
+{
+    AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoApe));
+    info->init = amlInitApe;
+    info->writeheader = NULL;
+    info->add_startcode = NULL;
+		
+    return info;
+}
+
+
 static const AmlStreamInfoPool amlAstreamInfoPool[] = {
 	
     {"audio/mpeg", newAmlAinfoMpeg},
@@ -533,6 +557,7 @@ static const AmlStreamInfoPool amlAstreamInfoPool[] = {
     {"audio/x-vorbis", newAmlAinfoVorbis},
     {"audio/x-mulaw", newAmlAinfoMulaw},
     {"audio/x-raw-int", newAmlAinfoPcm},
+    {"application/x-ape", newAmlAinfoApe},
     {NULL, NULL}
 };
 AmlStreamInfo *amlAstreamInfoInterface(gchar *format)

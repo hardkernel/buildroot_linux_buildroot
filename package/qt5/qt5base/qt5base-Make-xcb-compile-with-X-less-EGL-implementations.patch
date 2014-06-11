@@ -1,0 +1,188 @@
+From 3e746e7ba257bd21e38ca0e55c2f682a75bb53ed Mon Sep 17 00:00:00 2001
+From: Laszlo Agocs <laszlo.agocs@digia.com>
+Date: Thu, 6 Feb 2014 12:10:11 +0100
+Subject: [PATCH] Make xcb compile with X-less EGL implementations
+
+On platforms like the Raspberry Pi the EGL implementation is not
+compatible with X. This means that while EGL and Open GL ES can be enabled,
+and will work fine with platform plugins like eglfs, EGL (and thus GL) should
+be automatically disabled in xcb, otherwise a compilation error will occur
+since xcb assumes the native handle types are the corresponding Xlib types.
+
+Task-number: QTBUG-36551
+Change-Id: I2cc4c558abb4b25d422a2c01da9b75b865ace402
+---
+ config.tests/qpa/egl-x11/egl-x11.cpp     |   62 ++++++++++++++++++++++++++++++
+ config.tests/qpa/egl-x11/egl-x11.pro     |   12 ++++++
+ configure                                |   18 +++++++++
+ src/plugins/platforms/xcb/xcb-plugin.pro |    2 +-
+ 4 files changed, 93 insertions(+), 1 deletion(-)
+ create mode 100644 config.tests/qpa/egl-x11/egl-x11.cpp
+ create mode 100644 config.tests/qpa/egl-x11/egl-x11.pro
+
+diff --git a/config.tests/qpa/egl-x11/egl-x11.cpp b/config.tests/qpa/egl-x11/egl-x11.cpp
+new file mode 100644
+index 0000000..f5c2ae7
+--- /dev/null
++++ b/config.tests/qpa/egl-x11/egl-x11.cpp
+@@ -0,0 +1,62 @@
++/****************************************************************************
++**
++** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
++** Contact: http://www.qt-project.org/legal
++**
++** This file is part of the config.tests of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial License Usage
++** Licensees holding valid commercial Qt licenses may use this file in
++** accordance with the commercial license agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Digia.  For licensing terms and
++** conditions see http://qt.digia.com/licensing.  For further information
++** use the contact form at http://qt.digia.com/contact-us.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Digia gives you certain additional
++** rights.  These rights are described in the Digia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#include <EGL/egl.h>
++#include <xcb/xcb.h>
++#include <X11/Xlib.h>
++#include <X11/Xlib-xcb.h>
++
++// Check if EGL is compatible with X. Some EGL implementations, typically on
++// embedded devices, are not intended to be used together with X. EGL support
++// has to be disabled in plugins like xcb in this case since the native display,
++// window and pixmap types will be different than what an X-based platform
++// plugin would expect.
++
++int main(int, char **)
++{
++    Display *dpy = EGL_DEFAULT_DISPLAY;
++    EGLNativeDisplayType egldpy = XOpenDisplay("");
++    dpy = egldpy;
++    EGLNativeWindowType w = XCreateWindow(dpy, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
++    XDestroyWindow(dpy, w);
++    XCloseDisplay(dpy);
++    return 0;
++}
+diff --git a/config.tests/qpa/egl-x11/egl-x11.pro b/config.tests/qpa/egl-x11/egl-x11.pro
+new file mode 100644
+index 0000000..c4e94ca
+--- /dev/null
++++ b/config.tests/qpa/egl-x11/egl-x11.pro
+@@ -0,0 +1,12 @@
++SOURCES = egl-x11.cpp
++
++for(p, QMAKE_LIBDIR_EGL) {
++    exists($$p):LIBS += -L$$p
++}
++
++!isEmpty(QMAKE_INCDIR_EGL): INCLUDEPATH += $$QMAKE_INCDIR_EGL
++!isEmpty(QMAKE_LIBS_EGL): LIBS += $$QMAKE_LIBS_EGL
++
++CONFIG -= qt
++
++LIBS += -lxcb -lX11 -lX11-xcb
+diff --git a/configure b/configure
+index 529471d..5b48208 100755
+--- a/configure
++++ b/configure
+@@ -613,6 +613,7 @@ CFG_OPENVG_LC_INCLUDES=no
+ CFG_OPENVG_SHIVA=auto
+ CFG_OPENVG_ON_OPENGL=auto
+ CFG_EGL=auto
++CFG_EGL_X=auto
+ CFG_FONTCONFIG=auto
+ CFG_FREETYPE=auto
+ CFG_HARFBUZZ=no
+@@ -1473,6 +1474,7 @@ while [ "$#" -gt 0 ]; do
+     egl)
+         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+             CFG_EGL="$VAL"
++            CFG_EGL_X="$VAL"
+         else
+             UNKNOWN_OPT=yes
+         fi
+@@ -5366,6 +5368,11 @@ if [ "$CFG_EGL" != "no" ]; then
+     fi       # detect EGL support
+     if compileTest qpa/egl "EGL" $QMAKE_CFLAGS_EGL $QMAKE_LIBS_EGL; then
+         CFG_EGL=yes
++        if compileTest qpa/egl-x11 "EGL-X11" $QMAKE_CFLAGS_EGL $QMAKE_LIBS_EGL; then
++            CFG_EGL_X=yes
++        else
++            CFG_EGL_X=no
++        fi
+     elif [ "$CFG_EGL" = "yes" ]; then
+         echo " The EGL functionality test failed; EGL is required by some QPA plugins to manage contexts & surfaces."
+         echo " You might need to modify the include and library search paths by editing"
+@@ -5373,6 +5380,7 @@ if [ "$CFG_EGL" != "no" ]; then
+         exit 1
+     else
+         CFG_EGL=no
++        CFG_EGL_X=no
+     fi
+ fi
+ 
+@@ -5752,6 +5760,13 @@ else
+     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EGL"
+ fi
+ 
++# enable egl on X
++if [ "$CFG_EGL_X" = "yes" ]; then
++    QT_CONFIG="$QT_CONFIG egl_x11"
++else
++    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EGL_X11"
++fi
++
+ # enable eglfs
+ if [ "$CFG_EGLFS" = "yes" ]; then
+     QT_CONFIG="$QT_CONFIG eglfs"
+@@ -6775,6 +6790,9 @@ report_support "    getifaddrs ..........." "$CFG_GETIFADDRS"
+ report_support "    IPv6 ifname .........." "$CFG_IPV6IFNAME"
+ report_support "    OpenSSL .............." "$CFG_OPENSSL" yes "loading libraries at run-time" linked "linked to the libraries"
+ report_support "  NIS ...................." "$CFG_NIS"
++report_support "  EGL ...................." "$CFG_EGL"
++report_support "  EGL on X ..............." "$CFG_EGL_X"
++report_support "  GLX ...................." "$CFG_XCB_GLX"
+ report_support "  OpenGL ................." "$CFG_OPENGL" yes "Desktop OpenGL" es2 "OpenGL ES 2.x"
+ report_support "  OpenVG ................." "$CFG_OPENVG-$CFG_OPENVG_SHIVA" yes-yes "ShivaVG" yes-no "native"
+ report_support "  PCRE ..................." "$CFG_PCRE" yes "system library" qt "bundled copy"
+diff --git a/src/plugins/platforms/xcb/xcb-plugin.pro b/src/plugins/platforms/xcb/xcb-plugin.pro
+index 67f2d8a..4727262 100644
+--- a/src/plugins/platforms/xcb/xcb-plugin.pro
++++ b/src/plugins/platforms/xcb/xcb-plugin.pro
+@@ -90,7 +90,7 @@ contains(QT_CONFIG, opengl) {
+             DEFINES += XCB_HAS_XCB_GLX
+             LIBS += -lxcb-glx
+         }
+-    } else:contains(QT_CONFIG, egl) {
++    } else:contains(QT_CONFIG, egl):contains(QT_CONFIG, egl_x11) {
+         DEFINES += XCB_USE_EGL
+         CONFIG += egl
+         HEADERS += qxcbeglsurface.h
+-- 
+1.7.9.5
+

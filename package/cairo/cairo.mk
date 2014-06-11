@@ -10,6 +10,7 @@ CAIRO_LICENSE = LGPLv2.1+
 CAIRO_LICENSE_FILES = COPYING
 CAIRO_SITE = http://cairographics.org/releases
 CAIRO_INSTALL_STAGING = YES
+CAIRO_AUTORECONF = YES
 
 CAIRO_CONF_ENV = ac_cv_func_posix_getpwuid_r=yes glib_cv_stack_grows=no \
 		glib_cv_uscore=no ac_cv_func_strtod=yes \
@@ -54,14 +55,14 @@ else
 	CAIRO_CONF_OPT += --disable-directfb
 endif
 
-ifeq ($(BR2_PACKAGE_HAS_OPENGL_ES),y)
+ifeq ($(BR2_PACKAGE_HAS_LIBGLES),y)
 	CAIRO_CONF_OPT += --enable-glesv2
 	CAIRO_DEPENDENCIES += libgles
 else
 	CAIRO_CONF_OPT += --disable-glesv2
 endif
 
-ifeq ($(BR2_PACKAGE_HAS_OPENVG),y)
+ifeq ($(BR2_PACKAGE_HAS_LIBOPENVG),y)
 	CAIRO_CONF_OPT += --enable-vg
 	CAIRO_DEPENDENCIES += libopenvg
 else
@@ -101,6 +102,22 @@ ifeq ($(BR2_PACKAGE_CAIRO_PNG),y)
 	CAIRO_DEPENDENCIES += libpng
 else
 	CAIRO_CONF_OPT += --disable-png
+endif
+
+ifeq ($(BR2_PACKAGE_UMP_USERSPACE_DRV),y)
+	CAIRO_DEPENDENCIES += ump_userspace_drv
+endif
+
+ifeq ($(BR2_PACKAGE_LIBDRM),y)
+	CAIRO_DEPENDENCIES += libdrm
+endif
+
+ifeq ($(BR2_PACKAGE_XLIB_LIBXFIXES),y)
+	CAIRO_DEPENDENCIES += xlib_libXfixes
+endif
+
+ifeq ($(BR2_PACKAGE_OPENGL),y)
+	CAIRO_DEPENDENCIES += opengl
 endif
 
 ifeq ($(BR2_PACKAGE_CAIRO_SCRIPT),y)

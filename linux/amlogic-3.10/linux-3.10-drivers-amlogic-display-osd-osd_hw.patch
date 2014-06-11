@@ -1,0 +1,78 @@
+--- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c.orig	2014-05-13 14:38:48.715553888 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c	2014-05-14 17:35:07.542665417 +0800
+@@ -1803,8 +1803,13 @@ static   void  osd2_update_enable(void)
+         spin_lock_irqsave(&osd_onoff_lock, flags);
+         if (osd_hw.enable[OSD2] == ENABLE){
+             // osd1 and osd2 share the only one freescale, so set  VPP_OSD1_POSTBLEND here.
+-            aml_set_reg32_mask(P_VPP_MISC,VPP_OSD1_POSTBLEND);
+-            aml_set_reg32_mask(P_VPP_MISC,VPP_POSTBLEND_EN);
++            if(osd_hw.free_scale_enable[OSD2]){
++                aml_set_reg32_mask(P_VPP_MISC,VPP_OSD1_POSTBLEND);
++                aml_set_reg32_mask(P_VPP_MISC,VPP_POSTBLEND_EN);
++            }else{
++                aml_set_reg32_mask(P_VPP_MISC,VPP_OSD2_POSTBLEND);
++                aml_set_reg32_mask(P_VPP_MISC,VPP_POSTBLEND_EN);
++            }
+         }else{
+             if (osd_hw.enable[OSD1] == ENABLE){
+                 aml_clr_reg32_mask(P_VPP_MISC,VPP_OSD2_POSTBLEND);
+@@ -2474,7 +2479,6 @@ void osd_init_hw(u32  logo_loaded)
+ 	osd_hw.color_info[OSD2]=NULL;
+ 	vf.width =vf.height=0;
+ 	osd_hw.color_key[OSD1]=osd_hw.color_key[OSD2]=0xffffffff;
+-	osd_hw.free_scale_enable[OSD1]=osd_hw.free_scale_enable[OSD2]=0;
+ 	osd_hw.scale[OSD1].h_enable=osd_hw.scale[OSD1].v_enable=0;
+ 	osd_hw.scale[OSD2].h_enable=osd_hw.scale[OSD2].v_enable=0;
+ 	osd_hw.mode_3d[OSD2].enable=osd_hw.mode_3d[OSD1].enable=0;
+@@ -2487,10 +2491,15 @@ void osd_init_hw(u32  logo_loaded)
+ 	osd_hw.osd_reverse[OSD1] = osd_hw.osd_reverse[OSD2] = 0;
+ 	osd_hw.rotation_pandata[OSD1].x_start = osd_hw.rotation_pandata[OSD1].y_start = 0;
+ 	osd_hw.rotation_pandata[OSD2].x_start = osd_hw.rotation_pandata[OSD2].y_start = 0;
+-	osd_hw.antiflicker_mode = 0;
++    osd_hw.antiflicker_mode = 0;
+ 
+-	memset(osd_hw.rotate,0,sizeof(osd_rotate_t));
++#if MESON_CPU_TYPE >= MESON_CPU_TYPE_MESON8
++    osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 1;
++#else
++    osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 0;
++#endif
+ 
++	memset(osd_hw.rotate,0,sizeof(osd_rotate_t));
+ #ifdef FIQ_VSYNC
+ 	osd_hw.fiq_handle_item.handle=vsync_isr;
+ 	osd_hw.fiq_handle_item.key=(u32)vsync_isr;
+@@ -2604,6 +2613,33 @@ void osd_cursor_hw(s16 x, s16 y, s16 xst
+ }
+ #endif //CONFIG_FB_OSD2_CURSOR
+ 
++void osddev_copy_data_tocursor_hw(u32 cursor_mem_vaddr, aml_hwc_addr_t *hwc_mem)
++{
++	u32 tmp;
++	u32 i;
++	u32 value_pixel = 0;
++	u32 size = 32*32*4;
++
++	if (hwc_mem->addr & 0x3) { /* Address not 32bit aligned */
++		for (i = 0; i < size; i += 4) {
++			tmp = readb(hwc_mem->addr + i);
++			value_pixel = tmp;
++			tmp = readb(hwc_mem->addr + i + 1);
++			value_pixel |= (tmp << 8);
++			tmp = readb(hwc_mem->addr + i + 2);
++			value_pixel |= (tmp << 16);
++			tmp = readb(hwc_mem->addr + i + 3);
++			value_pixel |= (tmp << 24);
++			writel(value_pixel, cursor_mem_vaddr+ i);
++		}
++	} else {
++		for (i = 0; i < size; i += 4) {
++			tmp = readl(hwc_mem->addr + i);
++			writel(tmp, cursor_mem_vaddr+ i);
++		}
++	}
++}
++
+ void  osd_suspend_hw(void)
+ {
+ 	osd_hw.reg_status_save = aml_read_reg32(P_VPP_MISC) & OSD_RELATIVE_BITS;

@@ -56,12 +56,13 @@ static int check_size_in_buffer2(unsigned char *p, int len)
 gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *structure)
 {
     AmlVideoInfo *video = AML_VIDEOINFO_BASE(info);
-    gint32 numerator=0;
-    gint32 denominator=0;
+    gint64 numerator=0;
+    gint64 denominator=0;
     GValue * data_buf = NULL;
     gst_structure_get_int(structure, "width",&video->width);
     gst_structure_get_int(structure, "height",&video->height);
     gst_structure_get_fraction(structure, "framerate",&numerator,&denominator);
+    
     if(numerator > 0){
         video->framerate = 96000 * denominator / numerator;
     }

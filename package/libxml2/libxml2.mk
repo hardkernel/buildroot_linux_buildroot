@@ -31,7 +31,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_HOST_LIBXML2_PYTHON),y)
 HOST_LIBXML2_DEPENDENCIES += host-python
-HOST_LIBXML2_CONF_OPT += --with-python=$(HOST_DIR)/usr
+HOST_LIBXML2_CONF_OPT += --with-python=$(HOST_DIR)/usr/bin/python
 else
 HOST_LIBXML2_CONF_OPT += --without-python
 endif

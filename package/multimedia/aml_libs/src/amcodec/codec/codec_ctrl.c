@@ -676,10 +676,10 @@ int codec_init(codec_para_t *pcodec)
         return -CODEC_ERROR_SET_BUFSIZE_FAILED;
     }
     ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_PORT_INIT, 0);
-    if (ret != 0) {
-
+    if (ret != 0) {        
         return -CODEC_ERROR_INIT_FAILED;
     }
+    
     if (pcodec->has_audio) {
         arm_audio_info a_ainfo;
         memset(&a_ainfo,0,sizeof(arm_audio_info));
