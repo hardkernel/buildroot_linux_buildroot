@@ -211,6 +211,7 @@ gint amlInitAmpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *stru
     switch (audio->version) {
         case 1:
             pcodec->audio_type = AFORMAT_MPEG;			
+            amlAudioInfoInit(info,pcodec,structure);
             break;
         case 2:
         case 4:
