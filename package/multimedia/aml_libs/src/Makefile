@@ -29,7 +29,8 @@ install:
 	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(AML_LIBS_STAGING_DIR)/usr/lib/libplayer 
 	mkdir -p $(TARGET_DIR)/lib/firmware
 	install -D -m 0644 amadec/${FIRMDIR}/*.bin $(TARGET_DIR)/lib/firmware 
-	
+	cp  -rf drm-libs/*.tzo $(TARGET_DIR)/lib/ 
+	cp  -rf drm-libs/*.so $(TARGET_DIR)/lib/ 
 clean:
 	-$(MAKE) -C amadec clean
 	-$(MAKE) -C amavutils clean

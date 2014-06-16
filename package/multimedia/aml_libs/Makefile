@@ -27,6 +27,7 @@ QUITE_CMD=yes
 #export QUITE_CMD
 all:before_cmd config  	
 	cp -a ${BUILD_DIR}/amadec/firmware ${PREFIX}/lib/
+	cp -rf ${BUILD_DIR}/drm-libs/* ${PREFIX}/lib/
 	$(MAKE) -C ${BUILD_DIR} all
 	$(MAKE) -C ${BUILD_DIR} install
 	
