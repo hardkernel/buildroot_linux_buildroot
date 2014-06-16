@@ -360,11 +360,12 @@ static void gst_amladec_polling_eos (GstAmlAdec *amladec)
         ret = codec_get_abuf_state (amladec->pcodec, &abuf);
         if (ret != 0) {
             GST_ERROR("codec_get_abuf_state error: %x\n", -ret);
+            g_print("oh~?\n");
             break;
         }
         if(last_rp != abuf.read_pointer){
             last_rp = abuf.read_pointer;
-            rp_move_count = 40;
+            rp_move_count = 120;//40;
         }else
            rp_move_count--;        
         usleep(1000*30);
@@ -487,7 +488,7 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     if(!info) {
         GST_ERROR("unsupport audio format name=%s\n",name);
         return  FALSE;
-   }
+    }
     GST_WARNING("got name=%s\n",name);	
     amladec->audioinfo = info;
     info->init(info,amladec->pcodec,structure);
@@ -523,11 +524,8 @@ static gboolean gst_amladec_set_caps (GstPad * pad, GstCaps * caps)
 				name = gst_structure_get_name (structure);	
 				if(!g_strcmp0(name, "application/x-ape")) {
 					amladec->tmpcaps = caps;
-					amlcontrol->firstcaps = caps;
 					amladec->is_ape = TRUE;
 					amladec->apeparser->ape_head.bhead = TRUE;
-					gst_object_unref (amladec);	
-          return TRUE;
 				}
 				else {
 	        amladec->tmpcaps=caps;
@@ -561,6 +559,7 @@ gst_amladec_write_data(GstAmlAdec *amladec, guint8 *data, guint size)
     } 
     /* try to write again on non-fatal errors */
     if (errno == EAGAIN || errno == EINTR){
+        /*Bug fix for ape stream stop ~ */
         g_mutex_unlock(&amlclass->lock);
         usleep(20000);
         g_mutex_lock(&amlclass->lock);
@@ -782,7 +781,7 @@ gst_ape_read_header(gst_ape_head *ape, GstBuffer * buf, GstAmlAdec *amladec)
 		guint i = 0;
 		gint64 total_blocks;
 		guint64 final_size;
-
+ 
 		ape->junklength = 0;
 
     tag = GST_READ_UINT32_LE(data);
@@ -922,7 +921,7 @@ gst_ape_read_header(gst_ape_head *ape, GstBuffer * buf, GstAmlAdec *amladec)
 		
 		//ape->frames[ape->totalframes - 1].size = ape->finalframeblocks * 4;
 		if (amladec->filesize > 0) {
-        final_size = amladec->filesize - ape->frames[ape->totalframes - 1].pos - ape->wavtaillength;
+        final_size = amladec->filesize - ape->frames[ape->totalframes - 1].pos;
         final_size -= final_size & 3;
     }
     if (amladec->filesize <= 0 || final_size <= 0)
@@ -959,6 +958,8 @@ gst_ape_read_header(gst_ape_head *ape, GstBuffer * buf, GstAmlAdec *amladec)
 		amladec->pcodec->audio_info.bitrate = ape->bps;
 		amladec->pcodec->audio_info.channels = ape->channels;
 		amladec->pcodec->audio_info.sample_rate = ape->samplerate;
+
+    gst_set_astream_info (amladec, amladec->tmpcaps);
 	
     return 0;
 }
@@ -1019,6 +1020,7 @@ static gboolean gst_amladec_start (GstAmlAdec *amladec)
 		
 		amlcontrol->adecnumber++;
 		amladec->order = amlcontrol->adecnumber;
+    amlcontrol->passthrough = FALSE;
     return TRUE;
 }
 
@@ -1035,6 +1037,7 @@ static gboolean gst_amladec_stop (GstAmlAdec *amladec)
         }	
         codec_close (amladec->pcodec);
         amladec->codec_init_ok=0;
+        amlcontrol->adecnumber = 0;
     }		
     return TRUE;
 }
@@ -1047,7 +1050,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
     amladec = GST_AMLADEC (element);
     GstAmlAdecClass *amlclass = GST_AMLADEC_GET_CLASS (element); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
-    g_mutex_lock(&amlclass->lock);
+    g_mutex_trylock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
             gst_amladec_start (amladec); 
@@ -1068,7 +1071,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
       }
     g_mutex_unlock(&amlclass->lock);
     result = parent_class->change_state (element, transition);
-    g_mutex_lock(&amlclass->lock);
+    g_mutex_trylock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
             if (!amladec->is_eos && amladec->codec_init_ok)
@@ -1080,7 +1083,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
                     amladec->is_paused = TRUE;
             }	
             break;
-        case GST_STATE_CHANGE_PAUSED_TO_READY:			
+        case GST_STATE_CHANGE_PAUSED_TO_READY:	
             break;
         case GST_STATE_CHANGE_READY_TO_NULL: 
             stop_eos_task (amladec);

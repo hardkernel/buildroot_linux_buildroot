@@ -395,7 +395,7 @@ static void gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
         }
         if(last_rp != vbuf.read_pointer){
             last_rp = vbuf.read_pointer;
-            rp_move_count = 40;
+            rp_move_count = 120;
         }else
             rp_move_count--;        
             usleep(1000*30);

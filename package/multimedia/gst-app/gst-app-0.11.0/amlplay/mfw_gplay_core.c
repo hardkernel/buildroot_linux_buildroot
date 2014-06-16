@@ -1573,13 +1573,16 @@ fsl_player_prop_currentposition(fsl_player_property* pproperty)
 {
 	GstElement* element = NULL;
 	gint64 currentposition = 0;
+  gint32 audionum = 0, videonum = 0;
+  g_object_get(pproperty->playbin, "current-audio", &audionum, NULL);
+  g_object_get(pproperty->playbin, "current-video", &videonum, NULL);
 	/*default get adec0*/
 	if(FALSE == pproperty->bchoose){
 		if(FALSE == pproperty->badec) {
-			element = getAudioDecElement(pproperty ,0);
+			element = getAudioDecElement(pproperty ,audionum);
 		  if( NULL == element ){
 				if(FALSE == pproperty->bvdec) {
-						element = getVideoDecElement(pproperty, 0);
+						element = getVideoDecElement(pproperty, videonum);
 						if(NULL == element) {
 							FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
 							return -1;
@@ -1598,7 +1601,7 @@ fsl_player_prop_currentposition(fsl_player_property* pproperty)
 	}
 	else {
 		if(TRUE == pproperty->badec) {
-			element = getAudioDecElement(pproperty ,0);
+			element = getAudioDecElement(pproperty ,audionum);
 			if(NULL == element) {
 				FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
 				return -1;
@@ -1606,7 +1609,7 @@ fsl_player_prop_currentposition(fsl_player_property* pproperty)
 		}
 
 		if(TRUE == pproperty->bvdec) {
-			element = getVideoDecElement(pproperty, 0);
+			element = getVideoDecElement(pproperty, videonum);
 			if(NULL == element) {
 				FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
 				return -1;

@@ -168,6 +168,7 @@ struct _GstAmlAdec
 	gboolean       is_ape;
 	gint64         duration;
 	guint64        filesize;
+  
 
 };
 
