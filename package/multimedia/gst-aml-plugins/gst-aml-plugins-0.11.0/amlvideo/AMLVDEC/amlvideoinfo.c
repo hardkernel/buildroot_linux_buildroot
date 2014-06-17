@@ -66,7 +66,7 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
     if(numerator > 0){
         video->framerate = 96000 * denominator / numerator;
     }
-    
+   
     data_buf = (GValue *) gst_structure_get_value(structure, "codec_data"); 
     if(data_buf){
         info->configdata = gst_value_get_buffer(data_buf);
@@ -130,7 +130,6 @@ static gint h264_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
     config = GST_BUFFER_DATA(info->configdata);
     p = config;
     GST_WARNING("add 264 header in stream\n");
-    
     if (((p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 1)
         ||(p[0] == 0 && p[1] == 0 && p[2] == 1 )) && config_size < 1024) {
         g_print("add 264 header in stream before header len=%d", config_size);
@@ -216,9 +215,9 @@ static gint h264_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuf
         } else if (check_size_in_buffer2(p, size)) {
             unsigned char *new_data;
             int new_len = 0;
-            hdrBuf = gst_buffer_new_and_alloc(size + 2 * 1024);
+            hdrBuf = gst_buffer_new_and_alloc(size + 2 * 1024);  
             //bufout = GST_BUFFER_DATA(hdrBuf);
-            new_data = GST_BUFFER_DATA(hdrBuf);
+            new_data = GST_BUFFER_DATA(hdrBuf); 
             if (!new_data) {
                 return -1;
             }
@@ -233,10 +232,11 @@ static gint h264_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuf
                 p += (nalsize + 2);
                 new_len += nalsize + 4;
             }
-            gst_buffer_set_data(buf,new_data,size + 2 * 1024);
-            GST_BUFFER_SIZE(buf)= new_len;
-            if(hdrBuf)	
-            gst_buffer_unref(hdrBuf);   
+            gst_buffer_set_data(buf, new_data, new_len);//size + 2 * 1024);
+            //GST_BUFFER_SIZE(buf)= new_len;
+            /*fix Bug 93125 do not free */
+            //if(hdrBuf)	 
+              //gst_buffer_unref(hdrBuf); 
         }
     } else {
         GST_ERROR("[%s]invalid pointer!\n", __FUNCTION__);

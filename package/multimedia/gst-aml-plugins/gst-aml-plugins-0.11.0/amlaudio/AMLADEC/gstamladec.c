@@ -360,12 +360,11 @@ static void gst_amladec_polling_eos (GstAmlAdec *amladec)
         ret = codec_get_abuf_state (amladec->pcodec, &abuf);
         if (ret != 0) {
             GST_ERROR("codec_get_abuf_state error: %x\n", -ret);
-            g_print("oh~?\n");
             break;
         }
         if(last_rp != abuf.read_pointer){
             last_rp = abuf.read_pointer;
-            rp_move_count = 120;//40;
+            rp_move_count = 200;//40;
         }else
            rp_move_count--;        
         usleep(1000*30);
@@ -409,7 +408,6 @@ gst_amladec_sink_event (GstPad * pad, GstEvent * event)
     GstAmlAdec *amladec = GST_AMLADEC (GST_PAD_PARENT (pad));
     gboolean result;  
     GST_DEBUG ("handling %s event", GST_EVENT_TYPE_NAME (event));
-  
     switch (GST_EVENT_TYPE (event)) {
         case GST_EVENT_NEWSEGMENT:{
             GstFormat format;
@@ -495,7 +493,7 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     if(amladec->pcodec->audio_type == AFORMAT_UNKNOWN) {
         GST_ERROR("unsupport audio format\n");
         return  FALSE;
-   }	
+    }	
     if (amladec->pcodec&&amladec->pcodec->stream_type == STREAM_TYPE_ES_AUDIO){
         if (info->writeheader)
             info->writeheader (info,amladec->pcodec); 		
@@ -505,7 +503,7 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
                 return FALSE;				
         }
     } 
-	return TRUE;
+	  return TRUE;
 }
 /* this function handles the link with other elements */
 static gboolean gst_amladec_set_caps (GstPad * pad, GstCaps * caps)
@@ -560,9 +558,9 @@ gst_amladec_write_data(GstAmlAdec *amladec, guint8 *data, guint size)
     /* try to write again on non-fatal errors */
     if (errno == EAGAIN || errno == EINTR){
         /*Bug fix for ape stream stop ~ */
-        g_mutex_unlock(&amlclass->lock);
+        //g_mutex_unlock(&amlclass->lock);
         usleep(20000);
-        g_mutex_lock(&amlclass->lock);
+        //g_mutex_lock(&amlclass->lock);
         goto again0;
     }
         
@@ -735,9 +733,9 @@ static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
 	            } 
 	            /* try to write again on non-fatal errors */
 	            if (errno == EAGAIN || errno == EINTR){
-	                g_mutex_unlock(&amlclass->lock);
+	                //g_mutex_unlock(&amlclass->lock);
 	                usleep(20000);
-	                g_mutex_lock(&amlclass->lock);
+	                //g_mutex_lock(&amlclass->lock);
 	                goto again;
 	            }
 	                
@@ -1037,8 +1035,8 @@ static gboolean gst_amladec_stop (GstAmlAdec *amladec)
         }	
         codec_close (amladec->pcodec);
         amladec->codec_init_ok=0;
-        amlcontrol->adecnumber = 0;
     }		
+    amlcontrol->adecnumber = 0;
     return TRUE;
 }
 
@@ -1050,7 +1048,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
     amladec = GST_AMLADEC (element);
     GstAmlAdecClass *amlclass = GST_AMLADEC_GET_CLASS (element); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
-    g_mutex_trylock(&amlclass->lock);
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
             gst_amladec_start (amladec); 
@@ -1071,7 +1069,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
       }
     g_mutex_unlock(&amlclass->lock);
     result = parent_class->change_state (element, transition);
-    g_mutex_trylock(&amlclass->lock);
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
             if (!amladec->is_eos && amladec->codec_init_ok)
