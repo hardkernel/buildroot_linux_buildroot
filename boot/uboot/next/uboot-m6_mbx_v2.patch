@@ -1,5 +1,5 @@
---- uboot-next/board/amlogic/configs/m6_mbx_v2.h.orig	2014-05-29 14:52:40.834796328 +0800
-+++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-05-29 14:54:54.770798841 +0800
+--- uboot-2014-06-18-f5749cd4e9/board/amlogic/configs/m6_mbx_v2.h.orig	2014-06-18 15:17:37.727123347 +0800
++++ uboot-2014-06-18-f5749cd4e9/board/amlogic/configs/m6_mbx_v2.h	2014-06-18 15:19:29.431125443 +0800
 @@ -200,7 +200,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85900000\0" \
@@ -9,12 +9,14 @@
  	"batlow_threshold=10\0" \
  	"batfull_threshold=98\0" \
  	"outputmode=1080p\0" \
-@@ -228,18 +228,36 @@
+@@ -228,18 +228,38 @@
  	"cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0" \
  	"nandargs=run cvbscheck; "\
              "imgread res logo ${loadaddr_misc};unpackimg ${loadaddr_misc}; cp ${bootup_offset} 0x85100000 ${bootup_size}; "\
 -            "setenv bootargs root=/dev/cardblksd2 rw rootfstype=ext3 rootwait init=/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full androidboot.resolution=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${cecconfig}\0"\
 +            "setenv bootargs root=/dev/system rw rootfstype=ext4 rootwait init=/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full androidboot.resolution=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode}\0"\
++ 	"switch_bootmode="\
++         "if test ${reboot_mode} = factory_reset; then run recovery; fi;"\
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then run recovery; fi;"\
          "if test ${reboot_mode} = usb_burning; then run usb_burning; fi; "\
