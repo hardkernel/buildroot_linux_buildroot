@@ -174,9 +174,12 @@ static void gst_amladec_init (GstAmlAdec * amladec, GstAmlAdecClass * klass)
 
      amladec->pcodec = g_malloc(sizeof(codec_para_t));
      memset(amladec->pcodec, 0, sizeof(codec_para_t ));
+     amladec->pcodec->adec_priv = NULL;
 
 		 amladec->apeparser = g_malloc(sizeof(gst_ape_parser));
 		 memset(amladec->apeparser, 0 , sizeof(gst_ape_parser));
+
+     amladec->eos_task = NULL;
 		 
      if(!amlcontrol){
      amlcontrol = g_malloc(sizeof(struct AmlControl));
@@ -390,8 +393,9 @@ static void
 static void
     stop_eos_task (GstAmlAdec *amladec)
 {
-    if (! amladec->eos_task)
+    if (!amladec->eos_task) {
       return;
+    }
     gst_task_stop (amladec->eos_task);
     g_static_rec_mutex_lock (&amladec->eos_lock);
     g_static_rec_mutex_unlock (&amladec->eos_lock);
@@ -1035,8 +1039,10 @@ static gboolean gst_amladec_stop (GstAmlAdec *amladec)
         }	
         codec_close (amladec->pcodec);
         amladec->codec_init_ok=0;
+        if(NULL != amlcontrol) {
+          amlcontrol->adecnumber = 0;
+        }
     }		
-    amlcontrol->adecnumber = 0;
     return TRUE;
 }
 
@@ -1073,7 +1079,7 @@ static GstStateChangeReturn gst_amladec_change_state (GstElement * element, GstS
     switch (transition) {
         case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
             if (!amladec->is_eos && amladec->codec_init_ok)
-            {
+            {   
                 ret = codec_pause (amladec->pcodec);
                 if (ret != 0) {
                     GST_ERROR("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);

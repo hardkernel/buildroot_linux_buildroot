@@ -76,11 +76,13 @@ fsl_player_ret_val player_exit(fsl_player_handle handle)
     pplayer = (fsl_player*)handle;
     struct sigaction act;
 
+    gbexit_main = FSL_PLAYER_TRUE;
+    gbexit_msg_thread = FSL_PLAYER_TRUE;
+    gbdisplay = FSL_PLAYER_FALSE;
+
     pplayer->klass->stop(pplayer);
     pplayer->klass->exit_message_loop(pplayer); // flush all messages left in the message queue.
     //pplayer->klass->send_message_exit(pplayer); // send a exit message.
-    gbexit_main = FSL_PLAYER_TRUE;
-    gbexit_msg_thread = FSL_PLAYER_TRUE;
     //_close_nolock(STDIN_FILENO); // no use for linux, but effective for win32
 
     // Register alarm handler for alarm
@@ -592,6 +594,7 @@ fsl_player_s32 msg_thread_fun(fsl_player_handle handle)
 
 
         }
+        FSL_PLAYER_SLEEP(opt->info_interval_in_sec*1000);
     }
 
     return 0;
@@ -793,9 +796,8 @@ int main(int argc,char *argv[])
                 break;
 
             case 'p': // Play.
-             
-                fsl_player_set_media_location(player_handle, filename2uri(uri_buffer,argv[1]), &drm_format);
-                //pplayer->klass->set_media_location(pplayer, opt->current->name, &drm_format);
+                //fsl_player_set_media_location(player_handle, filename2uri(uri_buffer,argv[1]), &drm_format);
+                pplayer->klass->set_media_location(pplayer, opt->current->name, &drm_format);
                 pplayer->klass->play(pplayer);
                 break;
 
@@ -923,28 +925,6 @@ int main(int argc,char *argv[])
                 //pplayer->klass->repeat(pplayer);
                 break;
             }
-#if 1
-            case 'n': // Get the current video snapshot while playing
-                //pplayer->klass->snapshot(pplayer);
-                break;
-
-            case 'o': // Set video output mode(LCD,NTSC,PAL,LCD&NTSC,LCD&PAL)
-            {
-                fsl_player_s32 mode = 0;
-                PRINT("Set video output mode(LCD:0,NTSC:1,PAL:2,LCD&NTSC:3,LCD&PAL:4):");
-                kb_restore_term(STDIN_FILENO);
-                gbdisplay = FSL_PLAYER_FALSE;
-                scanf("%d",&mode);
-                gbdisplay = FSL_PLAYER_TRUE;
-                kb_set_raw_term(STDIN_FILENO);
-                if( mode < 0 || mode >4 )
-                {
-                    printf("Invalid video output mode!\n");
-                    break;
-                }
-                pplayer->klass->set_video_output(pplayer, mode);
-                break;
-            }
 
             case 'd': // Select the audio track
             {
@@ -993,7 +973,6 @@ int main(int argc,char *argv[])
                 #endif
                 break;
             }
-#endif
 #if 0
             case 'f': // Set full screen or not
                 pplayer->klass->full_screen(pplayer);

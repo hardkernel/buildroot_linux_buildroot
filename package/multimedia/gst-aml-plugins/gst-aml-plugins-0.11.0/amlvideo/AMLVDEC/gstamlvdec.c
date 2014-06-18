@@ -41,7 +41,6 @@
 #include "amlvdec_prop.h"
 #include "amlvideoinfo.h"
 
-
 GST_DEBUG_CATEGORY_STATIC (amlvdec_debug);
 #define GST_CAT_DEFAULT (amlvdec_debug)
 
@@ -284,13 +283,13 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
         if(vbuf.data_len*10 < vbuf.size*7){
             break;
         }
-        timeout = 40000;
+        timeout = 40000; 
         amlcodec_timewait(amlvdec, timeout);
         if(amlvdec->is_paused){
             break;
         }
     }
-  
+
     if(NULL == buf){
         return -1;
     }    
@@ -395,11 +394,11 @@ static void gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
         }
         if(last_rp != vbuf.read_pointer){
             last_rp = vbuf.read_pointer;
-            rp_move_count = 120;
+            rp_move_count = 200;
         }else
             rp_move_count--;        
-            usleep(1000*30);
-            count++;	
+        usleep(1000*30);
+        count++;	
     } while (vbuf.data_len > 0x100 && rp_move_count > 0);
     gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
     gst_task_pause (amlvdec->eos_task);
@@ -652,6 +651,7 @@ gst_amlvdec_change_state (GstElement * element, GstStateChange transition)
     GstAmlVdecClass *amlclass = GST_AMLVDEC_GET_CLASS (amlvdec); 
     GstElementClass *parent_class = g_type_class_peek_parent (amlclass);
     gint ret= -1;
+    g_mutex_lock(&amlclass->lock);
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
             gst_amlvdec_start(amlvdec);

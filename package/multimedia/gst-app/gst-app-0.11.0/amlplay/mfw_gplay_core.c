@@ -91,8 +91,6 @@ typedef struct
     fsl_player_s32 timeout;
 
 		fsl_player_bool bchoose;
-		fsl_player_bool badec;
-		fsl_player_bool bvdec;
 		fsl_player_bool bts;
     fsl_player_bool bape;
     
@@ -141,7 +139,6 @@ static fsl_player_bool poll_for_state_change(GstState sRecState, GstElement * el
 
     g_get_current_time(&tfthen);
     result = gst_element_set_state(elem, sRecState);
-
     if(result == GST_STATE_CHANGE_FAILURE)
     {
         if( NULL != ele_name )
@@ -544,14 +541,14 @@ fsl_player_ret_val fsl_player_class_init (fsl_player_class * klass)
 
     klass->set_volume = &fsl_player_set_volume;
     klass->mute = &fsl_player_mute;
-    klass->snapshot = &fsl_player_snapshot;
-    klass->set_video_output = &fsl_player_set_video_output;
+    //klass->snapshot = &fsl_player_snapshot;
+    //klass->set_video_output = &fsl_player_set_video_output;
     klass->select_audio_track = &fsl_player_select_audio_track;
     klass->select_subtitle = &fsl_player_select_subtitle;
-    klass->full_screen = &fsl_player_full_screen;
-    klass->display_screen_mode = &fsl_player_display_screen_mode;
-    klass->resize = &fsl_player_resize;
-    klass->rotate = &fsl_player_rotate;
+    //klass->full_screen = &fsl_player_full_screen;
+    //klass->display_screen_mode = &fsl_player_display_screen_mode;
+    //klass->resize = &fsl_player_resize;
+    //klass->rotate = &fsl_player_rotate;
 
     klass->get_property = &fsl_player_get_property;
     klass->set_property = &fsl_player_set_property;
@@ -1411,7 +1408,7 @@ fsl_player_ret_val fsl_player_mute(fsl_player_handle handle)
     }
     return FSL_PLAYER_SUCCESS;
 }
-
+#if 0
 //#include "/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf.h"
 //#include "gdk-pixbuf/gdk-pixbuf.h"
 fsl_player_ret_val fsl_player_snapshot(fsl_player_handle handle)
@@ -1510,6 +1507,8 @@ fsl_player_ret_val fsl_player_set_video_output(fsl_player_handle handle, fsl_pla
     FSL_PLAYER_PRINT("%s()\n", __FUNCTION__);
     return FSL_PLAYER_SUCCESS;
 }
+#endif
+
 static GstElement * 
 getVideoDecElement(fsl_player_property* pproperty ,fsl_player_s32 i)
 {
@@ -1571,52 +1570,23 @@ GstElement * getAudioDecElement(fsl_player_property* pproperty ,fsl_player_s32 i
 static gint64 
 fsl_player_prop_currentposition(fsl_player_property* pproperty)
 {
-	GstElement* element = NULL;
+	static GstElement* element = NULL;
 	gint64 currentposition = 0;
   gint32 audionum = 0, videonum = 0;
   g_object_get(pproperty->playbin, "current-audio", &audionum, NULL);
   g_object_get(pproperty->playbin, "current-video", &videonum, NULL);
-	/*default get adec0*/
-	if(FALSE == pproperty->bchoose){
-		if(FALSE == pproperty->badec) {
-			element = getAudioDecElement(pproperty ,audionum);
-		  if( NULL == element ){
-				if(FALSE == pproperty->bvdec) {
-						element = getVideoDecElement(pproperty, videonum);
-						if(NULL == element) {
-							FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
-							return -1;
-						}
-						else {
-							pproperty->bvdec = TRUE;
-						}
-				}
-		  }
-			else {
-				pproperty->badec = TRUE;
-		  }
-		}
 
+	if(FALSE == pproperty->bchoose){
+	  element = getAudioDecElement(pproperty ,audionum);
+		if( NULL == element ){
+				element = getVideoDecElement(pproperty, videonum);
+				if(NULL == element) {
+					FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
+					return -1;
+				}
+    }
 		pproperty->bchoose= TRUE;
 	}
-	else {
-		if(TRUE == pproperty->badec) {
-			element = getAudioDecElement(pproperty ,audionum);
-			if(NULL == element) {
-				FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
-				return -1;
-			}
-		}
-
-		if(TRUE == pproperty->bvdec) {
-			element = getVideoDecElement(pproperty, videonum);
-			if(NULL == element) {
-				FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
-				return -1;
-			}
-		}
-	}
-
 	g_object_get(element, "position", &currentposition, NULL);
 
 	return currentposition;
@@ -1832,7 +1802,7 @@ void fullscreen_fb0_get_width_height(fsl_player_s32 fb, fsl_player_s32* pfullscr
     *pfullscreen_height = scrinfo.yres;
     return;
 }
-
+#if 0
 fsl_player_ret_val fsl_player_full_screen(fsl_player_handle handle)
 {
     fsl_player* pplayer = (fsl_player*)handle;
@@ -1894,7 +1864,8 @@ fsl_player_ret_val fsl_player_full_screen(fsl_player_handle handle)
     g_object_unref (auto_video_sink);
     return FSL_PLAYER_SUCCESS;
 }
-
+#endif
+#if 0
 fsl_player_ret_val fsl_player_display_screen_mode(fsl_player_handle handle, fsl_player_s32 mode)
 {
     fsl_player* pplayer = (fsl_player*)handle;
@@ -1903,7 +1874,9 @@ fsl_player_ret_val fsl_player_display_screen_mode(fsl_player_handle handle, fsl_
 
     return FSL_PLAYER_SUCCESS;
 }
+#endif
 
+#if 0
 fsl_player_ret_val fsl_player_resize(fsl_player_handle handle, fsl_player_display_parameter display_parameter)
 {
     fsl_player* pplayer = (fsl_player*)handle;
@@ -1943,7 +1916,8 @@ fsl_player_ret_val fsl_player_resize(fsl_player_handle handle, fsl_player_displa
 
     return FSL_PLAYER_SUCCESS;
 }
-
+#endif
+#if 0
 fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_rotation rotate_value)
 {
     fsl_player* pplayer = (fsl_player*)handle;
@@ -1992,6 +1966,7 @@ fsl_player_ret_val fsl_player_rotate(fsl_player_handle handle, fsl_player_rotati
 
     return FSL_PLAYER_SUCCESS;
 }
+#endif
 
 fsl_player_ret_val fsl_player_get_property(fsl_player_handle handle, fsl_player_property_id property_id, void* pstructure)
 {
