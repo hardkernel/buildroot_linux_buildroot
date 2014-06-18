@@ -1,6 +1,18 @@
---- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c.orig	2014-04-30 16:59:34.250640502 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c	2014-04-30 17:00:47.818641778 +0800
-@@ -268,6 +268,12 @@ osd_setcmap(struct fb_cmap *cmap, struct
+--- arm-src-kernel-2014-06-18-155d61a24e/drivers/amlogic/display/osd/osd_main.c.orig	2014-06-18 15:48:08.599157689 +0800
++++ arm-src-kernel-2014-06-18-155d61a24e/drivers/amlogic/display/osd/osd_main.c	2014-06-18 15:50:35.483160451 +0800
+@@ -96,7 +96,11 @@ _find_color_format(struct fb_var_screeni
+ 		lower_margin=COLOR_INDEX_24_6666_A;
+ 		break;		
+ 		case 3:
++#ifdef CONFIG_FB_AMLOGIC_UMP
++        upper_margin=COLOR_INDEX_32_ARGB;
++#else
+ 		upper_margin=COLOR_INDEX_32_ABGR;
++#endif
+ 		lower_margin=COLOR_INDEX_32_BGRA;
+ 		break;
+ 		case 4:
+@@ -267,6 +271,12 @@ osd_setcmap(struct fb_cmap *cmap, struct
  	return 0;
  }
  
@@ -13,7 +25,7 @@
  static int
  osd_ioctl(struct fb_info *info, unsigned int cmd,
                 unsigned long arg)
-@@ -285,6 +291,11 @@ osd_ioctl(struct fb_info *info, unsigned
+@@ -284,6 +294,11 @@ osd_ioctl(struct fb_info *info, unsigned
          unsigned long  ret;
  	 u32  flush_rate;
  
@@ -25,7 +37,7 @@
      	switch (cmd)
    	{
     		case  FBIOPUT_OSD_SRCKEY_ENABLE:
-@@ -329,6 +340,44 @@ osd_ioctl(struct fb_info *info, unsigned
+@@ -328,6 +343,44 @@ osd_ioctl(struct fb_info *info, unsigned
  		case FBIOPUT_OSD_WINDOW_AXIS:
  			ret=copy_from_user(&osd_dst_axis, argp, 4 * sizeof(s32));
  			break;
