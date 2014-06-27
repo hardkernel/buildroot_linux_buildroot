@@ -67,8 +67,20 @@ endif
 ifeq ($(BR2_PACKAGE_RTK8192EU),y)
 	LINUX_DEPENDENCIES += rtk8192eu
 endif
+ifeq ($(BR2_PACKAGE_RTK8189ES),y)
+	LINUX_DEPENDENCIES += rtk8189es
+endif
+ifeq ($(BR2_PACKAGE_RTK8723BS),y)
+	LINUX_DEPENDENCIES += rtk8723bs
+endif
+ifeq ($(BR2_PACKAGE_RTK8723AU),y)
+	LINUX_DEPENDENCIES += rtk8723au
+endif
 ifeq ($(BR2_PACKAGE_BRCMAP6XXX),y)
 	LINUX_DEPENDENCIES += brcmap6xxx
+endif
+ifeq ($(BR2_PACKAGE_BRCMUSI),y)
+	LINUX_DEPENDENCIES += brcmusi
 endif
 ifeq ($(BR2_PACKAGE_AML_TVIN),y)
 	LINUX_DEPENDENCIES += aml_tvin
@@ -224,9 +236,21 @@ define LINUX_CONFIGURE_CMDS
         $(if $(BR2_PACKAGE_RTK8192EU),
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
                 ln -sf $(RTK8192EU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu)
+        $(if $(BR2_PACKAGE_RTK8189ES),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+                ln -sf $(RTK8189ES_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8189es)
+        $(if $(BR2_PACKAGE_RTK8723BS),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+                ln -sf $(RTK8723BS_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8723bs)
+        $(if $(BR2_PACKAGE_RTK8723AU),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+                ln -sf $(RTK8723AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8723au)
         $(if $(BR2_PACKAGE_BRCMAP6XXX),
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
                 ln -sf $(BRCMAP6XXX_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx)
+        $(if $(BR2_PACKAGE_BRCMUSI),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
+                ln -sf $(BRCMUSI_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/usi)
         $(if $(BR2_PACKAGE_AML_TVIN),
 		mkdir -p $(LINUX_DIR)/../hardware;
                 ln -sf $(AML_TVIN_DIR) $(LINUX_DIR)/../hardware/tvin)
