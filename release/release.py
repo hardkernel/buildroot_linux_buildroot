@@ -16,7 +16,11 @@ pkg = {
    '8192cu':'BR2_PACKAGE_RTK8192CU_GIT_REPO_URL',
    '8192du':'BR2_PACKAGE_RTK8192DU_GIT_REPO_URL',
    '8192eu':'BR2_PACKAGE_RTK8192EU_GIT_REPO_URL',
+   '8189es':'BR2_PACKAGE_RTK8189ES_GIT_REPO_URL',
+   '8723bs':'BR2_PACKAGE_RTK8723BS_GIT_REPO_URL',
+   '8723au':'BR2_PACKAGE_RTK8723AU_GIT_REPO_URL',
    'ap6xxx':'BR2_PACKAGE_BRCMAP6XXX_GIT_REPO_URL',
+   'usi':'BR2_PACKAGE_BRCMUSI_GIT_REPO_URL',
    'tvin':'BR2_PACKAGE_AML_TVIN_GIT_REPO_URL',
    'pmu':'BR2_PACKAGE_AML_PMU_GIT_REPO_URL',
    'nand':'BR2_PACKAGE_AML_NAND_GIT_URL',
@@ -33,7 +37,11 @@ repos = {
    '8192cu':'platform/hardware/wifi/realtek/drivers/8192cu', 
    '8192du':'platform/hardware/wifi/realtek/drivers/8192du', 
    '8192eu':'platform/hardware/wifi/realtek/drivers/8192eu', 
+   '8189es':'platform/hardware/wifi/realtek/drivers/8189es', 
+   '8723bs':'platform/hardware/wifi/realtek/drivers/8723bs', 
+   '8723au':'platform/hardware/wifi/realtek/drivers/8723au', 
    'ap6xxx':'platform/hardware/wifi/broadcom/drivers/ap6xxx', 
+   'usi':'platform/hardware/wifi/broadcom/drivers/usi', 
    'tvin':'linux/amlogic/tvin', 
    'pmu':'platform/hardware/amlogic/pmu', 
    'nand':'platform/hardware/amlogic/nand', 
@@ -49,7 +57,11 @@ branches = {
     '8192cu':'BR2_PACKAGE_RTK8192CU_GIT_VERSION', 
     '8192du':'BR2_PACKAGE_RTK8192DU_GIT_VERSION', 
     '8192eu':'BR2_PACKAGE_RTK8192EU_GIT_VERSION', 
+    '8189es':'BR2_PACKAGE_RTK8189ES_GIT_VERSION', 
+    '8723bs':'BR2_PACKAGE_RTK8723BS_GIT_VERSION', 
+    '8723au':'BR2_PACKAGE_RTK8723AU_GIT_VERSION', 
     'ap6xxx':'BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION', 
+    'usi':'BR2_PACKAGE_BRCMUSI_GIT_VERSION', 
     'tvin':'BR2_PACKAGE_AML_TVIN_GIT_VERSION',
     'pmu':'BR2_PACKAGE_AML_PMU_GIT_VERSION',
     'nand':'BR2_PACKAGE_AML_NAND_VERSION',
@@ -66,7 +78,11 @@ tar = {
    '8192cu':'rtk8192cu', 
    '8192du':'rtk8192du', 
    '8192eu':'rtk8192eu', 
+   '8189es':'rtk8189es', 
+   '8723bs':'rtk8723bs', 
+   '8723au':'rtk8723au', 
    'ap6xxx':'brcmap6xxx', 
+   'usi':'brcmusi', 
    'tvin':'aml_tvin', 
    'pmu':'aml_pmu', 
    'nand':'aml_nand', 
@@ -83,7 +99,11 @@ location = {
    '8192cu':'wifi', 
    '8192du':'wifi', 
    '8192eu':'wifi', 
+   '8189es':'wifi', 
+   '8723bs':'wifi', 
+   '8723au':'wifi', 
    'ap6xxx':'wifi', 
+   'usi':'wifi', 
    'tvin':'modules', 
    'pmu':'modules', 
    'nand':'modules', 
@@ -155,6 +175,8 @@ def create_cfg(config):
     for pkgline in open(config, 'r'):
         for i in pkg.keys():
             if pkg[i] in pkgline:
+                if pkgline[0] == '#': # ignore comments
+                    break
                 if tarball_cfg.has_key(i) != False:
                     cfg = tarball_cfg[i].split()
                     new_cfg = '%s=\"%s\"\n' % (cfg[0], base_url + location[i] + "/" + filename[i])
