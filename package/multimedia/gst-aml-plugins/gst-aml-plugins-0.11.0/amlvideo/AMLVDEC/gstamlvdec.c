@@ -292,7 +292,8 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
 
     if(NULL == buf){
         return -1;
-    }    
+    } 
+    set_ppscaler_enable("0");
 
     data = GST_BUFFER_DATA (buf);
     size = GST_BUFFER_SIZE (buf);
@@ -303,7 +304,7 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
         GST_DEBUG_OBJECT (amlvdec,"pts=%x\n",(unsigned long)pts);
         GST_DEBUG_OBJECT (amlvdec, "PTS to (%" G_GUINT64_FORMAT ") time: %"
             GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp)); 
-        
+
         if(codec_checkin_pts(pcodec,(unsigned long)pts) != 0)
             AML_DEBUG(amlvdec, "pts checkin flied maybe lose sync\n");  
     }
@@ -516,6 +517,7 @@ gst_amlvdec_sink_event (GstPad * pad, GstEvent * event)
                 }            
                 amlvdec->is_headerfeed = FALSE; 
             }
+            g_print("vformat:%d\n", amlvdec->pcodec->video_type);
             ret = gst_pad_push_event (amlvdec->srcpad, event);
             break;
         } 
@@ -640,6 +642,7 @@ gst_amlvdec_stop (GstAmlVdec *amlvdec)
     amlvdec->codec_init_ok=0;
     amlvdec->is_headerfeed=FALSE;
     set_display_axis(1);
+    set_ppscaler_enable("1");
     return TRUE;
 }
 

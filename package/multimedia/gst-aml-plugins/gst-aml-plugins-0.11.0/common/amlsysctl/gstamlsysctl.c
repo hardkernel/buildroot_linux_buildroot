@@ -80,6 +80,10 @@ int set_tsync_enable(int enable)
     return set_sysfs_int("/sys/class/tsync/enable", enable);
 
 }
+int set_ppscaler_enable(char *enable)
+{
+    return set_sysfs_str("/sys/class/ppmgr/ppscaler", enable);
+}
 int get_tsync_enable(void)
 {
     char buf[32];
