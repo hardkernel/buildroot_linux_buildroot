@@ -14,6 +14,7 @@ int get_sysfs_str(const char *path, char *valstr, int size);
 int set_sysfs_int(const char *path, int val);
 int get_sysfs_int(const char *path);
 int set_black_policy(int blackout);
+int set_ppscaler_enable(char *enable);
 int get_black_policy();
 int set_tsync_enable(int enable);
 int get_tsync_enable(void);
