@@ -277,7 +277,6 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
     guint8 *data = NULL;
     gint size = 0;
     GstClockTime timeout = 60000;
-    static gint32 i = 0;
 
     while(nRet == 0){
         nRet = codec_get_vbuf_state(pcodec, &vbuf);
