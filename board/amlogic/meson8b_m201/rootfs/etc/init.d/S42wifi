@@ -4,13 +4,11 @@ NAME=wpa_supplicant
 DAEMON=/usr/sbin/$NAME 
 PIDFILE=/var/run/$NAME.pid 
 POWERCTL=/usr/bin/wifi_power
-MODULE=8188eu
 MODULE2=dhd
 
 case "$1" in
     start)
         echo "Starting supplicant..."
-        modprobe $MODULE 
         modprobe $MODULE2
         $POWERCTL 1
         sleep 2
@@ -26,7 +24,6 @@ case "$1" in
         start-stop-daemon -K -o -p $PIDFILE
         sleep 2
         rm -f $PIDFILE 
-        rmmod $MODULE
         rmmod $MODULE2
         $POWERCTL 0
         ;;

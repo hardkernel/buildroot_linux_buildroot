@@ -5,13 +5,11 @@ DAEMON=/usr/sbin/$NAME
 PIDFILE=/var/run/$NAME.pid 
 POWERDEV=/dev/wifi_power
 POWERCTL=/usr/bin/wifi_power
-MODULE=8188eu
 MODULE2=dhd
 
 case "$1" in
     start)
         echo "Starting supplicant..."
-        modprobe $MODULE 
         modprobe $MODULE2
         if [ -c $POWERDEV ]; then
             $POWERCTL 1
@@ -28,7 +26,6 @@ case "$1" in
         echo -n "Stopping supplicant..."
         start-stop-daemon -K -o -p $PIDFILE
         rm -f $PIDFILE 
-        rmmod $MODULE
         rmmod $MODULE2
         if [ -c $POWERDEV ]; then
             $POWERCTL 0
