@@ -2,6 +2,8 @@
 #include "gstamlvdec.h"
 #include "amlvdec_prop.h"
 
+
+
 static void amlInstallPropTrickRate(GObjectClass *oclass,
     guint property_id)
 {
@@ -30,6 +32,14 @@ static void amlInstallPropSystemtimetoposition(GObjectClass *oclass,
 {    
 		GObjectClass *gobject_class = (GObjectClass *) oclass;    
 		g_object_class_install_property (gobject_class, property_id, g_param_spec_int64("position", NULL, NULL,0, G_MAXINT64, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+}
+
+static void amlInstallPropContentFrameRate(GObjectClass *oclass,
+    guint property_id)
+{
+    GObjectClass*gobject_class = (GObjectClass *) oclass;
+    g_object_class_install_property (gobject_class, property_id, g_param_spec_int("contentFrameRate", "ContentFrameRate", "",
+          0, 100, 30, G_PARAM_READWRITE));
 }
 
 static int amlGetPropTrickRate(GObject * object, guint prop_id,
@@ -81,6 +91,20 @@ static int amlGetPropSystemtimetoposition(GObject * object, guint prop_id,
 		g_value_set_int64 (value, position);	
 		return 0;
 }
+static int amlGetPropContentFrameRate(GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  GstAmlVdec *amlvdec = GST_AMLVDEC (object); 
+  struct vdec_status *vdecstatus = g_malloc0(sizeof(struct vdec_status));
+  if(NULL == vdecstatus) {
+    g_print("Can not malloc vdec_status\n");
+    return -1;
+  }
+  
+  codec_get_vdec_state(amlvdec->pcodec, vdecstatus);
+  g_value_set_int(value, vdecstatus->fps);
+}
+
 
 static int amlSetPropTrickRate(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
@@ -108,6 +132,7 @@ static const AmlPropType amlvdec_prop_pool[] = {
     {PROP_INTERLACED,   amlInstallPropInterlaced,         amlGetPropInterlaced,       NULL      },   
     {PROP_DEC_HDL,       amlInstallPropDecodeHandle,   amlGetPropDecodeHandle, amlSetPropDecodeHandle},
     {PROP_PCRTOSYSTEMTIME, amlInstallPropSystemtimetoposition, amlGetPropSystemtimetoposition, NULL},
+    {PROP_CONTENTFRAME, amlInstallPropContentFrameRate, amlGetPropContentFrameRate, NULL},
     {-1,                          NULL,                                         NULL,                                  NULL},
 };
 

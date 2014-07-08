@@ -1,4 +1,3 @@
-
 #include "gstamlvsink.h"
 #include "amlvsink_prop.h"
 #include "rectangleInfo.h"
@@ -111,15 +110,6 @@ static void amlInstallPropSlowModeRate(GObjectClass *oclass,
     g_object_class_install_property (gobject_class, property_id, g_param_spec_int ("slowModeRate", "SlowModeRate", "slow mode rate in normalised form",
           -20000, 20000, 0, G_PARAM_READWRITE));
 }
-
-static void amlInstallPropContentFrameRate(GObjectClass *oclass,
-    guint property_id)
-{
-    GObjectClass*gobject_class = (GObjectClass *) oclass;
-    g_object_class_install_property (gobject_class, property_id, g_param_spec_int ("contentFrameRate", "ContentFrameRate", "",
-          0, 100, 30, G_PARAM_READWRITE));
-}
-
 static void amlInstallPropStepFrame(GObjectClass *oclass,
     guint property_id)
 {
@@ -234,13 +224,6 @@ static int amlGetPropSlowModeRate(GObject * object, guint prop_id,
     //g_value_set_int (value, filter->slowModeRate);
     return 0;
 }
-static int amlGetPropContentFrameRate(GObject * object, guint prop_id,
-    const GValue * value, GParamSpec * pspec)
-{
-    GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    //g_value_set_int (value, filter->contentFrmRate);
-    return 0;
-}
 static int amlGetPropStepFrame(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -248,14 +231,6 @@ static int amlGetPropStepFrame(GObject * object, guint prop_id,
     //g_value_set_int (value, filter->stepFrm);
     return 0;
 }
-static int amlGetPropMute(GObject * object, guint prop_id,
-    const GValue * value, GParamSpec * pspec)
-{
-    GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    //g_value_set_int (value, filter->mute);
-    return 0;
-}
-
 static int amlSetPropSilent(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -325,13 +300,6 @@ static int amlSetPropSlowModeRate(GObject * object, guint prop_id,
     gint slowModeRate = g_value_get_int(value);
     return 0;
 }
-static int amlSetPropContentFrameRate(GObject * object, guint prop_id,
-    const GValue * value, GParamSpec * pspec)
-{
-    GstAmlVsink *amlsink = GST_AMLVSINK (object); 
-    gint contentFrmRate = g_value_get_int(value);
-    return 0;
-}
 static int amlSetPropStepFrame(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -359,7 +327,6 @@ static const AmlPropType amlvsink_prop_pool[] = {
     {PROP_CURT_PTS,           amlInstallPropCurrentPTS,               amlGetPropCurrentPTS,              NULL},
     {PROP_INTER_FRM_DELY, amlInstallPropInterFrameDelay,      amlGetPropInterFrameDelay,      amlSetPropInterFrameDelay},
     {PROP_SLOW_FRM_RATE, amlInstallPropSlowModeRate,          amlGetPropSlowModeRate,         amlSetPropSlowModeRate},
-    {PROP_CONT_FRM_RATE,  amlInstallPropContentFrameRate,   amlGetPropContentFrameRate,   NULL},
     {PROP_STEP_FRM,            amlInstallPropStepFrame,               amlGetPropStepFrame,                amlSetPropStepFrame},
     {PROP_MUTE,                   amlInstallPropMute,                        NULL,                                           amlSetPropMute},
     {-1,                                NULL,                                                NULL,                                           NULL},

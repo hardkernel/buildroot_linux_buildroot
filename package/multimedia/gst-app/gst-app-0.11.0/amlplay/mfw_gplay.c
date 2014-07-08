@@ -381,30 +381,23 @@ void print_help(fsl_player_handle handle)
     PRINT("\t[s]Stop\n");
 	  PRINT("\t[e]Seek\n");
     PRINT("\t[a]Pause when playing, play when paused\n");
-
     PRINT("\t[v]Volume\n");
     PRINT("\t[m]Switch to mute or not\n");
     PRINT("\t[>]Play next file\n");
     PRINT("\t[<]Play previous file\n");
     PRINT("\t[r]Switch to repeated mode or not\n");
-//    PRINT("\t[n]Get the current video snapshot while playing\n");
-//    PRINT("\t[o]Set video output mode(LCD,NTSC,PAL,LCD&NTSC,LCD&PAL)\n");
     PRINT("\t[d]Select the audio track\n");
-//    PRINT("\t[b]Select the subtitle\n");
-    //PRINT("\t[f]Set full screen or not\n");
-    //PRINT("\t[z]resize the width and height\n");
-    //PRINT("\t[t]Rotate\n");
     PRINT("\t[c]Setting play rate\n");
-
-//    PRINT("\t[c]playing direction and speed control\n");
-    PRINT("\t[P]Please input property name:\n");
-    PRINT("\t      [tvmode]      (Usage:[set] [0/1] | [get])              :change or get tvmode \n");
-    PRINT("\t      [rectangle]   (Usage:[set] [x,y,width,height] | [get]) : resize the width and height \n");
-    PRINT("\t      [currentPTS]  get currentPTS\n");
-    PRINT("\t      [pmt-info]    get pmt infomation\n");
-    
     PRINT("\t[i]Display the metadata\n");
     PRINT("\t[x]eXit\n");
+    PRINT("\t[P]Please input property name:\n");
+    PRINT("\t------->[tvmode]      (Usage:[set] [0-5] | [get])              :change or get tvmode \n");
+    PRINT("\t------->[rectangle]   (Usage:[set] [x,y,width,height] | [get]) :resize the width and height \n");
+    PRINT("\t------->[mute]        (Usage:[set] [0|1]                       :enable or not displaying video)\n");
+    PRINT("\t------->[currentPTS]         :get currentPTS\n");
+    PRINT("\t------->[pmt-info]           :get pmt infomation\n");
+    PRINT("\t------->[contentFrameRate]   :get content frame rate\n");
+    PRINT("\t------->[flushRepeatFrame]   (Usage:[set] [0|1] | [get]):Keep displaying the last frame rather than a black one whilst flushing\n");
 }
 
 void print_metadata(fsl_player_handle handle)
@@ -922,13 +915,11 @@ int main(int argc,char *argv[])
                 }
                 gbdisplay = FSL_PLAYER_TRUE;
                 kb_set_raw_term(STDIN_FILENO);
-                //pplayer->klass->repeat(pplayer);
                 break;
             }
 
             case 'd': // Select the audio track
             {
-                #if 1
                 fsl_player_s32 audio_track_no = 0;
                 fsl_player_s32 total_audio_no = 0;
                 pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_TOTAL_AUDIO_NO, (void*)(&total_audio_no));
@@ -946,13 +937,11 @@ int main(int argc,char *argv[])
                 }
                 gbdisplay = FSL_PLAYER_TRUE;
                 kb_set_raw_term(STDIN_FILENO);
-                #endif
                 break;
             }
 
             case 'b': // Select the subtitle
             {
-                #if 1
                 fsl_player_s32 subtitle_no = 0;
                 fsl_player_s32 total_subtitle_no = 0;
                 pplayer->klass->get_property(pplayer, FSL_PLAYER_PROPERTY_TOTAL_SUBTITLE_NO, (void*)(&total_subtitle_no));
@@ -970,101 +959,9 @@ int main(int argc,char *argv[])
                 }
                 gbdisplay = FSL_PLAYER_TRUE;
                 kb_set_raw_term(STDIN_FILENO);
-                #endif
                 break;
             }
-#if 0
-            case 'f': // Set full screen or not
-                pplayer->klass->full_screen(pplayer);
-                break;
 
-
-            case 'y': // Set display screen mode
-            {
-                fsl_player_s32 display_screen_mode = 0;
-                PRINT("Input screen mode[Normal:0,FullScreen:1,Zoom:2]:");
-                kb_restore_term(STDIN_FILENO);
-                gbdisplay = FSL_PLAYER_FALSE;
-                scanf("%d",&display_screen_mode);
-                gbdisplay = FSL_PLAYER_TRUE;
-                kb_set_raw_term(STDIN_FILENO);
-                if( display_screen_mode < 0 || display_screen_mode > 2 )
-                {
-                    printf("Invalid display screen mode!\n");
-                    break;
-                }
-                pplayer->klass->display_screen_mode(pplayer, display_screen_mode);
-                break;
-            }
-#endif
-
-
-            #if 0
-            case 'z': // resize the width and height
-            {
-            #if 0
-                fsl_player_display_parameter display_parameter;
-                fsl_player_s32 width = 720;
-                fsl_player_s32 height = 576;
-                static fsl_player_s32 resize_index = 0;
-                static float width_height_table[] = {0.25, 0.5, 0.75, 1, 2, 3, 4};
-                static fsl_player_s32 offset_x_y_table[] = {600, 500, 400, 300, 200, 100, 0};
-                if ((++resize_index)==6)
-                    resize_index = 0;
-                display_parameter.offsetx = 0;//offset_x_y_table[resize_index];
-                display_parameter.offsety = 0;//offset_x_y_table[resize_index];
-                display_parameter.disp_width = width_height_table[resize_index]*width;
-                display_parameter.disp_height = width_height_table[resize_index]*height;
-                pplayer->klass->resize(pplayer, display_parameter);
-                break;
-            #else
-                fsl_player_display_parameter display_parameter;
-                fsl_player_s8 sCommand_x[128];
-                fsl_player_s8 sCommand_y[128];
-                fsl_player_s8 sCommand_width[128];
-                fsl_player_s8 sCommand_height[128];
-                PRINT("Input [x,y,width,height]:");
-                kb_restore_term(STDIN_FILENO);
-                gbdisplay = FSL_PLAYER_FALSE;
-                scanf("%s %s %s %s",sCommand_x,sCommand_y,sCommand_width,sCommand_height);
-                gbdisplay = FSL_PLAYER_TRUE;
-                kb_set_raw_term(STDIN_FILENO);
-                display_parameter.offsetx = atoi(sCommand_x);//offset_x_y_table[resize_index];
-                display_parameter.offsety = atoi(sCommand_y);//offset_x_y_table[resize_index];
-                display_parameter.disp_width = atoi(sCommand_width);
-                display_parameter.disp_height = atoi(sCommand_height);
-                if( display_parameter.offsetx < 0 || display_parameter.offsety < 0
-                    || display_parameter.disp_width <= 0 || display_parameter.disp_height <= 0 )
-                {
-                    printf("Invalid resize parameters!\n");
-                    break;
-                }
-                pplayer->klass->resize(pplayer, display_parameter);
-                break;
-            #endif
-            }
-            #endif
-#if 0
-            case 't': // Rotate 90 degree every time
-            {
-                fsl_player_rotation rotate_value;
-                PRINT("Set rotation between 0, 90, 180, 270: ");
-                kb_restore_term(STDIN_FILENO);
-                gbdisplay = FSL_PLAYER_FALSE;
-                scanf("%s",sCommand);
-                gbdisplay = FSL_PLAYER_TRUE;
-                kb_set_raw_term(STDIN_FILENO);
-                rotate_value = (fsl_player_rotation)atoi(sCommand);
-                if( (fsl_player_s32)rotate_value != 0  && (fsl_player_s32)rotate_value != 90 &&  (fsl_player_s32)rotate_value != 180 
-                &&   (fsl_player_s32)rotate_value != 270 )
-                {
-                    printf("Invalid rotation value=%d, rotation value should be between [0, 90, 180, 270]\n", rotate_value);
-                    break;
-                }
-                pplayer->klass->rotate(player_handle, rotate_value);
-                break;
-            }
-#endif
             case 'c': // playing direction and speed Control.
             {
                 double playback_rate;
@@ -1086,37 +983,22 @@ int main(int argc,char *argv[])
 
             case 'x': // eXit
             {
-                //pplayer->klass->stop(pplayer);
-                //pplayer->klass->exit_message_loop(pplayer); // flush all messages left in the message queue.
-                //pplayer->klass->send_message_exit(pplayer); // send a exit message.
-                //gbexit_main = FSL_PLAYER_TRUE;
                 pplayer->klass->send_message_exit(pplayer);
                 player_exit(pplayer);
                 break;
             }
-#if 0
-            case '*': // Sleep 5 seconds
-            {
-                FSL_PLAYER_SLEEP(5000);
-                break;
-            }
-
-            case '#': // Sleep 10 seconds
-            {
-                FSL_PLAYER_SLEEP(10000);
-                break;
-            }
-#endif
+            
             case 'P': //Property
             {
                 char prop_name[64] = {0};
+                gbdisplay = FSL_PLAYER_FALSE;
                 PRINT("Please input property name:");
                 scanf("%s",prop_name);
                 prop_name[63] = '\0';
                 if(FSL_PLAYER_SUCCESS != pplayer->klass->property(pplayer, prop_name)){
                     PRINT("Invalid property parameter\n");
                 }
-                
+                gbdisplay = FSL_PLAYER_TRUE;
                 break;
             }
             

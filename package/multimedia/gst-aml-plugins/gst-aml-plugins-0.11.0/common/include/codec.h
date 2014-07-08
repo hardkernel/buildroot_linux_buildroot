@@ -105,7 +105,6 @@ int codec_set_audio_resample_ena(codec_para_t *pcodec, unsigned long mode);
 int codec_get_audio_resample_ena(codec_para_t *pcodec);
 int codec_set_audio_resample_type(codec_para_t *pcodec, unsigned long type);
 
-
 int codec_set_video_delay_limited_ms(codec_para_t *pcodec,int delay_ms);
 int codec_get_video_delay_limited_ms(codec_para_t *pcodec,int *delay_ms);
 int codec_set_audio_delay_limited_ms(codec_para_t *pcodec,int delay_ms);

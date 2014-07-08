@@ -127,6 +127,7 @@ fsl_player_ret_val fsl_player_post_eos_semaphore(fsl_player_handle handle);
 
 fsl_player_ret_val fsl_player_property_process(fsl_player_handle handle, char *prop_name);
 GstElement * getAudioDecElement(fsl_player_property* pproperty ,fsl_player_s32 i);
+static gint64 getcurpos(fsl_player_property* pproperty);
 
 static fsl_player_bool poll_for_state_change(GstState sRecState, GstElement * elem, fsl_player_u32 timeout)
 {
@@ -534,31 +535,19 @@ fsl_player_ret_val fsl_player_class_init (fsl_player_class * klass)
     klass->set_media_location = &fsl_player_set_media_location;
     klass->play = &fsl_player_play;
     klass->pause = &fsl_player_pause;
-    //klass->resume = &fsl_player_pause;
     klass->stop = &fsl_player_stop;
     klass->seek = &fsl_player_seek;
     klass->set_playback_rate = &fsl_player_set_playback_rate;
-
     klass->set_volume = &fsl_player_set_volume;
     klass->mute = &fsl_player_mute;
-    //klass->snapshot = &fsl_player_snapshot;
-    //klass->set_video_output = &fsl_player_set_video_output;
     klass->select_audio_track = &fsl_player_select_audio_track;
     klass->select_subtitle = &fsl_player_select_subtitle;
-    //klass->full_screen = &fsl_player_full_screen;
-    //klass->display_screen_mode = &fsl_player_display_screen_mode;
-    //klass->resize = &fsl_player_resize;
-    //klass->rotate = &fsl_player_rotate;
-
     klass->get_property = &fsl_player_get_property;
     klass->set_property = &fsl_player_set_property;
-
     klass->wait_message = &fsl_player_wait_message;
     klass->send_message_exit = &fsl_player_send_message_exit;
     klass->exit_message_loop = &fsl_player_exit_message_loop;
-
     klass->post_eos_semaphore = &fsl_player_post_eos_semaphore;
-    
     klass->property = &fsl_player_property_process;
         
     return FSL_PLAYER_SUCCESS;
@@ -1194,6 +1183,7 @@ fsl_player_ret_val fsl_player_set_playback_rate(fsl_player_handle handle, double
         fsl_player_pause(pplayer);
     }
     do {
+        #if 0
         gint64 current_position;
         GstQuery* query;
         gboolean res;
@@ -1208,6 +1198,14 @@ fsl_player_ret_val fsl_player_set_playback_rate(fsl_player_handle handle, double
         else
         {
             g_print ("current_postion query failed...\n");
+        }
+        #endif
+        gint64 current_position;
+        GstElement* element;
+        current_position = getcurpos(pproperty);
+        element = gst_bin_get_by_name(GST_BIN(pproperty->playbin), "flutsdemux0");
+        if(NULL != element) {
+          g_object_set (element, "duration", pproperty->duration, NULL);
         }
 
         if( playback_rate >= 0.0 )
@@ -1588,7 +1586,7 @@ fsl_player_prop_currentposition(fsl_player_property* pproperty)
 		pproperty->bchoose= TRUE;
 	}
 	g_object_get(element, "position", &currentposition, NULL);
-
+  /* Nanosecond*/
 	return currentposition;
 }
 
@@ -2476,6 +2474,24 @@ static int fsl_player_prop_currentPTS(fsl_player_handle handle)
 
     return 0;
 }
+static int fsl_player_prop_contentframerate(fsl_player_handle handle)
+{
+    fsl_player* pplayer = (fsl_player*)handle;
+    fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
+    static GstElement* element = NULL;
+    gint32 videonum = 0;
+    gint32 fps;
+    g_object_get(pproperty->playbin, "current-video", &videonum, NULL);
+    element = getVideoDecElement(pproperty, videonum);
+    if(NULL == element) {
+	FSL_PLAYER_PRINT("%s(): Can not find element to get current position\n", __FUNCTION__); 
+	return -1;
+    }
+
+    g_object_get(element, "contentFrameRate", &fps, NULL);
+    printf("content framerate:%dfps\n", fps);
+    return 0;
+}
 
 static int fsl_player_prop_flushRepeatFrame(fsl_player_handle handle)
 {
@@ -2483,13 +2499,11 @@ static int fsl_player_prop_flushRepeatFrame(fsl_player_handle handle)
     fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
     GstElement* auto_video_sink = NULL;
     GstElement* actual_video_sink = NULL;
-    GstElement * element = NULL;
     GValue value = {0,};
     gboolean isRepeatFrame = FALSE;
     fsl_player_bool bset = FALSE;
     
     bset = fsl_player_prop_options();
-    
     g_object_get(pproperty->playbin, "video-sink", &auto_video_sink, NULL);
     if( NULL == auto_video_sink )
     {
@@ -2507,11 +2521,11 @@ static int fsl_player_prop_flushRepeatFrame(fsl_player_handle handle)
         FSL_PLAYER_PRINT("Input flushRepeatFrame flag:");
         scanf("%d", &isRepeatFrame);
         g_value_set_boolean (&value, isRepeatFrame);
-        g_object_set_property(G_OBJECT(element), "flush-repeat-frame", &value);
+        g_object_set_property(G_OBJECT(actual_video_sink), "flushRepeatFrame", &value);
     }
     else{
         char *flag = "TRUE";
-        g_object_get_property(G_OBJECT(actual_video_sink), "flush-repeat-frame", &value);
+        g_object_get_property(G_OBJECT(actual_video_sink), "flushRepeatFrame", &value);
         isRepeatFrame = g_value_get_boolean (&value);
         flag = isRepeatFrame ? "TRUE" : "FALSE";
         FSL_PLAYER_PRINT("RepeatFrame is:%s\n", flag);
@@ -2750,7 +2764,7 @@ static int fsl_player_prop_tvmode(fsl_player_handle handle)
         const char *wide_str[] = {"normal", "full stretch", "4-3", "16-9", "non-linear", "normal-noscaleup"};
         g_object_get_property(G_OBJECT(actual_video_sink), "tvmode", &value);
         mode = g_value_get_uint (&value);
-        if(mode < sizeof(wide_str) && mode >= 0){
+        if(mode < sizeof(wide_str) / sizeof(wide_str[0]) && mode >= 0){
             FSL_PLAYER_PRINT("current TV Mode is:%d:%s\n", mode, wide_str[mode]);
         }
         else{
@@ -2796,16 +2810,16 @@ static int fsl_player_prop_video_mute(fsl_player_handle handle)
     return 0;
 }
 
-
 static const PropType property_pool[] = {
     {"trickrate", fsl_player_prop_trickrate},
     {"interlaced", fsl_player_prop_interlaced},
     {"currentPTS", fsl_player_prop_currentPTS},
-    {"flush-repeat-frame", fsl_player_prop_flushRepeatFrame},
+    {"flushRepeatFrame", fsl_player_prop_flushRepeatFrame},
     {"rectangle", fsl_player_prop_rectangle_info},
     {"tvmode", fsl_player_prop_tvmode},
     {"mute", fsl_player_prop_video_mute},
     {"pmt-info", fsl_player_prop_pmt_info},
+    {"contentFrameRate", fsl_player_prop_contentframerate},
     {NULL, NULL},
 };
 

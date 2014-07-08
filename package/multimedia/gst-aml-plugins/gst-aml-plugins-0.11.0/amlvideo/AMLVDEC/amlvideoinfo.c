@@ -283,10 +283,10 @@ gint amlInitMpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struc
         case 4:
             pcodec->video_type = VFORMAT_MPEG4;
             pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_5;
-            amlVideoInfoInit(info, pcodec, structure);
             break;
         default:break;
     }
+    amlVideoInfoInit(info, pcodec, structure);
     return 0;
 }
 

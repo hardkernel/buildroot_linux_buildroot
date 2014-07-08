@@ -124,6 +124,7 @@
 /*add for gstreamer fast/slow forward*/
 #define AMSTREAM_IOC_SET_PLAYRATE    _IOW(AMSTREAM_IOC_MAGIC, 0xb0, unsigned long)
 
+
 #define AMAUDIO_IOC_MAGIC  'A'
 #define AMAUDIO_IOC_SET_RESAMPLE_ENA        _IOW(AMAUDIO_IOC_MAGIC, 0x19, unsigned long)
 #define AMAUDIO_IOC_GET_RESAMPLE_ENA        _IOR(AMAUDIO_IOC_MAGIC, 0x1a, unsigned long)
@@ -132,7 +133,6 @@
 
 #define AMSTREAM_IOC_SET_DRMMODE _IOW(AMSTREAM_IOC_MAGIC, 0x91, unsigned long)
 #define AMSTREAM_IOC_GET_SCR_STATE _IOR(AMSTREAM_IOC_MAGIC, 0x92, unsigned long)
-
 struct buf_status {
     int size;
     int data_len;
@@ -175,6 +175,5 @@ struct am_io_param {
 };
 void set_vdec_func(int (*vdec_func)(struct vdec_status *));
 void set_adec_func(int (*adec_func)(struct adec_status *));
-
 #endif /* AMSTREAM_H */
 
