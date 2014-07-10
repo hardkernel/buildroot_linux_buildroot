@@ -1,13 +1,14 @@
 CROSS=$(CC:%gcc=%)
 
-esplayer_s=esplayer.c
+testplay_s=testplay.c
 
 INSTALL_FLAGS=-m 755
 
-TARGET=esplayer
+TARGET=testplay
 
 LDFLAGS= -L$(STAGING_DIR)/usr/lib/aml_libs -lamcodec -ldl -lamadec -lasound -lamavutils
-CFLAGS+= -I${BUILD_DIR}/../amcodec/include -I${BUILD_DIR}/../amadec/include 
+#CFLAGS+= -I${BUILD_DIR}/../amcodec/include -I${BUILD_DIR}/../amadec/include -pthread
+CFLAGS+= -I$(shell pwd)/../amcodec/include -I$(shell pwd)/../amadec/include  -I$(shell pwd) -pthread
 CFLAGS+=-O2 -g
 
 #ifeq ($(BR2_TARGET_BOARD_PLATFORM),meson6)
@@ -31,5 +32,5 @@ distclean:clean
 clean:
 	rm $(TARGET_DIR)/bin/$(TARGET)
 
-${TARGET}:esplayer.o
+${TARGET}:testplay.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $($(@:%=%_s)) -o $@
