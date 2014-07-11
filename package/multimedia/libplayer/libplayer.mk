@@ -13,9 +13,28 @@ LIBPLAYER_DEPENDENCIES = zlib alsa-lib
 export LIBPLAYER_STAGING_DIR = $(STAGING_DIR)
 export LIBPLAYER_TARGET_DIR = $(TARGET_DIR)
 
-define LIBPLAYER_CONFIGURE_CMDS
-	cd $(@D)/amffmpeg; $(TARGET_MAKE_ENV) ./configure --disable-yasm --disable-ffplay --cross-prefix=$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)- --enable-cross-compile --target-os=linux --arch=arm
-endef
+#define LIBPLAYER_CONFIGURE_CMDS
+#		cd $(@D)/amffmpeg; \
+#		$(TARGET_MAKE_ENV) \
+#		./configure \
+#		--prefix=$(STAGING_DIR)/usr \
+#		--shlibdir=$(STAGING_DIR)/usr/lib/libplayer \
+#		--disable-yasm \
+#		--enable-debug \
+#		--disable-ffplay \
+#		--disable-ffmpeg \
+#		--cross-prefix=$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)- \
+#		--enable-cross-compile \
+#		--target-os=linux \
+#		--arch=arm \
+#		--disable-librtmp \
+#		--disable-static \
+#		--enable-shared \
+#		--disable-ffserver \
+#		--disable-doc \
+#		--cpu=$(BR2_GCC_TARGET_CPU) \
+#		--extra-ldflags='-L$(STAGING_DIR)/usr/lib/libplayer -lamavutils -ldl'
+#endef
 
 define LIBPLAYER_BUILD_CMDS
 	$(MAKE) CC=$(TARGET_CC) -C $(@D) all
