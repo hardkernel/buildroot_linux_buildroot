@@ -1,0 +1,27 @@
+var class_mali_s_d_k_1_1_matrix =
+[
+    [ "Matrix", "class_mali_s_d_k_1_1_matrix.html#a8c612757ab5cb00a1115064c74ae3da0", null ],
+    [ "Matrix", "class_mali_s_d_k_1_1_matrix.html#ac26b5704b81a344ecd019569c9f46161", null ],
+    [ "createRotationX", "class_mali_s_d_k_1_1_matrix.html#ada39fc1d2925cda265cb448271dc4c36", null ],
+    [ "createRotationY", "class_mali_s_d_k_1_1_matrix.html#a10a712510ff6ee2c7134379dc4526d72", null ],
+    [ "createRotationZ", "class_mali_s_d_k_1_1_matrix.html#af1620b4f58cdf076c2ca46a25d5ca233", null ],
+    [ "createScaling", "class_mali_s_d_k_1_1_matrix.html#acb37e6393cd0dec73aac34a7fc246e8f", null ],
+    [ "createTranslation", "class_mali_s_d_k_1_1_matrix.html#a76c9eeb0292b9a1ff8b54dc5a6eb4fa0", null ],
+    [ "degreesToRadians", "class_mali_s_d_k_1_1_matrix.html#a2ebb1059899b3751eec09c1b20eceb76", null ],
+    [ "getAsArray", "class_mali_s_d_k_1_1_matrix.html#a74dfafc0b289498a42f86d27d8de9b7b", null ],
+    [ "matrixDeterminant", "class_mali_s_d_k_1_1_matrix.html#aeb3d7e65f6c502d77fa4ae7729116c34", null ],
+    [ "matrixDeterminant", "class_mali_s_d_k_1_1_matrix.html#a757a4ae434776cad815fe6331efa2177", null ],
+    [ "matrixInvert", "class_mali_s_d_k_1_1_matrix.html#a5d7608087e4e5e3f32cf606f089365f8", null ],
+    [ "matrixOrthographic", "class_mali_s_d_k_1_1_matrix.html#a2dcb435ecd2fdf7cff9b9d27d149f2e9", null ],
+    [ "matrixPerspective", "class_mali_s_d_k_1_1_matrix.html#acb29d4e537943a2a369a966d08e20e47", null ],
+    [ "matrixScale", "class_mali_s_d_k_1_1_matrix.html#ac71d16a443d6ce07edb9ab2f13b2180f", null ],
+    [ "matrixTranspose", "class_mali_s_d_k_1_1_matrix.html#ae4db8b1e14831fb7f5f6e2939547aabc", null ],
+    [ "multiply", "class_mali_s_d_k_1_1_matrix.html#a200c37913ff186caf135135083db7bdf", null ],
+    [ "operator*", "class_mali_s_d_k_1_1_matrix.html#a27627d1a5f943bc93cbd9fcdd045d8cc", null ],
+    [ "operator[]", "class_mali_s_d_k_1_1_matrix.html#a5ed11a05a8cfcfee6257e4432bb447bd", null ],
+    [ "print", "class_mali_s_d_k_1_1_matrix.html#a734ac9013ada81454da5850588727234", null ],
+    [ "vertexTransform", "class_mali_s_d_k_1_1_matrix.html#a2400ea18a34624cab69947d8d8adbc27", null ],
+    [ "vertexTransform", "class_mali_s_d_k_1_1_matrix.html#aec2e5ecebb952de1b13952e08d03e831", null ],
+    [ "elements", "class_mali_s_d_k_1_1_matrix.html#a9cffe9171ef45fb938461347e9a2efec", null ],
+    [ "identityMatrix", "class_mali_s_d_k_1_1_matrix.html#ad83c51552124449f4d4fcdd858217a01", null ]
+];

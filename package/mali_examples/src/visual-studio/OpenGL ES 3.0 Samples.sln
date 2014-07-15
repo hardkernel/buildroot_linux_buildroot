@@ -1,0 +1,64 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple-framework", "..\simple-framework\simple-framework OpenGL ES 3.0.vcproj", "{0D91D92D-2518-471E-9DED-CB75B94ED896}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Boids", "..\samples\OpenGL-ES-3.0\linux\Boids\Boids.vcproj", "{453988FE-92EC-4B15-A1ED-CB0A0FC68B5F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ETC2TextureDemo", "..\samples\OpenGL-ES-3.0\linux\ETC2TextureDemo\ETC2TextureDemo.vcproj", "{2FF8BDCC-5220-4A73-A869-0CA5E59688F8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IntegerLogic", "..\samples\OpenGL-ES-3.0\linux\IntegerLogic\IntegerLogic.vcproj", "{264FE6DE-B88D-4CB5-9A0A-31A1CD2A54B0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InstancedTesselation", "..\samples\OpenGL-ES-3.0\linux\InstancedTesselation\InstancedTesselation.vcproj", "{74C8FA0D-392E-49C3-8D2C-C74352930DFB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Instancing", "..\samples\OpenGL-ES-3.0\linux\Instancing\Instancing.vcproj", "{F7B66F40-1E1F-4952-B5C0-0E0DBDDDD243}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{453988FE-92EC-4B15-A1ED-CB0A0FC68B5F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{453988FE-92EC-4B15-A1ED-CB0A0FC68B5F}.Debug|Win32.Build.0 = Debug|Win32
+		{453988FE-92EC-4B15-A1ED-CB0A0FC68B5F}.Release|Win32.ActiveCfg = Release|Win32
+		{453988FE-92EC-4B15-A1ED-CB0A0FC68B5F}.Release|Win32.Build.0 = Release|Win32
+		{2FF8BDCC-5220-4A73-A869-0CA5E59688F8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2FF8BDCC-5220-4A73-A869-0CA5E59688F8}.Debug|Win32.Build.0 = Debug|Win32
+		{2FF8BDCC-5220-4A73-A869-0CA5E59688F8}.Release|Win32.ActiveCfg = Release|Win32
+		{2FF8BDCC-5220-4A73-A869-0CA5E59688F8}.Release|Win32.Build.0 = Release|Win32
+		{264FE6DE-B88D-4CB5-9A0A-31A1CD2A54B0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{264FE6DE-B88D-4CB5-9A0A-31A1CD2A54B0}.Debug|Win32.Build.0 = Debug|Win32
+		{264FE6DE-B88D-4CB5-9A0A-31A1CD2A54B0}.Release|Win32.ActiveCfg = Release|Win32
+		{264FE6DE-B88D-4CB5-9A0A-31A1CD2A54B0}.Release|Win32.Build.0 = Release|Win32
+		{74C8FA0D-392E-49C3-8D2C-C74352930DFB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{74C8FA0D-392E-49C3-8D2C-C74352930DFB}.Debug|Win32.Build.0 = Debug|Win32
+		{74C8FA0D-392E-49C3-8D2C-C74352930DFB}.Release|Win32.ActiveCfg = Release|Win32
+		{74C8FA0D-392E-49C3-8D2C-C74352930DFB}.Release|Win32.Build.0 = Release|Win32
+		{F7B66F40-1E1F-4952-B5C0-0E0DBDDDD243}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F7B66F40-1E1F-4952-B5C0-0E0DBDDDD243}.Debug|Win32.Build.0 = Debug|Win32
+		{F7B66F40-1E1F-4952-B5C0-0E0DBDDDD243}.Release|Win32.ActiveCfg = Release|Win32
+		{F7B66F40-1E1F-4952-B5C0-0E0DBDDDD243}.Release|Win32.Build.0 = Release|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Debug|Win32.Build.0 = Debug|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Release|Win32.ActiveCfg = Release|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
