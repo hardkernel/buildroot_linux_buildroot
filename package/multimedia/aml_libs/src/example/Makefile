@@ -1,10 +1,10 @@
 CROSS=$(CC:%gcc=%)
 
-testplay_s=testplay.c
+esplayer_s=esplayer.c
 
 INSTALL_FLAGS=-m 755
 
-TARGET=testplay
+TARGET=esplayer
 
 LDFLAGS= -L$(STAGING_DIR)/usr/lib/aml_libs -lamcodec -ldl -lamadec -lasound -lamavutils
 #CFLAGS+= -I${BUILD_DIR}/../amcodec/include -I${BUILD_DIR}/../amadec/include -pthread
@@ -32,5 +32,5 @@ distclean:clean
 clean:
 	rm $(TARGET_DIR)/bin/$(TARGET)
 
-${TARGET}:testplay.o
+${TARGET}:esplayer.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $($(@:%=%_s)) -o $@
