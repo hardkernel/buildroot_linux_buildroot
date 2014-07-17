@@ -1,0 +1,127 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple-framework", "..\simple-framework\simple-framework OpenGL ES 2.0.vcproj", "{0D91D92D-2518-471E-9DED-CB75B94ED896}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Triangle", "..\samples\OpenGL-ES-2.0\linux\Triangle\Triangle.vcproj", "{D0A41657-E4E2-4530-ACD6-192F84A2C677}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Template", "..\samples\OpenGL-ES-2.0\linux\Template\Template.vcproj", "{D21B6AA6-91A2-4534-9665-E8B5A90BD124}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RotoZoom", "..\samples\OpenGL-ES-2.0\linux\RotoZoom\RotoZoom.vcproj", "{621DFEE7-1B25-4922-BDD2-DB93768818B3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ListEGLConfigs", "..\samples\OpenGL-ES-2.0\linux\ListEGLConfigs\ListEGLConfigs.vcproj", "{84C16D33-0DC2-4231-9EB3-D646FD494D2A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameBufferObject", "..\samples\OpenGL-ES-2.0\linux\FrameBufferObject\FrameBufferObject.vcproj", "{2AA51B9C-F9C0-4775-9998-DF0D61D71062}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ETCUncompressedAlpha", "..\samples\OpenGL-ES-2.0\linux\ETCUncompressedAlpha\ETCUncompressedAlpha.vcproj", "{7AE785F5-09EA-480D-88FF-5241C17C8FDB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ETCMipmap", "..\samples\OpenGL-ES-2.0\linux\ETCMipmap\ETCMipmap.vcproj", "{60C853D2-A1D0-4221-BD95-E88E38292E08}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ETCCompressedAlpha", "..\samples\OpenGL-ES-2.0\linux\ETCCompressedAlpha\ETCCompressedAlpha.vcproj", "{B0652B48-CA12-4661-AD04-295F42959E09}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ETCAtlasAlpha", "..\samples\OpenGL-ES-2.0\linux\ETCAtlasAlpha\ETCAtlasAlpha.vcproj", "{35B2B11C-A693-4F39-A9D7-EC4DDD38379C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EGLPreserve", "..\samples\OpenGL-ES-2.0\linux\EGLPreserve\EGLPreserve.vcproj", "{AB1A3327-2BFA-4A97-B1E8-C498F8A35811}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiAlias", "..\samples\OpenGL-ES-2.0\linux\AntiAlias\AntiAlias.vcproj", "{A97B48AC-AF0D-440F-BF6A-9BE1807CC259}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cube", "..\samples\OpenGL-ES-2.0\linux\Cube\cube.vcproj", "{2AA71849-B0DF-48A5-9CFC-EF231C95C003}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D91D92D-2518-471E-9DED-CB75B94ED896} = {0D91D92D-2518-471E-9DED-CB75B94ED896}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Debug|Win32.Build.0 = Debug|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Release|Win32.ActiveCfg = Release|Win32
+		{0D91D92D-2518-471E-9DED-CB75B94ED896}.Release|Win32.Build.0 = Release|Win32
+		{D0A41657-E4E2-4530-ACD6-192F84A2C677}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D0A41657-E4E2-4530-ACD6-192F84A2C677}.Debug|Win32.Build.0 = Debug|Win32
+		{D0A41657-E4E2-4530-ACD6-192F84A2C677}.Release|Win32.ActiveCfg = Release|Win32
+		{D0A41657-E4E2-4530-ACD6-192F84A2C677}.Release|Win32.Build.0 = Release|Win32
+		{D21B6AA6-91A2-4534-9665-E8B5A90BD124}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D21B6AA6-91A2-4534-9665-E8B5A90BD124}.Debug|Win32.Build.0 = Debug|Win32
+		{D21B6AA6-91A2-4534-9665-E8B5A90BD124}.Release|Win32.ActiveCfg = Release|Win32
+		{D21B6AA6-91A2-4534-9665-E8B5A90BD124}.Release|Win32.Build.0 = Release|Win32
+		{621DFEE7-1B25-4922-BDD2-DB93768818B3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{621DFEE7-1B25-4922-BDD2-DB93768818B3}.Debug|Win32.Build.0 = Debug|Win32
+		{621DFEE7-1B25-4922-BDD2-DB93768818B3}.Release|Win32.ActiveCfg = Release|Win32
+		{621DFEE7-1B25-4922-BDD2-DB93768818B3}.Release|Win32.Build.0 = Release|Win32
+		{84C16D33-0DC2-4231-9EB3-D646FD494D2A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{84C16D33-0DC2-4231-9EB3-D646FD494D2A}.Debug|Win32.Build.0 = Debug|Win32
+		{84C16D33-0DC2-4231-9EB3-D646FD494D2A}.Release|Win32.ActiveCfg = Release|Win32
+		{84C16D33-0DC2-4231-9EB3-D646FD494D2A}.Release|Win32.Build.0 = Release|Win32
+		{2AA51B9C-F9C0-4775-9998-DF0D61D71062}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2AA51B9C-F9C0-4775-9998-DF0D61D71062}.Debug|Win32.Build.0 = Debug|Win32
+		{2AA51B9C-F9C0-4775-9998-DF0D61D71062}.Release|Win32.ActiveCfg = Release|Win32
+		{2AA51B9C-F9C0-4775-9998-DF0D61D71062}.Release|Win32.Build.0 = Release|Win32
+		{7AE785F5-09EA-480D-88FF-5241C17C8FDB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7AE785F5-09EA-480D-88FF-5241C17C8FDB}.Debug|Win32.Build.0 = Debug|Win32
+		{7AE785F5-09EA-480D-88FF-5241C17C8FDB}.Release|Win32.ActiveCfg = Release|Win32
+		{7AE785F5-09EA-480D-88FF-5241C17C8FDB}.Release|Win32.Build.0 = Release|Win32
+		{60C853D2-A1D0-4221-BD95-E88E38292E08}.Debug|Win32.ActiveCfg = Debug|Win32
+		{60C853D2-A1D0-4221-BD95-E88E38292E08}.Debug|Win32.Build.0 = Debug|Win32
+		{60C853D2-A1D0-4221-BD95-E88E38292E08}.Release|Win32.ActiveCfg = Release|Win32
+		{60C853D2-A1D0-4221-BD95-E88E38292E08}.Release|Win32.Build.0 = Release|Win32
+		{B0652B48-CA12-4661-AD04-295F42959E09}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B0652B48-CA12-4661-AD04-295F42959E09}.Debug|Win32.Build.0 = Debug|Win32
+		{B0652B48-CA12-4661-AD04-295F42959E09}.Release|Win32.ActiveCfg = Release|Win32
+		{B0652B48-CA12-4661-AD04-295F42959E09}.Release|Win32.Build.0 = Release|Win32
+		{35B2B11C-A693-4F39-A9D7-EC4DDD38379C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35B2B11C-A693-4F39-A9D7-EC4DDD38379C}.Debug|Win32.Build.0 = Debug|Win32
+		{35B2B11C-A693-4F39-A9D7-EC4DDD38379C}.Release|Win32.ActiveCfg = Release|Win32
+		{35B2B11C-A693-4F39-A9D7-EC4DDD38379C}.Release|Win32.Build.0 = Release|Win32
+		{AB1A3327-2BFA-4A97-B1E8-C498F8A35811}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AB1A3327-2BFA-4A97-B1E8-C498F8A35811}.Debug|Win32.Build.0 = Debug|Win32
+		{AB1A3327-2BFA-4A97-B1E8-C498F8A35811}.Release|Win32.ActiveCfg = Release|Win32
+		{AB1A3327-2BFA-4A97-B1E8-C498F8A35811}.Release|Win32.Build.0 = Release|Win32
+		{A97B48AC-AF0D-440F-BF6A-9BE1807CC259}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A97B48AC-AF0D-440F-BF6A-9BE1807CC259}.Debug|Win32.Build.0 = Debug|Win32
+		{A97B48AC-AF0D-440F-BF6A-9BE1807CC259}.Release|Win32.ActiveCfg = Release|Win32
+		{A97B48AC-AF0D-440F-BF6A-9BE1807CC259}.Release|Win32.Build.0 = Release|Win32
+		{2AA71849-B0DF-48A5-9CFC-EF231C95C003}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2AA71849-B0DF-48A5-9CFC-EF231C95C003}.Debug|Win32.Build.0 = Debug|Win32
+		{2AA71849-B0DF-48A5-9CFC-EF231C95C003}.Release|Win32.ActiveCfg = Release|Win32
+		{2AA71849-B0DF-48A5-9CFC-EF231C95C003}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

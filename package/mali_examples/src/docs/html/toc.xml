@@ -1,0 +1,308 @@
+<toc label="Mali OpenGL ES SDK" topic="index.html">
+  <topic label="Classes">
+    <topic label="Class List" href="annotated.html">
+      <topic label="MaliSDK">
+        <topic label="AndroidPlatform" href="class_mali_s_d_k_1_1_android_platform.html">
+          <topic label="checkGlesError" href="class_mali_s_d_k_1_1_android_platform.html#ac243ecc1315c03571050356ae422dd5d"/>
+          <topic label="copyString" href="class_mali_s_d_k_1_1_android_platform.html#a6178f8e67f05604baff69e986e0f75a1"/>
+          <topic label="getAndroidAsset" href="class_mali_s_d_k_1_1_android_platform.html#a4be04c2795036bf9a5373c19b3180f9c"/>
+          <topic label="glErrorToString" href="class_mali_s_d_k_1_1_android_platform.html#ae0cde8ca3aab3bc57bf2fbb828cb0997"/>
+        </topic>
+        <topic label="DesktopLinuxPlatform" href="class_mali_s_d_k_1_1_desktop_linux_platform.html">
+          <topic label="DesktopLinuxPlatform" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a5a39e9dd842aa991ce168960c8df15ba"/>
+          <topic label="checkWindow" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a165484b5e72883d6f8a8e158a6b9fcbc"/>
+          <topic label="createWindow" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a66b853653ff03031d56f493a9a826dc5"/>
+          <topic label="createX11Window" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#ac92e5ac08f8e65a687d47d24f0483f96"/>
+          <topic label="destroyWindow" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a8cadb37e8c3a5afd8d867186fb3293dd"/>
+          <topic label="getInstance" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#ac298f5441577afbf48d6292282f7020e"/>
+          <topic label="wait_for_map" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#ae799de9a8f1522c7b7c422d16f50cd56"/>
+          <topic label="colormap" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a34a21eaa7ee44bc0eefaadf9a9790ec2"/>
+          <topic label="instance" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a17015072b8bfbf56240625a66ee12d77"/>
+          <topic label="visual" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a4752c587f5e3e98a5744f98714d00815"/>
+          <topic label="windowHeight" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#a023d5233d0919f99420c71fd610417e6"/>
+          <topic label="windowWidth" href="class_mali_s_d_k_1_1_desktop_linux_platform.html#af7c22ebd1addf0f9df33f572da7ec7e2"/>
+        </topic>
+        <topic label="EGLRuntime" href="class_mali_s_d_k_1_1_e_g_l_runtime.html">
+          <topic label="OpenGLESVersion" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a5adc69075016092d8f6c2d7285a0cd7f">
+            <topic label="OPENGLES1" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a5adc69075016092d8f6c2d7285a0cd7faee51514c572ecbcdda8fef6da36a76e3"/>
+            <topic label="OPENGLES2" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a5adc69075016092d8f6c2d7285a0cd7fa86f037039c44023b63e95c9d09a07e71"/>
+            <topic label="OPENGLES3" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a5adc69075016092d8f6c2d7285a0cd7fac72ebe7a927c31667f5c50c059e0ebae"/>
+          </topic>
+          <topic label="initializeEGL" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a982b5b6650a197a7274a2c50cb132218"/>
+          <topic label="terminateEGL" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#aa702131af4f712771c18d37d63f8c2fd"/>
+          <topic label="blueSize" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a86dfc94ff02230d7ffa216601814a49b"/>
+          <topic label="bufferSize" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a4cff1843126cb14d83ff2d4fe677ea3c"/>
+          <topic label="config" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a20adb8cba095c47000620dcb23e27454"/>
+          <topic label="configAttributes" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#ac76f5b6cf1a4b1b38e22b4b1741a945a"/>
+          <topic label="context" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a1b415334332fdadc26a50f657be1a9eb"/>
+          <topic label="contextAttributes" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#ade8c746529f51899a7fb723b9f6058e4"/>
+          <topic label="disableAntiAliasing" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a823f7a84dd6c49ec03f07ef119d6cd55"/>
+          <topic label="display" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#ad286e3848f65718e66cb98aa041ab0c6"/>
+          <topic label="greenSize" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#a03610f3f5e91d991e33d8cb89228d054"/>
+          <topic label="redSize" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#ab651320aa7b9e049383578024f39a4c3"/>
+          <topic label="surface" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#aecb55bd0dffcb007814773e60352db8e"/>
+          <topic label="windowAttributes" href="class_mali_s_d_k_1_1_e_g_l_runtime.html#ac9e6ab87ebd7574da2c6d7caa8b02a1b"/>
+        </topic>
+        <topic label="ETCHeader" href="class_mali_s_d_k_1_1_e_t_c_header.html">
+          <topic label="ETCHeader" href="class_mali_s_d_k_1_1_e_t_c_header.html#a113521e035117646e9fd82b9c1e1c94a"/>
+          <topic label="ETCHeader" href="class_mali_s_d_k_1_1_e_t_c_header.html#a88a93b7d75832dbff4566789c66c7f52"/>
+          <topic label="getHeight" href="class_mali_s_d_k_1_1_e_t_c_header.html#a13f7d83440031fe2b770d39a5281356b"/>
+          <topic label="getPaddedHeight" href="class_mali_s_d_k_1_1_e_t_c_header.html#a56a6cbd54973d5efd7928d6e754e75f4"/>
+          <topic label="getPaddedWidth" href="class_mali_s_d_k_1_1_e_t_c_header.html#aa9fbdb04658394a07f4b6da7dc6fb1d5"/>
+          <topic label="getSize" href="class_mali_s_d_k_1_1_e_t_c_header.html#a63d7187e1d6d9d1498a322812309df90"/>
+          <topic label="getWidth" href="class_mali_s_d_k_1_1_e_t_c_header.html#ac28e2a339c60f05a8700e09fe4ed2d1f"/>
+          <topic label="heightLSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#a28f76cf4819e275a8f2200cb1033228f"/>
+          <topic label="heightMSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#a954b205eb44b0fe4349c52a2de96824d"/>
+          <topic label="paddedHeightLSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#afceee723e850fb4041757592d02a0406"/>
+          <topic label="paddedHeightMSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#ab2e3c4d74b1de868b535a1258338bed2"/>
+          <topic label="paddedWidthLSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#acd518832b5f57f6177687eddbc171cf8"/>
+          <topic label="paddedWidthMSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#a6c12687105580257ad364180cb25a726"/>
+          <topic label="widthLSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#a4dfbd7a743dadcab591f6d738e83b0bd"/>
+          <topic label="widthMSB" href="class_mali_s_d_k_1_1_e_t_c_header.html#a428e4549d0a213106e9793ee73b8497b"/>
+        </topic>
+        <topic label="Geometry" href="class_mali_s_d_k_1_1_geometry.html">
+          <topic label="calculateTorusControlPointsIndices" href="class_mali_s_d_k_1_1_geometry.html#adc7f66f82f333149d12c74d0acb0a811"/>
+          <topic label="calculateTorusPatchData" href="class_mali_s_d_k_1_1_geometry.html#aa767e9291ba0b3efbe9829eea132e074"/>
+          <topic label="calculateTorusWireframeIndices" href="class_mali_s_d_k_1_1_geometry.html#ae1642d39716fdbf4a9d22edf208febee"/>
+          <topic label="generateBezierTorusVertices" href="class_mali_s_d_k_1_1_geometry.html#a77443b25d2e9cc4eb5859bf290c87222"/>
+          <topic label="generateTorusVertices" href="class_mali_s_d_k_1_1_geometry.html#ab5c8338d5e51444448045fa9a351990c"/>
+          <topic label="getCubeNormals" href="class_mali_s_d_k_1_1_geometry.html#a6f662b5a38e8dfb9adfe660b191027c0"/>
+          <topic label="getCubeTriangleRepresentation" href="class_mali_s_d_k_1_1_geometry.html#a8b619bfdd095a2b26793f3b81235d24a"/>
+          <topic label="getSpherePointRepresentation" href="class_mali_s_d_k_1_1_geometry.html#a53dc8c1ab4ddafc1440acdfd9b1c0c2a"/>
+          <topic label="getSphereTriangleRepresentation" href="class_mali_s_d_k_1_1_geometry.html#ad99f561a7b5e4802810cc1d2f2b8a4e3"/>
+          <topic label="getSquareTriangleRepresentationInXZSpace" href="class_mali_s_d_k_1_1_geometry.html#a618dd46fd450414a6fb0d09ee3081a9a"/>
+          <topic label="getSquareXZNormals" href="class_mali_s_d_k_1_1_geometry.html#a152f1d54be9e0e4979513604ec1a2439"/>
+        </topic>
+        <topic label="JavaClass" href="class_mali_s_d_k_1_1_java_class.html">
+          <topic label="JavaClass" href="class_mali_s_d_k_1_1_java_class.html#a15bea7fbda13d7cbc3e862c6061f23f3"/>
+          <topic label="~JavaClass" href="class_mali_s_d_k_1_1_java_class.html#aad38318e19ad77b57d59a6a0b4eb8765"/>
+          <topic label="staticField" href="class_mali_s_d_k_1_1_java_class.html#ab1b3132e58e88ee587fe74dee02f8d67"/>
+          <topic label="staticField" href="class_mali_s_d_k_1_1_java_class.html#a9a5bc85db319d197f9280acb0e1b742d"/>
+          <topic label="staticMethod" href="class_mali_s_d_k_1_1_java_class.html#a71d60c52558cd3c086bfd900fb0b3c1c"/>
+          <topic label="staticMethod" href="class_mali_s_d_k_1_1_java_class.html#aa1543dc02181ac7dd11746638e0a795e"/>
+          <topic label="classPath" href="class_mali_s_d_k_1_1_java_class.html#a980bbd8b0b2e8fbcca4302fcf353909e"/>
+          <topic label="intialized" href="class_mali_s_d_k_1_1_java_class.html#acadf1fc13e32bf41158261913485b6e0"/>
+          <topic label="jClass" href="class_mali_s_d_k_1_1_java_class.html#a289da6c3fa0635f936cd59bcb07e9cc5"/>
+          <topic label="JNIEnvironment" href="class_mali_s_d_k_1_1_java_class.html#a69dc20cd78ae10a1ee2f502a6cb6d7ad"/>
+        </topic>
+        <topic label="LinuxOnARMPlatform" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html">
+          <topic label="LinuxOnARMPlatform" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html#ad6afd19b9f8a9e9e182fe196b595859a"/>
+          <topic label="checkWindow" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html#a530c3b2604c40015354cf44744571565"/>
+          <topic label="createWindow" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html#a5d784312be79fb54423ba0ae6660462b"/>
+          <topic label="destroyWindow" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html#a4081dfd204e13d802b7e71cd0e79a34a"/>
+          <topic label="getInstance" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html#a0ac091df03892f363ed1ee9edd5f6f08"/>
+          <topic label="instance" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html#a14b5c2bb4a15e87201cd2451d464085d"/>
+        </topic>
+        <topic label="Matrix" href="class_mali_s_d_k_1_1_matrix.html">
+          <topic label="Matrix" href="class_mali_s_d_k_1_1_matrix.html#a8c612757ab5cb00a1115064c74ae3da0"/>
+          <topic label="Matrix" href="class_mali_s_d_k_1_1_matrix.html#ac26b5704b81a344ecd019569c9f46161"/>
+          <topic label="createRotationX" href="class_mali_s_d_k_1_1_matrix.html#ada39fc1d2925cda265cb448271dc4c36"/>
+          <topic label="createRotationY" href="class_mali_s_d_k_1_1_matrix.html#a10a712510ff6ee2c7134379dc4526d72"/>
+          <topic label="createRotationZ" href="class_mali_s_d_k_1_1_matrix.html#af1620b4f58cdf076c2ca46a25d5ca233"/>
+          <topic label="createScaling" href="class_mali_s_d_k_1_1_matrix.html#acb37e6393cd0dec73aac34a7fc246e8f"/>
+          <topic label="createTranslation" href="class_mali_s_d_k_1_1_matrix.html#a76c9eeb0292b9a1ff8b54dc5a6eb4fa0"/>
+          <topic label="degreesToRadians" href="class_mali_s_d_k_1_1_matrix.html#a2ebb1059899b3751eec09c1b20eceb76"/>
+          <topic label="getAsArray" href="class_mali_s_d_k_1_1_matrix.html#a74dfafc0b289498a42f86d27d8de9b7b"/>
+          <topic label="matrixDeterminant" href="class_mali_s_d_k_1_1_matrix.html#aeb3d7e65f6c502d77fa4ae7729116c34"/>
+          <topic label="matrixDeterminant" href="class_mali_s_d_k_1_1_matrix.html#a757a4ae434776cad815fe6331efa2177"/>
+          <topic label="matrixInvert" href="class_mali_s_d_k_1_1_matrix.html#a5d7608087e4e5e3f32cf606f089365f8"/>
+          <topic label="matrixOrthographic" href="class_mali_s_d_k_1_1_matrix.html#a2dcb435ecd2fdf7cff9b9d27d149f2e9"/>
+          <topic label="matrixPerspective" href="class_mali_s_d_k_1_1_matrix.html#acb29d4e537943a2a369a966d08e20e47"/>
+          <topic label="matrixScale" href="class_mali_s_d_k_1_1_matrix.html#ac71d16a443d6ce07edb9ab2f13b2180f"/>
+          <topic label="matrixTranspose" href="class_mali_s_d_k_1_1_matrix.html#ae4db8b1e14831fb7f5f6e2939547aabc"/>
+          <topic label="multiply" href="class_mali_s_d_k_1_1_matrix.html#a200c37913ff186caf135135083db7bdf"/>
+          <topic label="operator*" href="class_mali_s_d_k_1_1_matrix.html#a27627d1a5f943bc93cbd9fcdd045d8cc"/>
+          <topic label="operator[]" href="class_mali_s_d_k_1_1_matrix.html#a5ed11a05a8cfcfee6257e4432bb447bd"/>
+          <topic label="print" href="class_mali_s_d_k_1_1_matrix.html#a734ac9013ada81454da5850588727234"/>
+          <topic label="vertexTransform" href="class_mali_s_d_k_1_1_matrix.html#a2400ea18a34624cab69947d8d8adbc27"/>
+          <topic label="vertexTransform" href="class_mali_s_d_k_1_1_matrix.html#aec2e5ecebb952de1b13952e08d03e831"/>
+          <topic label="elements" href="class_mali_s_d_k_1_1_matrix.html#a9cffe9171ef45fb938461347e9a2efec"/>
+          <topic label="identityMatrix" href="class_mali_s_d_k_1_1_matrix.html#ad83c51552124449f4d4fcdd858217a01"/>
+        </topic>
+        <topic label="Platform" href="class_mali_s_d_k_1_1_platform.html">
+          <topic label="WindowStatus" href="class_mali_s_d_k_1_1_platform.html#a74acee3dfe0a8e61adf1002c0b009567">
+            <topic label="WINDOW_IDLE" href="class_mali_s_d_k_1_1_platform.html#a74acee3dfe0a8e61adf1002c0b009567af09485a2a211fb2ced373168d78b40bb"/>
+            <topic label="WINDOW_EXIT" href="class_mali_s_d_k_1_1_platform.html#a74acee3dfe0a8e61adf1002c0b009567adfe57e3b4103b5a323b165bdf312846e"/>
+            <topic label="WINDOW_CLICK" href="class_mali_s_d_k_1_1_platform.html#a74acee3dfe0a8e61adf1002c0b009567a599a31404ec2770720e15f7626e0cfb1"/>
+          </topic>
+          <topic label="checkWindow" href="class_mali_s_d_k_1_1_platform.html#a5d71818b1de5b24e1a51104ad619fc93"/>
+          <topic label="createWindow" href="class_mali_s_d_k_1_1_platform.html#a67216add782a77af33b7f0ebdfce6d0f"/>
+          <topic label="destroyWindow" href="class_mali_s_d_k_1_1_platform.html#a6332e91020d287e938ea25bb9787297a"/>
+          <topic label="getInstance" href="class_mali_s_d_k_1_1_platform.html#a7d337f17a67b79883fb789e94ffd963a"/>
+          <topic label="log" href="class_mali_s_d_k_1_1_platform.html#ac386cc69e28c8a655dbfb5552653254b"/>
+          <topic label="mouseClick" href="class_mali_s_d_k_1_1_platform.html#a7ceec4653a023ebc5a36d72a2204e182"/>
+        </topic>
+        <topic label="Shader" href="class_mali_s_d_k_1_1_shader.html">
+          <topic label="loadShader" href="class_mali_s_d_k_1_1_shader.html#a6bcf38fe8367211b13f930b32425b7f7"/>
+          <topic label="processShader" href="class_mali_s_d_k_1_1_shader.html#a8d819ca5108b078555ddc338238ad18f"/>
+        </topic>
+        <topic label="Text" href="class_mali_s_d_k_1_1_text.html">
+          <topic label="Text" href="class_mali_s_d_k_1_1_text.html#a35d76ce5baa87eafd9795f52460944ea"/>
+          <topic label="~Text" href="class_mali_s_d_k_1_1_text.html#acf2a59a1e327c6420c463daec825ece2"/>
+          <topic label="addString" href="class_mali_s_d_k_1_1_text.html#a1a18948af8353078d48bef96999d9c3a"/>
+          <topic label="clear" href="class_mali_s_d_k_1_1_text.html#a9d1aa105fb7c12b4c59fc9d805d7ed68"/>
+          <topic label="draw" href="class_mali_s_d_k_1_1_text.html#a5a8c714cc77f730f04015397252964ba"/>
+          <topic label="color" href="class_mali_s_d_k_1_1_text.html#a0c1684af1f9c069c8e1f5b357fb9563a"/>
+          <topic label="fragmentShaderFilename" href="class_mali_s_d_k_1_1_text.html#a2e75e6f69ec8eb8f32674f6583c9453e"/>
+          <topic label="fragmentShaderID" href="class_mali_s_d_k_1_1_text.html#a8d91c0dfe3a070a104db300479bfae3f"/>
+          <topic label="m_iLocPosition" href="class_mali_s_d_k_1_1_text.html#af5a2909bdb2a24e3d7ab5204d1c59898"/>
+          <topic label="m_iLocProjection" href="class_mali_s_d_k_1_1_text.html#a2931929f22ea851acf467b9e5e2e45f5"/>
+          <topic label="m_iLocTexCoord" href="class_mali_s_d_k_1_1_text.html#a4b83fb73e0d727f741c882c71441d9c1"/>
+          <topic label="m_iLocTextColor" href="class_mali_s_d_k_1_1_text.html#a6d8cfffd943767284a80429b4ce67491"/>
+          <topic label="m_iLocTexture" href="class_mali_s_d_k_1_1_text.html#a69f856a47a83f8e3887cbfdb99ae6bbb"/>
+          <topic label="numberOfCharacters" href="class_mali_s_d_k_1_1_text.html#a2a0f031bac9e980e74c79d7cfd846c61"/>
+          <topic label="programID" href="class_mali_s_d_k_1_1_text.html#a845c27c319a7a806ada87985387cc8fd"/>
+          <topic label="projectionMatrix" href="class_mali_s_d_k_1_1_text.html#a56afe26667440e0bb02167a6c8ccf77b"/>
+          <topic label="scale" href="class_mali_s_d_k_1_1_text.html#afa445045e223db35d673554c34291955"/>
+          <topic label="textIndex" href="class_mali_s_d_k_1_1_text.html#a275b78dba37412f1c18a8fcb495898cb"/>
+          <topic label="textTextureCoordinates" href="class_mali_s_d_k_1_1_text.html#ac8f3592212b8c414a957b38010476280"/>
+          <topic label="textureCharacterHeight" href="class_mali_s_d_k_1_1_text.html#a725a3b602f112dbd12993b5a4fd7b9cb"/>
+          <topic label="textureCharacterWidth" href="class_mali_s_d_k_1_1_text.html#a88d0df51e7e0f4100e3018ac264cbdc7"/>
+          <topic label="textureFilename" href="class_mali_s_d_k_1_1_text.html#a321b6722e7cb8e1e50c524d2e689af17"/>
+          <topic label="textureID" href="class_mali_s_d_k_1_1_text.html#ad05e12381c278e57c08bba8d4601a088"/>
+          <topic label="textVertex" href="class_mali_s_d_k_1_1_text.html#a22869c835639c60c726e600c981b69d6"/>
+          <topic label="vertexShaderFilename" href="class_mali_s_d_k_1_1_text.html#adc6b40ae1f2e9de52a8399842c84ed75"/>
+          <topic label="vertexShaderID" href="class_mali_s_d_k_1_1_text.html#adede7bdb736732db603eb795e0c52beb"/>
+        </topic>
+        <topic label="Texture" href="class_mali_s_d_k_1_1_texture.html">
+          <topic label="createTexture" href="class_mali_s_d_k_1_1_texture.html#a4fc5739de7c9084bbfc5472cd1992442"/>
+          <topic label="createTexture" href="class_mali_s_d_k_1_1_texture.html#a21a6445a8d54889e9e74574a1cfd145f"/>
+          <topic label="deleteTextureData" href="class_mali_s_d_k_1_1_texture.html#a0b25b4f5a673a8470289f36bc4666540"/>
+          <topic label="getCompressedTextureFormats" href="class_mali_s_d_k_1_1_texture.html#aa71531cdd26594ae70b8e0c2e4949376"/>
+          <topic label="isETCSupported" href="class_mali_s_d_k_1_1_texture.html#a6511f1a33a02fbbc5a67a8b0a9cab5ad"/>
+          <topic label="loadCompressedMipmaps" href="class_mali_s_d_k_1_1_texture.html#a8cc91a640551e39804977357aa67c50b"/>
+          <topic label="loadData" href="class_mali_s_d_k_1_1_texture.html#a23e5bfebba8f3d0cb35fffb59741a918"/>
+          <topic label="loadPKMData" href="class_mali_s_d_k_1_1_texture.html#a03e4afa572aae11554bd52d3e833f143"/>
+        </topic>
+        <topic label="Timer" href="class_mali_s_d_k_1_1_timer.html">
+          <topic label="Timer" href="class_mali_s_d_k_1_1_timer.html#a0093f7c55fe58a31b995aa635d5bc2bb"/>
+          <topic label="getFPS" href="class_mali_s_d_k_1_1_timer.html#ae107aa7a4ef2b8f59c983de2a16996be"/>
+          <topic label="getInterval" href="class_mali_s_d_k_1_1_timer.html#aa3e49be31564936d4013c82c2eacf728"/>
+          <topic label="getTime" href="class_mali_s_d_k_1_1_timer.html#adb103faf8a736e37cdd67719e3d0f6c1"/>
+          <topic label="isTimePassed" href="class_mali_s_d_k_1_1_timer.html#ac89d757a1d546bca5ffc4814019e1076"/>
+          <topic label="reset" href="class_mali_s_d_k_1_1_timer.html#ae4e910725fe564dd7327375337111403"/>
+          <topic label="currentTime" href="class_mali_s_d_k_1_1_timer.html#aceb0b358f40b39f4affcbbfc5c8592e6"/>
+          <topic label="fps" href="class_mali_s_d_k_1_1_timer.html#a74d211bfc7641e2c40a304beed796e2b"/>
+          <topic label="fpsTime" href="class_mali_s_d_k_1_1_timer.html#a373b4027b98584963ac6722d662e06a9"/>
+          <topic label="frameCount" href="class_mali_s_d_k_1_1_timer.html#a7e664ab326b525eb507abce0c0ea5477"/>
+          <topic label="lastIntervalTime" href="class_mali_s_d_k_1_1_timer.html#ad3e267c92a1b0c7a4da5c306e5af7908"/>
+          <topic label="lastTime" href="class_mali_s_d_k_1_1_timer.html#a08fd005514804e519123a9c095f6403a"/>
+          <topic label="startTime" href="class_mali_s_d_k_1_1_timer.html#a498c22888236984571b6326af105677d"/>
+        </topic>
+        <topic label="Vec2" href="struct_mali_s_d_k_1_1_vec2.html">
+          <topic label="x" href="struct_mali_s_d_k_1_1_vec2.html#abae52d6d298ae412fa1575fa7af738fa"/>
+          <topic label="y" href="struct_mali_s_d_k_1_1_vec2.html#aa9c1b2e4680da92621ff330b7b06f755"/>
+        </topic>
+        <topic label="Vec3" href="struct_mali_s_d_k_1_1_vec3.html">
+          <topic label="x" href="struct_mali_s_d_k_1_1_vec3.html#abcbb9914c847ab78f2d1d5f7baef4e6c"/>
+          <topic label="y" href="struct_mali_s_d_k_1_1_vec3.html#af2cee502c4b70634e613546dad8d680b"/>
+          <topic label="z" href="struct_mali_s_d_k_1_1_vec3.html#a9ed1e3161c42d64efe59b51c0610675b"/>
+        </topic>
+        <topic label="Vec4" href="struct_mali_s_d_k_1_1_vec4.html">
+          <topic label="w" href="struct_mali_s_d_k_1_1_vec4.html#a72ef0383246ed684455b7a085e9387f2"/>
+          <topic label="x" href="struct_mali_s_d_k_1_1_vec4.html#a5ec76c576807edb8c988a0e7745c770e"/>
+          <topic label="y" href="struct_mali_s_d_k_1_1_vec4.html#a68be69370700bc8c9f87fadff15ae9a7"/>
+          <topic label="z" href="struct_mali_s_d_k_1_1_vec4.html#a3252a71c01f1beed9e9756984a8ec1b8"/>
+        </topic>
+        <topic label="Vec2f" href="struct_mali_s_d_k_1_1_vec2f.html">
+          <topic label="x" href="struct_mali_s_d_k_1_1_vec2f.html#a9b28d78f0da6fceedd1c67b6e5a3bc53"/>
+          <topic label="y" href="struct_mali_s_d_k_1_1_vec2f.html#a78d39e65017d79f2bb61129abb6a3d5d"/>
+        </topic>
+        <topic label="Vec3f" href="struct_mali_s_d_k_1_1_vec3f.html">
+          <topic label="x" href="struct_mali_s_d_k_1_1_vec3f.html#adab3f86cc315c8d4f6009f06a14cc4f5"/>
+          <topic label="y" href="struct_mali_s_d_k_1_1_vec3f.html#aab64c97ad1d06568863afd402aa1646e"/>
+          <topic label="z" href="struct_mali_s_d_k_1_1_vec3f.html#a99e1f1b0a4081c08bdf05154a92a637c"/>
+        </topic>
+        <topic label="Vec4f" href="struct_mali_s_d_k_1_1_vec4f.html">
+          <topic label="w" href="struct_mali_s_d_k_1_1_vec4f.html#a39bb28338a57ae564c273cb2a8a12c85"/>
+          <topic label="x" href="struct_mali_s_d_k_1_1_vec4f.html#ab427c93e0a7d47e5de2de6c9b667fe0c"/>
+          <topic label="y" href="struct_mali_s_d_k_1_1_vec4f.html#a4ac56583f41f9c45b81619879d656f3a"/>
+          <topic label="z" href="struct_mali_s_d_k_1_1_vec4f.html#a99be4c2aefea65023d77769126fa49ba"/>
+        </topic>
+        <topic label="WindowsPlatform" href="class_mali_s_d_k_1_1_windows_platform.html">
+          <topic label="WindowsPlatform" href="class_mali_s_d_k_1_1_windows_platform.html#aa2adc1080ac6559aa7de626267b4d117"/>
+          <topic label="checkWindow" href="class_mali_s_d_k_1_1_windows_platform.html#ae7d597718b166c5eb0b3af2a6d4bc23a"/>
+          <topic label="createWindow" href="class_mali_s_d_k_1_1_windows_platform.html#a7c9df030e33041bb4c46a2409c3a2a44"/>
+          <topic label="destroyWindow" href="class_mali_s_d_k_1_1_windows_platform.html#ab5361c1112f016c9342a970080baa8c1"/>
+          <topic label="getInstance" href="class_mali_s_d_k_1_1_windows_platform.html#a88ba461bd1e734e2c23e8be69d0ba35d"/>
+          <topic label="processWindow" href="class_mali_s_d_k_1_1_windows_platform.html#ac922787ae59891304edceef38b8c8e2b"/>
+          <topic label="instance" href="class_mali_s_d_k_1_1_windows_platform.html#a3234946617d2a5a038d4a645c96200a4"/>
+          <topic label="message" href="class_mali_s_d_k_1_1_windows_platform.html#a662036a2fa43850f110f34761a419723"/>
+        </topic>
+      </topic>
+    </topic>
+    <topic label="Class Index" href="classes.html"/>
+    <topic label="Class Hierarchy" href="hierarchy.html">
+      <topic label="MaliSDK::AndroidPlatform" href="class_mali_s_d_k_1_1_android_platform.html"/>
+      <topic label="MaliSDK::EGLRuntime" href="class_mali_s_d_k_1_1_e_g_l_runtime.html"/>
+      <topic label="MaliSDK::ETCHeader" href="class_mali_s_d_k_1_1_e_t_c_header.html"/>
+      <topic label="MaliSDK::Geometry" href="class_mali_s_d_k_1_1_geometry.html"/>
+      <topic label="MaliSDK::JavaClass" href="class_mali_s_d_k_1_1_java_class.html"/>
+      <topic label="MaliSDK::Matrix" href="class_mali_s_d_k_1_1_matrix.html"/>
+      <topic label="MaliSDK::Platform" href="class_mali_s_d_k_1_1_platform.html">
+        <topic label="MaliSDK::DesktopLinuxPlatform" href="class_mali_s_d_k_1_1_desktop_linux_platform.html"/>
+        <topic label="MaliSDK::LinuxOnARMPlatform" href="class_mali_s_d_k_1_1_linux_on_a_r_m_platform.html"/>
+        <topic label="MaliSDK::WindowsPlatform" href="class_mali_s_d_k_1_1_windows_platform.html"/>
+      </topic>
+      <topic label="MaliSDK::Shader" href="class_mali_s_d_k_1_1_shader.html"/>
+      <topic label="MaliSDK::Text" href="class_mali_s_d_k_1_1_text.html"/>
+      <topic label="MaliSDK::Texture" href="class_mali_s_d_k_1_1_texture.html"/>
+      <topic label="MaliSDK::Timer" href="class_mali_s_d_k_1_1_timer.html"/>
+      <topic label="MaliSDK::Vec2" href="struct_mali_s_d_k_1_1_vec2.html"/>
+      <topic label="MaliSDK::Vec2f" href="struct_mali_s_d_k_1_1_vec2f.html"/>
+      <topic label="MaliSDK::Vec3" href="struct_mali_s_d_k_1_1_vec3.html"/>
+      <topic label="MaliSDK::Vec3f" href="struct_mali_s_d_k_1_1_vec3f.html"/>
+      <topic label="MaliSDK::Vec4" href="struct_mali_s_d_k_1_1_vec4.html"/>
+      <topic label="MaliSDK::Vec4f" href="struct_mali_s_d_k_1_1_vec4f.html"/>
+    </topic>
+    <topic label="Class Members" href="functions.html">
+      <topic label="All" href="functions.html"/>
+      <topic label="Functions" href="functions_func.html"/>
+      <topic label="Variables" href="functions_vars.html"/>
+      <topic label="Enumerations" href="functions_enum.html"/>
+      <topic label="Enumerator" href="functions_eval.html"/>
+    </topic>
+  </topic>
+  <topic label="Files">
+    <topic label="File List" href="files.html">
+      <topic label="simple-framework" href="dir_651743efa2cea50a83df5d11ac97098d.html">
+        <topic label="inc" href="dir_a38d386807dc409ea74a0a15692d8181.html">
+          <topic label="VectorTypes.h" href="_vector_types_8h.html">
+            <topic label="Vec2" href="struct_mali_s_d_k_1_1_vec2.html">
+              <topic label="x" href="struct_mali_s_d_k_1_1_vec2.html#abae52d6d298ae412fa1575fa7af738fa"/>
+              <topic label="y" href="struct_mali_s_d_k_1_1_vec2.html#aa9c1b2e4680da92621ff330b7b06f755"/>
+            </topic>
+            <topic label="Vec3" href="struct_mali_s_d_k_1_1_vec3.html">
+              <topic label="x" href="struct_mali_s_d_k_1_1_vec3.html#abcbb9914c847ab78f2d1d5f7baef4e6c"/>
+              <topic label="y" href="struct_mali_s_d_k_1_1_vec3.html#af2cee502c4b70634e613546dad8d680b"/>
+              <topic label="z" href="struct_mali_s_d_k_1_1_vec3.html#a9ed1e3161c42d64efe59b51c0610675b"/>
+            </topic>
+            <topic label="Vec4" href="struct_mali_s_d_k_1_1_vec4.html">
+              <topic label="w" href="struct_mali_s_d_k_1_1_vec4.html#a72ef0383246ed684455b7a085e9387f2"/>
+              <topic label="x" href="struct_mali_s_d_k_1_1_vec4.html#a5ec76c576807edb8c988a0e7745c770e"/>
+              <topic label="y" href="struct_mali_s_d_k_1_1_vec4.html#a68be69370700bc8c9f87fadff15ae9a7"/>
+              <topic label="z" href="struct_mali_s_d_k_1_1_vec4.html#a3252a71c01f1beed9e9756984a8ec1b8"/>
+            </topic>
+            <topic label="Vec2f" href="struct_mali_s_d_k_1_1_vec2f.html">
+              <topic label="x" href="struct_mali_s_d_k_1_1_vec2f.html#a9b28d78f0da6fceedd1c67b6e5a3bc53"/>
+              <topic label="y" href="struct_mali_s_d_k_1_1_vec2f.html#a78d39e65017d79f2bb61129abb6a3d5d"/>
+            </topic>
+            <topic label="Vec3f" href="struct_mali_s_d_k_1_1_vec3f.html">
+              <topic label="x" href="struct_mali_s_d_k_1_1_vec3f.html#adab3f86cc315c8d4f6009f06a14cc4f5"/>
+              <topic label="y" href="struct_mali_s_d_k_1_1_vec3f.html#aab64c97ad1d06568863afd402aa1646e"/>
+              <topic label="z" href="struct_mali_s_d_k_1_1_vec3f.html#a99e1f1b0a4081c08bdf05154a92a637c"/>
+            </topic>
+            <topic label="Vec4f" href="struct_mali_s_d_k_1_1_vec4f.html">
+              <topic label="w" href="struct_mali_s_d_k_1_1_vec4f.html#a39bb28338a57ae564c273cb2a8a12c85"/>
+              <topic label="x" href="struct_mali_s_d_k_1_1_vec4f.html#ab427c93e0a7d47e5de2de6c9b667fe0c"/>
+              <topic label="y" href="struct_mali_s_d_k_1_1_vec4f.html#a4ac56583f41f9c45b81619879d656f3a"/>
+              <topic label="z" href="struct_mali_s_d_k_1_1_vec4f.html#a99be4c2aefea65023d77769126fa49ba"/>
+            </topic>
+          </topic>
+        </topic>
+        <topic label="src" href="dir_1b23fe1613fe396f8433e2632204a1ce.html">
+        </topic>
+      </topic>
+    </topic>
+  </topic>
+</toc>

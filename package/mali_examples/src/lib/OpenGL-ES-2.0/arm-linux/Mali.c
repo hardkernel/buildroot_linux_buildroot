@@ -1,0 +1,12 @@
+void ump_open(void) { return; }
+void ump_close(void) { return; }
+void ump_secure_id_get(void) { return; }
+void ump_handle_create_from_secure_id(void) { return; }
+void ump_size_get(void) { return; }
+void ump_read(void) { return; }
+void ump_write(void) { return; }
+void ump_mapped_pointer_get(void) { return; }
+void ump_mapped_pointer_release(void) { return; }
+void ump_reference_add(void) { return; }
+void ump_reference_release(void) { return; }
+void ump_ref_drv_allocate(void) { return; }
