@@ -16,9 +16,6 @@ usbA and usbB por is connected.
 
 #define LOG_TAG "USBtestpm_mx"
 
-#include "cutils/log.h"
-#include  "cutils/properties.h"
-
 #include "usbctrl.h"
 
 

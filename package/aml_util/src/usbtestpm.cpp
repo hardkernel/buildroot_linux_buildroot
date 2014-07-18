@@ -13,9 +13,6 @@
 
 #define LOG_TAG "USBtestpm"
 
-#include "cutils/log.h"
-#include  "cutils/properties.h"
-
 #include "usbctrl.h"
 
 

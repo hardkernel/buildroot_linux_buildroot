@@ -12,9 +12,6 @@
 #include "porting.h"
 
 
-#include "cutils/log.h"
-#include  "cutils/properties.h"
-
 #include "usbctrl_mx_iddq.h"
 
 static void usage(void)

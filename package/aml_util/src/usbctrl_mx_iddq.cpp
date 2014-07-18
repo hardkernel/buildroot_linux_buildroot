@@ -13,8 +13,6 @@
 
 #define LOG_TAG "USBPower_mx_iddq"
 
-#include "cutils/log.h"
-#include  "cutils/properties.h"
 #include "usbctrl_mx_iddq.h"
 
 #define TOLOWER(x) ((x) | 0x20)

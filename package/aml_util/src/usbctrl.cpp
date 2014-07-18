@@ -13,8 +13,6 @@
 
 #define LOG_TAG "USBPower"
 
-#include "cutils/log.h"
-#include  "cutils/properties.h"
 #include "usbctrl.h"
 
 #define TOLOWER(x) ((x) | 0x20)
