@@ -1,0 +1,11 @@
+--- linux-amlogic-3.10-bringup/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_edid.c.orig	2014-07-16 18:58:19.332757462 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_edid.c	2014-07-16 18:58:36.744757789 +0800
+@@ -227,7 +227,7 @@ void Edid_CompareTimingDescriptors(HDMI_
+     {
+         for(index2=0;index2<12;index2++)
+         {
+-            if(Data[index2]!=Edid_TimingDescriptors[index1*14+index2])
++            if(Data[index2]!=Edid_TimingDescriptors[index1*12+index2])
+                 break;
+         }
+         if(index2==12)

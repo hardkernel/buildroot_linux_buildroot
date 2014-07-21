@@ -6,11 +6,15 @@ DISP_MODE=/sys/class/display/mode
 
 case "$1" in
     *)
-        fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
         hdmi=`cat $HPD_STATE`
         if [ $hdmi -eq 1 ]; then
             mode=`awk -f /etc/display/get_hdmi_mode.awk $DISP_CAP`
             echo $mode > $DISP_MODE
+        fi
+        if [ $mode == "720p" ]; then
+            fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
+        elif [ $mode == "1080p" ]; then
+            fbset -fb /dev/fb0 -g 1920 1080 1920 2160 32
         fi
 esac
 
