@@ -1,0 +1,14 @@
+Index: arm-src-kernel-2014-08-12-808e85736c/Makefile
+===================================================================
+--- arm-src-kernel-2014-08-12-808e85736c.orig/Makefile	2014-08-11 15:53:16.000000000 +0800
++++ arm-src-kernel-2014-08-12-808e85736c/Makefile	2014-08-12 18:33:50.912494691 +0800
+@@ -378,8 +378,7 @@
+ 		   -Werror=comment \
+ 		   -Werror=implicit-int \
+ 		   -Werror=missing-braces \
+-		   -Werror=unused-value \
+-		   -Werror=maybe-uninitialized
++		   -Werror=unused-value 
+ KBUILD_AFLAGS_KERNEL :=
+ KBUILD_CFLAGS_KERNEL :=
+ KBUILD_AFLAGS   := -D__ASSEMBLY__

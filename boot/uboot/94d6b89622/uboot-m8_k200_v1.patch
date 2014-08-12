@@ -26,10 +26,10 @@
 +        "setenv bootargs ${initargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${hdmimode}\0"\
      \
 +    "bootsdargs="\
-+        "root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode}\0"\
++        "setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode}\0"\
 +    \
 +    "bootupdateargs="\
-+        "root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
++        "setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/init console=ttyS0,115200n8 no_console_suspend logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
 +     \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
@@ -44,13 +44,13 @@
 +    \
 +     "bootsdcard="\
 +        "echo Booting ...;"\
-+         "setenv bootargs ${bootsdargs}; "\
++         "run bootsdargs; "\
 +         "mmcinfo;"\
 +         "ext2load mmc 0 ${loadaddr} boot.img;"\
 +         "bootm\0" \
 +     "bootupdate="\
 +        "echo Updating...;"\
-+         "setenv bootargs ${bootupdateargs}; "\
++         "run bootupdateargs; "\
 +         "mmcinfo;"\
 +         "fatload mmc 0 ${loadaddr} boot.img;"\
 +         "bootm\0" \

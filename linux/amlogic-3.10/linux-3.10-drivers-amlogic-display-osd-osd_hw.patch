@@ -1,16 +1,8 @@
---- arm-src-kernel-2014-06-18-155d61a24e/drivers/amlogic/display/osd/osd_hw.c.orig	2014-06-18 15:01:44.931105472 +0800
-+++ arm-src-kernel-2014-06-18-155d61a24e/drivers/amlogic/display/osd/osd_hw.c	2014-06-18 15:46:49.211156213 +0800
-@@ -1944,7 +1944,9 @@ static   void  osd2_update_enable(void)
-                 aml_set_reg32_mask(P_VPP_MISC,VPP_OSD1_POSTBLEND);
-                 aml_set_reg32_mask(P_VPP_MISC,VPP_POSTBLEND_EN);
-             }else{
-+#ifndef CONFIG_FB_OSD2_CURSOR
-                 aml_clr_reg32_mask(P_VPP_MISC,VPP_OSD1_POSTBLEND);
-+#endif
-                 aml_set_reg32_mask(P_VPP_MISC,VPP_OSD2_POSTBLEND);
-                 aml_set_reg32_mask(P_VPP_MISC,VPP_POSTBLEND_EN);
-             }
-@@ -2626,7 +2628,6 @@ void osd_init_hw(u32  logo_loaded)
+Index: arm-src-kernel-2014-08-12-808e85736c/drivers/amlogic/display/osd/osd_hw.c
+===================================================================
+--- arm-src-kernel-2014-08-12-808e85736c.orig/drivers/amlogic/display/osd/osd_hw.c	2014-08-11 15:53:16.000000000 +0800
++++ arm-src-kernel-2014-08-12-808e85736c/drivers/amlogic/display/osd/osd_hw.c	2014-08-12 18:24:12.180483835 +0800
+@@ -2637,7 +2637,6 @@
  	osd_hw.color_info[OSD2]=NULL;
  	vf.width =vf.height=0;
  	osd_hw.color_key[OSD1]=osd_hw.color_key[OSD2]=0xffffffff;
@@ -18,7 +10,7 @@
  	osd_hw.scale[OSD1].h_enable=osd_hw.scale[OSD1].v_enable=0;
  	osd_hw.scale[OSD2].h_enable=osd_hw.scale[OSD2].v_enable=0;
  	osd_hw.mode_3d[OSD2].enable=osd_hw.mode_3d[OSD1].enable=0;
-@@ -2645,6 +2646,12 @@ void osd_init_hw(u32  logo_loaded)
+@@ -2656,6 +2655,12 @@
  	osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 0;
  #endif
  
@@ -31,7 +23,7 @@
  	memset(osd_hw.rotate,0,sizeof(osd_rotate_t));
  
  #ifdef FIQ_VSYNC
-@@ -2760,6 +2767,33 @@ void osd_cursor_hw(s16 x, s16 y, s16 xst
+@@ -2780,6 +2785,33 @@
  }
  #endif //CONFIG_FB_OSD2_CURSOR
  
