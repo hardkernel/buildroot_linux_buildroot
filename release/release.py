@@ -24,6 +24,7 @@ pkg = {
    'usi':'BR2_PACKAGE_BRCMUSI_GIT_REPO_URL',
    'tvin':'BR2_PACKAGE_AML_TVIN_GIT_REPO_URL',
    'pmu':'BR2_PACKAGE_AML_PMU_GIT_REPO_URL',
+   'touch':'BR2_PACKAGE_AML_TOUCH_GIT_REPO_URL',
    'nand':'BR2_PACKAGE_AML_NAND_GIT_URL',
    'uboot':'BR2_TARGET_UBOOT_CUSTOM_REPO_URL', 
    'uboot_customer':'BR2_PACKAGE_AML_UBOOT_CUSTOMER_GIT_REPO_URL'
@@ -46,6 +47,7 @@ repos = {
    'usi':'platform/hardware/wifi/broadcom/drivers/usi', 
    'tvin':'linux/amlogic/tvin', 
    'pmu':'platform/hardware/amlogic/pmu', 
+   'touch':'platform/hardware/amlogic/touch', 
    'nand':'platform/hardware/amlogic/nand', 
    'uboot':'uboot', 
    'uboot_customer':'uboot/customer'
@@ -67,6 +69,7 @@ branches = {
     'usi':'BR2_PACKAGE_BRCMUSI_GIT_VERSION', 
     'tvin':'BR2_PACKAGE_AML_TVIN_GIT_VERSION',
     'pmu':'BR2_PACKAGE_AML_PMU_GIT_VERSION',
+    'touch':'BR2_PACKAGE_AML_TOUCH_GIT_VERSION',
     'nand':'BR2_PACKAGE_AML_NAND_VERSION',
     'uboot':'BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION',
     'uboot_customer':'BR2_PACKAGE_AML_UBOOT_CUSTOMER_GIT_VERSION'
@@ -89,6 +92,7 @@ tar = {
    'usi':'brcmusi', 
    'tvin':'aml_tvin', 
    'pmu':'aml_pmu', 
+   'touch':'aml_touch', 
    'nand':'aml_nand', 
    'uboot':'uboot', 
    'uboot_customer':'aml_uboot_customer'
@@ -111,6 +115,7 @@ location = {
    'usi':'wifi', 
    'tvin':'modules', 
    'pmu':'modules', 
+   'touch':'modules', 
    'nand':'modules', 
    'uboot':'u-boot', 
    'uboot_customer':'u-boot'

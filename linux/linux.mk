@@ -91,6 +91,9 @@ endif
 ifeq ($(BR2_PACKAGE_AML_PMU),y)
 	LINUX_DEPENDENCIES += aml_pmu
 endif
+ifeq ($(BR2_PACKAGE_AML_TOUCH),y)
+	LINUX_DEPENDENCIES += aml_touch
+endif
 
 LINUX_MAKE_FLAGS = \
 	HOSTCC="$(HOSTCC)" \
@@ -263,6 +266,9 @@ define LINUX_CONFIGURE_CMDS
         $(if $(BR2_PACKAGE_AML_PMU),
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic;
                 ln -sf $(AML_PMU_DIR) $(LINUX_DIR)/../hardware/amlogic/pmu)
+        $(if $(BR2_PACKAGE_AML_TOUCH),
+		mkdir -p $(LINUX_DIR)/../hardware/amlogic;
+                ln -sf $(AML_TOUCH_DIR) $(LINUX_DIR)/../hardware/amlogic/touch)
         $(if $(BR2_LINUX_KERNEL_USE_DEFCONFIG), 
                 $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig)
         $(if $(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),

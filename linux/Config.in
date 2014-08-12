@@ -360,6 +360,7 @@ source "package/brcmusi/Config.in"
 source "package/aml_nand/Config.in"
 source "package/aml_tvin/Config.in"
 source "package/aml_pmu/Config.in"
+source "package/aml_touch/Config.in"
 
 endif # BR2_LINUX_KERNEL
 
