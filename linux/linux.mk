@@ -79,6 +79,9 @@ endif
 ifeq ($(BR2_PACKAGE_RTK8811AU),y)
 	LINUX_DEPENDENCIES += rtk8811au
 endif
+ifeq ($(BR2_PACKAGE_RTK8812AU),y)
+	LINUX_DEPENDENCIES += rtk8812au
+endif
 ifeq ($(BR2_PACKAGE_BRCMAP6XXX),y)
 	LINUX_DEPENDENCIES += brcmap6xxx
 endif
@@ -254,6 +257,9 @@ define LINUX_CONFIGURE_CMDS
         $(if $(BR2_PACKAGE_RTK8811AU),
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
                 ln -sf $(RTK8811AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8811au)
+        $(if $(BR2_PACKAGE_RTK8812AU),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+                ln -sf $(RTK8812AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8812au)
         $(if $(BR2_PACKAGE_BRCMAP6XXX),
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
                 ln -sf $(BRCMAP6XXX_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx)
