@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-# This cset is on the branch 'frodo'
+# This cset is on the branch 'gotham'
 # When XBMC is updated, then this should be updated to the corresponding branch
-XBMC_PVR_ADDONS_VERSION = 319351af7f3b546a5a56cdf6492f6ba1aec1cd2f
+XBMC_PVR_ADDONS_VERSION = 18c52bb541d5c7f6ccab9edcd3c809f03b31de90
 XBMC_PVR_ADDONS_SITE = $(call github,opdenkamp,xbmc-pvr-addons,$(XBMC_PVR_ADDONS_VERSION))
 XBMC_PVR_ADDONS_LICENSE = GPLv3+
 XBMC_PVR_ADDONS_LICENSE_FILES = COPYING

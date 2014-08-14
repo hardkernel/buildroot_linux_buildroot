@@ -5,7 +5,7 @@
 ################################################################################
 
 MPD_VERSION_MAJOR = 0.18
-MPD_VERSION = $(MPD_VERSION_MAJOR).10
+MPD_VERSION = $(MPD_VERSION_MAJOR).12
 MPD_SOURCE = mpd-$(MPD_VERSION).tar.xz
 MPD_SITE = http://www.musicpd.org/download/mpd/$(MPD_VERSION_MAJOR)
 MPD_DEPENDENCIES = host-pkgconf libglib2
@@ -13,6 +13,11 @@ MPD_LICENSE = GPLv2+
 MPD_LICENSE_FILES = COPYING
 
 # Some options need an explicit --disable or --enable
+ifeq ($(BR2_PACKAGE_AVAHI_DAEMON),y)
+MPD_DEPENDENCIES += avahi
+else
+MPD_CONF_OPT += --with-zeroconf=no
+endif
 
 ifeq ($(BR2_PACKAGE_MPD_ALSA),y)
 MPD_DEPENDENCIES += alsa-lib
@@ -62,12 +67,6 @@ ifeq ($(BR2_PACKAGE_MPD_LAME),y)
 MPD_DEPENDENCIES += lame
 else
 MPD_CONF_OPT += --disable-lame-encoder
-endif
-
-ifeq ($(BR2_PACKAGE_MPD_LIBCUE),y)
-MPD_DEPENDENCIES += libcue
-else
-MPD_CONF_OPT += --disable-cue
 endif
 
 ifeq ($(BR2_PACKAGE_MPD_LIBSAMPLERATE),y)
@@ -125,6 +124,11 @@ endif
 ifeq ($(BR2_PACKAGE_MPD_TREMOR),y)
 MPD_DEPENDENCIES += tremor
 MPD_CONF_OPT += --with-tremor
+endif
+
+ifeq ($(BR2_PACKAGE_MPD_TWOLAME),y)
+MPD_DEPENDENCIES += twolame
+MPD_CONF_OPT += --enable-twolame-encoder
 endif
 
 ifeq ($(BR2_PACKAGE_MPD_WAVPACK),y)
