@@ -35,6 +35,8 @@ endef
 define DHCPCD_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) \
 		-C $(@D) all
+	$(TARGET_MAKE_ENV) $(MAKE) \
+		-C $(@D)/dhcpcd-hooks 
 endef
 
 define DHCPCD_INSTALL_TARGET_CMDS

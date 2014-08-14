@@ -94,27 +94,12 @@ endef
 # Messages for the type of clone used are provided to ease debugging in case of
 # problems
 define DOWNLOAD_GIT
-if test "$($(PKG)_HISTORY)" == "YES"; then \
-	test -e $(DL_DIR)/$($(PKG)_SOURCE) || \
-	(pushd $(DL_DIR) > /dev/null && \
-	 ((test "`git ls-remote $($(PKG)_SITE) $($(PKG)_DL_VERSION)`" && \
-	   echo "Doing shallow clone" && \
-	   $(GIT) clone --depth 1 -b $($(PKG)_DL_VERSION) $($(PKG)_SITE) $($(PKG)_BASE_NAME)) || \
-	  (echo "Doing full clone" && \
-	   $(GIT) clone $($(PKG)_SITE) $($(PKG)_BASE_NAME))) && \
-	pushd $($(PKG)_BASE_NAME) > /dev/null && \
-	$(TAR) -C $(DL_DIR) -zcf $(DL_DIR)/$($(PKG)_SOURCE) $($(PKG)_BASE_NAME) && \
-	popd > /dev/null && \
-	rm -rf $($(PKG)_DL_DIR) && \
-	popd > /dev/null) \
-else \
 	test -e $(DL_DIR)/$($(PKG)_SOURCE) || \
 	$(EXTRA_ENV) support/download/wrapper git \
 		$(DL_DIR)/$($(PKG)_SOURCE) \
 		$($(PKG)_SITE) \
 		$($(PKG)_DL_VERSION) \
 		$($(PKG)_BASE_NAME)
-fi
 endef
 
 # TODO: improve to check that the given PKG_DL_VERSION exists on the remote
