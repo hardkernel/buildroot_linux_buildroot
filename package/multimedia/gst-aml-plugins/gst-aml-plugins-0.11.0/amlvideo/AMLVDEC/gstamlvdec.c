@@ -641,6 +641,8 @@ gst_amlvdec_stop (GstAmlVdec *amlvdec)
     }
     amlvdec->codec_init_ok=0;
     amlvdec->is_headerfeed=FALSE;
+    set_fb0_blank(0);
+    set_fb1_blank(0);
     set_display_axis(1);
     set_ppscaler_enable("1");
     return TRUE;
