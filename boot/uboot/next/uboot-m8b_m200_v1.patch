@@ -1,15 +1,17 @@
---- uboot-next/board/amlogic/configs/m8b_m201_v1.h.orig	2014-07-02 12:22:29.397619052 +0800
-+++ uboot-next/board/amlogic/configs/m8b_m201_v1.h	2014-07-01 18:30:24.296412266 +0800
-@@ -146,7 +146,7 @@
+Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
+===================================================================
+--- uboot-next.orig/board/amlogic/configs/m8b_m200_v1.h	2014-07-10 16:27:22.000000000 +0800
++++ uboot-next/board/amlogic/configs/m8b_m200_v1.h	2014-08-18 14:21:41.365936358 +0800
+@@ -205,7 +205,7 @@
  	"cvbsmode=576cvbs\0" \
  	"outputmode=1080p\0" \
  	"vdac_config=0x10\0" \
--	"initargs=init=/init console=ttyS0,115200n8 no_console_suspend \0" \
+-	"initargs=init=/init console=ttyS0,115200n8 no_console_suspend\0" \
 +    "initargs=root=/dev/system rootfstype=ext4 init=/init console=ttyS0,115200n8 no_console_suspend\0"\
  	"video_dev=tvout\0" \
  	"display_width=1920\0" \
  	"display_height=1080\0" \
-@@ -171,7 +171,7 @@
+@@ -230,7 +230,7 @@
  	"sdcburncfg=aml_sdc_burn.ini\0"\
  	"normalstart=1000000\0" \
  	"normalsize=400000\0" \
@@ -17,22 +19,21 @@
 +	"upgrade_step=2\0" \
  	"firstboot=1\0" \
  	"store=0\0"\
- 	"preboot="\
-@@ -199,8 +199,11 @@
+ 	"preloaddtb=imgread dtb boot ${loadaddr}\0" \
+@@ -271,7 +271,11 @@
          "fi;\0"\
      \
     	"storeargs="\
 -        "setenv bootargs ${initargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${cecconfig}\0"\
--    \
 +        "setenv bootargs ${initargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${hdmimode}\0"\
 +    "bootsdargs="\
 +       "setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/init console=ttyS0,115200n8 no_console_suspend vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode}\0"\
 +    "bootupdateargs="\
 +		"setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/init console=ttyS0,115200n8 no_console_suspend vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
+     \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
- 			"run recovery;"\
-@@ -212,6 +215,19 @@
+@@ -284,6 +288,19 @@
          	"  "\
          "fi;fi;fi\0" \
      \

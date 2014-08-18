@@ -127,9 +127,27 @@ endif
 ifeq ($(WIFI_MODULE),AP6335)
 define WIFI_FW_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/wifi/
-	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/
-	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/Wi-Fi/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/BT/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
+ifeq ($(WIFI_MODULE),AP6234)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6234/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6234/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6234/BT/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
+ifeq ($(WIFI_MODULE),AP6441)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6441/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6441/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6441/BT/*.hcd $(TARGET_DIR)/etc/wifi/
 endef
 endif
 
