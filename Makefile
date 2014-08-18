@@ -25,7 +25,7 @@
 #--------------------------------------------------------------
 
 # Set and export the version string
-export BR2_VERSION := 2014.08-rc1
+export BR2_VERSION := 2014.08-rc2
 
 # Check for minimal make version (note: this check will break at make 10.x)
 MIN_MAKE_VERSION = 3.81
@@ -270,6 +270,8 @@ unexport DESTDIR
 
 # Causes breakage with packages that needs host-ruby
 unexport RUBYOPT
+
+include package/pkg-utils.mk
 
 ifeq ($(BR2_HAVE_DOT_CONFIG),y)
 

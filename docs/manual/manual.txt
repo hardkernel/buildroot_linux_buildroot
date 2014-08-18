@@ -16,11 +16,15 @@ Copyright (C) 2004-2014 The Buildroot developers
 
 image::logo.png[]
 
-:leveloffset: 1
+= Getting started
 
 include::introduction.txt[]
 
 include::starting-up.txt[]
+
+include::get-involved.txt[]
+
+= User guide
 
 include::working-with.txt[]
 
@@ -30,14 +34,16 @@ include::known-issues.txt[]
 
 include::going-further.txt[]
 
-include::developer-guide.txt[]
-
 include::legal-notice.txt[]
 
 include::beyond-buildroot.txt[]
 
-include::get-involved.txt[]
+= Developer guide
+
+include::developer-guide.txt[]
 
 include::contribute.txt[]
+
+= Appendix
 
 include::appendix.txt[]
