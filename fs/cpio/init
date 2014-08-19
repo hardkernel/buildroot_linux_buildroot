@@ -85,7 +85,12 @@ if [ -n "${firmware}" ]; then
         sync
         echo "update complete"
         umount /sys /proc /dev
-        exec chroot /system ${init}
+        #Switch to the new root and execute init
+        /bin/mount -t devtmpfs devtmpfs /system/dev
+        exec 0</system/dev/console
+        exec 1>/system/dev/console
+        exec 2>/system/dev/console
+        exec switch_root -c /dev/console /system "${init}"
     else
         echo "cannot locate ${firmware}"
         echo "boot normally..."
