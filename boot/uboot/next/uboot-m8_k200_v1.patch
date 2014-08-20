@@ -42,7 +42,7 @@ Index: uboot-next/board/amlogic/configs/m8_k200_v1.h
          "imgread kernel boot ${loadaddr};"\
 -        "bootm;"\
 -        "run recovery\0" \
-+        "bootm\0;"\
++        "bootm\0"\
      \
 +     "bootsdcard="\
 +        "echo Booting ...;"\
