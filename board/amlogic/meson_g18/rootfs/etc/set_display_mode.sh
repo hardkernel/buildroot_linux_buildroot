@@ -22,21 +22,29 @@ echo 1 > /sys/class/graphics/fb1/blank
 #fi
 
 #default HDMI 720p
-if [ $display_mode == "720p" ]; then
-    echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
-    echo 0 0 1280 720 0 0 18 18 > /sys/class/display/axis
-    echo 0 > /sys/class/graphics/fb0/freescale_mode
-    echo 0 > /sys/class/graphics/fb1/freescale_mode
-    echo 0 0 1279 719 > /sys/class/graphics/fb0/free_scale_axis
-elif [ $display_mode  == "1080p" ]; then
-    echo 0 0 1920 1080 0 > /sys/class/ppmgr/ppscaler_rect
-    echo 0 0 1920 1080 0 0 18 18 > /sys/class/display/axis
-    echo 0 > /sys/class/graphics/fb0/freescale_mode
-    echo 0 > /sys/class/graphics/fb1/freescale_mode
-    echo 0 0 1919 1079 > /sys/class/graphics/fb0/free_scale_axis
-fi
-
+case $display_mode in
+    720*)
+        echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
+        echo 0 0 1280 720 0 0 18 18 > /sys/class/display/axis
+        echo 0 > /sys/class/graphics/fb0/freescale_mode
+        echo 0 > /sys/class/graphics/fb1/freescale_mode
+        echo 0 0 1279 719 > /sys/class/graphics/fb0/free_scale_axis
+        ;;
+    1080*)
+        echo 0 0 1920 1080 0 > /sys/class/ppmgr/ppscaler_rect
+        echo 0 0 1920 1080 0 0 18 18 > /sys/class/display/axis
+        echo 0 > /sys/class/graphics/fb0/freescale_mode
+        echo 0 > /sys/class/graphics/fb1/freescale_mode
+        echo 0 0 1919 1079 > /sys/class/graphics/fb0/free_scale_axis
+        ;;
+    *)
+        echo 0 0 1280 720 0 > /sys/class/ppmgr/ppscaler_rect
+        echo 0 0 1280 720 0 0 18 18 > /sys/class/display/axis
+        echo 0 > /sys/class/graphics/fb0/freescale_mode
+        echo 0 > /sys/class/graphics/fb1/freescale_mode
+        echo 0 0 1279 719 > /sys/class/graphics/fb0/free_scale_axis
+        ;;
+esac
 
 echo 0x10001 > /sys/class/graphics/fb0/free_scale
-
 echo 0 > /sys/class/graphics/fb0/blank
