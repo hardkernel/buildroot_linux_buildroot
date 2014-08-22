@@ -48,7 +48,7 @@ static GstStaticPadTemplate sink_template_factory =
     GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("video/x-xvid; video/x-divx; video/x-h264; video/mpeg; video/x-msmpeg; video/x-h263; video/x-jpeg; video/x-wmv")
+    GST_STATIC_CAPS ("video/x-xvid; video/x-divx; video/x-h265; video/x-h264; video/mpeg; video/x-msmpeg; video/x-h263; video/x-jpeg; video/x-wmv")
     );
 
 static GstStaticPadTemplate src_template_factory =
@@ -641,6 +641,8 @@ gst_amlvdec_stop (GstAmlVdec *amlvdec)
     }
     amlvdec->codec_init_ok=0;
     amlvdec->is_headerfeed=FALSE;
+    set_fb0_blank(0);
+    set_fb1_blank(0);
     set_display_axis(1);
     set_ppscaler_enable("1");
     return TRUE;

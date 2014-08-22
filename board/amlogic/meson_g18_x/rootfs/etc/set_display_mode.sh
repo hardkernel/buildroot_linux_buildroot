@@ -8,13 +8,19 @@ if [ $hdmi -eq 1 ]; then
     mode=`awk -f /etc/display/get_hdmi_mode.awk $DISP_CAP`
     echo $mode > $DISP_MODE
 fi
-if [ $mode == "720p" ]; then
-    fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
-    echo 720p > /sys/class/display/mode
-elif [ $mode == "1080p" ]; then
-    fbset -fb /dev/fb0 -g 1920 1080 1920 2160 32
-    echo 1080p > /sys/class/display/mode
-fi
+
+case $mode in
+    720*)
+        fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
+        ;;
+    1080*)
+        fbset -fb /dev/fb0 -g 1920 1080 1920 2160 32
+        ;;
+    *)
+        fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
+        outputmode=720p
+        ;;
+esac
 fbset -fb /dev/fb1 -g 32 32 32 32 32
 
 #for recovery
