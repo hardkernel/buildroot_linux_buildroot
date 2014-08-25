@@ -282,8 +282,6 @@ define LINUX_CONFIGURE_CMDS
 	        $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) buildroot_defconfig
         	rm $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
         )
-        $(if $(BR2_PACKAGE_LINUX_SUPPORT_TRUSTZONE),
-                cp -rf linux/trustzone $(LINUX_DIR)/drivers/amlogic)
         $(if $(BR2_arm)$(BR2_armeb),
                 $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
 	$(if $(BR2_PACKAGE_XSERVER_XORG_SERVER),

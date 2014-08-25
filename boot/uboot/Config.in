@@ -286,11 +286,6 @@ config BR2_TARGET_UBOOT_WITH_SECURE_OS
     help
         build uboot with secure os
 
-config BR2_TARGET_UBOOT_SECUREOS_BINARY
-    string "location of secureos binary"
-    help
-        secure os binary
-
 source "package/aml_uboot_customer/Config.in"
 
 endif # BR2_TARGET_UBOOT
