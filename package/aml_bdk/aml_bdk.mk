@@ -12,6 +12,7 @@ define AML_BDK_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE1) -C $(@D) all
 	export KERNEL_SRC_DIR=$(LINUX_DIR); \
 	export KERNEL_BUILT_DIR=$(LINUX_DIR); \
+	export KERNEL_CONFIG=$(BR2_LINUX_KERNEL_DEFCONFIG)_defconfig; \
 	$(TARGET_CONFIGURE_OPTS) $(MAKE1) -C $(@D) driver
 endef
 
