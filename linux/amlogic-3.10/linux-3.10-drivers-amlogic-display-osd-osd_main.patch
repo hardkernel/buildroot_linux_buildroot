@@ -69,10 +69,10 @@
 +#endif
 +		case FBIOPUT_OSD2_CURSOR_DATA:
 +		{
++			aml_hwc_addr_t para;
 +			if (copy_from_user(&karg, argp, sizeof(unsigned int))) {
 +				return -EFAULT;
 +			}
-+			aml_hwc_addr_t para;
 +			if (copy_from_user(&para, (void __user *)karg, sizeof(aml_hwc_addr_t))) {
 +				return -EFAULT;
 +			}
