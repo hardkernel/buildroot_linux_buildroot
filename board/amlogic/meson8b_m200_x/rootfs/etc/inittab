@@ -60,5 +60,5 @@ null::sysinit:echo 0 > /sys/module/aml_wdt/parameters/user_pet
 null::sysinit:/usr/bin/remotecfg /etc/remote.conf
 null::sysinit:/usr/bin/X :0.0 &                                        
 null::sysinit:sleep 1                                           
-null::sysinit:enlightenment_start -display :0.0 &
+null::sysinit:sh /etc/xinitrc
 null::sysinit:echo "nameserver 8.8.8.8" >> /etc/resolv.conf

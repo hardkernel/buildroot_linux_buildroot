@@ -4,13 +4,18 @@
 #
 ################################################################################
 
-DHCPCD_VERSION = 6.1.0
+DHCPCD_VERSION = 6.4.3
 DHCPCD_SOURCE = dhcpcd-$(DHCPCD_VERSION).tar.bz2
 DHCPCD_SITE = http://roy.marples.name/downloads/dhcpcd
+DHCPCD_DEPENDENCIES = host-pkgconf
 DHCPCD_LICENSE = BSD-2c
 
 ifeq ($(BR2_INET_IPV6),)
 	DHCPCD_CONFIG_OPT += --disable-ipv6
+endif
+
+ifeq ($(BR2_PREFER_STATIC_LIB),y)
+	DHCPCD_CONFIG_OPT += --enable-static
 endif
 
 ifeq ($(BR2_USE_MMU),)
@@ -30,6 +35,8 @@ endef
 define DHCPCD_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) \
 		-C $(@D) all
+	$(TARGET_MAKE_ENV) $(MAKE) \
+		-C $(@D)/dhcpcd-hooks 
 endef
 
 define DHCPCD_INSTALL_TARGET_CMDS

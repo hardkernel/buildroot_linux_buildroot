@@ -1,14 +1,29 @@
-Index: arm-src-kernel-2014-08-12-808e85736c/Makefile
+Index: linux-amlogic-3.10-bringup/Makefile
 ===================================================================
---- arm-src-kernel-2014-08-12-808e85736c.orig/Makefile	2014-08-11 15:53:16.000000000 +0800
-+++ arm-src-kernel-2014-08-12-808e85736c/Makefile	2014-08-12 18:33:50.912494691 +0800
-@@ -378,8 +378,7 @@
+--- linux-amlogic-3.10-bringup.orig/Makefile	2014-08-26 19:40:23.282127731 +0800
++++ linux-amlogic-3.10-bringup/Makefile	2014-08-27 12:41:09.783276752 +0800
+@@ -373,15 +373,12 @@
+ 		   -fno-strict-aliasing -fno-common \
+ 		   -Werror-implicit-function-declaration \
+ 		   -Wno-format-security \
+-		   -fno-delete-null-pointer-checks \
+-		   -Werror
++		   -fno-delete-null-pointer-checks
+ KBUILD_CFLAGS   += -Werror=enum-compare \
  		   -Werror=comment \
  		   -Werror=implicit-int \
  		   -Werror=missing-braces \
--		   -Werror=unused-value \
--		   -Werror=maybe-uninitialized
-+		   -Werror=unused-value 
+ 		   -Werror=unused-value \
+-		   -Werror=maybe-uninitialized \
+-		   -Werror=unused-variable \
+ 		   -Werror=format \
+ 		   -Werror=unused-function \
+ 		   -Werror=switch \
+@@ -394,6 +391,7 @@
+ 		   -Werror=return-type \
+ 		   -Werror=parentheses \
+ 		   -Werror=int-to-pointer-cast \
++		   -Wno-maybe-uninitialized \
+ 		   -Wno-error=cpp
  KBUILD_AFLAGS_KERNEL :=
  KBUILD_CFLAGS_KERNEL :=
- KBUILD_AFLAGS   := -D__ASSEMBLY__
