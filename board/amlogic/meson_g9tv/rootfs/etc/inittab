@@ -17,8 +17,8 @@
 ::sysinit:/bin/mount -t proc proc /proc
 ::sysinit:/bin/mkdir /dev/shm
 ::sysinit:/bin/mkdir /dev/pts
-#::sysinit:/bin/mount -o remount,rw /
-#::sysinit:/bin/mount -a
+::sysinit:/bin/mount -o remount,rw /
+::sysinit:/bin/mount -a
 #::sysinit:modprobe ump
 #::sysinit:modprobe mali
 ::sysinit:/bin/hostname -F /etc/hostname
