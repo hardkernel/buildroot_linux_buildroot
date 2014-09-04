@@ -1,17 +1,17 @@
 Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
 ===================================================================
---- uboot-next.orig/board/amlogic/configs/m8b_m200_v1.h	2014-07-10 16:27:22.000000000 +0800
-+++ uboot-next/board/amlogic/configs/m8b_m200_v1.h	2014-08-18 14:21:41.365936358 +0800
-@@ -205,7 +205,7 @@
+--- uboot-next.orig/board/amlogic/configs/m8b_m200_v1.h	2014-09-04 11:14:26.000000000 +0800
++++ uboot-next/board/amlogic/configs/m8b_m200_v1.h	2014-09-04 15:35:14.352440141 +0800
+@@ -206,7 +206,7 @@
  	"cvbsmode=576cvbs\0" \
  	"outputmode=1080p\0" \
  	"vdac_config=0x10\0" \
--	"initargs=init=/init console=ttyS0,115200n8 no_console_suspend\0" \
-+    "initargs=root=/dev/system rootfstype=ext4 init=/init console=ttyS0,115200n8 no_console_suspend\0"\
+-	"initargs=init=/init console=ttyS0,115200n8 no_console_suspend ramoops.mem_address=0x04e00000 ramoops.mem_size=0x100000 ramoops.record_size=0x8000 ramoops.console_size=0x4000\0" \
++    "initargs=root=/dev/system rootfstype=ext4 init=/init console=ttyS0,115200n8 no_console_suspend ramoops.mem_address=0x04e00000 ramoops.mem_size=0x100000 ramoops.record_size=0x8000 ramoops.console_size=0x4000\0"\
  	"video_dev=tvout\0" \
  	"display_width=1920\0" \
  	"display_height=1080\0" \
-@@ -230,7 +230,7 @@
+@@ -231,7 +231,7 @@
  	"sdcburncfg=aml_sdc_burn.ini\0"\
  	"normalstart=1000000\0" \
  	"normalsize=400000\0" \
@@ -19,8 +19,8 @@ Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
 +	"upgrade_step=2\0" \
  	"firstboot=1\0" \
  	"store=0\0"\
- 	"preloaddtb=imgread dtb boot ${loadaddr}\0" \
-@@ -271,7 +271,11 @@
+         "wipe_data=success\0"\
+@@ -273,7 +273,11 @@
          "fi;\0"\
      \
     	"storeargs="\
@@ -33,10 +33,14 @@ Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
      \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
-@@ -284,6 +288,19 @@
-         	"  "\
-         "fi;fi;fi\0" \
-     \
+@@ -300,8 +304,20 @@
+             "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
+         "fi;"\
+         "imgread kernel boot ${loadaddr};"\
+-        "bootm;"\
+-        "run recovery\0" \
++        "bootm\0"\
++    \
 +     "bootsdcard="\
 +        "echo Booting ...;"\
 +         "run bootsdargs; "\
@@ -49,7 +53,6 @@ Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
 +         "mmcinfo;"\
 +         "fatload mmc 0 ${loadaddr} boot.img;"\
 +         "bootm\0" \
-+    \
-     "prepare="\
-         "logo size ${outputmode}; video open; video clear; video dev open ${outputmode};"\
-         "imgread pic logo bootup ${loadaddr_logo}; "\
+     \
+ 	"recovery="\
+         "echo enter recovery;"\
