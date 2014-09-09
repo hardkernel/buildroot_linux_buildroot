@@ -1,7 +1,8 @@
-diff -Naur gpu-r4p0-01.orig/ump/Kbuild gpu-r4p0-01/ump/Kbuild
---- gpu-r4p0-01.orig/ump/Kbuild	2014-03-17 15:43:25.461126868 -0700
-+++ gpu-r4p0-01/ump/Kbuild	2014-03-17 16:33:54.333055636 -0700
-@@ -42,29 +42,18 @@
+Index: gpu-r4p0-01/ump/Kbuild
+===================================================================
+--- gpu-r4p0-01.orig/ump/Kbuild	2014-09-09 13:51:34.588428053 +0800
++++ gpu-r4p0-01/ump/Kbuild	2014-09-09 13:57:10.928434367 +0800
+@@ -42,30 +42,20 @@
  ccflags-y += -DMALI_STATE_TRACKING=0
  ccflags-y += -DMALI_ENABLE_CPU_CYCLES=0
  ccflags-$(CONFIG_UMP_DEBUG) += -DDEBUG
@@ -17,9 +18,10 @@ diff -Naur gpu-r4p0-01.orig/ump/Kbuild gpu-r4p0-01/ump/Kbuild
  else
 -ccflags-y += -I$(TOP_KBUILD_SRC)$(src)/linux/license/gpl
 +ccflags-y += -I$(TOP_KBUILD_SRC)$(src)/linux/license/gpl -I$(TOP_KBUILD_SRC)$(src)/$(UDD_FILE_PREFIX)linux/license/gpl
+ ccflags-y += -I$(TOP_KBUILD_SRC)$(src)/../mali/linux/license/gpl
  endif
  
--
+ 
 -$(obj)/__mali_osk_atomics.c : $(src)/$(UDD_FILE_PREFIX)linux/mali_osk_atomics.c
 -	@cp -f $< $@
 -$(obj)/__mali_osk_locks.c : $(src)/$(UDD_FILE_PREFIX)linux/mali_osk_locks.c
@@ -34,10 +36,10 @@ diff -Naur gpu-r4p0-01.orig/ump/Kbuild gpu-r4p0-01/ump/Kbuild
  ump-y = common/ump_kernel_common.o \
  	common/ump_kernel_descriptor_mapping.o \
  	common/ump_kernel_api.o \
-@@ -78,23 +67,12 @@
- 	linux/ump_osk_atomics.o \
+@@ -80,23 +70,13 @@
  	linux/ump_osk_low_level_mem.o \
  	linux/ump_osk_misc.o \
+ 	linux/ump_kernel_random_mapping.o \
 -	__mali_osk_locks.o \
 -	__mali_osk_memory.o \
 -	__mali_osk_atomics.o \
@@ -52,14 +54,14 @@ diff -Naur gpu-r4p0-01.orig/ump/Kbuild gpu-r4p0-01/ump/Kbuild
 -#	$(UDD_FILE_PREFIX)linux/mali_osk_memory.o \
 -#	$(UDD_FILE_PREFIX)linux/mali_osk_math.o \
 -#	$(UDD_FILE_PREFIX)linux/mali_osk_misc.o
--
 +	$(UDD_FILE_PREFIX)linux/mali_osk_atomics.o \
 +	$(UDD_FILE_PREFIX)linux/mali_osk_locks.o \
 +	$(UDD_FILE_PREFIX)linux/mali_osk_memory.o \
 +	$(UDD_FILE_PREFIX)linux/mali_osk_math.o \
 +	$(UDD_FILE_PREFIX)linux/mali_osk_misc.o
  
+ 
 -clean-files := __mali_osk*.c 
  
  obj-$(CONFIG_UMP) := ump.o
-
+ 
