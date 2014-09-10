@@ -139,6 +139,7 @@ ifeq ($(BR2_LINUX_KERNEL_UIMAGE),y)
 LINUX_IMAGE_NAME = uImage
 else ifeq ($(BR2_LINUX_KERNEL_APPENDED_UIMAGE),y)
 LINUX_IMAGE_NAME = uImage
+LINUX_TARGET_NAME = zImage
 else ifeq ($(BR2_LINUX_KERNEL_BZIMAGE),y)
 LINUX_IMAGE_NAME = bzImage
 else ifeq ($(BR2_LINUX_KERNEL_ZIMAGE),y)
@@ -158,7 +159,9 @@ LINUX_IMAGE_NAME = vmlinux
 else ifeq ($(BR2_LINUX_KERNEL_VMLINUZ),y)
 LINUX_IMAGE_NAME = vmlinuz
 endif
+ifeq ($(LINUX_TARGET_NAME),)
 LINUX_TARGET_NAME = $(LINUX_IMAGE_NAME)
+endif
 endif
 
 ifeq ($(LINUX_IMAGE_NAME),)
@@ -305,8 +308,10 @@ define LINUX_CONFIGURE_CMDS
                 touch $(BINARIES_DIR)/$(ROOTFS_CPIO)
 		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,"$(BINARIES_DIR)/$(ROOTFS_CPIO)",$(@D)/.config)
                 $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
-                $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config)
-                $(call KCONFIG_ENABLE_OPT,CONFIG_KERNEL_GZIP,$(@D)/.config))
+                $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config))
+		$(if $(BR2_TARGET_ROOTFS_CPIO_GZIP),
+                $(call KCONFIG_ENABLE_OPT,CONFIG_KERNEL_GZIP,$(@D)/.config)
+				$(call KCONFIG_ENABLE_OPT,CONFIG_INITRAMFS_COMPRESSION_GZIP,$(@D)/.config))
 	$(if $(BR2_ROOTFS_DEVICE_CREATION_STATIC),,
 		$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS,$(@D)/.config)
 		$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS_MOUNT,$(@D)/.config))
@@ -402,7 +407,7 @@ ifeq ($(BR2_LINUX_KERNEL_APPENDED_UIMAGE),y)
 # address and entry point for the kernel from the already
 # generate uboot image before using mkimage -l.
 LINUX_APPEND_DTB += $(sep) MKIMAGE_ARGS=`$(MKIMAGE) -l $(LINUX_IMAGE_PATH) |\
-        sed -n -e 's/Image Name:[ ]*\(.*\)/-n \1/p' -e 's/Load Address:/-a/p' -e 's/Entry Point:/-e/p'`; \
+        sed -n -e 's/Image Name:[ ]*\(.*\)/ \1/p' -e 's/Load Address:/-a/p' -e 's/Entry Point:/-e/p'`; \
         $(MKIMAGE) -A $(MKIMAGE_ARCH) -O linux \
         -T kernel -C none $${MKIMAGE_ARGS} \
         -d $(KERNEL_ARCH_PATH)/boot/zImage $(LINUX_IMAGE_PATH);
