@@ -34,6 +34,9 @@ for i in $(cat /proc/cmdline); do
         rootfstype\=*)
             rootfstype=$(get_opt $i)
             ;;
+        init\=*)
+            init=$(get_opt $i)
+            ;;
     esac
 done
 
