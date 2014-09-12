@@ -336,6 +336,8 @@ define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_LINUX_KERNEL_APPENDED_DTB),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_ARM_APPENDED_DTB,$(@D)/.config))
 	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) oldconfig
+	# Get rid of unwanted configuration here
+	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_PARANOID_NETWORK,$(@D)/.config)
 endef
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
