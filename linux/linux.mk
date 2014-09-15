@@ -28,13 +28,13 @@ LINUX_SOURCE = linux-$(LINUX_VERSION).tar.xz
 # to use the $(word) function. We support versions such as 3.1,
 # 2.6.32, 2.6.32-rc1, 3.0-rc6, etc.
 ifeq ($(findstring x2.6.,x$(LINUX_VERSION)),x2.6.)
-LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/v2.6/
+LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/v2.6
 else
-LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/v3.x/
+LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/v3.x
 endif
 # release candidates are in testing/ subdir
 ifneq ($(findstring -rc,$(LINUX_VERSION)),)
-LINUX_SITE := $(LINUX_SITE)testing/
+LINUX_SITE := $(LINUX_SITE)/testing/
 endif # -rc
 endif
 
@@ -79,6 +79,9 @@ endif
 ifeq ($(BR2_PACKAGE_RTK8811AU),y)
 	LINUX_DEPENDENCIES += rtk8811au
 endif
+ifeq ($(BR2_PACKAGE_RTK8812AU),y)
+	LINUX_DEPENDENCIES += rtk8812au
+endif
 ifeq ($(BR2_PACKAGE_BRCMAP6XXX),y)
 	LINUX_DEPENDENCIES += brcmap6xxx
 endif
@@ -90,6 +93,9 @@ ifeq ($(BR2_PACKAGE_AML_TVIN),y)
 endif
 ifeq ($(BR2_PACKAGE_AML_PMU),y)
 	LINUX_DEPENDENCIES += aml_pmu
+endif
+ifeq ($(BR2_PACKAGE_AML_TOUCH),y)
+	LINUX_DEPENDENCIES += aml_touch
 endif
 
 LINUX_MAKE_FLAGS = \
@@ -126,12 +132,14 @@ KERNEL_DTBS = $(addsuffix .dtb,$(KERNEL_DTS_NAME))
 KERNEL_DTDS = $(addsuffix .dtd,$(KERNEL_DTS_NAME))
 
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
-LINUX_IMAGE_NAME = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
+LINUX_IMAGE_NAME = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_NAME))
+LINUX_TARGET_NAME = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
 else
 ifeq ($(BR2_LINUX_KERNEL_UIMAGE),y)
 LINUX_IMAGE_NAME = uImage
 else ifeq ($(BR2_LINUX_KERNEL_APPENDED_UIMAGE),y)
 LINUX_IMAGE_NAME = uImage
+LINUX_TARGET_NAME = zImage
 else ifeq ($(BR2_LINUX_KERNEL_BZIMAGE),y)
 LINUX_IMAGE_NAME = bzImage
 else ifeq ($(BR2_LINUX_KERNEL_ZIMAGE),y)
@@ -151,6 +159,13 @@ LINUX_IMAGE_NAME = vmlinux
 else ifeq ($(BR2_LINUX_KERNEL_VMLINUZ),y)
 LINUX_IMAGE_NAME = vmlinuz
 endif
+ifeq ($(LINUX_TARGET_NAME),)
+LINUX_TARGET_NAME = $(LINUX_IMAGE_NAME)
+endif
+endif
+
+ifeq ($(LINUX_IMAGE_NAME),)
+LINUX_IMAGE_NAME = $(LINUX_TARGET_NAME)
 endif
 
 LINUX_KERNEL_UIMAGE_LOADADDR=$(call qstrip,$(BR2_LINUX_KERNEL_UIMAGE_LOADADDR))
@@ -251,6 +266,9 @@ define LINUX_CONFIGURE_CMDS
         $(if $(BR2_PACKAGE_RTK8811AU),
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
                 ln -sf $(RTK8811AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8811au)
+        $(if $(BR2_PACKAGE_RTK8812AU),
+		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+                ln -sf $(RTK8812AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8812au)
         $(if $(BR2_PACKAGE_BRCMAP6XXX),
 		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
                 ln -sf $(BRCMAP6XXX_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx)
@@ -263,6 +281,9 @@ define LINUX_CONFIGURE_CMDS
         $(if $(BR2_PACKAGE_AML_PMU),
 		mkdir -p $(LINUX_DIR)/../hardware/amlogic;
                 ln -sf $(AML_PMU_DIR) $(LINUX_DIR)/../hardware/amlogic/pmu)
+        $(if $(BR2_PACKAGE_AML_TOUCH),
+		mkdir -p $(LINUX_DIR)/../hardware/amlogic;
+                ln -sf $(AML_TOUCH_DIR) $(LINUX_DIR)/../hardware/amlogic/touch)
         $(if $(BR2_LINUX_KERNEL_USE_DEFCONFIG), 
                 $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig)
         $(if $(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),
@@ -270,8 +291,6 @@ define LINUX_CONFIGURE_CMDS
 	        $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) buildroot_defconfig
         	rm $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
         )
-        $(if $(BR2_PACKAGE_LINUX_SUPPORT_TRUSTZONE),
-                cp -rf linux/trustzone $(LINUX_DIR)/drivers/amlogic)
         $(if $(BR2_arm)$(BR2_armeb),
                 $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
 	$(if $(BR2_PACKAGE_XSERVER_XORG_SERVER),
@@ -284,12 +303,15 @@ define LINUX_CONFIGURE_CMDS
         # As the kernel gets compiled before root filesystems are
         # built, we create a fake cpio file. It'll be
         # replaced later by the real cpio archive, and the kernel will be
-        # rebuilt using the linux26-rebuild-with-initramfs target.
+	# rebuilt using the linux-rebuild-with-initramfs target.
         $(if $(BR2_TARGET_ROOTFS_INITRAMFS),
                 touch $(BINARIES_DIR)/$(ROOTFS_CPIO)
-                $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/$(ROOTFS_CPIO)\",$(@D)/.config)
+		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,"$(BINARIES_DIR)/$(ROOTFS_CPIO)",$(@D)/.config)
                 $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
                 $(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config))
+		$(if $(BR2_TARGET_ROOTFS_CPIO_GZIP),
+                $(call KCONFIG_ENABLE_OPT,CONFIG_KERNEL_GZIP,$(@D)/.config)
+				$(call KCONFIG_ENABLE_OPT,CONFIG_INITRAMFS_COMPRESSION_GZIP,$(@D)/.config))
 	$(if $(BR2_ROOTFS_DEVICE_CREATION_STATIC),,
 		$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS,$(@D)/.config)
 		$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS_MOUNT,$(@D)/.config))
@@ -314,6 +336,8 @@ define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_LINUX_KERNEL_APPENDED_DTB),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_ARM_APPENDED_DTB,$(@D)/.config))
 	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) oldconfig
+	# Get rid of unwanted configuration here
+	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_PARANOID_NETWORK,$(@D)/.config)
 endef
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
@@ -385,7 +409,7 @@ ifeq ($(BR2_LINUX_KERNEL_APPENDED_UIMAGE),y)
 # address and entry point for the kernel from the already
 # generate uboot image before using mkimage -l.
 LINUX_APPEND_DTB += $(sep) MKIMAGE_ARGS=`$(MKIMAGE) -l $(LINUX_IMAGE_PATH) |\
-        sed -n -e 's/Image Name:[ ]*\(.*\)/-n \1/p' -e 's/Load Address:/-a/p' -e 's/Entry Point:/-e/p'`; \
+        sed -n -e 's/Image Name:[ ]*\(.*\)/ \1/p' -e 's/Load Address:/-a/p' -e 's/Entry Point:/-e/p'`; \
         $(MKIMAGE) -A $(MKIMAGE_ARCH) -O linux \
         -T kernel -C none $${MKIMAGE_ARGS} \
         -d $(KERNEL_ARCH_PATH)/boot/zImage $(LINUX_IMAGE_PATH);
@@ -396,8 +420,8 @@ endif
 # configuration has changed.
 define LINUX_BUILD_CMDS
 	$(if $(BR2_LINUX_KERNEL_USE_CUSTOM_DTS),
-		cp $(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH) $(KERNEL_ARCH_PATH)/boot/dts/)
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(LINUX_IMAGE_NAME)
+		cp $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH)) $(KERNEL_ARCH_PATH)/boot/dts/)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(LINUX_TARGET_NAME)
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
 		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) modules ;	\
 	fi
@@ -444,24 +468,24 @@ include $(sort $(wildcard linux/linux-ext-*.mk))
 $(eval $(generic-package))
 
 ifeq ($(BR2_LINUX_KERNEL),y)
-linux-menuconfig linux-xconfig linux-gconfig linux-nconfig linux26-menuconfig linux26-xconfig linux26-gconfig linux26-nconfig: linux-configure
+linux-menuconfig linux-xconfig linux-gconfig linux-nconfig: linux-configure
 	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_DIR) \
-		$(subst linux-,,$(subst linux26-,,$@))
+		$(subst linux-,,$@)
 	rm -f $(LINUX_DIR)/.stamp_{built,target_installed,images_installed}
 
-linux-savedefconfig linux26-savedefconfig: linux-configure
+linux-savedefconfig: linux-configure
 	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_DIR) \
-		$(subst linux-,,$(subst linux26-,,$@))
+		$(subst linux-,,$@)
 
 ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
-linux-update-config linux26-update-config: linux-configure $(LINUX_DIR)/.config
+linux-update-config: linux-configure $(LINUX_DIR)/.config
 	cp -f $(LINUX_DIR)/.config $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
 
-linux-update-defconfig linux26-update-defconfig: linux-savedefconfig
+linux-update-defconfig: linux-savedefconfig
 	cp -f $(LINUX_DIR)/defconfig $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
 else
-linux-update-config linux26-update-config: ;
-linux-update-defconfig linux26-update-defconfig: ;
+linux-update-config: ;
+linux-update-defconfig: ;
 endif
 endif
 
@@ -470,7 +494,7 @@ endif
 $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LINUX_DIR)/.stamp_images_installed $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	@$(call MESSAGE,"Rebuilding kernel with initramfs")
 	# Build the kernel.
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(LINUX_IMAGE_NAME)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(LINUX_TARGET_NAME)
 	$(LINUX_APPEND_DTB)
 	# Copy the kernel image to its final destination
 	cp $(LINUX_IMAGE_PATH) $(BINARIES_DIR)
@@ -480,7 +504,7 @@ $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LI
 
 # The initramfs building code must make sure this target gets called
 # after it generated the initramfs list of files.
-linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
+linux-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
 
 # Checks to give errors that the user can understand
 ifeq ($(filter source,$(MAKECMDGOALS)),)

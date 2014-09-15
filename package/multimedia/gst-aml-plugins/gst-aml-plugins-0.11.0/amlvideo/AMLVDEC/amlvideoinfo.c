@@ -100,6 +100,95 @@ AmlStreamInfo *createVideoInfo(gint size)
     return info;
 }
 
+static gint amlInitH265(AmlStreamInfo* info, codec_para_t *pcodec, 
+GstStructure  *structure)
+{   
+//    AmlVideoInfo *videoinfo = AML_VIDEOINFO_BASE(info);
+    amlVideoInfoInit(info, pcodec, structure);
+    pcodec->video_type = VFORMAT_HEVC;
+    pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_HEVC;
+    pcodec->am_sysinfo.param = (void *)( EXTERNAL_PTS);
+    return 0;
+}
+static gint h265_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
+{
+    guint8 nal_start_code[] = {0x0, 0x0, 0x0, 0x1};
+    int nal_len_size, nal_size;
+    int i, j;
+    guint config_size = 0;
+    guint8 *config    = NULL;
+    guint8 *hevc_data = NULL;
+    GstBuffer *spps   = NULL;
+    guint8 *sppsData  = NULL;  
+    gint sppsLen = 0;
+    int num_arrays = 0;
+    
+    if(NULL == info->configdata){
+        GST_WARNING("[%s:%d] no codec data\n", __FUNCTION__, __LINE__);
+        return 0;
+    }
+    config_size = GST_BUFFER_SIZE(info->configdata);	
+    config = GST_BUFFER_DATA(info->configdata);
+    hevc_data = config;
+    GST_WARNING("add 265 header in stream\n");
+    if (((hevc_data[0] == 0 && hevc_data[1] == 0 && hevc_data[2] == 0 && hevc_data[3] == 1)
+        ||(hevc_data[0] == 0 && hevc_data[1] == 0 && hevc_data[2] == 1 )) && config_size < 1024) {
+        g_print("add 265 header in stream before header len=%d", config_size);
+        codec_write(pcodec, config, config_size);
+        return 0;
+    }
+    
+    if (config_size < 3) {
+        return -1;
+    }
+
+    if (config_size < 10) {
+        GST_WARNING("hvcC too short\n");
+        return -1;
+    }
+
+    if (*hevc_data != 1) {
+        GST_WARNING(" Unkonwn hvcC version %d\n", *hevc_data);
+        return -1;
+    }
+    spps = gst_buffer_new_and_alloc(config_size);
+    sppsData = GST_BUFFER_DATA(spps);
+    
+    /*skip 21 bytes*/
+    hevc_data += 21;
+   
+    nal_len_size = (*hevc_data) & 3 + 1;
+    hevc_data++;
+    num_arrays = *hevc_data;
+    hevc_data++;
+    GST_WARNING("num_arrays:%d\n", num_arrays);
+
+    /* Decode nal units from hvcC. */
+    for(i = 0; i < num_arrays; i++) {
+      int type = (*hevc_data) & 0x3F;
+      hevc_data++;
+      int cnt  = (*hevc_data << 8) | (*(hevc_data + 1));
+      hevc_data += 2;
+      for(j = 0; j < cnt; j++) {
+        nal_size = (*hevc_data << 8) | (*(hevc_data + 1));
+        memcpy(&(sppsData[sppsLen]), nal_start_code, sizeof(nal_start_code));
+        sppsLen += 4;
+        memcpy(&(sppsData[sppsLen]), hevc_data + 2, nal_size);
+        sppsLen += nal_size;
+        hevc_data += (nal_size + 2);
+      }
+    }
+
+    GST_BUFFER_SIZE(spps) = sppsLen;
+    codec_write(pcodec, sppsData, sppsLen);
+    
+    if(spps)
+        gst_buffer_unref(spps);
+    
+    return 0;
+}
+
+
 gint amlInitH264(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 {   
 //    AmlVideoInfo *videoinfo = AML_VIDEOINFO_BASE(info);
@@ -252,6 +341,26 @@ void amlH264Finalize(AmlStreamInfo *info)
     //TODO:
     amlVdeoInfoFinalize(baseinfo);
     return;
+}
+
+void amlH265Finalize(AmlStreamInfo *info)
+{
+    AmlStreamInfo *baseinfo = AML_STREAMINFO_BASE(info);
+    //do somethings it's self
+    //TODO:
+    amlVdeoInfoFinalize(baseinfo);
+    return;
+}
+
+static AmlStreamInfo *newAmlInfoH265()
+{
+    AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoH265));
+    
+    info->init = amlInitH265;
+    info->writeheader = h265_write_header;
+    info->add_startcode = h264_add_startcode;
+    info->finalize = amlH265Finalize;
+    return info;
 }
 
 AmlStreamInfo *newAmlInfoH264()
@@ -665,6 +774,7 @@ AmlStreamInfo *newAmlInfoXvid()
 
 static const AmlStreamInfoPool amlVstreamInfoPool[] = {
     /*******video format information*******/
+    {"video/x-h265", newAmlInfoH265},
     {"video/x-h264", newAmlInfoH264},
     {"video/mpeg", newAmlInfoMpeg},
     {"video/x-msmpeg", newAmlInfoMsmpeg},

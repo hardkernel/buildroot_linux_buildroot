@@ -27,6 +27,10 @@ typedef struct{
 
 typedef struct{
     AmlVideoInfo videoinfo;
+}AmlInfoH265;
+
+typedef struct{
+    AmlVideoInfo videoinfo;
     gint version;
 }AmlInfoMpeg;
 

@@ -102,10 +102,10 @@ endef
 UBOOT_POST_PATCH_HOOKS += UBOOT_APPLY_CUSTOM_PATCHES
 endif
 
-ifneq ($(BR2_TARGET_UBOOT_SECUREOS_BINARY),"")
+ifeq ($(BR2_TARGET_UBOOT_WITH_SECURE_OS)$(BR2_PACKAGE_AML_BDK),yy)
 define UBOOT_SECUREOS_BINARY
 	mkdir -p $(@D)/secure_os
-	cp -f $(BR2_TARGET_UBOOT_SECUREOS_BINARY) $(@D)/secure_os
+	cp -f package/aml_bdk/src/secureos/$(word 1, $(subst _, ,$(UBOOT_BOARD_NAME)))/otzone-ucl.bin $(@D)/secure_os
 endef
 UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_SECUREOS_BINARY
 endif
