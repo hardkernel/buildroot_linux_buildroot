@@ -1613,9 +1613,10 @@ get_n_audio (GstElement *playbin)
 set_passthrough(fsl_player_handle handle,fsl_player_s32 index)
 {
     gint64 position = 0;
-    GstElement * adec = NULL;
+    GstElement * adec = NULL, *vdec = NULL;
     gint n_audio; 
     gint i;
+    gint32 videonum = 0;
     fsl_player* pplayer = (fsl_player*)handle;
     fsl_player_property* pproperty = (fsl_player_property*)pplayer->property_handle;
     n_audio=get_n_audio (pproperty->playbin);
@@ -1630,6 +1631,12 @@ set_passthrough(fsl_player_handle handle,fsl_player_s32 index)
     if (adec) {
         g_object_set(G_OBJECT(adec), "pass-through", FALSE, NULL);
         gst_object_unref(adec);
+    }
+    
+    g_object_get(pproperty->playbin, "current-video", &videonum, NULL);
+    vdec = getVideoDecElement(pproperty, videonum);
+    if(vdec) {
+      g_object_set(G_OBJECT(vdec), "pass-through", TRUE, NULL);
     }
     position=getcurpos(pproperty);
     fsl_player_seek(handle,position/MILLISECOND2NANOSECOND,1); 

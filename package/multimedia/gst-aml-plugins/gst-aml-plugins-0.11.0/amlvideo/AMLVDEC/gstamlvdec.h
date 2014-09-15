@@ -99,6 +99,7 @@ struct _GstAmlVdec
 		/*private*/
 		gboolean bpass;
 		gint64 basepcr;
+    gboolean passthrough;
 };
 
 struct _GstAmlVdecClass 

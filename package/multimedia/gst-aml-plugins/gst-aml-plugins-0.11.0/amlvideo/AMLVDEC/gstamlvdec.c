@@ -400,7 +400,12 @@ static void gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
             rp_move_count--;        
         usleep(1000*30);
         count++;	
+
+        if(amlvdec->passthrough) {
+          break;
+        }
     } while (vbuf.data_len > 0x100 && rp_move_count > 0);
+    amlvdec->passthrough = FALSE;
     gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
     gst_task_pause (amlvdec->eos_task);
 
@@ -621,6 +626,7 @@ gst_amlvdec_start (GstAmlVdec *amlvdec)
     amlvdec->prival = 0;
     amlvdec->trickRate = 1.0;
 		amlvdec->bpass = TRUE;
+    amlvdec->passthrough = FALSE;
     return TRUE;
 }
 

@@ -42,6 +42,14 @@ static void amlInstallPropContentFrameRate(GObjectClass *oclass,
           0, 100, 30, G_PARAM_READWRITE));
 }
 
+static void amlInstallPropPassthrough(GObjectClass *oclass,
+  guint property_id)
+{
+  GObjectClass*gobject_class = (GObjectClass *) oclass;
+  g_object_class_install_property (gobject_class, property_id, g_param_spec_boolean ("pass-through", "Pass-through", "pass-through this track or not ?",
+            FALSE, G_PARAM_READWRITE));
+}
+
 static int amlGetPropTrickRate(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -106,6 +114,17 @@ static int amlGetPropContentFrameRate(GObject * object, guint prop_id,
 }
 
 
+
+static int amlSetPassthrough(GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+    GstAmlVdec *amlvdec = GST_AMLVDEC (object); 
+    amlvdec->passthrough = g_value_get_boolean (value);
+
+    return 0;
+}
+
+
 static int amlSetPropTrickRate(GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -133,6 +152,7 @@ static const AmlPropType amlvdec_prop_pool[] = {
     {PROP_DEC_HDL,       amlInstallPropDecodeHandle,   amlGetPropDecodeHandle, amlSetPropDecodeHandle},
     {PROP_PCRTOSYSTEMTIME, amlInstallPropSystemtimetoposition, amlGetPropSystemtimetoposition, NULL},
     {PROP_CONTENTFRAME, amlInstallPropContentFrameRate, amlGetPropContentFrameRate, NULL},
+    {PROP_PASSTHROUGH, amlInstallPropPassthrough, NULL, amlSetPassthrough},
     {-1,                          NULL,                                         NULL,                                  NULL},
 };
 
