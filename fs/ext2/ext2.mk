@@ -18,7 +18,7 @@ ifneq ($(strip $(BR2_TARGET_ROOTFS_EXT2_RESBLKS)),0)
 EXT2_OPTS += -m $(BR2_TARGET_ROOTFS_EXT2_RESBLKS)
 endif
 
-ROOTFS_EXT2_DEPENDENCIES = host-genext2fs host-e2fsprogs
+ROOTFS_EXT2_DEPENDENCIES = host-genext2fs host-e2fsprogs host-aml_image_packer
 
 EXT2_ENV  = GEN=$(BR2_TARGET_ROOTFS_EXT2_GEN)
 EXT2_ENV += REV=$(BR2_TARGET_ROOTFS_EXT2_REV)
@@ -33,5 +33,15 @@ rootfs-ext2-symlink:
 ifneq ($(BR2_TARGET_ROOTFS_EXT2_GEN),2)
 ROOTFS_EXT2_POST_TARGETS += rootfs-ext2-symlink
 endif
+DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
+ifneq (,$(wildcard $(DEVICE_DIR)../platform.conf))
+rootfs-usb-image-pack:
+	cp -f $(DEVICE_DIR)../platform.conf $(BINARIES_DIR)
+	$(HOST_DIR)/usr/bin/aml_image_v2_packer -r $(BINARIES_DIR)/usb_burn_package.conf $(BINARIES_DIR)/ $(BINARIES_DIR)/aml_upgrade_package.img
+else
+rootfs-usb-image-pack:
+
+endif
+ROOTFS_EXT2_POST_TARGETS += rootfs-usb-image-pack
 
 $(eval $(call ROOTFS_TARGET,ext2))
