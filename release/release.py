@@ -152,6 +152,11 @@ def getpkg(string):
     loc = re.match(rev, string)
     if loc != None:
         return loc.group(1), loc.group(2), loc.group(3)
+    else:
+        rev = re.compile('<project name=\"([a-z0-9/]*)\".* revision=\"([a-z0-9_]*)\"/>')
+        loc = re.match(rev, string)
+        if loc != None:
+            return loc.group(1), loc.group(2), loc.group(2)
 
 def download_pkg(xml, config, download = 0):
     server_addr = None
@@ -168,7 +173,10 @@ def download_pkg(xml, config, download = 0):
                               break
                           server = server_addr + repos[i]
                           date = time.strftime("%Y-%m-%d")
-                          folder = tar[i] + '-' + date + '-' + pkgloc[0:10]
+                          if pkgloc != b:
+                              folder = tar[i] + '-' + date + '-' + pkgloc[0:10]
+                          else:
+                              folder = tar[i] + '-' + date + '-' + pkgloc
                           if download:
                               cmd = 'rm -rf %s' % folder
                               print cmd
