@@ -281,6 +281,11 @@ config BR2_TARGET_UBOOT_AMLOGIC
     help
         amlogic uboot
 
+config BR2_TARGET_USBTOOL_AMLOGIC
+    bool "amlogic usb tool"
+    help
+        for amlogic usb tool
+
 config BR2_TARGET_UBOOT_WITH_SECURE_OS
     bool "amlogic uboot + secure os"
     help

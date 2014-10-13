@@ -33,6 +33,8 @@ rootfs-ext2-symlink:
 ifneq ($(BR2_TARGET_ROOTFS_EXT2_GEN),2)
 ROOTFS_EXT2_POST_TARGETS += rootfs-ext2-symlink
 endif
+
+ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC), y)
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 ifneq (,$(wildcard $(DEVICE_DIR)../platform.conf))
 rootfs-usb-image-pack:
@@ -43,5 +45,6 @@ rootfs-usb-image-pack:
 
 endif
 ROOTFS_EXT2_POST_TARGETS += rootfs-usb-image-pack
+endif
 
 $(eval $(call ROOTFS_TARGET,ext2))
