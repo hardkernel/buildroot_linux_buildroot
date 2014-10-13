@@ -338,6 +338,8 @@ define LINUX_CONFIGURE_CMDS
 	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) oldconfig
 	# Get rid of unwanted configuration here
 	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_PARANOID_NETWORK,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_POSIX_ACL,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_XATTR,$(@D)/.config)
 endef
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
