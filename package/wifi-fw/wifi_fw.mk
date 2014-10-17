@@ -118,8 +118,8 @@ endif
 ifeq ($(WIFI_MODULE),AP62x2)
 define WIFI_FW_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/wifi/
-	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/
-	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/Wi-Fi/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/BT/*.hcd $(TARGET_DIR)/etc/wifi/
 endef
 endif
