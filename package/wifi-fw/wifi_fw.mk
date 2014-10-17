@@ -151,6 +151,15 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 endef
 endif
 
+ifeq ($(WIFI_MODULE),AP6212)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/nvram.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/BT/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
 endif #BR2_PACKAGE_WIFI_CUSTOM_GIT_VERSION
 
 $(eval $(generic-package))
