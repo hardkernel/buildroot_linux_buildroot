@@ -42,8 +42,18 @@ VLC_CONF_OPT += \
 	--disable-projectm \
 	--disable-vsxu \
 	--disable-mtp \
-	--disable-opencv
-
+	--disable-opencv \
+	--disable-atmo \
+	--disable-gles2 \
+	--disable-gles1 \
+	--disable-egl \
+	--disable-xvideo \
+	--disable-vdpau \
+	--disable-fribidi \
+	--disable-fontconfig \
+	--disable-aa \
+	--disable-nls \
+	--enable-run-as-root
 # Building static and shared doesn't work, so force static off.
 ifeq ($(BR2_PREFER_STATIC_LIB),)
 VLC_CONF_OPT += --disable-static
