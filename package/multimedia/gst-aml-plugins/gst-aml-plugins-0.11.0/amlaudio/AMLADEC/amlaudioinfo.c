@@ -535,10 +535,31 @@ gint amlInitApe(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struct
   return 0; 
 }
 
+gint amlInitDTS(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{
+	pcodec->audio_type = AFORMAT_DTS;	
+	pcodec->audio_info.codec_id = CODEC_ID_DTS;
+	//pcodec->audio_info.valid = 1;
+
+	GST_WARNING("[%s:%d]", __FUNCTION__, __LINE__);
+
+  return 0; 
+}
+
 AmlStreamInfo * newAmlAinfoApe()
 {
     AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoApe));
     info->init = amlInitApe;
+    info->writeheader = NULL;
+    info->add_startcode = NULL;
+		
+    return info;
+}
+
+AmlStreamInfo * newAmlAinfoDts()
+{
+    AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoDts));
+    info->init = amlInitDTS;
     info->writeheader = NULL;
     info->add_startcode = NULL;
 		
@@ -558,6 +579,7 @@ static const AmlStreamInfoPool amlAstreamInfoPool[] = {
     {"audio/x-mulaw", newAmlAinfoMulaw},
     {"audio/x-raw-int", newAmlAinfoPcm},
     {"application/x-ape", newAmlAinfoApe},
+    {"audio/x-private1-dts",newAmlAinfoDts},
     {NULL, NULL}
 };
 AmlStreamInfo *amlAstreamInfoInterface(gchar *format)
