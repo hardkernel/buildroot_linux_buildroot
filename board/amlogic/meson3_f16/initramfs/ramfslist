@@ -174,7 +174,6 @@
 ./opt
 ./home
 ./home/ftp
-./home/default
 ./root
 ./root/.bash_logout
 ./root/.bash_profile
