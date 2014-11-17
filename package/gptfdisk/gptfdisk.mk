@@ -15,15 +15,15 @@ GPTFDISK_TARGETS_$(BR2_PACKAGE_GPTFDISK_CGDISK) += cgdisk
 
 GPTFDISK_DEPENDENCIES += util-linux
 ifeq ($(BR2_PACKAGE_GPTFDISK_SGDISK),y)
-    GPTFDISK_DEPENDENCIES += popt
+GPTFDISK_DEPENDENCIES += popt
 endif
 ifeq ($(BR2_PACKAGE_GPTFDISK_CGDISK),y)
-    GPTFDISK_DEPENDENCIES += ncurses
+GPTFDISK_DEPENDENCIES += ncurses
 endif
 
 ifeq ($(BR2_PACKAGE_ICU),y)
-    GPTFDISK_DEPENDENCIES += icu
-    GPTFDISK_MAKE_OPTS += USE_UTF16=y
+GPTFDISK_DEPENDENCIES += icu
+GPTFDISK_MAKE_OPTS += USE_UTF16=y
 endif
 
 define GPTFDISK_BUILD_CMDS
@@ -33,7 +33,7 @@ endef
 
 define GPTFDISK_INSTALL_TARGET_CMDS
 	for i in $(GPTFDISK_TARGETS_y); do \
-	    $(INSTALL) -D -m 0755 $(@D)/$$i $(TARGET_DIR)/usr/sbin/$$i; \
+		$(INSTALL) -D -m 0755 $(@D)/$$i $(TARGET_DIR)/usr/sbin/$$i; \
 	done
 endef
 

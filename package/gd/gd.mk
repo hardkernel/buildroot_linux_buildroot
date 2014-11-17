@@ -12,35 +12,41 @@ GD_LICENSE = GD license
 GD_LICENSE_FILES = COPYING
 
 GD_CONFIG_SCRIPTS = gdlib-config
-GD_CONF_OPT = --without-x --disable-rpath
+GD_CONF_OPTS = --without-x --disable-rpath
+
+# gd forgets to link utilities with -pthread even though it uses
+# pthreads, causing linking errors with static linking
+ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
+GD_CONF_ENV += LDFLAGS="$(TARGET_LDFLAGS) -pthread"
+endif
 
 ifeq ($(BR2_PACKAGE_FONTCONFIG),y)
 GD_DEPENDENCIES += fontconfig
-GD_CONF_OPT += --with-fontconfig
+GD_CONF_OPTS += --with-fontconfig
 endif
 
 ifeq ($(BR2_PACKAGE_FREETYPE),y)
 GD_DEPENDENCIES += freetype
-GD_CONF_OPT += --with-freetype=$(STAGING_DIR)/usr
+GD_CONF_OPTS += --with-freetype=$(STAGING_DIR)/usr
 else
-GD_CONF_OPT += --without-freetype
+GD_CONF_OPTS += --without-freetype
 endif
 
 ifeq ($(BR2_PACKAGE_JPEG),y)
 GD_DEPENDENCIES += jpeg
-GD_CONF_OPT += --with-jpeg
+GD_CONF_OPTS += --with-jpeg
 endif
 
 ifeq ($(BR2_PACKAGE_LIBPNG),y)
 GD_DEPENDENCIES += libpng
-GD_CONF_OPT += --with-png=$(STAGING_DIR)/usr
+GD_CONF_OPTS += --with-png=$(STAGING_DIR)/usr
 else
-GD_CONF_OPT += --without-png
+GD_CONF_OPTS += --without-png
 endif
 
 ifeq ($(BR2_PACKAGE_XLIB_LIBXPM),y)
 GD_DEPENDENCIES += xlib_libXpm
-GD_CONF_OPT += --with-xpm
+GD_CONF_OPTS += --with-xpm
 endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)

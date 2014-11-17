@@ -14,7 +14,7 @@ ALSA_PLUGINS_DESCRIPTION = Advanced Linux Sound Architecture plugins
 ALSA_PLUGINS_OPKG_DEPENDENCIES = alsa-lib,libsamplerate
 ALSA_PLUGINS_DEPENDENCIES = alsa-lib libsamplerate
 
-ALSA_PLUGINS_CONF_OPT += --with-plugindir=/usr/lib/alsa \
+ALSA_PLUGINS_CONF_OPTS += --with-plugindir=/usr/lib/alsa \
 	--localstatedir=/var \
 	--disable-jack \
 	--enable-samplerate \

@@ -1,9 +1,7 @@
 .
 ./var
 ./var/lib
-./var/lib/pcmcia
 ./var/lib/misc
-./var/pcmcia
 ./var/spool
 ./var/cache
 ./var/log

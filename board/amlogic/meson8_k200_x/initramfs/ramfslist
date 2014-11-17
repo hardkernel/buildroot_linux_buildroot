@@ -2,10 +2,8 @@
 ./var
 ./var/lib
 ./var/lib/dbus
-./var/lib/pcmcia
 ./var/lib/alsa
 ./var/lib/misc
-./var/pcmcia
 ./var/spool
 ./var/cache
 ./var/log
@@ -194,7 +192,7 @@
 ./usr/lib/libkmod.so
 ./usr/lib/libe2p.so.2
 ./usr/lib/libkmod.so.2
-./usr/lib/libglib-2.0.so.0.3800.2
+./usr/lib/libglib-2.0.so.0.4200.0
 ./usr/lib/libext2fs.so
 ./usr/lib/libext2fs.so.2
 ./usr/lib/libglib-2.0.so

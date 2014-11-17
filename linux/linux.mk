@@ -123,8 +123,8 @@ endif
 
 ifeq ($(BR2_LINUX_KERNEL_APPENDED_DTB),y)
 ifneq ($(words $(KERNEL_DTS_NAME)),1)
-$(error Kernel with appended device tree needs exactly one DTS source.\
-  Check BR2_LINUX_KERNEL_INTREE_DTS_NAME or BR2_LINUX_KERNEL_CUSTOM_DTS_PATH.)
+$(error Kernel with appended device tree needs exactly one DTS source. \
+	Check BR2_LINUX_KERNEL_INTREE_DTS_NAME or BR2_LINUX_KERNEL_CUSTOM_DTS_PATH.)
 endif
 endif
 
@@ -170,7 +170,7 @@ LINUX_IMAGE_NAME = $(LINUX_TARGET_NAME)
 endif
 endif
 
-LINUX_KERNEL_UIMAGE_LOADADDR=$(call qstrip,$(BR2_LINUX_KERNEL_UIMAGE_LOADADDR))
+LINUX_KERNEL_UIMAGE_LOADADDR = $(call qstrip,$(BR2_LINUX_KERNEL_UIMAGE_LOADADDR))
 ifneq ($(LINUX_KERNEL_UIMAGE_LOADADDR),)
 LINUX_MAKE_FLAGS += LOADADDR="$(LINUX_KERNEL_UIMAGE_LOADADDR)"
 endif
@@ -211,11 +211,11 @@ LINUX_POST_DOWNLOAD_HOOKS += LINUX_DOWNLOAD_PATCHES
 define LINUX_APPLY_PATCHES
 	for p in $(LINUX_PATCHES) ; do \
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
-			support/scripts/apply-patches.sh $(@D) $(DL_DIR) `basename $$p` ; \
+			$(APPLY_PATCHES) $(@D) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			support/scripts/apply-patches.sh $(@D) $$p linux-\*.patch ; \
+			$(APPLY_PATCHES) $(@D) $$p linux-\*.patch ; \
 		else \
-			support/scripts/apply-patches.sh $(@D) `dirname $$p` `basename $$p` ; \
+			$(APPLY_PATCHES) $(@D) `dirname $$p` `basename $$p` ; \
 		fi \
 	done
 endef
@@ -414,9 +414,9 @@ ifeq ($(BR2_LINUX_KERNEL_APPENDED_UIMAGE),y)
 # generate uboot image before using mkimage -l.
 LINUX_APPEND_DTB += $(sep) MKIMAGE_ARGS=`$(MKIMAGE) -l $(LINUX_IMAGE_PATH) |\
         sed -n -e 's/Image Name:[ ]*\(.*\)/ \1/p' -e 's/Load Address:/-a/p' -e 's/Entry Point:/-e/p'`; \
-        $(MKIMAGE) -A $(MKIMAGE_ARCH) -O linux \
-        -T kernel -C none $${MKIMAGE_ARGS} \
-        -d $(KERNEL_ARCH_PATH)/boot/zImage $(LINUX_IMAGE_PATH);
+	$(MKIMAGE) -A $(MKIMAGE_ARCH) -O linux \
+	-T kernel -C none $${MKIMAGE_ARGS} \
+	-d $(KERNEL_ARCH_PATH)/boot/zImage $(LINUX_IMAGE_PATH);
 endif
 endif
 
