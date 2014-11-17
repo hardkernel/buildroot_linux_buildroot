@@ -1,7 +1,7 @@
 Index: uboot-next/board/amlogic/configs/m6_dongle_g35_v1.h
 ===================================================================
---- uboot-next.orig/board/amlogic/configs/m6_dongle_g35_v1.h	2014-10-27 15:54:50.000000000 +0800
-+++ uboot-next/board/amlogic/configs/m6_dongle_g35_v1.h	2014-10-27 18:27:28.614542985 +0800
+--- uboot-next.orig/board/amlogic/configs/m6_dongle_g35_v1.h	2014-10-31 18:37:14.000000000 +0800
++++ uboot-next/board/amlogic/configs/m6_dongle_g35_v1.h	2014-11-17 14:36:04.284321884 +0800
 @@ -199,7 +199,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85900000\0" \
