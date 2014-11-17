@@ -1,6 +1,8 @@
---- uboot-2014-06-18-f5749cd4e9/board/amlogic/configs/m6_mbx_v2.h.orig	2014-06-18 15:17:37.727123347 +0800
-+++ uboot-2014-06-18-f5749cd4e9/board/amlogic/configs/m6_mbx_v2.h	2014-06-19 12:09:42.688532736 +0800
-@@ -200,7 +200,7 @@
+Index: uboot-next/board/amlogic/configs/m6_mbx_v2.h
+===================================================================
+--- uboot-next.orig/board/amlogic/configs/m6_mbx_v2.h	2014-10-31 18:37:14.000000000 +0800
++++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-11-17 14:36:04.304321886 +0800
+@@ -199,7 +199,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85900000\0" \
  	"sleep_threshold=20\0" \
@@ -9,7 +11,7 @@
  	"batlow_threshold=10\0" \
  	"batfull_threshold=98\0" \
  	"outputmode=1080p\0" \
-@@ -228,18 +228,36 @@
+@@ -227,18 +227,36 @@
  	"cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0" \
  	"nandargs=run cvbscheck; "\
              "imgread res logo ${loadaddr_misc};unpackimg ${loadaddr_misc}; cp ${bootup_offset} 0x85100000 ${bootup_size}; "\
