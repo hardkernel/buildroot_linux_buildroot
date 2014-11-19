@@ -232,12 +232,12 @@ int update_player_states(play_para_t *para, int force)
                   state.current_ms,
                   state.full_time,
                   state.last_time);		
-       // log_print("**[update_state]abuflevel=%.08f vbublevel=%.08f abufrp=%x vbufrp=%x read_end=%d\n",
-           //       state.audio_bufferlevel,
-           //       state.video_bufferlevel,
-            //      para->abuffer.buffer_rp,
-             //     para->vbuffer.buffer_rp,
-             //     para->playctrl_info.read_end_flag);
+        log_print("**[update_state]abuflevel=%.08f vbublevel=%.08f abufrp=%x vbufrp=%x read_end=%d\n",
+                  state.audio_bufferlevel,
+                  state.video_bufferlevel,
+                  para->abuffer.buffer_rp,
+                  para->vbuffer.buffer_rp,
+                  para->playctrl_info.read_end_flag);
         fn = cb->update_statue_callback;
 
         if (fn) {

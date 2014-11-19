@@ -1385,6 +1385,7 @@ int codec_close_cntl(codec_para_t *pcodec)
         if (pcodec->cntl_handle) {
             res = codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_CLEAR_VIDEO, 0);
             res = codec_h_close(pcodec->cntl_handle);
+		    CODEC_PRINT("[%s]video codec close return=%d!\n", __FUNCTION__,res);
         }
     }
     return res;
