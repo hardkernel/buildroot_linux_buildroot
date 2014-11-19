@@ -338,10 +338,20 @@ define LINUX_CONFIGURE_CMDS
 	$(if $(BR2_LINUX_KERNEL_APPENDED_DTB),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_ARM_APPENDED_DTB,$(@D)/.config))
 	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(@D) oldconfig
-	# Get rid of unwanted configuration here
-	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_PARANOID_NETWORK,$(@D)/.config)
+	# Add extra configurations here
 	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_POSIX_ACL,$(@D)/.config)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_XATTR,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_VT,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CONSOLE_TRANSLATIONS,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_VT_CONSOLE,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_VT_CONSOLE_SLEEP,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_HW_CONSOLE,$(@D)/.config)
+	# Get rid of unwanted configurations here
+	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_PARANOID_NETWORK,$(@D)/.config)
+	$(call KCONFIG_DISABLE_OPT,CONFIG_VT_HW_CONSOLE_BINDING,$(@D)/.config)
+	$(call KCONFIG_DISABLE_OPT,CONFIG_FRAMEBUFFER_CONSOLE,$(@D)/.config)
+	$(call KCONFIG_DISABLE_OPT,CONFIG_SPEAKUP,$(@D)/.config)
+	$(call KCONFIG_DISABLE_OPT,CONFIG_CONSOLE_EARLYSUSPEND,$(@D)/.config)
 endef
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
