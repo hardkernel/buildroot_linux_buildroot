@@ -1,7 +1,7 @@
 Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
 ===================================================================
---- uboot-next.orig/board/amlogic/configs/m8b_m200_v1.h	2014-10-31 18:37:14.000000000 +0800
-+++ uboot-next/board/amlogic/configs/m8b_m200_v1.h	2014-11-17 14:36:04.168321880 +0800
+--- uboot-next.orig/board/amlogic/configs/m8b_m200_v1.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m8b_m200_v1.h	2014-11-24 13:58:01.391625478 +0800
 @@ -216,7 +216,7 @@
  	"cvbsmode=576cvbs\0" \
  	"outputmode=1080p\0" \
@@ -33,7 +33,7 @@ Index: uboot-next/board/amlogic/configs/m8b_m200_v1.h
      \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
-@@ -318,9 +322,21 @@
+@@ -319,9 +323,21 @@
              "setenv bootargs ${bootargs} mac=${mac}  androidboot.mac=${mac};"\
          "fi;"\
          "imgread kernel boot ${loadaddr};"\

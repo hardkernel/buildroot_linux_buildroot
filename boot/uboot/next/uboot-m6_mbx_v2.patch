@@ -1,7 +1,7 @@
-Index: uboot-meson-next/board/amlogic/configs/m6_mbx_v2.h
+Index: uboot-next/board/amlogic/configs/m6_mbx_v2.h
 ===================================================================
---- uboot-meson-next.orig/board/amlogic/configs/m6_mbx_v2.h	2014-11-18 13:54:27.000000000 +0800
-+++ uboot-meson-next/board/amlogic/configs/m6_mbx_v2.h	2014-11-18 14:10:28.769913995 +0800
+--- uboot-next.orig/board/amlogic/configs/m6_mbx_v2.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-11-24 13:58:01.515625482 +0800
 @@ -201,7 +201,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85900000\0" \
