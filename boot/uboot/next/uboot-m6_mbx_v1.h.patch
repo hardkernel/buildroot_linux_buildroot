@@ -1,8 +1,8 @@
 Index: uboot-next/board/amlogic/configs/m6_mbx_v1.h
 ===================================================================
---- uboot-next.orig/board/amlogic/configs/m6_mbx_v1.h	2014-10-13 15:47:59.000000000 +0800
-+++ uboot-next/board/amlogic/configs/m6_mbx_v1.h	2014-10-13 17:16:50.095770430 +0800
-@@ -176,7 +176,7 @@
+--- uboot-next.orig/board/amlogic/configs/m6_mbx_v1.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m6_mbx_v1.h	2014-11-24 13:58:01.463625481 +0800
+@@ -175,7 +175,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85100000\0" \
  	"sleep_threshold=20\0" \
@@ -11,7 +11,7 @@ Index: uboot-next/board/amlogic/configs/m6_mbx_v1.h
  	"batlow_threshold=10\0" \
  	"batfull_threshold=98\0" \
  	"outputmode=720p\0" \
-@@ -192,7 +192,9 @@
+@@ -191,7 +191,9 @@
  	"irremote_update=if irkey 0x41beb14e 500000 ;then run update; fi\0" \
  	"nand_key_burning=saradc open 4;if saradc get_in_range 0x164 0x1b4 ;then msleep 500;if saradc get_in_range 0x164 0x1b4; then tiny_usbtool 20000; fi; fi\0" \
  	"cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0" \
@@ -22,7 +22,7 @@ Index: uboot-next/board/amlogic/configs/m6_mbx_v1.h
  	"nand_recovery=echo enter recovery;run nandargs;if mmcinfo; then if fatload mmc 0 ${loadaddr} recovery.img; then bootm;fi;fi; if usb start; then if fatload usb 0 ${loadaddr} recovery.img; then bootm;fi;fi; nand read recovery ${loadaddr} 0 600000; bootm\0" \
  	"mmcboot=echo Booting from mmc ...;run mmcargs;mmcinfo 1; mmc read 1 ${loadaddr} ${mmc_boot_offset} ${mmc_lk_size};hdcp prefetch emmc; bootm; run recovery\0" \
  	"mmc_recovery=echo enter recovery;run mmcargs;if mmcinfo; then if fatload mmc 0 ${loadaddr} recovery.img; then bootm;fi;fi; if usb start; then if fatload usb 0 ${loadaddr} recovery.img; then bootm;fi;fi; mmcinfo 1; mmc read 1 ${loadaddr} ${mmc_recovery_offset} ${mmc_lk_size}; bootm\0" \
-@@ -219,18 +221,21 @@
+@@ -218,18 +220,21 @@
  		"run nand_key_burning; run updatekey_or_not; run irremote_update; run switch_bootmode\0" \
  	"nandargs="\
  	        "run cvbscheck;"\
@@ -47,7 +47,7 @@ Index: uboot-next/board/amlogic/configs/m6_mbx_v1.h
  
  #define CONFIG_BOOTCOMMAND \
   "setenv bootcmd run compatible_boot; saveenv; run compatible_boot; run compatible_boot"
-@@ -276,7 +281,7 @@
+@@ -275,7 +280,7 @@
  	"switch_bootmode=if test ${reboot_mode} = factory_reset; then run recovery;else if test ${reboot_mode} = update; then run recovery;fi;fi\0" \
  	"nandboot=echo Booting from nand ...;run nandargs;nand read boot ${loadaddr} 0 600000;hdcp prefetch nand;bootm;run recovery\0" \
  	"recovery=echo enter recovery;run nandargs;if mmcinfo; then if fatload mmc 0 ${loadaddr} recovery.img; then bootm;fi;fi;if usb start; then if fatload usb 0 ${loadaddr} recovery.img; then bootm;fi;fi; nand read recovery ${loadaddr} 0 600000; bootm\0" \

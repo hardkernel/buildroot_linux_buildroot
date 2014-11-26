@@ -1,8 +1,8 @@
 Index: uboot-next/board/amlogic/configs/m8_k200_v1.h
 ===================================================================
---- uboot-next.orig/board/amlogic/configs/m8_k200_v1.h	2014-09-05 19:30:47.000000000 +0800
-+++ uboot-next/board/amlogic/configs/m8_k200_v1.h	2014-09-11 17:40:43.847927833 +0800
-@@ -249,7 +249,7 @@
+--- uboot-next.orig/board/amlogic/configs/m8_k200_v1.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m8_k200_v1.h	2014-11-24 13:58:01.443625479 +0800
+@@ -251,7 +251,7 @@
  	"cvbsmode=576cvbs\0" \
  	"outputmode=1080p\0" \
  	"vdac_config=0x10\0" \
@@ -11,7 +11,7 @@ Index: uboot-next/board/amlogic/configs/m8_k200_v1.h
  	"preloaddtb=imgread dtb boot ${loadaddr}\0" \
  	"video_dev=tvout\0" \
  	"display_width=1920\0" \
-@@ -275,7 +275,7 @@
+@@ -277,7 +277,7 @@
  	"sdcburncfg=aml_sdc_burn.ini\0"\
  	"normalstart=1000000\0" \
  	"normalsize=400000\0" \
@@ -20,7 +20,7 @@ Index: uboot-next/board/amlogic/configs/m8_k200_v1.h
  	"firstboot=1\0" \
  	"store=0\0"\
          "wipe_data=success\0"\
-@@ -313,8 +313,14 @@
+@@ -315,8 +315,14 @@
          "fi;\0"\
      \
     	"storeargs="\
@@ -36,7 +36,7 @@ Index: uboot-next/board/amlogic/configs/m8_k200_v1.h
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
                  "run recovery;"\
-@@ -342,9 +348,20 @@
+@@ -345,9 +351,20 @@
              "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
          "fi;"\
          "imgread kernel boot ${loadaddr};"\

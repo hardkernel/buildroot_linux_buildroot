@@ -264,7 +264,7 @@ static void gst_amladec_set_property (GObject * object, guint prop_id,
                     codec_close(amladec->pcodec);
 		    amladec->codec_init_ok=0;
 		    amlcontrol->passthrough=FALSE;
-            }else if (!amladec->codec_init_ok){
+            }else if (!amladec->codec_init_ok&&!amladec->adecomit){
                 aml_decode_init (amladec);
             }
 		break;
@@ -292,24 +292,24 @@ static void gst_amladec_get_property (GObject * object, guint prop_id,
             case PROP_PASSTHROUGH:
                 g_value_set_boolean (value,amladec->passthrough);
                 break;
-						case PROP_PCRSCRTOPOSITION: {
-							  if(amladec->bpass) {			
+			case PROP_PCRSCRTOPOSITION: {
+				if(amladec->bpass) {			
 									/*assume query first pcrscr is the basepcr*/			
-									amladec->basepcr = codec_get_pcrscr(amladec->pcodec);
-                  amladec->bpass = FALSE;		
-								}		
-								else {			
-									pcrscr = codec_get_pcrscr(amladec->pcodec);
-                  position = (pcrscr - amladec->basepcr) * (1000000 / 10) / 9LL;
-								}
-								g_value_set_int64 (value, position);
+				    amladec->basepcr = codec_get_pcrscr(amladec->pcodec);
+                    amladec->bpass = FALSE;		
+				}		
+				else {			
+					pcrscr = codec_get_pcrscr(amladec->pcodec);
+                    position = (pcrscr - amladec->basepcr) * (1000000 / 10) / 9LL;
+                }
+                    g_value_set_int64 (value, position);
 							break;
-						}
-						case PROP_APEDURATION: {
-							duration = amladec->duration * 1000000000;
-							g_value_set_int64 (value, duration );
-							break;
-						}
+			}
+            case PROP_APEDURATION: {
+                duration = amladec->duration * 1000000000;
+                g_value_set_int64 (value, duration );
+                break;
+            }
             default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
                 break;
@@ -497,12 +497,21 @@ static gboolean gst_set_astream_info (GstAmlAdec *amladec, GstCaps * caps)
     if(amladec->pcodec->audio_type == AFORMAT_UNKNOWN) {
         GST_ERROR("unsupport audio format\n");
         return  FALSE;
+    }else if (amladec->pcodec->audio_type==AFORMAT_AC3) {
+		if (access("/lib/firmware/audiodsp_codec_ddp_dcv.bin",F_OK)){
+		    amladec->adecomit=TRUE;
+            GST_DEBUG("have no firmware found for AC3,no audio output\n");
+		}
+	}else if (amladec->pcodec->audio_type==AFORMAT_DTS)	{
+	    if (access("/lib/firmware/audiodsp_codec_dtshd.bin",F_OK)){
+		    amladec->adecomit=TRUE;
+            GST_DEBUG("have no firmware found for DTS no audio output\n");
+		}
     }	
     if (amladec->pcodec&&amladec->pcodec->stream_type == STREAM_TYPE_ES_AUDIO){
         if (info->writeheader)
             info->writeheader (info,amladec->pcodec); 		
-        if(!amladec->codec_init_ok && !amlcontrol->passthrough
-					&& (amladec->order == 1)){
+        if(!amladec->codec_init_ok && !amlcontrol->passthrough&&!amladec->adecomit){
             if(!aml_decode_init(amladec))
                 return FALSE;				
         }
@@ -522,14 +531,14 @@ static gboolean gst_amladec_set_caps (GstPad * pad, GstCaps * caps)
     otherpad = (pad == amladec->srcpad) ? amladec->sinkpad : amladec->srcpad;
 	
     if(caps ){
-				structure = gst_caps_get_structure (caps, 0);
-				name = gst_structure_get_name (structure);	
-				if(!g_strcmp0(name, "application/x-ape")) {
-					amladec->tmpcaps = caps;
-					amladec->is_ape = TRUE;
-					amladec->apeparser->ape_head.bhead = TRUE;
-				}
-				else {
+        structure = gst_caps_get_structure (caps, 0);
+        name = gst_structure_get_name (structure);	
+        if(!g_strcmp0(name, "application/x-ape")) {
+            amladec->tmpcaps = caps;
+            amladec->is_ape = TRUE;
+            amladec->apeparser->ape_head.bhead = TRUE;
+        }
+        else {
 	        amladec->tmpcaps=caps;
 	        ret=gst_set_astream_info (amladec, amladec->tmpcaps);
 	        if(ret==FALSE){
@@ -656,10 +665,15 @@ static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
 
     struct buf_status abuf;
     int ret=1;
-		GstCaps * caps;
-		gint64 dt = 0;
-    
-    caps = GST_BUFFER_CAPS (buf);
+	GstCaps * caps;
+	gint64 dt = 0;
+
+	GstStructure *structure;
+    const char *name;
+	caps = GST_BUFFER_CAPS (buf);
+    structure = gst_caps_get_structure (caps, 0);
+    name = gst_structure_get_name (structure);   
+	
     if (amlcontrol->firstcaps && caps) {
         if (caps!=amlcontrol->firstcaps){ 
             return GST_FLOW_OK;        
@@ -687,7 +701,7 @@ static GstFlowReturn gst_amladec_decode (GstAmlAdec *amladec, GstBuffer * buf)
 
 				data = GST_BUFFER_DATA (buf);
         size = GST_BUFFER_SIZE (buf);	
-				if (timestamp!= GST_CLOCK_TIME_NONE){
+		if (timestamp!= GST_CLOCK_TIME_NONE){
             GST_DEBUG_OBJECT (amladec,"pts=%x\n",(unsigned long)pts);
             GST_DEBUG_OBJECT (amladec, "PTS to (%" G_GUINT64_FORMAT ") time: %"
             GST_TIME_FORMAT , pts, GST_TIME_ARGS (timestamp)); 
@@ -992,6 +1006,7 @@ static GstFlowReturn gst_amladec_chain (GstPad * pad, GstBuffer * buf)
 
 static gboolean gst_amladec_start (GstAmlAdec *amladec)
 { 
+    GST_WARNING("gst_amladec_start\n");
     amladec->pcodec->audio_pid = 0;
     amladec->pcodec->has_audio = 1;
     amladec->pcodec->has_video = 0;
@@ -1014,15 +1029,16 @@ static gboolean gst_amladec_start (GstAmlAdec *amladec)
     amladec->is_eos = FALSE;
     amladec->codec_init_ok = 0;
     amladec->passthrough = 1;
-		amladec->bpass = TRUE;
+	amladec->bpass = TRUE;
     amladec->apeparser->ape_head.bhead = FALSE;
-		amladec->apeparser->accusize = 0;
-	  amladec->apeparser->currentframe = 0;
-		amladec->is_ape = FALSE;
+	amladec->apeparser->accusize = 0;
+	amladec->apeparser->currentframe = 0;
+	amladec->is_ape = FALSE;
 		
-		amlcontrol->adecnumber++;
-		amladec->order = amlcontrol->adecnumber;
+	amlcontrol->adecnumber++;
+	amladec->order = amlcontrol->adecnumber;
     amlcontrol->passthrough = FALSE;
+	amladec->adecomit = FALSE;
     return TRUE;
 }
 

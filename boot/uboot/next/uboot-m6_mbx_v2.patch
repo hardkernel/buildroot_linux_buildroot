@@ -1,6 +1,8 @@
---- uboot-2014-06-18-f5749cd4e9/board/amlogic/configs/m6_mbx_v2.h.orig	2014-06-18 15:17:37.727123347 +0800
-+++ uboot-2014-06-18-f5749cd4e9/board/amlogic/configs/m6_mbx_v2.h	2014-06-19 12:09:42.688532736 +0800
-@@ -200,7 +200,7 @@
+Index: uboot-next/board/amlogic/configs/m6_mbx_v2.h
+===================================================================
+--- uboot-next.orig/board/amlogic/configs/m6_mbx_v2.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m6_mbx_v2.h	2014-11-24 13:58:01.515625482 +0800
+@@ -201,7 +201,7 @@
  	"display_color_bg=0\0" \
  	"fb_addr=0x85900000\0" \
  	"sleep_threshold=20\0" \
@@ -9,22 +11,22 @@
  	"batlow_threshold=10\0" \
  	"batfull_threshold=98\0" \
  	"outputmode=1080p\0" \
-@@ -228,18 +228,36 @@
- 	"cvbscheck=setenv outputtemp ${outputmode};if test ${outputmode} = 480i; then if test ${cvbsenable} = true; then setenv outputtemp 480cvbs;fi;fi; if test ${outputmode} = 576i; then if test ${cvbsenable} = true; then setenv outputtemp 576cvbs;fi;fi\0" \
- 	"nandargs=run cvbscheck; "\
-             "imgread res logo ${loadaddr_misc};unpackimg ${loadaddr_misc}; cp ${bootup_offset} 0x85100000 ${bootup_size}; "\
--            "setenv bootargs root=/dev/cardblksd2 rw rootfstype=ext3 rootwait init=/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full androidboot.resolution=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${cecconfig}\0"\
-+            "setenv bootargs root=/dev/system rw rootfstype=ext4 rootwait init=/sbin/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full androidboot.resolution=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode}\0"\
+@@ -230,18 +230,36 @@
+ 	"prepare= "\
+ 		"logo size ${outputmode};video dev open ${outputmode};video open; video clear;store read logo 0x83000000 0 800000;unpackimg 0x83000000;bmp scale ${bootup_offset} ${loadaddr};bmp display ${loadaddr}\0"\
+ 	"nandargs= "\
+-            "setenv bootargs root=/dev/cardblksd2 rw rootfstype=ext3 rootwait init=/init console=ttyS0,115200n8 logo=osd1,loaded,${bootup_offset},${outputmode},full androidboot.resolution=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${cecconfig}\0"\
++            "setenv bootargs root=/dev/system rw rootfstype=ext4 rootwait init=/sbin/init console=ttyS0,115200n8 logo=osd1,loaded,${bootup_offset},${outputmode},full androidboot.resolution=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode}\0"\
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then run recovery; fi;"\
          "if test ${reboot_mode} = usb_burning; then run usb_burning; fi; "\
          "if test ${reboot_mode} = update; then run update; fi\0" \
-+    "bootsdargs=setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/sbin/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode}\0"\
-+    "bootupdateargs=setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/sbin/init console=ttyS0,115200n8 logo=osd1,0x85100000,${outputtemp},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
++    "bootsdargs=setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=ext2 rootwait init=/sbin/init console=ttyS0,115200n8 logo=osd1,loaded,${bootup_offset},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode}\0"\
++    "bootupdateargs=setenv bootargs root=/dev/mmcblk0p1 rw rootfstype=vfat rootwait init=/sbin/init console=ttyS0,115200n8 logo=osd1,loaded,${bootup_offset},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} hlt vmalloc=256m mem=1024m a9_clk_max=1512000000 vdachwswitch=${vdacswitchmode} hdmitx=${hdmimode} firmware=rootfs.tar.gz\0"\
  	"nandboot="\
          "echo Booting ...;"\
          "run nandargs;"\
-         "setenv bootargs ${initargs} androidboot.firstboot=${firstboot}; "\
+         "setenv bootargs ${bootargs} androidboot.firstboot=${firstboot} ;"\
          "imgread kernel boot ${loadaddr};"\
          "hdcp prefetch nand;"\
 -        "bootm;run recovery\0" \

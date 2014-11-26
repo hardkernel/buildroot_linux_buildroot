@@ -293,7 +293,7 @@ gint amlcodec_decode(GstAmlVdec *amlvdec, GstBuffer * buf)
     if(NULL == buf){
         return -1;
     } 
-    set_ppscaler_enable("0");
+  //  set_ppscaler_enable("0");
 
     data = GST_BUFFER_DATA (buf);
     size = GST_BUFFER_SIZE (buf);
@@ -650,7 +650,7 @@ gst_amlvdec_stop (GstAmlVdec *amlvdec)
     set_fb0_blank(0);
     set_fb1_blank(0);
     set_display_axis(1);
-    set_ppscaler_enable("1");
+ //   set_ppscaler_enable("1");
     return TRUE;
 }
 

@@ -1,7 +1,7 @@
-Index: uboot-next-m3/board/amlogic/configs/m3_f16_no_video_v1.h
+Index: uboot-next/board/amlogic/configs/m3_f16_no_video_v1.h
 ===================================================================
---- uboot-next-m3.orig/board/amlogic/configs/m3_f16_no_video_v1.h	2014-10-20 20:23:31.000000000 +0800
-+++ uboot-next-m3/board/amlogic/configs/m3_f16_no_video_v1.h	2014-10-21 12:42:58.572429697 +0800
+--- uboot-next.orig/board/amlogic/configs/m3_f16_no_video_v1.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m3_f16_no_video_v1.h	2014-11-24 13:58:01.407625480 +0800
 @@ -109,7 +109,7 @@
  	"boardname=m1_mbox\0" \
  	"chipname=8726m\0" \

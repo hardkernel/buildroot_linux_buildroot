@@ -158,17 +158,17 @@ struct _GstAmlAdec
   GstTask * eos_task;
   GStaticRecMutex eos_lock;
 
-	guint order;
-	gboolean bpass;
+  guint order;
+  gboolean bpass;
 	/*for elapsed*/
-	gint64 basepcr;
+  gint64 basepcr;
 
   /*private for ape format*/
-	gst_ape_parser *apeparser;
-	gboolean       is_ape;
-	gint64         duration;
-	guint64        filesize;
-  
+  gst_ape_parser *apeparser;
+  gboolean  is_ape;
+  gint64    duration;
+  guint64   filesize;
+  gboolean adecomit;
 
 };
 
@@ -182,7 +182,7 @@ struct AmlControl
 {
   GstCaps *firstcaps;
   gboolean passthrough;
-	guint adecnumber;
+  guint adecnumber;
 };
 
 GType gst_amladec_get_type (void);
