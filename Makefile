@@ -28,7 +28,7 @@
 all:
 
 # Set and export the version string
-export BR2_VERSION := 2014.11-rc2
+export BR2_VERSION := 2014.11-rc3
 
 # Check for minimal make version (note: this check will break at make 10.x)
 MIN_MAKE_VERSION = 3.81
@@ -517,13 +517,13 @@ endif
 # not have them (Linaro toolchains), we use the ones available on the
 # host machine.
 ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),y)
-GENERATE_LOCALE = $(call qstrip,$(BR2_GENERATE_LOCALE))
-ifneq ($(GENERATE_LOCALE),)
+GLIBC_GENERATE_LOCALES = $(call qstrip,$(BR2_GENERATE_LOCALE))
+ifneq ($(GLIBC_GENERATE_LOCALES),)
 TARGETS += host-localedef
 
-define GENERATE_LOCALES
+define GENERATE_GLIBC_LOCALES
 	$(Q)mkdir -p $(TARGET_DIR)/usr/lib/locale/
-	$(Q)for locale in $(GENERATE_LOCALE) ; do \
+	$(Q)for locale in $(GLIBC_GENERATE_LOCALES) ; do \
 		inputfile=`echo $${locale} | cut -f1 -d'.'` ; \
 		charmap=`echo $${locale} | cut -f2 -d'.' -s` ; \
 		if test -z "$${charmap}" ; then \
@@ -538,7 +538,7 @@ define GENERATE_LOCALES
 			$${locale} ; \
 	done
 endef
-TARGET_FINALIZE_HOOKS += GENERATE_LOCALES
+TARGET_FINALIZE_HOOKS += GENERATE_GLIBC_LOCALES
 endif
 endif
 
