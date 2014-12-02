@@ -1,5 +1,7 @@
---- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_ump.c.orig	1970-01-01 08:00:00.000000000 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_ump.c	2014-04-28 13:34:05.739167271 +0800
+Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_ump.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_ump.c	2014-12-02 14:18:39.608616051 +0800
 @@ -0,0 +1,68 @@
 +/*
 + * Copyright (C) 2012 Amlogic

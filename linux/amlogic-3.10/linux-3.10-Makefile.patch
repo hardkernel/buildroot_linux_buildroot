@@ -1,7 +1,7 @@
 Index: linux-amlogic-3.10-bringup/Makefile
 ===================================================================
---- linux-amlogic-3.10-bringup.orig/Makefile	2014-08-26 19:40:23.282127731 +0800
-+++ linux-amlogic-3.10-bringup/Makefile	2014-08-27 12:41:09.783276752 +0800
+--- linux-amlogic-3.10-bringup.orig/Makefile	2014-12-02 10:43:26.000000000 +0800
++++ linux-amlogic-3.10-bringup/Makefile	2014-12-02 14:18:39.592616050 +0800
 @@ -373,15 +373,12 @@
  		   -fno-strict-aliasing -fno-common \
  		   -Werror-implicit-function-declaration \

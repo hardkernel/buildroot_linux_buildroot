@@ -1,8 +1,8 @@
-Index: arm-src-kernel-2014-08-12-808e85736c/drivers/amlogic/display/osd/osd_hw.c
+Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c
 ===================================================================
---- arm-src-kernel-2014-08-12-808e85736c.orig/drivers/amlogic/display/osd/osd_hw.c	2014-08-11 15:53:16.000000000 +0800
-+++ arm-src-kernel-2014-08-12-808e85736c/drivers/amlogic/display/osd/osd_hw.c	2014-08-12 18:24:12.180483835 +0800
-@@ -2637,7 +2637,6 @@
+--- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/osd_hw.c	2014-12-02 10:43:26.000000000 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c	2014-12-02 14:18:39.696616052 +0800
+@@ -3123,7 +3123,6 @@
  	osd_hw.color_info[OSD2]=NULL;
  	vf.width =vf.height=0;
  	osd_hw.color_key[OSD1]=osd_hw.color_key[OSD2]=0xffffffff;
@@ -10,7 +10,7 @@ Index: arm-src-kernel-2014-08-12-808e85736c/drivers/amlogic/display/osd/osd_hw.c
  	osd_hw.scale[OSD1].h_enable=osd_hw.scale[OSD1].v_enable=0;
  	osd_hw.scale[OSD2].h_enable=osd_hw.scale[OSD2].v_enable=0;
  	osd_hw.mode_3d[OSD2].enable=osd_hw.mode_3d[OSD1].enable=0;
-@@ -2656,6 +2655,12 @@
+@@ -3147,6 +3146,12 @@
  	osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 0;
  #endif
  
@@ -22,8 +22,8 @@ Index: arm-src-kernel-2014-08-12-808e85736c/drivers/amlogic/display/osd/osd_hw.c
 +
  	memset(osd_hw.rotate,0,sizeof(osd_rotate_t));
  
- #ifdef FIQ_VSYNC
-@@ -2780,6 +2785,33 @@
+ #ifdef  CONFIG_FB_OSD_SUPPORT_SYNC_FENCE
+@@ -3270,6 +3275,33 @@
  }
  #endif //CONFIG_FB_OSD2_CURSOR
  

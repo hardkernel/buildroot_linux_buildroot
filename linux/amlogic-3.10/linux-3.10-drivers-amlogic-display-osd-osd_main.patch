@@ -1,6 +1,8 @@
---- arm-src-kernel-2014-06-18-155d61a24e/drivers/amlogic/display/osd/osd_main.c.orig	2014-06-18 15:48:08.599157689 +0800
-+++ arm-src-kernel-2014-06-18-155d61a24e/drivers/amlogic/display/osd/osd_main.c	2014-06-18 15:50:35.483160451 +0800
-@@ -96,7 +96,11 @@ _find_color_format(struct fb_var_screeni
+Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c
+===================================================================
+--- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/osd_main.c	2014-12-02 10:43:26.000000000 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c	2014-12-02 14:18:39.516616049 +0800
+@@ -99,7 +99,11 @@
  		lower_margin=COLOR_INDEX_24_6666_A;
  		break;		
  		case 3:
@@ -12,7 +14,7 @@
  		lower_margin=COLOR_INDEX_32_BGRA;
  		break;
  		case 4:
-@@ -267,6 +271,12 @@ osd_setcmap(struct fb_cmap *cmap, struct
+@@ -270,6 +274,12 @@
  	return 0;
  }
  
@@ -25,9 +27,9 @@
  static int
  osd_ioctl(struct fb_info *info, unsigned int cmd,
                 unsigned long arg)
-@@ -284,6 +294,11 @@ osd_ioctl(struct fb_info *info, unsigned
-         unsigned long  ret;
- 	 u32  flush_rate;
+@@ -289,6 +299,11 @@
+ 	fb_sync_request_t  sync_request;
+ 
  
 +	unsigned int karg = 0;
 +#ifdef CONFIG_FB_AMLOGIC_UMP
@@ -37,7 +39,7 @@
      	switch (cmd)
    	{
     		case  FBIOPUT_OSD_SRCKEY_ENABLE:
-@@ -328,6 +343,44 @@ osd_ioctl(struct fb_info *info, unsigned
+@@ -338,6 +353,44 @@
  		case FBIOPUT_OSD_WINDOW_AXIS:
  			ret=copy_from_user(&osd_dst_axis, argp, 4 * sizeof(s32));
  			break;
@@ -80,5 +82,5 @@
 +		}
 +		break;
  		default :
- 			amlog_mask_level(LOG_MASK_IOCTL,LOG_LEVEL_HIGH,"command not supported\r\n ");
+ 			amlog_mask_level(LOG_MASK_IOCTL,LOG_LEVEL_HIGH,"command not supported\n ");
  			return -1;
