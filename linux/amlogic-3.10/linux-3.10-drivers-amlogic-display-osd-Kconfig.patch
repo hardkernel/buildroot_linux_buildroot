@@ -1,6 +1,8 @@
---- linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/Kconfig.orig	2014-04-17 15:27:54.349465287 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/Kconfig	2014-04-17 15:28:18.449465739 +0800
-@@ -103,6 +103,11 @@ config FB_OSD1_DEFAULT_HEIGHT_VIRTUAL
+Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/Kconfig
+===================================================================
+--- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/Kconfig	2014-12-02 10:43:26.000000000 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/Kconfig	2014-12-02 14:19:12.152616662 +0800
+@@ -111,6 +111,11 @@
  	---help---
  	  The default osd1/fb0 virtual height. Does not affect ability to change height using fbset or FBIOPUT ioctl.
  
