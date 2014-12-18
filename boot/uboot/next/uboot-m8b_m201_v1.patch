@@ -1,8 +1,8 @@
 Index: uboot-next/board/amlogic/configs/m8b_m201_v1.h
 ===================================================================
---- uboot-next.orig/board/amlogic/configs/m8b_m201_v1.h	2014-10-31 18:37:14.000000000 +0800
-+++ uboot-next/board/amlogic/configs/m8b_m201_v1.h	2014-11-17 14:36:04.264321884 +0800
-@@ -162,7 +162,7 @@
+--- uboot-next.orig/board/amlogic/configs/m8b_m201_v1.h	2014-11-20 09:50:50.000000000 +0800
++++ uboot-next/board/amlogic/configs/m8b_m201_v1.h	2014-11-24 13:58:01.479625482 +0800
+@@ -163,7 +163,7 @@
  	"cvbsmode=576cvbs\0" \
  	"outputmode=1080p\0" \
  	"vdac_config=0x10\0" \
@@ -11,7 +11,7 @@ Index: uboot-next/board/amlogic/configs/m8b_m201_v1.h
  	"video_dev=tvout\0" \
  	"display_width=1920\0" \
  	"display_height=1080\0" \
-@@ -187,7 +187,7 @@
+@@ -188,7 +188,7 @@
  	"sdcburncfg=aml_sdc_burn.ini\0"\
  	"normalstart=1000000\0" \
  	"normalsize=400000\0" \
@@ -19,8 +19,8 @@ Index: uboot-next/board/amlogic/configs/m8b_m201_v1.h
 +	"upgrade_step=2\0" \
  	"firstboot=1\0" \
  	"store=0\0"\
- 	"preloaddtb=imgread dtb boot ${loadaddr}\0" \
-@@ -221,7 +221,11 @@
+ 	"wipe_data=success\0"\
+@@ -223,7 +223,11 @@
          "fi;\0"\
      \
     	"storeargs="\
@@ -33,7 +33,7 @@ Index: uboot-next/board/amlogic/configs/m8b_m201_v1.h
      \
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
-@@ -246,9 +250,21 @@
+@@ -251,9 +255,21 @@
              "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
          "fi;"\
          "imgread kernel boot ${loadaddr};"\

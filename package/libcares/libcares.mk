@@ -12,6 +12,6 @@ LIBCARES_SITE = http://c-ares.haxx.se/download
 LIBCARES_AUTORECONF = YES
 LIBCARES_INSTALL_STAGING = YES
 
-LIBCARES_CONF_OPT = CFLAGS="-pipe -Os"
+LIBCARES_CONF_OPTS = CFLAGS="-pipe -Os"
 
 $(eval $(autotools-package))

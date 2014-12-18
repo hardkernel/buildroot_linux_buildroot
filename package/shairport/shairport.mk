@@ -11,7 +11,7 @@ SHAIRPORT_LICENSE_FILES = LICENSE
 SHAIRPORT_INSTALL_STAGING = YES
 SHAIRPORT_DEPENDENCIES = alsa-lib openssl avahi
 SHAIRPORT_CFLAGS = $(TARGET_CFLAGS) -mhard-float
-SHAIRPORT_CONF_OPT = \
+SHAIRPORT_CONF_OPTS = \
 		--enable-alsa \
 		--with-openssl \
 		--enable-avahi \

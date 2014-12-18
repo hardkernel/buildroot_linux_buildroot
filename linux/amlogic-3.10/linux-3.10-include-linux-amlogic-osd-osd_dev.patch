@@ -1,5 +1,7 @@
---- linux-amlogic-3.10-bringup/include/linux/amlogic/osd/osd_dev.h.orig	2014-04-30 17:06:47.986648535 +0800
-+++ linux-amlogic-3.10-bringup/include/linux/amlogic/osd/osd_dev.h	2014-04-30 17:08:11.142650246 +0800
+Index: linux-amlogic-3.10-bringup/include/linux/amlogic/osd/osd_dev.h
+===================================================================
+--- linux-amlogic-3.10-bringup.orig/include/linux/amlogic/osd/osd_dev.h	2014-12-02 10:43:26.000000000 +0800
++++ linux-amlogic-3.10-bringup/include/linux/amlogic/osd/osd_dev.h	2014-12-02 14:18:39.496616049 +0800
 @@ -28,13 +28,14 @@
  #include "osd.h"
  #include <linux/amlogic/vout/vinfo.h>
@@ -16,7 +18,7 @@
  typedef struct myfb_dev {
      struct mutex lock;
  
-@@ -54,6 +55,9 @@ typedef struct myfb_dev {
+@@ -54,6 +55,9 @@
  	u32  preblend_enable;
  	u32  enable_key_flag;
  	u32  color_key;	
@@ -26,7 +28,7 @@
  } myfb_dev_t;
  typedef  struct list_head   list_head_t ;
  
-@@ -120,7 +124,7 @@ extern void osddev_pan_display(struct fb
+@@ -129,7 +133,7 @@
  #if defined (CONFIG_FB_OSD2_CURSOR)
  extern void osddev_cursor(struct myfb_dev *fbdev, s16 x, s16 y, s16 xstart, s16 ystart, u32 osd_w, u32 osd_h);
  #endif
