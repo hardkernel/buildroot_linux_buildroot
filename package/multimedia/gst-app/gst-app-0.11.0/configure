@@ -11682,7 +11682,7 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile amltest/Makefile amltest/gplay/Makefile rdkplay/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile amltest/Makefile amltest/gplay/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -12689,7 +12689,6 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "amltest/Makefile") CONFIG_FILES="$CONFIG_FILES amltest/Makefile" ;;
     "amltest/gplay/Makefile") CONFIG_FILES="$CONFIG_FILES amltest/gplay/Makefile" ;;
-    "rdkplay/Makefile") CONFIG_FILES="$CONFIG_FILES rdkplay/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
