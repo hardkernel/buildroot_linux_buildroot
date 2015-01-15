@@ -1,8 +1,8 @@
-Index: gpu-r4p0-01/ump/Kbuild
+Index: gpu-2015-01-15-98fa5e3836/ump/Kbuild
 ===================================================================
---- gpu-r4p0-01.orig/ump/Kbuild	2014-09-12 14:32:18.000000000 +0800
-+++ gpu-r4p0-01/ump/Kbuild	2014-09-23 13:58:03.911128661 +0800
-@@ -42,29 +42,19 @@
+--- gpu-2015-01-15-98fa5e3836.orig/ump/Kbuild	2015-01-15 13:49:40.228255446 +0800
++++ gpu-2015-01-15-98fa5e3836/ump/Kbuild	2015-01-15 13:51:03.828257015 +0800
+@@ -42,30 +42,19 @@
  ccflags-y += -DMALI_STATE_TRACKING=0
  ccflags-y += -DMALI_ENABLE_CPU_CYCLES=0
  ccflags-$(CONFIG_UMP_DEBUG) += -DDEBUG
@@ -18,9 +18,10 @@ Index: gpu-r4p0-01/ump/Kbuild
  else
 -ccflags-y += -I$(TOP_KBUILD_SRC)$(src)/linux/license/gpl
 +ccflags-y += -I$(TOP_KBUILD_SRC)$(src)/linux/license/gpl -I$(TOP_KBUILD_SRC)$(src)/$(UDD_FILE_PREFIX)linux/license/gpl
+ ccflags-y += -I$(TOP_KBUILD_SRC)$(src)/../mali/linux/license/gpl
  endif
  
- 
+-
 -$(obj)/__mali_osk_atomics.c : $(src)/$(UDD_FILE_PREFIX)linux/mali_osk_atomics.c
 -	@cp -f $< $@
 -$(obj)/__mali_osk_locks.c : $(src)/$(UDD_FILE_PREFIX)linux/mali_osk_locks.c
@@ -35,10 +36,10 @@ Index: gpu-r4p0-01/ump/Kbuild
  ump-y = common/ump_kernel_common.o \
  	common/ump_kernel_descriptor_mapping.o \
  	common/ump_kernel_api.o \
-@@ -78,23 +68,12 @@
- 	linux/ump_osk_atomics.o \
+@@ -80,23 +69,12 @@
  	linux/ump_osk_low_level_mem.o \
  	linux/ump_osk_misc.o \
+ 	linux/ump_kernel_random_mapping.o \
 -	__mali_osk_locks.o \
 -	__mali_osk_memory.o \
 -	__mali_osk_atomics.o \

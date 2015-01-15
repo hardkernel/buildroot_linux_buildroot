@@ -178,10 +178,7 @@ def download_pkg(xml, config, download = 0):
                               break
                           server = server_addr + repos[i]
                           date = time.strftime("%Y-%m-%d")
-                          if pkgloc != b:
-                              folder = tar[i] + '-' + date + '-' + pkgloc[0:10]
-                          else:
-                              folder = tar[i] + '-' + date + '-' + pkgloc
+                          folder = tar[i] + '-' + date + '-' + pkgloc[0:10]
                           if download:
                               cmd = 'rm -rf %s' % folder
                               print cmd
