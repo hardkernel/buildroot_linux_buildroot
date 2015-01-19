@@ -1,8 +1,8 @@
-Index: linux-amlogic-3.10-bringup/Makefile
+Index: arm-src-kernel-2015-01-15-321cfb5a46/Makefile
 ===================================================================
---- linux-amlogic-3.10-bringup.orig/Makefile	2014-12-02 10:43:26.000000000 +0800
-+++ linux-amlogic-3.10-bringup/Makefile	2014-12-02 14:18:39.592616050 +0800
-@@ -373,15 +373,12 @@
+--- arm-src-kernel-2015-01-15-321cfb5a46.orig/Makefile	2015-01-13 10:04:47.000000000 +0800
++++ arm-src-kernel-2015-01-15-321cfb5a46/Makefile	2015-01-19 17:23:28.294979779 +0800
+@@ -373,17 +373,13 @@
  		   -fno-strict-aliasing -fno-common \
  		   -Werror-implicit-function-declaration \
  		   -Wno-format-security \
@@ -17,9 +17,11 @@ Index: linux-amlogic-3.10-bringup/Makefile
 -		   -Werror=maybe-uninitialized \
 -		   -Werror=unused-variable \
  		   -Werror=format \
- 		   -Werror=unused-function \
+-		   -Werror=unused-function \
  		   -Werror=switch \
-@@ -394,6 +391,7 @@
+ 		   -Werror=strict-prototypes \
+ 		   -Werror=declaration-after-statement \
+@@ -394,6 +390,7 @@
  		   -Werror=return-type \
  		   -Werror=parentheses \
  		   -Werror=int-to-pointer-cast \
