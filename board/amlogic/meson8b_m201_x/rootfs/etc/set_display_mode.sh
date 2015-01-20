@@ -5,7 +5,8 @@ DISP_MODE=/sys/class/display/mode
 
 hdmi=`cat $HPD_STATE`
 if [ $hdmi -eq 1 ]; then
-    mode=`awk -f /etc/display/get_hdmi_mode.awk $DISP_CAP`
+#    mode=`awk -f /etc/display/get_hdmi_mode.awk $DISP_CAP`
+    mode=720p
     echo $mode > $DISP_MODE
 fi
 
