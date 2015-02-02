@@ -1,7 +1,7 @@
 Index: uboot-2015-01-15-23a3562521/board/amlogic/configs/m8b_m200_v1.h
 ===================================================================
---- uboot-2015-01-15-23a3562521.orig/board/amlogic/configs/m8b_m200_v1.h	2015-01-09 18:02:52.000000000 +0800
-+++ uboot-2015-01-15-23a3562521/board/amlogic/configs/m8b_m200_v1.h	2015-01-15 15:22:38.808360111 +0800
+--- uboot-2015-01-15-23a3562521.orig/board/amlogic/configs/m8b_m200_v1.h	2015-01-16 16:24:18.670050433 +0800
++++ uboot-2015-01-15-23a3562521/board/amlogic/configs/m8b_m200_v1.h	2015-02-02 17:57:57.188861665 +0800
 @@ -206,7 +206,7 @@
  	"cvbsmode=576cvbs\0" \
  	"outputmode=1080p\0" \
@@ -20,10 +20,11 @@ Index: uboot-2015-01-15-23a3562521/board/amlogic/configs/m8b_m200_v1.h
  	"firstboot=1\0" \
  	"store=0\0"\
          "wipe_data=success\0"\
-@@ -274,7 +274,11 @@
+@@ -273,8 +273,11 @@
+         "fi;\0"\
      \
     	"storeargs="\
-         "setenv bootargs ${initargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${cecconfig}\0"\
+-        "setenv bootargs ${initargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${cecconfig}\0"\
 -    \
 +        "setenv bootargs ${initargs} vdaccfg=${vdac_config} logo=osd1,loaded,${fb_addr},${outputmode},full hdmimode=${hdmimode} cvbsmode=${cvbsmode} androidboot.firstboot=${firstboot} hdmitx=${hdmimode}\0"\
 +    "bootsdargs="\
@@ -33,7 +34,7 @@ Index: uboot-2015-01-15-23a3562521/board/amlogic/configs/m8b_m200_v1.h
  	"switch_bootmode="\
          "if test ${reboot_mode} = factory_reset; then "\
                  "run recovery;"\
-@@ -300,9 +304,21 @@
+@@ -300,9 +303,21 @@
              "setenv bootargs ${bootargs} androidboot.serialno=${usid};"\
          "fi;"\
          "imgread kernel boot ${loadaddr};"\
