@@ -665,6 +665,7 @@ menu "Crypto"
 	source "package/nettle/Config.in"
 	source "package/openssl/Config.in"
 	source "package/polarssl/Config.in"
+	source "package/aml_af_alg/Config.in"
 endmenu
 
 menu "Database"
