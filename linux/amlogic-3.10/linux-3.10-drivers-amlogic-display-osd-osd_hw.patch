@@ -1,29 +1,8 @@
 Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c
 ===================================================================
---- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/osd_hw.c	2014-12-02 10:43:26.000000000 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c	2014-12-02 14:18:39.696616052 +0800
-@@ -3123,7 +3123,6 @@
- 	osd_hw.color_info[OSD2]=NULL;
- 	vf.width =vf.height=0;
- 	osd_hw.color_key[OSD1]=osd_hw.color_key[OSD2]=0xffffffff;
--	osd_hw.free_scale_enable[OSD1]=osd_hw.free_scale_enable[OSD2]=0;
- 	osd_hw.scale[OSD1].h_enable=osd_hw.scale[OSD1].v_enable=0;
- 	osd_hw.scale[OSD2].h_enable=osd_hw.scale[OSD2].v_enable=0;
- 	osd_hw.mode_3d[OSD2].enable=osd_hw.mode_3d[OSD1].enable=0;
-@@ -3147,6 +3146,12 @@
- 	osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 0;
- #endif
- 
-+#if MESON_CPU_TYPE >= MESON_CPU_TYPE_MESON8
-+    osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 1;
-+#else
-+    osd_hw.free_scale_mode[OSD1] = osd_hw.free_scale_mode[OSD2] = 0;
-+#endif
-+
- 	memset(osd_hw.rotate,0,sizeof(osd_rotate_t));
- 
- #ifdef  CONFIG_FB_OSD_SUPPORT_SYNC_FENCE
-@@ -3270,6 +3275,33 @@
+--- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/osd_hw.c	2015-04-10 14:28:38.000000000 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_hw.c	2015-04-10 14:30:47.593229586 +0800
+@@ -3223,6 +3223,33 @@
  }
  #endif //CONFIG_FB_OSD2_CURSOR
  
