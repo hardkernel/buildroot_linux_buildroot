@@ -62,14 +62,19 @@ UBOOT_BIN_IFT = $(UBOOT_BIN).ift
 endif
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
 	UBOOT_BIN := build/$(UBOOT_BIN)
+else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
+	UBOOT_BIN := sd_fuse/$(UBOOT_BIN)
 endif
 
 UBOOT_ARCH = $(KERNEL_ARCH)
-
+ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID)),y) 
+UBOOT_MAKE_OPTS += \
+	ARCH=$(UBOOT_ARCH)
+else
 UBOOT_MAKE_OPTS += \
 	CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
 	ARCH=$(UBOOT_ARCH)
-
+endif
 # Helper function to fill the U-Boot config.h file.
 # Argument 1: option name
 # Argument 2: option value
@@ -165,6 +170,11 @@ define UBOOT_INSTALL_IMAGES_CMDS
 	cp -dpf $(@D)/$(UBOOT_BIN) $(BINARIES_DIR)/
 	$(if $(BR2_TARGET_UBOOT_SPL),
 		cp -dpf $(@D)/$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)) $(BINARIES_DIR)/)
+	$(if $(BR2_TARGET_UBOOT_ODROID),
+		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
+	$(if $(call qstrip,$(BR2_TARGET_UBOOT_BOOT_INI_LOCATION)),
+		mkdir -p $(TARGET_DIR)/boot/
+		cp -dpf $(call qstrip,$(BR2_TARGET_UBOOT_BOOT_INI_LOCATION)) $(TARGET_DIR)/boot/)
 	$(if $(BR2_TARGET_UBOOT_ENVIMAGE),
 		$(HOST_DIR)/usr/bin/mkenvimage -s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE) \
 		$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUNDANT),-r) \

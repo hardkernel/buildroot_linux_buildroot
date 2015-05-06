@@ -16,6 +16,9 @@ config BR2_PACKAGE_OPENGL
 config BR2_PACKAGE_OPENGL_MALI_VERSION
     string "mali version"
 
+config BR2_PACKAGE_OPENGL_VERSION
+    string "mali opengl version"
+
 config BR2_PACKAGE_PROVIDES_LIBEGL
 	default "opengl" if BR2_PACKAGE_OPENGL
 

@@ -48,18 +48,18 @@ WORD_NUMBER := $(words $(BR2_LINUX_KERNEL_INTREE_DTS_NAME))
 ifeq ($(WORD_NUMBER),1)
 mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	@$(call MESSAGE,"Generating boot image")
-	$(LINUX_DIR)/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
+	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
 else
 mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	@$(call MESSAGE,"Generating boot image")
 	linux/dtbTool -o $(BINARIES_DIR)/dt.img -p $(LINUX_DIR)/scripts/dtc/ $(BINARIES_DIR)/
-	$(LINUX_DIR)/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/dt.img --output $(BINARIES_DIR)/boot.img
+	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/dt.img --output $(BINARIES_DIR)/boot.img
 endif
 else
 mkbootimg:
 endif
 
-ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
+ifeq ($(BR2_LINUX_KERNEL_ANDROID_FORMAT),y)
 define ROOTFS_CPIO_POST_TARGETS
 	mkbootimg
 endef

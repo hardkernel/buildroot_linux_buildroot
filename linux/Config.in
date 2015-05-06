@@ -344,6 +344,9 @@ config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
 
 config BR2_LINUX_KERNEL_AMLOGIC_DTD
 	bool "Amlogic DTD"
+
+config BR2_LINUX_KERNEL_ANDROID_FORMAT
+	bool "Android boot.img"
 endif
 
 config BR2_LINUX_KERNEL_INSTALL_TARGET
