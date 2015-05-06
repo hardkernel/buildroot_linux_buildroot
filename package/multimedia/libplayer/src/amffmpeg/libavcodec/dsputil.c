@@ -36,7 +36,7 @@
 #include "mathops.h"
 #include "mpegvideo.h"
 #include "config.h"
-#include "ac3dec.h"
+//#include "ac3dec.h"
 #include "vorbis.h"
 
 uint8_t ff_cropTbl[256 + 2 * MAX_NEG_CROP] = {0, };
@@ -3007,9 +3007,9 @@ av_cold void dsputil_init(DSPContext* c, AVCodecContext *avctx)
 
 #undef dspfunc
 
-#if CONFIG_MLP_DECODER || CONFIG_TRUEHD_DECODER
-    ff_mlp_init(c, avctx);
-#endif
+//#if CONFIG_MLP_DECODER || CONFIG_TRUEHD_DECODER
+//    ff_mlp_init(c, avctx);
+//#endif
 #if CONFIG_WMV2_DECODER || CONFIG_VC1_DECODER
     ff_intrax8dsp_init(c,avctx);
 #endif
@@ -3095,9 +3095,9 @@ av_cold void dsputil_init(DSPContext* c, AVCodecContext *avctx)
 #if CONFIG_VORBIS_DECODER
     c->vorbis_inverse_coupling = vorbis_inverse_coupling;
 #endif
-#if CONFIG_AC3_DECODER
-    c->ac3_downmix = ff_ac3_downmix_c;
-#endif
+//#if CONFIG_AC3_DECODER
+//    c->ac3_downmix = ff_ac3_downmix_c;
+//#endif
     c->vector_fmul = vector_fmul_c;
     c->vector_fmul_reverse = vector_fmul_reverse_c;
     c->vector_fmul_add = vector_fmul_add_c;

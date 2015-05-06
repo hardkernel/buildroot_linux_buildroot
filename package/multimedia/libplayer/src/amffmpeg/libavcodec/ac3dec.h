@@ -52,7 +52,7 @@
 
 #include "libavutil/lfg.h"
 #include "ac3.h"
-#include "ac3dsp.h"
+//#include "ac3dsp.h"
 #include "get_bits.h"
 #include "dsputil.h"
 #include "fft.h"

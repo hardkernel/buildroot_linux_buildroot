@@ -1,9 +1,9 @@
-OBJS-$(CONFIG_AC3DSP)                  += arm/ac3dsp_init_arm.o         \
-                                          arm/ac3dsp_arm.o
+# OBJS-$(CONFIG_AC3DSP)                  += arm/ac3dsp_init_arm.o         \
+#                                          arm/ac3dsp_arm.o
 
-OBJS-$(CONFIG_DCA_DECODER)             += arm/dcadsp_init_arm.o         \
+# OBJS-$(CONFIG_DCA_DECODER)             += arm/dcadsp_init_arm.o         \
 
-ARMV6-OBJS-$(CONFIG_AC3DSP)            += arm/ac3dsp_armv6.o
+# ARMV6-OBJS-$(CONFIG_AC3DSP)            += arm/ac3dsp_armv6.o
 
 OBJS-$(CONFIG_MPEGAUDIODSP)            += arm/mpegaudiodsp_init_arm.o
 ARMV6-OBJS-$(CONFIG_MPEGAUDIODSP)      += arm/mpegaudiodsp_fixed_armv6.o
@@ -57,10 +57,10 @@ NEON-OBJS-$(CONFIG_H264DSP)            += arm/h264dsp_neon.o            \
 
 NEON-OBJS-$(CONFIG_H264PRED)           += arm/h264pred_neon.o           \
 
-NEON-OBJS-$(CONFIG_AC3DSP)             += arm/ac3dsp_neon.o
+# NEON-OBJS-$(CONFIG_AC3DSP)             += arm/ac3dsp_neon.o
 
-NEON-OBJS-$(CONFIG_DCA_DECODER)        += arm/dcadsp_neon.o             \
-                                          arm/synth_filter_neon.o       \
+# NEON-OBJS-$(CONFIG_DCA_DECODER)        += arm/dcadsp_neon.o             \
+#                                          arm/synth_filter_neon.o       \
 
 NEON-OBJS-$(CONFIG_VP3_DECODER)        += arm/vp3dsp_neon.o
 

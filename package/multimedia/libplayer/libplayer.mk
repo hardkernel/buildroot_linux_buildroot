@@ -33,7 +33,7 @@ define LIBPLAYER_CONFIGURE_CMDS
 		--disable-ffserver \
 		--disable-doc \
 		--cpu=$(BR2_GCC_TARGET_CPU) \
-		--extra-ldflags='-L$(STAGING_DIR)/usr/lib/ -L$(STAGING_DIR)/usr/lib/libplayer -lamavutils -ldl' \
+		--extra-ldflags='-L$(STAGING_DIR)/usr/lib/ -L$(STAGING_DIR)/usr/lib/aml_libs -lamavutils -ldl' \
 		--extra-cflags='-mfpu=neon'
 endef
 

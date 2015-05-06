@@ -26,7 +26,7 @@ OBJS = allcodecs.o                                                      \
 
 # parts needed for many different codecs
 OBJS-$(CONFIG_AANDCT)                  += aandcttab.o
-OBJS-$(CONFIG_AC3DSP)                  += ac3dsp.o
+# OBJS-$(CONFIG_AC3DSP)                  += ac3dsp.o
 OBJS-$(CONFIG_CRYSTALHD)               += crystalhd.o
 OBJS-$(CONFIG_ENCODERS)                += faandct.o jfdctfst.o jfdctint.o
 OBJS-$(CONFIG_DCT)                     += dct.o dct32_fixed.o dct32_float.o
@@ -61,10 +61,10 @@ OBJS-$(CONFIG_AAC_ENCODER)             += aacenc.o aaccoder.o    \
                                           psymodel.o iirfilter.o \
                                           mpeg4audio.o kbdwin.o
 OBJS-$(CONFIG_AASC_DECODER)            += aasc.o msrledec.o
-OBJS-$(CONFIG_AC3_DECODER)             += ac3dec.o ac3dec_data.o ac3.o kbdwin.o
-OBJS-$(CONFIG_AC3_ENCODER)             += ac3enc_combined.o ac3enc_fixed.o ac3enc_float.o ac3tab.o ac3.o kbdwin.o ac3enc.o
-OBJS-$(CONFIG_AC3_FLOAT_ENCODER)       += ac3enc_float.o ac3tab.o ac3tab.o ac3.o kbdwin.o
-OBJS-$(CONFIG_AC3_FIXED_ENCODER)       += ac3enc_fixed.o ac3tab.o ac3tab.o ac3.o ac3enc.o
+# OBJS-$(CONFIG_AC3_DECODER)             += ac3dec_data.o ac3.o kbdwin.o
+# OBJS-$(CONFIG_AC3_ENCODER)             += ac3enc_combined.o ac3enc_fixed.o ac3enc_float.o ac3tab.o ac3.o kbdwin.o ac3enc.o
+# OBJS-$(CONFIG_AC3_FLOAT_ENCODER)       += ac3enc_float.o ac3tab.o ac3tab.o ac3.o kbdwin.o
+# OBJS-$(CONFIG_AC3_FIXED_ENCODER)       += ac3enc_fixed.o ac3tab.o ac3tab.o ac3.o ac3enc.o
 OBJS-$(CONFIG_ALAC_DECODER)            += alac.o
 OBJS-$(CONFIG_ALAC_ENCODER)            += alacenc.o
 OBJS-$(CONFIG_ALS_DECODER)             += alsdec.o bgmc.o mpeg4audio.o
@@ -108,8 +108,8 @@ OBJS-$(CONFIG_CLJR_ENCODER)            += cljr.o
 OBJS-$(CONFIG_COOK_DECODER)            += cook.o
 OBJS-$(CONFIG_CSCD_DECODER)            += cscd.o
 OBJS-$(CONFIG_CYUV_DECODER)            += cyuv.o
-OBJS-$(CONFIG_DCA_DECODER)             += dca.o synth_filter.o dcadsp.o
-OBJS-$(CONFIG_DCA_ENCODER)             += dcaenc.o
+# OBJS-$(CONFIG_DCA_DECODER)             += dca.o synth_filter.o dcadsp.o
+# OBJS-$(CONFIG_DCA_ENCODER)             += dcaenc.o
 OBJS-$(CONFIG_DFA_DECODER)             += dfa.o
 OBJS-$(CONFIG_DNXHD_DECODER)           += dnxhddec.o dnxhddata.o
 OBJS-$(CONFIG_DNXHD_ENCODER)           += dnxhdenc.o dnxhddata.o       \
@@ -127,9 +127,9 @@ OBJS-$(CONFIG_DVDSUB_ENCODER)          += dvdsubenc.o
 OBJS-$(CONFIG_DVVIDEO_DECODER)         += dv.o dvdata.o
 OBJS-$(CONFIG_DVVIDEO_ENCODER)         += dv.o dvdata.o
 OBJS-$(CONFIG_DXA_DECODER)             += dxa.o
-OBJS-$(CONFIG_EAC3_DECODER)            += eac3dec.o eac3dec_data.o
-OBJS-$(CONFIG_EAC3_ENCODER)            += eac3enc.o ac3enc.o ac3enc_float.o \
-                                          ac3tab.o ac3.o kbdwin.o
+# OBJS-$(CONFIG_EAC3_DECODER)            += eac3dec.o eac3dec_data.o
+# OBJS-$(CONFIG_EAC3_ENCODER)            += eac3enc.o ac3enc.o ac3enc_float.o \
+#                                          ac3tab.o ac3.o kbdwin.o
 OBJS-$(CONFIG_EACMV_DECODER)           += eacmv.o
 OBJS-$(CONFIG_EAMAD_DECODER)           += eamad.o eaidct.o mpeg12.o \
                                           mpeg12data.o mpegvideo.o  \
@@ -220,7 +220,7 @@ OBJS-$(CONFIG_MJPEG_ENCODER)           += mjpegenc.o mjpeg.o           \
                                           ratecontrol.o mpeg12data.o   \
                                           mpegvideo.o
 OBJS-$(CONFIG_MJPEGB_DECODER)          += mjpegbdec.o mjpegdec.o mjpeg.o
-OBJS-$(CONFIG_MLP_DECODER)             += mlpdec.o mlpdsp.o
+# OBJS-$(CONFIG_MLP_DECODER)             += mlpdec.o mlpdsp.o
 OBJS-$(CONFIG_MMVIDEO_DECODER)         += mmvideo.o
 OBJS-$(CONFIG_MOTIONPIXELS_DECODER)    += motionpixels.o
 OBJS-$(CONFIG_MP1_DECODER)             += mpegaudiodec.o mpegaudiodecheader.o \

@@ -238,8 +238,8 @@ void avcodec_register_all(void)
     /* audio codecs */
     REGISTER_ENCDEC  (AAC, aac);
     REGISTER_DECODER (AAC_LATM, aac_latm);
-    REGISTER_ENCDEC  (AC3, ac3);
-    REGISTER_ENCODER (AC3_FIXED, ac3_fixed); //deprecated, just for libav compatibility
+//    REGISTER_ENCDEC  (AC3, ac3);
+//    REGISTER_ENCODER (AC3_FIXED, ac3_fixed); //deprecated, just for libav compatibility
 //    REGISTER_ENCODER (AC3_FLOAT, ac3_float); dont remove dont outcomment, for configure
     REGISTER_ENCDEC  (ALAC, alac);
     REGISTER_DECODER (ALS, als);
@@ -251,16 +251,16 @@ void avcodec_register_all(void)
     REGISTER_DECODER (BINKAUDIO_DCT, binkaudio_dct);
     REGISTER_DECODER (BINKAUDIO_RDFT, binkaudio_rdft);
     REGISTER_DECODER (COOK, cook);
-    REGISTER_ENCDEC  (DCA, dca);
+//    REGISTER_ENCDEC  (DCA, dca);
     REGISTER_DECODER (DSICINAUDIO, dsicinaudio);
-    REGISTER_ENCDEC  (EAC3, eac3);
+//    REGISTER_ENCDEC  (EAC3, eac3);
     REGISTER_ENCDEC  (FLAC, flac);
     REGISTER_DECODER (GSM, gsm);
     REGISTER_DECODER (GSM_MS, gsm_ms);
     REGISTER_DECODER (IMC, imc);
     REGISTER_DECODER (MACE3, mace3);
     REGISTER_DECODER (MACE6, mace6);
-    REGISTER_DECODER (MLP, mlp);
+//    REGISTER_DECODER (MLP, mlp);
     REGISTER_DECODER (MP1, mp1);
     REGISTER_DECODER (MP1FLOAT, mp1float);
     REGISTER_ENCDEC  (MP2, mp2);
@@ -283,7 +283,7 @@ void avcodec_register_all(void)
     REGISTER_DECODER (SMACKAUD, smackaud);
     REGISTER_ENCDEC  (SONIC, sonic);
     REGISTER_ENCODER (SONIC_LS, sonic_ls);
-    REGISTER_DECODER (TRUEHD, truehd);
+//    REGISTER_DECODER (TRUEHD, truehd);
     REGISTER_DECODER (TRUESPEECH, truespeech);
     REGISTER_DECODER (TTA, tta);
     REGISTER_DECODER (TWINVQ, twinvq);
@@ -394,7 +394,7 @@ void avcodec_register_all(void)
     /* parsers */
     REGISTER_PARSER  (AAC, aac);
     REGISTER_PARSER  (AAC_LATM, aac_latm);
-    REGISTER_PARSER  (AC3, ac3);
+//    REGISTER_PARSER  (AC3, ac3);
     REGISTER_PARSER  (CAVSVIDEO, cavsvideo);
     REGISTER_PARSER  (DCA, dca);
     REGISTER_PARSER  (DIRAC, dirac);

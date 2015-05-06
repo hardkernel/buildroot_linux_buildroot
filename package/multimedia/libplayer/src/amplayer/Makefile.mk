@@ -30,7 +30,7 @@ TARGET?=libamplayer.so
 
 TARGET_IS_LIB=$(TARGET:%so=yes)
 
-LDFLAGS+= -L$(INSTALL_DIR) -lavutil -lavformat -lavcodec -lm  -lpthread -lamavutils
+LDFLAGS+= -L$(INSTALL_DIR) -lavutil -lavformat -lavcodec -lm  -lpthread -L$(STAGING_DIR)/usr/lib/aml_libs -lamavutils
 
 INSTALL_DIR?=$(PREFIX)/lib/libplayer
 LDFLAGS+=-shared 
