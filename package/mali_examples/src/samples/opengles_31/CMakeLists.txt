@@ -1,2 +1,0 @@
-add_subdirectory(occlusion_culling)
-add_subdirectory(compute_particles)

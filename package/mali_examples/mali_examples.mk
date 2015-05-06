@@ -5,8 +5,8 @@
 ################################################################################
 
 MALI_EXAMPLES_VERSION = 2.4.4
-MALI_EXAMPLES_SITE = $(TOPDIR)/package/mali_examples/src
-MALI_EXAMPLES_SITE_METHOD = local
+MALI_EXAMPLES_SITE = http://malideveloper.arm.com/downloads/SDK/LINUX/$(MALI_EXAMPLES_VERSION)
+MALI_EXAMPLES_SOURCE = Mali_OpenGL_ES_SDK_v2.4.4.71fdbd_Linux_x86.tar.gz
 MALI_EXAMPLES_CONF_OPTS = -DTARGET=arm \
 			  -DCMAKE_INSTALL_PREFIX=/usr/share/arm \
 			  -DTOOLCHAIN_ROOT=$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)-
