@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2384E3E4-C659-4F27-9CF6-1896ECB7AA79}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{D878BAAB-BCD0-47F0-B926-F1B3BAFAF21D}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{C5733BFF-1FF4-4AAB-8ECF-967B3E60F963}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;pkm;frag;vert</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ETCMipmap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ETCMipmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\ETCMipmap_texture.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\ETCMipmap_texture.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_0.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_1.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_2.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_3.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_4.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_5.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_6.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_7.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_mip_8.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

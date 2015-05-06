@@ -25,7 +25,7 @@
 */
 
 /* Platform-specific types and definitions for egl.h
- * $Revision: 7244 $ on $Date: 2009-01-20 17:06:59 -0800 (Tue, 20 Jan 2009) $
+ * $Revision: 12306 $ on $Date: 2010-08-25 09:51:28 -0700 (Wed, 25 Aug 2010) $
  *
  * Adopters may modify khrplatform.h and this file to suit their platform.
  * You are encouraged to submit all modifications to the Khronos group so that
@@ -53,13 +53,18 @@
 #ifndef EGLAPIENTRY
 #define EGLAPIENTRY  KHRONOS_APIENTRY
 #endif
-#define EGLAPIENTRYP KHRONOS_APIENTRY*
+#define EGLAPIENTRYP EGLAPIENTRY*
 
 /* The types NativeDisplayType, NativeWindowType, and NativePixmapType
  * are aliases of window-system-dependent types, such as X Display * or
  * Windows Device Context. They must be defined in platform-specific
  * code below. The EGL-prefixed versions of Native*Type are the same
  * types, renamed in EGL 1.3 so all types in the API start with "EGL".
+ *
+ * Khronos STRONGLY RECOMMENDS that you use the default definitions
+ * provided below, since these changes affect both binary and source
+ * portability of applications using EGL running on different EGL
+ * implementations.
  */
 
 #if defined(_WIN32) || defined(__VC32__) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__) /* Win32 and WinCE */
@@ -72,15 +77,11 @@ typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 typedef HWND    EGLNativeWindowType;
 
-#elif defined(_WIN32) && defined(__CYGWIN__)  /* Cygwin targetting Windows */
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
-#endif
-#include <windows.h>
+#elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
 
-typedef HDC     EGLNativeDisplayType;
-typedef HBITMAP EGLNativePixmapType;
-typedef HWND    EGLNativeWindowType;
+typedef int   EGLNativeDisplayType;
+typedef void *EGLNativeWindowType;
+typedef void *EGLNativePixmapType;
 
 #elif defined(__arm__) && defined(__gnu_linux__)  /* ARM Linux Mali */
 #include <EGL/fbdev_window.h>
@@ -88,12 +89,6 @@ typedef HWND    EGLNativeWindowType;
 typedef void*         EGLNativeDisplayType;
 typedef void*         EGLNativePixmapType;
 typedef fbdev_window* EGLNativeWindowType;
-
-#elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
-
-typedef int   EGLNativeDisplayType;
-typedef void *EGLNativeWindowType;
-typedef void *EGLNativePixmapType;
 
 #elif defined(__unix__)
 

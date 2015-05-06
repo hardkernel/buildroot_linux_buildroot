@@ -1,29 +1,57 @@
 var NAVTREE =
 [
-  [ "Mali OpenGL ES SDK", "index.html", [
-    [ "Classes", null, [
-      [ "Class List", "annotated.html", "annotated" ],
-      [ "Class Index", "classes.html", null ],
-      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
-      [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Functions", "functions_func.html", null ],
-        [ "Variables", "functions_vars.html", null ],
-        [ "Enumerations", "functions_enum.html", null ],
-        [ "Enumerator", "functions_eval.html", null ]
+  [ "Mali OpenGL ES SDK v2.4.4", "index.html", [
+    [ "Legal", "legal.html", null ],
+    [ "Quick Start Guide", "quick_start.html", [
+      [ "Building and running an OpenGL ES sample for the OpenGL ES Emulator", "quick_start.html#quickStartEmulator", null ],
+      [ "Building and running an OpenGL ES sample for Linux on ARM", "quick_start.html#quickStartArm", null ]
+    ] ],
+    [ "Samples", "samples.html", "samples" ],
+    [ "Support", "support.html", [
+      [ "Mali Developer Forums", "support.html#supportMaliDeveloper", null ]
+    ] ],
+    [ "Tutorials", "tutorials.html", "tutorials" ],
+    [ "Namespaces", null, [
+      [ "Namespace List", "namespaces.html", "namespaces" ],
+      [ "Namespace Members", "namespacemembers.html", [
+        [ "All", "namespacemembers.html", null ],
+        [ "Functions", "namespacemembers_func.html", null ],
+        [ "Typedefs", "namespacemembers_type.html", null ]
       ] ]
     ] ],
     [ "Files", null, [
-      [ "File List", "files.html", "files" ]
+      [ "File List", "files.html", "files" ],
+      [ "File Members", "globals.html", [
+        [ "All", "globals.html", "globals_dup" ],
+        [ "Functions", "globals_func.html", "globals_func" ],
+        [ "Variables", "globals_vars.html", "globals_vars" ],
+        [ "Typedefs", "globals_type.html", null ],
+        [ "Macros", "globals_defs.html", "globals_defs" ]
+      ] ]
     ] ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-".html",
+"3d_8h.html",
+"_e_g_l_preserve__cube_8frag.html#acdef7a1fd863a6d3770c1268cb06add3",
+"_fetch_depth__glass_8frag.html#a343ffc6796d3761f0f90b7a9a5ebb4f8",
+"_instancing_8cpp.html#acc1eb33f2e499064566b78ec020099a4",
+"_min___max___blending__shader_8vert.html",
+"_roto_zoom__cube_8vert.html#a6726212798e2a5da247efe444ca78a55",
+"_template_8h_source.html",
+"compressed_alpha_channels.html#compressedAlphaChannelsSeparatelyAlphaSum",
+"fur_2_m_vector3_8h.html#aed0bc8cfd3dfe3705aecd41c027d389d",
+"lighting__fragment__shader__source_8frag.html#aba8f996b525b9db5a31e6993394708f6",
+"render__scene__shader_8frag.html#ab962fe36b14955550df17a1c88a6f2c9",
+"samples_2opengles__30_2astc__textures_2assets_2font_8vert.html#a8249bc2ed2076097fc469de6f1d0ec63",
+"shader_8cpp.html#adf8ba9a56988079a087e988f63d826fa",
+"skybox_2assets_2shader_8frag.html#a74fe015ec452ae5dc48201a6e992f7a1"
 ];
 
+var SYNCONMSG = 'click to disable panel synchronisation';
+var SYNCOFFMSG = 'click to enable panel synchronisation';
 var navTreeSubIndices = new Array();
 
 function getData(varName)
@@ -44,6 +72,40 @@ function stripPath2(uri)
   var s = uri.substring(i+1);
   var m = uri.substring(0,i+1).match(/\/d\w\/d\w\w\/$/);
   return m ? uri.substring(i-6) : s;
+}
+
+function localStorageSupported()
+{
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null && window.localStorage.getItem;
+  }
+  catch(e) {
+    return false;
+  }
+}
+
+
+function storeLink(link)
+{
+  if (!$("#nav-sync").hasClass('sync') && localStorageSupported()) {
+      window.localStorage.setItem('navpath',link);
+  }
+}
+
+function deleteLink()
+{
+  if (localStorageSupported()) {
+    window.localStorage.setItem('navpath','');
+  } 
+}
+
+function cachedLink()
+{
+  if (localStorageSupported()) {
+    return window.localStorage.getItem('navpath');
+  } else {
+    return '';
+  }
 }
 
 function getScript(scriptName,func,show)
@@ -164,6 +226,7 @@ function newNode(o, po, text, link, childrenData, lastNode)
       var targetPage = stripPath(link.split('#')[0]);
       a.href = srcPage!=targetPage ? url : '#';
       a.onclick = function(){
+        storeLink(link);
         if (!$(a).parent().parent().hasClass('selected'))
         {
           $('.item').removeClass('selected');
@@ -191,6 +254,7 @@ function newNode(o, po, text, link, childrenData, lastNode)
       };
     } else {
       a.href = url;
+      a.onclick = function() { storeLink(link); }
     }
   } else {
     if (childrenData != null) 
@@ -274,6 +338,8 @@ function highlightAnchor()
     glowEffect(rows.children(),300); // member without details
   } else if (anchor.parents().slice(2).prop('tagName')=='TR') {
     glowEffect(anchor.parents('div.memitem'),1000); // enum value
+  } else if (anchor.parent().attr('class')=='fieldtype'){
+    glowEffect(anchor.parent().parent(),1000); // struct field
   } else if (anchor.parent().is(":header")) {
     glowEffect(anchor.parent(),1000); // section header
   } else {
@@ -281,12 +347,11 @@ function highlightAnchor()
   }
 }
 
-function selectAndHighlight(n)
+function selectAndHighlight(hash,n)
 {
   var a;
-  if ($(location).attr('hash')) {
-    var link=stripPath($(location).attr('pathname'))+':'+
-      $(location).attr('hash').substring(1);
+  if (hash) {
+    var link=stripPath($(location).attr('pathname'))+':'+hash.substring(1);
     a=$('.item a[class$="'+link+'"]');
   }
   if (a && a.length) {
@@ -300,14 +365,14 @@ function selectAndHighlight(n)
   showRoot();
 }
 
-function showNode(o, node, index)
+function showNode(o, node, index, hash)
 {
   if (node && node.childrenData) {
     if (typeof(node.childrenData)==='string') {
       var varName    = node.childrenData;
       getScript(node.relpath+varName,function(){
         node.childrenData = getData(varName);
-        showNode(o,node,index);
+        showNode(o,node,index,hash);
       },true);
     } else {
       if (!node.childrenVisited) {
@@ -322,26 +387,26 @@ function showNode(o, node, index)
       node.expanded = true;
       var n = node.children[o.breadcrumbs[index]];
       if (index+1<o.breadcrumbs.length) {
-        showNode(o,n,index+1);
+        showNode(o,n,index+1,hash);
       } else {
         if (typeof(n.childrenData)==='string') {
           var varName = n.childrenData;
           getScript(n.relpath+varName,function(){
             n.childrenData = getData(varName);
             node.expanded=false;
-            showNode(o,node,index); // retry with child node expanded
+            showNode(o,node,index,hash); // retry with child node expanded
           },true);
         } else {
-          var rootBase = o.toroot.replace(/\..+$/, '');
+          var rootBase = stripPath(o.toroot.replace(/\..+$/, ''));
           if (rootBase=="index" || rootBase=="pages") {
             expandNode(o, n, true, true);
           }
-          selectAndHighlight(n);
+          selectAndHighlight(hash,n);
         }
       }
     }
   } else {
-    selectAndHighlight();
+    selectAndHighlight(hash);
   }
 }
 
@@ -359,7 +424,7 @@ function getNode(o, po)
 function gotoNode(o,subIndex,root,hash,relpath)
 {
   var nti = navTreeSubIndices[subIndex][root+hash];
-  o.breadcrumbs = nti ? nti : navTreeSubIndices[subIndex][root];
+  o.breadcrumbs = $.extend(true, [], nti ? nti : navTreeSubIndices[subIndex][root]);
   if (!o.breadcrumbs && root!=NAVTREE[0][1]) { // fallback: show index
     navTo(o,NAVTREE[0][1],"",relpath);
     $('.item').removeClass('selected');
@@ -367,16 +432,29 @@ function gotoNode(o,subIndex,root,hash,relpath)
   }
   if (o.breadcrumbs) {
     o.breadcrumbs.unshift(0); // add 0 for root node
-    showNode(o, o.node, 0);
+    showNode(o, o.node, 0, hash);
   }
 }
 
 function navTo(o,root,hash,relpath)
 {
+  var link = cachedLink();
+  if (link) {
+    var parts = link.split('#');
+    root = parts[0];
+    if (parts.length>1) hash = '#'+parts[1];
+    else hash='';
+  }
+  if (root==NAVTREE[0][1]) {
+    $('#nav-sync').css('top','30px');
+  } else {
+    $('#nav-sync').css('top','5px');
+  }
   if (hash.match(/^#l\d+$/)) {
     var anchor=$('a[name='+hash.substring(1)+']');
     glowEffect(anchor.parent(),1000); // line number
     hash=''; // strip line number anchors
+    //root=root.replace(/_source\./,'.'); // source link to doc link
   }
   var url=root+hash;
   var i=-1;
@@ -390,6 +468,30 @@ function navTo(o,root,hash,relpath)
         gotoNode(o,i,root,hash,relpath);
       }
     },true);
+  }
+}
+
+function showSyncOff(n,relpath)
+{
+    n.html('<img src="'+relpath+'sync_off.png" title="'+SYNCOFFMSG+'"/>');
+}
+
+function showSyncOn(n,relpath)
+{
+    n.html('<img src="'+relpath+'sync_on.png"/ title="'+SYNCONMSG+'">');
+}
+
+function toggleSyncButton(relpath)
+{
+  var navSync = $('#nav-sync');
+  if (navSync.hasClass('sync')) {
+    navSync.removeClass('sync');
+    showSyncOff(navSync,relpath);
+    storeLink(stripPath2($(location).attr('pathname'))+$(location).attr('hash'));
+  } else {
+    navSync.addClass('sync');
+    showSyncOn(navSync,relpath);
+    deleteLink();
   }
 }
 
@@ -412,6 +514,17 @@ function initNavTree(toroot,relpath)
   o.node.plus_img.src = relpath+"ftv2pnode.png";
   o.node.plus_img.width = 16;
   o.node.plus_img.height = 22;
+
+  if (localStorageSupported()) {
+    var navSync = $('#nav-sync');
+    if (cachedLink()) {
+      showSyncOff(navSync,relpath);
+      navSync.removeClass('sync');
+    } else {
+      showSyncOn(navSync,relpath);
+    }
+    navSync.click(function(){ toggleSyncButton(relpath); });
+  }
 
   navTo(o,toroot,window.location.hash,relpath);
 

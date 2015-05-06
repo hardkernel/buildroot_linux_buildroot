@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{556756F7-8745-4B2D-8441-1476720C125D}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{C708909D-AA3B-45E1-B23D-67B9A68E7673}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{6CEDF6DC-97F2-4CD3-812F-2116CEF416C6}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;pkm;pgm;vert;frag</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ETCUncompressedAlpha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ETCUncompressedAlpha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\ETCUncompressedAlpha_dualtex.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\ETCUncompressedAlpha_dualtex.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_0.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_0_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_1.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_1_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_2.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_2_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_3.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_3_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_4.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_4_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_5.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_5_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_6.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_6_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_7.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_7_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_8.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_uncompressed_mip_8_alpha.pgm">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

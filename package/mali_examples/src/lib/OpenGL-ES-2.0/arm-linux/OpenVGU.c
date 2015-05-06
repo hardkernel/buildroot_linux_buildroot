@@ -1,9 +1,0 @@
-void vguEllipse(void) { return; }
-void vguComputeWarpQuadToQuad(void) { return; }
-void vguRect(void) { return; }
-void vguComputeWarpQuadToSquare(void) { return; }
-void vguLine(void) { return; }
-void vguArc(void) { return; }
-void vguComputeWarpSquareToQuad(void) { return; }
-void vguPolygon(void) { return; }
-void vguRoundRect(void) { return; }

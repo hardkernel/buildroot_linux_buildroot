@@ -26,7 +26,7 @@
 
 /* Khronos platform-specific types and definitions.
  *
- * $Revision: 7820 $ on $Date: 2009-04-03 13:46:26 -0700 (Fri, 03 Apr 2009) $
+ * $Revision: 9356 $ on $Date: 2009-10-21 02:52:25 -0700 (Wed, 21 Oct 2009) $
  *
  * Adopters may modify this file to suit their platform. Adopters are
  * encouraged to submit platform specific modifications to the Khronos
@@ -98,7 +98,11 @@
  * This precedes the return type of the function in the function prototype.
  */
 #if defined(_WIN32) && !defined(__SCITECH_SNAP__)
-#   define KHRONOS_APICALL __declspec(dllimport)
+#   if defined (_DLL_EXPORTS)
+#       define KHRONOS_APICALL __declspec(dllexport)
+#   else
+#       define KHRONOS_APICALL __declspec(dllimport)
+#   endif
 #elif defined (__SYMBIAN32__)
 #   define KHRONOS_APICALL IMPORT_C
 #else

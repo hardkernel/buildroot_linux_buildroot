@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{724079FB-DFB6-4CC2-8C36-59CFC9201C72}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ACE18868-D491-4C1C-8656-D9FEDF7388E4}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{6EA83BCE-2555-43FB-98DE-ED1DD9F13B9C}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;pkm;frag;vert</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ETCAtlasAlpha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ETCAtlasAlpha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\ETCAtlasAlpha_atlastex.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\ETCAtlasAlpha_atlastex.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_0.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_1.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_2.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_3.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_4.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_5.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_6.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_7.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_atlas_mip_8.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

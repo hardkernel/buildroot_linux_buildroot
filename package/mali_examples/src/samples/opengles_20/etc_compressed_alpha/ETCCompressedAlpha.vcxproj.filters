@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5227B0DE-7308-47AA-94A2-3CDCD2099E5C}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{20229655-5498-4F99-B9D8-21153F0E5D0D}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{648A20AE-94ED-426B-B054-264BDCE16956}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;pkm;frag;vert</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ETCCompressedAlpha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ETCCompressedAlpha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\ETCCompressedAlpha_dualtex.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\ETCCompressedAlpha_dualtex.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_0.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_0_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_1.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_1_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_2.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_2_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_3.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_3_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_4.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_4_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_5.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_5_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_6.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_6_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_7.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_7_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_8.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\good_compressed_mip_8_alpha.pkm">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

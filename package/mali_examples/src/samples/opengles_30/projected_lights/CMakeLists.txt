@@ -1,0 +1,35 @@
+#
+# This confidential and proprietary software may be used only as
+# authorised by a licensing agreement from ARM Limited
+# (C) COPYRIGHT 2014 ARM Limited
+# ALL RIGHTS RESERVED
+# The entire notice above must be reproduced on all authorised
+# copies and copies may only be made to the extent permitted
+# by a licensing agreement from ARM Limited.
+#
+
+project(projected_lights)
+
+set(EXECUTABLE_NAME ${PROJECT_NAME})
+
+# Retrieve all the source file names inside the current folder.
+file(GLOB EXAMPLE_SOURCES *.cpp)
+
+# Create an executable file called projected_lights
+add_executable(${EXECUTABLE_NAME} ${EXAMPLE_SOURCES})
+
+# Link with the simple-framework and OpenGL ES libraries.
+set(ALL_LIBRARIES simple_framework3 ${OPENGLES_LIBRARIES} ${PLATFORM_LIBRARIES})
+target_link_libraries(${EXECUTABLE_NAME} ${ALL_LIBRARIES})
+
+set(EXECUTABLE_DESTINATION "opengles_30/${EXECUTABLE_NAME}")
+
+set_target_properties(projected_lights PROPERTIES COMPILE_FLAGS "-DGLES_VERSION=3")
+
+# Install the executable in the package folder.
+install(TARGETS ${EXECUTABLE_NAME}
+    RUNTIME DESTINATION ${EXECUTABLE_DESTINATION}
+    COMPONENT ${EXECUTABLE_NAME})
+
+# Copy the assets folder in install directory.
+install(DIRECTORY assets DESTINATION ${EXECUTABLE_DESTINATION})

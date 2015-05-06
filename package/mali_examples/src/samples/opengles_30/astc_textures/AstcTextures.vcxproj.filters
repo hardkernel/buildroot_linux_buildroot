@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{85CB475F-3511-49F9-9F20-50939AA2ECFA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{aeecc49e-5fcc-46a3-9c14-e8dd3fe79a2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{2f29e546-4b25-4ef7-b048-24f52b4dce24}</UniqueIdentifier>
+      <Extensions>astc</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AstcTextures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SolidSphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EGLRuntime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsPlatform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AstcTextures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SolidSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EGLRuntime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LinuxOnARMPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DesktopLinuxPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shader.frag"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\shader.vert"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\font.frag"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\font.vert"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\font.raw"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\font.png"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss4x4.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss5x4.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss5x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss6x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss6x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss8x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss8x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss8x8.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss10x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss10x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss10x8.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss10x10.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss12x10.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\CloudAndGloss12x12.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color4x4.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color5x4.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color5x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color6x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color6x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color8x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color8x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color8x8.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color10x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color10x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color10x8.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color10x10.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color12x10.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Color12x12.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night4x4.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night5x4.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night5x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night6x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night6x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night8x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night8x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night8x8.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night10x5.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night10x6.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night10x8.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night10x10.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night12x10.astc"> <Filter>Resource Files</Filter> </None>
+    <None Include="assets\Earth-Night12x12.astc"> <Filter>Resource Files</Filter> </None>
+  </ItemGroup>
+</Project>
