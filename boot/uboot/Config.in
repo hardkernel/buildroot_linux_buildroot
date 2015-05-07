@@ -288,11 +288,6 @@ config BR2_TARGET_UBOOT_ODROID
     help
         odroid uboot
 
-config BR2_TARGET_UBOOT_BOOT_INI_LOCATION
-    string "uboot boot ini location"
-    help
-        uboot boot ini location
-
 config BR2_TARGET_USBTOOL_AMLOGIC
     bool "amlogic usb tool"
     help

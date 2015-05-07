@@ -231,4 +231,3 @@ BR2_TARGET_UBOOT_BOARDNAME="odroidc"
 BR2_TARGET_UBOOT_ODROID=y
 BR2_TARGET_UBOOT_SPL=y
 BR2_TARGET_UBOOT_SPL_NAME="sd_fuse/bl1.bin.hardkernel"
-BR2_TARGET_UBOOT_BOOT_INI_LOCATION="board/amlogic/meson8b_odroidc/boot.ini"
