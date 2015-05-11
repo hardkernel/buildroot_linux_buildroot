@@ -202,6 +202,35 @@ typedef struct MLPParseContext
     int num_substreams;
 } MLPParseContext;
 
+static int crc_init = 0;
+#if CONFIG_SMALL
+#define CRC_TABLE_SIZE 257
+#else
+#define CRC_TABLE_SIZE 1024
+#endif
+static AVCRC crc_63[CRC_TABLE_SIZE];
+static AVCRC crc_1D[CRC_TABLE_SIZE];
+static AVCRC crc_2D[CRC_TABLE_SIZE];
+
+av_cold void ff_mlp_init_crc(void)
+{
+    if (!crc_init) {
+        av_crc_init(crc_63, 0,  8,   0x63, sizeof(crc_63));
+        av_crc_init(crc_1D, 0,  8,   0x1D, sizeof(crc_1D));
+        av_crc_init(crc_2D, 0, 16, 0x002D, sizeof(crc_2D));
+        crc_init = 1;
+    }
+}
+
+uint16_t ff_mlp_checksum16(const uint8_t *buf, unsigned int buf_size)
+{
+    uint16_t crc;
+
+    crc = av_crc(crc_2D, 0, buf, buf_size - 2);
+    crc ^= AV_RL16(buf + buf_size - 2);
+    return crc;
+}
+
 static av_cold int mlp_init(AVCodecParserContext *s)
 {
     ff_mlp_init_crc();
