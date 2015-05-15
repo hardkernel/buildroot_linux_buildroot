@@ -26,9 +26,9 @@ define DHCPCD_CONFIGURE_CMDS
 	(cd $(@D); \
 	$(TARGET_CONFIGURE_OPTS) ./configure \
 		--os=linux \
-		$(DHCPCD_CONFIG_OPT) )
-	--sysconfdir=/etc \
-	--libexecdir=/libexec)
+		$(DHCPCD_CONFIG_OPT)\
+		--statedir=$(TARGET_DIR)/var \
+		)
 endef
 
 define DHCPCD_BUILD_CMDS
@@ -39,7 +39,7 @@ define DHCPCD_BUILD_CMDS
 endef
 
 define DHCPCD_INSTALL_TARGET_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) install DESTDIR=$(TARGET_DIR)
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) install
 	$(INSTALL) -D -m 0755 $(@D)/dhcpcd \
 		$(TARGET_DIR)/usr/sbin/dhcpcd
 	$(INSTALL) -D -m 0644 $(@D)/dhcpcd.conf \
