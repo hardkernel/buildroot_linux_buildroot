@@ -172,6 +172,8 @@ define UBOOT_INSTALL_IMAGES_CMDS
 		cp -dpf $(@D)/$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)) $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_ODROID),
 		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
+	$(if $(BR2_TARGET_UBOOT_AMLOGIC),
+		cp -dpf $(@D)/mksdcard $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_ENVIMAGE),
 		$(HOST_DIR)/usr/bin/mkenvimage -s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE) \
 		$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUNDANT),-r) \

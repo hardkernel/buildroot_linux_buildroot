@@ -94,4 +94,9 @@ config BR2_TARGET_ROOTFS_EXT2_XZ
 
 endchoice
 
+config BR2_TARGET_MBR_IMAGE
+	bool "mbr image"
+	help
+	  Create an image with an mbr
+
 endif # BR2_TARGET_ROOTFS_EXT2

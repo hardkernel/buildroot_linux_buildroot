@@ -60,9 +60,7 @@ mkbootimg:
 endif
 
 ifeq ($(BR2_LINUX_KERNEL_ANDROID_FORMAT),y)
-define ROOTFS_CPIO_POST_TARGETS
-	mkbootimg
-endef
+ROOTFS_CPIO_POST_TARGETS += mkbootimg
 endif
 
 $(BINARIES_DIR)/rootfs.cpio.uboot: $(BINARIES_DIR)/rootfs.cpio host-uboot-tools
@@ -71,6 +69,20 @@ $(BINARIES_DIR)/rootfs.cpio.uboot: $(BINARIES_DIR)/rootfs.cpio host-uboot-tools
 
 ifeq ($(BR2_TARGET_ROOTFS_CPIO_UIMAGE),y)
 ROOTFS_CPIO_POST_TARGETS += $(BINARIES_DIR)/rootfs.cpio.uboot
+endif
+
+$(TARGET_DIR)/uInitrd: $(BINARIES_DIR)/rootfs.cpio.uboot
+	install -m 0644 -D $(BINARIES_DIR)/rootfs.cpio.uboot $(TARGET_DIR)/boot/uInitrd
+
+ifeq ($(BR2_TARGET_ROOTFS_CPIO_UIMAGE_INSTALL),y)
+ROOTFS_CPIO_POST_TARGETS += $(TARGET_DIR)/uInitrd
+endif
+
+$(TARGET_DIR)/boot.img: mkbootimg
+	install -m 0644 -D $(BINARIES_DIR)/boot.img $(TARGET_DIR)/boot.img
+
+ifeq ($(BR2_LINUX_KERNEL_INSTALL_TARGET)$(BR2_LINUX_KERNEL_ANDROID_FORMAT),yy)
+ROOTFS_CPIO_POST_TARGETS += $(TARGET_DIR)/boot.img
 endif
 
 $(eval $(call ROOTFS_TARGET,cpio))

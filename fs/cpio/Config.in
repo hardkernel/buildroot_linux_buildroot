@@ -63,4 +63,11 @@ config BR2_TARGET_ROOTFS_CPIO_UIMAGE
 
 	  The U-Boot image will be called rootfs.cpio.uboot
 
+config BR2_TARGET_ROOTFS_CPIO_UIMAGE_INSTALL
+	bool "install uInitrd to /boot"
+	depends on BR2_TARGET_ROOTFS_CPIO_UIMAGE
+	help
+	  This option will install output/images/rootfs.cpio.uboot
+	  to /boot/uInitrd
+
 endif # BR2_TARGET_ROOTFS_CPIO
