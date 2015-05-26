@@ -184,7 +184,7 @@
 ./sys
 ./usr
 ./usr/lib
-./usr/lib/libglib-2.0.so.0.4200.0
+./usr/lib/libglib-2.0.so.0.4200.2
 ./usr/lib/libglib-2.0.so.0
 ./usr/lib/libe2p.so.2
 ./usr/lib/libext2fs.so

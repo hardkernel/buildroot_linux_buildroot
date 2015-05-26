@@ -208,8 +208,8 @@
 ./usr/lib/libgudev-1.0.so
 ./usr/lib/libe2p.so.2.3
 ./usr/lib/libz.so.1.2.8
-./usr/lib/libkmod.so.2.2.9
-./usr/lib/libglib-2.0.so.0.4200.0
+./usr/lib/libkmod.so.2.2.10
+./usr/lib/libglib-2.0.so.0.4200.2
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
 ./usr/lib/libz.so

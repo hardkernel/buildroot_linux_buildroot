@@ -17,7 +17,6 @@ ifneq ($(strip $(BR2_TARGET_ROOTFS_EXT2_RESBLKS)),0)
 EXT2_OPTS += -r $(BR2_TARGET_ROOTFS_EXT2_RESBLKS)
 endif
 
-ROOTFS_EXT2_DEPENDENCIES = host-genext2fs host-e2fsprogs host-aml_image_packer
 # qstrip it when checking. Furthermore, we need to further quote it, so
 # that the quotes do not get eaten by the echo statement when creating the
 # fakeroot script
@@ -31,8 +30,12 @@ define ROOTFS_EXT2_CMD
 	PATH=$(BR_PATH) mke2img -d $(TARGET_DIR) $(EXT2_OPTS) -o $@
 endef
 
+ROOTFS_EXT2_DEPENDENCIES += host-aml_image_packer
+
 rootfs-ext2-symlink:
 	ln -sf rootfs.ext2$(ROOTFS_EXT2_COMPRESS_EXT) $(BINARIES_DIR)/rootfs.ext$(BR2_TARGET_ROOTFS_EXT2_GEN)$(ROOTFS_EXT2_COMPRESS_EXT)
+
+.PHONY: rootfs-ext2-symlink
 
 ifneq ($(BR2_TARGET_ROOTFS_EXT2_GEN),2)
 ROOTFS_EXT2_POST_TARGETS += rootfs-ext2-symlink

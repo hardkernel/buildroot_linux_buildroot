@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <xf86.h>
 
+#include "xorg-server.h"
 #include "mali_def.h"
 #include "mali_fbdev.h"
 #include "mali_exa.h"
