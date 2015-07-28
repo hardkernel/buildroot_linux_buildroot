@@ -198,6 +198,10 @@ ifneq ($(LINUX_KERNEL_UIMAGE_LOADADDR),)
 LINUX_MAKE_FLAGS += LOADADDR="$(LINUX_KERNEL_UIMAGE_LOADADDR)"
 endif
 
+LINUX_KERNEL_IMAGE_LOADADDR = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_LOADADDR))
+ifneq ($(LINUX_KERNEL_IMAGE_LOADADDR),)
+LINUX_MAKE_FLAGS += LOADADDR="$(LINUX_KERNEL_IMAGE_LOADADDR)"
+endif
 # Compute the arch path, since i386 and x86_64 are in arch/x86 and not
 # in arch/$(KERNEL_ARCH). Even if the kernel creates symbolic links
 # for bzImage, arch/i386 and arch/x86_64 do not exist when copying the
@@ -370,9 +374,11 @@ endef
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
 ifeq ($(BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT),)
 
+define LINUX_STRIP_DTD
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTDS)
+endef
 ifeq ($(BR2_LINUX_KERNEL_AMLOGIC_DTD),y)
 define LINUX_BUILD_DTB
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTDS)
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTBS)
 endef
 define LINUX_INSTALL_DTB
@@ -452,6 +458,7 @@ define LINUX_BUILD_CMDS
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
 		$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) modules ;	\
 	fi
+	$(if $(BR2_LINUX_KERNEL_AMLOGIC_DTD_STRIP), $(LINUX_STRIP_DTD))
 	$(LINUX_BUILD_DTB)
 	$(LINUX_APPEND_DTB)
 endef

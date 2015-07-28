@@ -69,14 +69,17 @@ else
 UBOOT_BIN = u-boot.bin
 UBOOT_BIN_IFT = $(UBOOT_BIN).ift
 endif
-ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
+
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
+	UBOOT_BIN := fip/$(UBOOT_BIN)
+else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
 	UBOOT_BIN := build/$(UBOOT_BIN)
 else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
 	UBOOT_BIN := sd_fuse/$(UBOOT_BIN)
 endif
 
 UBOOT_ARCH = $(KERNEL_ARCH)
-ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID)),y) 
+ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID)),y) 
 UBOOT_MAKE_OPTS += \
 	ARCH=$(UBOOT_ARCH)
 else
@@ -154,22 +157,9 @@ define UBOOT_CONFIGURE_CMDS
 	$(TARGET_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS)		\
 		$(UBOOT_BOARD_NAME)_config
-	@echo >> $(@D)/build/include/config.h
-	@echo "/* Add a wrapper around the values Buildroot sets. */" >> $(@D)/build/include/config.h
-	@echo "#ifndef __BR2_ADDED_CONFIG_H" >> $(@D)/build/include/config.h
-	@echo "#define __BR2_ADDED_CONFIG_H" >> $(@D)/build/include/config.h
-	$(call insert_define,DATE,$(DATE))
-	$(call insert_define,CONFIG_LOAD_SCRIPTS,1)
-	$(call insert_define,CONFIG_IPADDR,$(BR2_TARGET_UBOOT_IPADDR))
-	$(call insert_define,CONFIG_GATEWAYIP,$(BR2_TARGET_UBOOT_GATEWAY))
-	$(call insert_define,CONFIG_NETMASK,$(BR2_TARGET_UBOOT_NETMASK))
-	$(call insert_define,CONFIG_SERVERIP,$(BR2_TARGET_UBOOT_SERVERIP))
-	$(call insert_define,CONFIG_ETHADDR,$(BR2_TARGET_UBOOT_ETHADDR))
-	$(call insert_define,CONFIG_ETH1ADDR,$(BR2_TARGET_UBOOT_ETH1ADDR))
-	@echo "#endif /* __BR2_ADDED_CONFIG_H */" >> $(@D)/build/include/config.h
 endef
 
-ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
+ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_AMLOGIC)),y)
 define UBOOT_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
 		$(MAKE) -j4 -C $(@D) $(UBOOT_MAKE_TARGET)

@@ -308,6 +308,11 @@ config BR2_TARGET_UBOOT_AMLOGIC
     help
         amlogic uboot
 
+config BR2_TARGET_UBOOT_AMLOGIC_2015
+    bool "amlogic uboot 2015"
+    help
+        amlogic uboot 2015
+
 config BR2_TARGET_UBOOT_ODROID
     bool "odroid uboot"
     help
