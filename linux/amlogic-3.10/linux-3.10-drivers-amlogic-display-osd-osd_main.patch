@@ -1,20 +1,17 @@
 Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c
 ===================================================================
---- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/osd_main.c	2014-12-02 10:43:26.000000000 +0800
-+++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c	2014-12-02 14:18:39.516616049 +0800
-@@ -99,7 +99,11 @@
+--- linux-amlogic-3.10-bringup.orig/drivers/amlogic/display/osd/osd_main.c	2015-07-28 11:06:00.000000000 +0800
++++ linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c	2015-07-31 10:55:12.777164765 +0800
+@@ -99,7 +99,7 @@
  		lower_margin=COLOR_INDEX_24_6666_A;
  		break;		
  		case 3:
-+#ifdef CONFIG_FB_AMLOGIC_UMP
-+        upper_margin=COLOR_INDEX_32_ARGB;
-+#else
- 		upper_margin=COLOR_INDEX_32_ABGR;
-+#endif
+-		upper_margin=COLOR_INDEX_32_ABGR;
++		upper_margin=COLOR_INDEX_32_ARGB;
  		lower_margin=COLOR_INDEX_32_BGRA;
  		break;
  		case 4:
-@@ -270,6 +274,12 @@
+@@ -270,6 +270,12 @@
  	return 0;
  }
  
@@ -27,7 +24,7 @@ Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c
  static int
  osd_ioctl(struct fb_info *info, unsigned int cmd,
                 unsigned long arg)
-@@ -289,6 +299,11 @@
+@@ -289,6 +295,11 @@
  	fb_sync_request_t  sync_request;
  
  
@@ -39,7 +36,7 @@ Index: linux-amlogic-3.10-bringup/drivers/amlogic/display/osd/osd_main.c
      	switch (cmd)
    	{
     		case  FBIOPUT_OSD_SRCKEY_ENABLE:
-@@ -338,6 +353,44 @@
+@@ -338,6 +349,44 @@
  		case FBIOPUT_OSD_WINDOW_AXIS:
  			ret=copy_from_user(&osd_dst_axis, argp, 4 * sizeof(s32));
  			break;

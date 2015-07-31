@@ -7,7 +7,7 @@ diff -Naur gpu-r4p0-01.orig/ump/Kconfig gpu-r4p0-01/ump/Kconfig
 -	depends on m
 +	#depends on m
 -	default n
-+	default y
++	default n
  	---help---
  	  This enables support for the UMP memory allocation and sharing API.
  

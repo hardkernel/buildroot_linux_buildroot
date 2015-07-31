@@ -1,0 +1,12 @@
+Index: gpu-r5p1/ump/Kbuild
+===================================================================
+--- gpu-r5p1.orig/ump/Kbuild	2015-05-08 16:55:21.000000000 +0800
++++ gpu-r5p1/ump/Kbuild	2015-07-31 11:19:18.805191892 +0800
+@@ -59,6 +59,7 @@
+ ccflags-y += -DMALI_STATE_TRACKING=0
+ ccflags-y += -DMALI_ENABLE_CPU_CYCLES=0
+ ccflags-$(CONFIG_UMP_DEBUG) += -DDEBUG
++ccflags-$(CONFIG_MALI400_DEBUG) += -DDEBUG
+ 
+ # For customer releases the Linux Device Drivers will be provided as ARM proprietary and GPL releases:
+ # The ARM proprietary product will only include the license/proprietary directory
