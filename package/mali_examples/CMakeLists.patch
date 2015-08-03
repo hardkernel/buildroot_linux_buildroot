@@ -1,7 +1,7 @@
 Index: Mali_OpenGL_ES_SDK_v2.4.4/CMakeLists.txt
 ===================================================================
 --- Mali_OpenGL_ES_SDK_v2.4.4.orig/CMakeLists.txt	2014-12-12 18:20:47.000000000 +0800
-+++ Mali_OpenGL_ES_SDK_v2.4.4/CMakeLists.txt	2015-05-06 18:21:01.103632594 +0800
++++ Mali_OpenGL_ES_SDK_v2.4.4/CMakeLists.txt	2015-08-03 12:05:28.094106599 +0800
 @@ -27,11 +27,11 @@
  if(${TARGET} STREQUAL "arm")
      # If the TOOLCHAIN_ROOT environment variable is set, use it, otherwise
@@ -25,3 +25,11 @@ Index: Mali_OpenGL_ES_SDK_v2.4.4/CMakeLists.txt
  
  if(${TARGET} STREQUAL "emulator")
      if (WIN32)
+@@ -91,6 +91,7 @@
+     # Linux on ARM
+     set (GLES_LIB "libGLESv2.so")
+     set (EGL_LIB "libEGL.so")
++    add_definitions(-D__arm__)
+ 
+     set(DUMMY_MALI_LIBRARIES GLESv2 EGL)
+     add_subdirectory(lib/arm)
