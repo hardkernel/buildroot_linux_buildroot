@@ -160,6 +160,33 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 endef
 endif
 
+ifeq ($(WIFI_MODULE),bcm4354)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/nvram*.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
+ifeq ($(WIFI_MODULE),bcm4356)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/nvram*.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
+ifeq ($(WIFI_MODULE),bcm43458)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/43458/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/43458/nvram*.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/43458/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
 endif #BR2_PACKAGE_WIFI_CUSTOM_GIT_VERSION
 
 $(eval $(generic-package))

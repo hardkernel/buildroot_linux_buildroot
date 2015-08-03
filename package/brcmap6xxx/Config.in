@@ -16,3 +16,8 @@ config BR2_PACKAGE_BRCMAP6XXX_GIT_REPO_URL
 	help
 		brcmap6xxx git
 
+config BR2_PACKAGE_BRCMAP6XXX_STANDALONE
+	bool "standalone kernel module"
+	depends on BR2_PACKAGE_BRCMAP6XXX
+	help
+	  compile ko directly

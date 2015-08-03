@@ -16,3 +16,8 @@ config BR2_PACKAGE_RTK8189ES_GIT_REPO_URL
 	help
 		rtk8189es git
 
+config BR2_PACKAGE_RTK8189ES_STANDALONE
+	bool "standalone kernel module"
+	depends on BR2_PACKAGE_RTK8189ES
+	help
+	  compile ko directly

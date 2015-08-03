@@ -14,3 +14,9 @@ config BR2_PACKAGE_AML_NAND_GIT_URL
 	depends on BR2_PACKAGE_AML_NAND
 	help
 	  the URL of amlogic nand git
+
+config BR2_PACKAGE_AML_NAND_STANDALONE
+	bool "standalone kernel module"
+	depends on BR2_PACKAGE_AML_NAND
+	help
+	  compile ko directly
