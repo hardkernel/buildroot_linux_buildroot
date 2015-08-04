@@ -1,32 +1,48 @@
 Index: uboot-next-2015-dev/include/configs/gxb_p200_v1.h
 ===================================================================
 --- uboot-next-2015-dev.orig/include/configs/gxb_p200_v1.h	2015-07-24 15:54:01.000000000 +0800
-+++ uboot-next-2015-dev/include/configs/gxb_p200_v1.h	2015-07-28 17:49:31.784768378 +0800
-@@ -95,8 +95,12 @@
++++ uboot-next-2015-dev/include/configs/gxb_p200_v1.h	2015-08-04 14:37:34.271898728 +0800
+@@ -87,16 +87,24 @@
+         "wipe_data=successful\0"\
+         "wipe_cache=successful\0"\
+         "initargs="\
+-            "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend ao_jtag_on earlyprintk=aml-uart,0xc81004c0 androidboot.selinux=permissive"\
++            "init=/sbin/init console=ttyS0,115200 no_console_suspend ao_jtag_on earlyprintk=aml-uart,0xc81004c0 androidboot.selinux=permissive"\
+             "\0"\
+         "upgrade_check="\
++        "upgrade_check="\
+                 "echo ${upgrade_step}; if itest ${upgrade_step} == 3; then run init_display; run storeargs; run update; fi; "\
+                 "echo ${upgrade_step}; if itest ${upgrade_step} == 1; then env default -a; setenv upgrade_step 2; saveenv; fi; "\
                  "jtagon apao; "\
                  "\0"\
          "storeargs="\
 -            "setenv bootargs ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode},hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} androidboot.firstboot=${firstboot}; "\
-+            "setenv bootargs root=/dev/system ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode},hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} androidboot.firstboot=${firstboot}; "\
-             "\0"\
-+        "sdcardargs="\
-+            "setenv bootargs root=/dev/mmcblk0p1 ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode},hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} androidboot.firstboot=${firstboot}; "\
++            "setenv bootargs root=/dev/system rootfstype=ext4 ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode},hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} androidboot.firstboot=${firstboot}; "\
 +            "\0"\
++        "sdcardargs="\
++            "setenv bootargs root=/dev/mmcblk1p1 rootfstype=ext2 ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode},hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} androidboot.firstboot=${firstboot}; "\
+             "\0"\
++        "bootupdateargs=setenv bootargs root=/dev/mmcblk1p1 rootfstype=vfat ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode},hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} androidboot.firstboot=${firstboot} firmware=rootfs.tar.gz\0"\
++        "switch_bootmode="\
++        "switch_bootmode="\
 +        "switch_bootmode="\
          "switch_bootmode="\
              "get_rebootmode; echo reboot_mode=${reboot_mode};"\
              "if test ${reboot_mode} = factory_reset; then "\
-@@ -111,6 +115,9 @@
+@@ -111,6 +119,12 @@
              "if imgread kernel boot ${loadaddr}; then store dtb read $dtb_mem_addr; bootm ${loadaddr}; fi;"\
              "run update;"\
              "\0"\
 +        "bootsdcard="\
 +            "run sdcardargs; mmcinfo; ext2load mmc 0 ${loadaddr} boot.img; bootm ${loadaddr};"\
 +            "\0"\
++        "bootupdate="\
++            "run bootupdateargs; mmcinfo; fatload mmc 0 ${loadaddr} boot.img; bootm ${loadaddr};"\
++            "\0"\
          "factory_reset_poweroff_protect="\
              "echo wipe_data=${wipe_data}; echo wipe_cache=${wipe_cache};"\
              "if test ${wipe_data} = failed; then "\
-@@ -282,7 +289,8 @@
+@@ -282,7 +296,8 @@
  #define CONFIG_FS_FAT 1
  #define CONFIG_FS_EXT4 1
  #define CONFIG_LZO 1
