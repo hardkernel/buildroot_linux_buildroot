@@ -13,6 +13,9 @@ GPU_SITE = $(call qstrip,$(BR2_PACKAGE_GPU_GIT_URL))
 endif
 GPU_MODULE_DIR = kernel/amlogic/gpu
 GPU_INSTALL_DIR = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/$(GPU_MODULE_DIR)
+ifeq ($(BR2_PACKAGE_GPU_STANDALONE),y)
+GPU_DEPENDENCIES = linux
+endif
 
 ifeq ($(BR2_PACKAGE_GPU_STANDALONE),y)
 define GPU_BUILD_CMDS
