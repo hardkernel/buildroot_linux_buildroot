@@ -113,6 +113,7 @@ endif
 	source "package/whetstone/Config.in"
 	source "package/autotest/Config.in"
 	source "package/autotest-client-tests/Config.in"
+	source "package/stressapptest/Config.in"
 endmenu
 
 menu "Development tools"
