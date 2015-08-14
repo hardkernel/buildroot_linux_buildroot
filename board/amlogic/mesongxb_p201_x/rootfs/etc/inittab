@@ -64,3 +64,4 @@ null::sysinit:/usr/bin/X :0.0 &
 null::sysinit:sleep 1                                           
 null::sysinit:sh /etc/xinitrc
 null::sysinit:echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+#::sysinit:/lib/preinit/auto_reboot.sh

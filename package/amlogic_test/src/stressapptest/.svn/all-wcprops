@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 22
+/svn/!svn/ver/49/trunk
+END
+configure.ac
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/49/trunk/configure.ac
+END
+COPYING
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/21/trunk/COPYING
+END
+missing
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/21/trunk/missing
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/42/trunk/Makefile.am
+END
+MODULE_LICENSE_APACHE2
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/32/trunk/MODULE_LICENSE_APACHE2
+END
+aclocal.m4
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/49/trunk/aclocal.m4
+END
+install-sh
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/21/trunk/install-sh
+END
+NOTICE
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/svn/!svn/ver/32/trunk/NOTICE
+END
+configure
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/49/trunk/configure
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/49/trunk/Makefile.in
+END
+stressapptest.1
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/38/trunk/stressapptest.1
+END
+Android.mk
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/32/trunk/Android.mk
+END
+depcomp
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/21/trunk/depcomp
+END
+config.guess
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/21/trunk/config.guess
+END
+config.sub
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/21/trunk/config.sub
+END

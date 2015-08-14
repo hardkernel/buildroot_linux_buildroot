@@ -6,6 +6,7 @@ menu "amlogic"
 	source "package/aml_customer/Config.in"
 	source "package/aml_util/Config.in"
 	source "package/aml_thermal/Config.in"
+	source "package/amlogic_test/Config.in"
 endmenu
 
 menu "Audio and video applications"
