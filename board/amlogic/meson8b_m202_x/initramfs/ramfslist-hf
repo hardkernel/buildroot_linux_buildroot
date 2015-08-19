@@ -2,10 +2,8 @@
 ./var
 ./var/lib
 ./var/lib/dbus
-./var/lib/pcmcia
 ./var/lib/alsa
 ./var/lib/misc
-./var/pcmcia
 ./var/spool
 ./var/cache
 ./var/log
@@ -48,7 +46,7 @@
 ./lib/libthread_db-1.0.so
 ./lib/librt.so.1
 ./lib/libdl.so.2
-./lib/libudev.so.1.4.1
+./lib/libudev.so.1.6.3
 ./lib/libnss_dns.so.2
 ./lib/libnss_files.so.2
 ./lib/libm-2.19-2014.05.so
@@ -78,7 +76,6 @@
 ./bin/linux32
 ./bin/gunzip
 ./bin/vi
-./bin/lsattr
 ./bin/sh
 ./bin/gzip
 ./bin/stty
@@ -128,7 +125,6 @@
 ./bin/ping
 ./bin/usleep
 ./bin/umount
-./bin/chattr
 ./bin/cp
 ./bin/su
 ./bin/ln
@@ -148,20 +144,16 @@
 ./etc/udev/udev.conf
 ./etc/mke2fs.conf
 ./etc/shadow
-./etc/random-seed
 ./etc/hostname
 ./etc/passwd
 ./etc/profile
 ./etc/group
 ./etc/services
-./etc/securetty
 ./etc/network
 ./etc/network/if-post-down.d
-./etc/network/if-pre-down.d
 ./etc/network/if-up.d
 ./etc/network/if-pre-up.d
 ./etc/network/interfaces
-./etc/network/if-post-up.d
 ./etc/network/if-down.d
 ./etc/ssl
 ./etc/inetd.conf
@@ -209,7 +201,7 @@
 ./usr/lib/libe2p.so.2.3
 ./usr/lib/libz.so.1.2.8
 ./usr/lib/libkmod.so.2.2.10
-./usr/lib/libglib-2.0.so.0.4200.2
+./usr/lib/libglib-2.0.so.0.4400.1
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
 ./usr/lib/libz.so
@@ -233,6 +225,7 @@
 ./usr/bin/bzcat
 ./usr/bin/vlock
 ./usr/bin/id
+./usr/bin/chattr
 ./usr/bin/lsattr
 ./usr/bin/telnet
 ./usr/bin/last

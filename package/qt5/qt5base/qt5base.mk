@@ -132,13 +132,13 @@ endif
 ifeq ($(BR2_PACKAGE_QT5BASE_EGLFS),y)
 QT5BASE_CONFIGURE_OPTS += -eglfs
 QT5BASE_DEPENDENCIES   += libegl
-ifeq ($(BR2_PACKAGE_XSERVER_XORG_SERVER),y)
-QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
-	$(@D)/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp
-else
-QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
-	$(@D)/mkspecs/devices/linux-arm-amlogic-8726M-g++/qeglfshooks_8726m.cpp
-endif
+#ifeq ($(BR2_PACKAGE_XSERVER_XORG_SERVER),y)
+#QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
+#	$(@D)/src/plugins/platforms/eglfs/qeglfshooks_x11.cpp
+#else
+#QT5BASE_EGLFS_PLATFORM_HOOKS_SOURCES = \
+#	$(@D)/mkspecs/devices/linux-arm-amlogic-8726M-g++/qeglfshooks_8726m.cpp
+#endif
 else
 QT5BASE_CONFIGURE_OPTS += -no-eglfs
 endif
@@ -170,6 +170,7 @@ QT5BASE_CONFIGURE_OPTS += $(if $(BR2_PACKAGE_QT5BASE_EXAMPLES),-make,-nomake) ex
 
 # Build the list of libraries to be installed on the target
 QT5BASE_INSTALL_LIBS_y                                 += Qt5Core
+QT5BASE_INSTALL_LIBS_$(BR2_PACKAGE_QT5BASE_XCB)        += Qt5XcbQpa
 QT5BASE_INSTALL_LIBS_$(BR2_PACKAGE_QT5BASE_NETWORK)    += Qt5Network
 QT5BASE_INSTALL_LIBS_$(BR2_PACKAGE_QT5BASE_CONCURRENT) += Qt5Concurrent
 QT5BASE_INSTALL_LIBS_$(BR2_PACKAGE_QT5BASE_SQL)        += Qt5Sql
@@ -212,6 +213,7 @@ define QT5BASE_CONFIGURE_CMDS
 		-device-option BR_CCACHE="$(CCACHE)" \
 		-device-option BR_COMPILER_CFLAGS="$(TARGET_CFLAGS) $(QT5BASE_EXTRA_CFLAGS)" \
 		-device-option BR_COMPILER_CXXFLAGS="$(TARGET_CXXFLAGS) $(QT5BASE_EXTRA_CFLAGS)" \
+		-device-option EGLFS_DEVICE_INTEGRATION="eglfs_mali" \
 		$(QT5BASE_CONFIGURE_OPTS) \
 	)
 endef
