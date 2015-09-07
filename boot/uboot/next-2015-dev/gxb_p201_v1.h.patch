@@ -1,17 +1,8 @@
 Index: uboot-next-2015-dev/include/configs/gxb_p201_v1.h
 ===================================================================
---- uboot-next-2015-dev.orig/include/configs/gxb_p201_v1.h	2015-08-06 11:34:31.000000000 +0800
-+++ uboot-next-2015-dev/include/configs/gxb_p201_v1.h	2015-08-06 15:13:38.459181165 +0800
-@@ -82,7 +82,7 @@
-         "wipe_data=successful\0"\
-         "wipe_cache=successful\0"\
-         "initargs="\
--            "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend ao_jtag_on earlyprintk=aml-uart,0xc81004c0 androidboot.selinux=permissive"\
-+            "init=/sbin/init console=ttyS0,115200 no_console_suspend ao_jtag_on earlyprintk=aml-uart,0xc81004c0 androidboot.selinux=permissive"\
-             "\0"\
-         "upgrade_check="\
-             "echo upgrade_step=${upgrade_step}; "\
-@@ -100,7 +100,15 @@
+--- uboot-next-2015-dev.orig/include/configs/gxb_p201_v1.h	2015-09-07 17:32:12.000000000 +0800
++++ uboot-next-2015-dev/include/configs/gxb_p201_v1.h	2015-09-07 18:24:18.255812042 +0800
+@@ -99,7 +99,15 @@
              "fi;"\
              "\0" \
          "storeargs="\
@@ -28,7 +19,7 @@ Index: uboot-next-2015-dev/include/configs/gxb_p201_v1.h
              "run cmdline_keys;"\
              "\0"\
          "switch_bootmode="\
-@@ -117,6 +125,12 @@
+@@ -116,6 +124,12 @@
              "if imgread kernel boot ${loadaddr}; then store dtb read $dtb_mem_addr; bootm ${loadaddr}; fi;"\
              "run update;"\
              "\0"\
@@ -41,7 +32,7 @@ Index: uboot-next-2015-dev/include/configs/gxb_p201_v1.h
          "factory_reset_poweroff_protect="\
              "echo wipe_data=${wipe_data}; echo wipe_cache=${wipe_cache};"\
              "if test ${wipe_data} = failed; then "\
-@@ -302,7 +316,8 @@
+@@ -322,7 +336,8 @@
  #define CONFIG_FS_FAT 1
  #define CONFIG_FS_EXT4 1
  #define CONFIG_LZO 1
