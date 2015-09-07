@@ -21,7 +21,7 @@ choice
 	prompt "Kernel version"
 
 config BR2_LINUX_KERNEL_LATEST_VERSION
-	bool "4.0.4"
+	bool "4.1.4"
 
 config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	bool "Same as toolchain kernel headers"
@@ -109,7 +109,7 @@ config BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "4.0.4" if BR2_LINUX_KERNEL_LATEST_VERSION
+	default "4.1.4" if BR2_LINUX_KERNEL_LATEST_VERSION
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE \
 		if BR2_LINUX_KERNEL_CUSTOM_VERSION
@@ -168,6 +168,12 @@ config BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE
 
 	  Note: this can be a defconfig file or a complete .config file,
 	  which can later be saved back with make linux-update-(def)config.
+
+config BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES
+	string "Additional configuration fragment files"
+	help
+	  A space-separated list of kernel configuration fragment files,
+	  that will be merged to the main kernel configuration file.
 
 #
 # Binary format
@@ -393,6 +399,9 @@ source "package/aml_nand/Config.in"
 source "package/aml_tvin/Config.in"
 source "package/aml_pmu/Config.in"
 source "package/aml_touch/Config.in"
+
+# Linux tools
+source "linux/Config.tools.in"
 
 endif # BR2_LINUX_KERNEL
 

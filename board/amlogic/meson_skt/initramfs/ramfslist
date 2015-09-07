@@ -76,7 +76,6 @@
 ./bin/linux32
 ./bin/gunzip
 ./bin/vi
-./bin/lsattr
 ./bin/sh
 ./bin/gzip
 ./bin/stty
@@ -126,7 +125,6 @@
 ./bin/ping
 ./bin/usleep
 ./bin/umount
-./bin/chattr
 ./bin/cp
 ./bin/su
 ./bin/ln
@@ -143,20 +141,16 @@
 ./etc/issue
 ./etc/mke2fs.conf
 ./etc/shadow
-./etc/random-seed
 ./etc/hostname
 ./etc/passwd
 ./etc/profile
 ./etc/group
 ./etc/services
-./etc/securetty
 ./etc/network
 ./etc/network/if-post-down.d
-./etc/network/if-pre-down.d
 ./etc/network/if-up.d
 ./etc/network/if-pre-up.d
 ./etc/network/interfaces
-./etc/network/if-post-up.d
 ./etc/network/if-down.d
 ./etc/inetd.conf
 ./etc/mtab
@@ -214,6 +208,7 @@
 ./usr/bin/bzcat
 ./usr/bin/vlock
 ./usr/bin/id
+./usr/bin/chattr
 ./usr/bin/lsattr
 ./usr/bin/telnet
 ./usr/bin/last

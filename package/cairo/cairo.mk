@@ -186,6 +186,10 @@ ifeq ($(BR2_PACKAGE_XLIB_LIBXFIXES),y)
 	CAIRO_DEPENDENCIES += xlib_libXfixes
 endif
 
+ifeq ($(BR2_PACKAGE_XLIB_LIBXDAMAGE),y)
+	CAIRO_DEPENDENCIES += xlib_libXdamage
+endif
+
 ifeq ($(BR2_PACKAGE_OPENGL),y)
 	CAIRO_DEPENDENCIES += opengl
 endif
