@@ -17,6 +17,7 @@ pkg = {
    '8192du':'BR2_PACKAGE_RTK8192DU_GIT_REPO_URL',
    '8192eu':'BR2_PACKAGE_RTK8192EU_GIT_REPO_URL',
    '8189es':'BR2_PACKAGE_RTK8189ES_GIT_REPO_URL',
+   '8189ftv':'BR2_PACKAGE_RTK8189FTV_GIT_REPO_URL',
    '8723bs':'BR2_PACKAGE_RTK8723BS_GIT_REPO_URL',
    '8723au':'BR2_PACKAGE_RTK8723AU_GIT_REPO_URL',
    '8723bu':'BR2_PACKAGE_RTK8723BU_GIT_REPO_URL',
@@ -42,6 +43,7 @@ repos = {
    '8192du':'platform/hardware/wifi/realtek/drivers/8192du', 
    '8192eu':'platform/hardware/wifi/realtek/drivers/8192eu', 
    '8189es':'platform/hardware/wifi/realtek/drivers/8189es', 
+   '8189ftv':'platform/hardware/wifi/realtek/drivers/8189ftv', 
    '8723bs':'platform/hardware/wifi/realtek/drivers/8723bs', 
    '8723au':'platform/hardware/wifi/realtek/drivers/8723au', 
    '8723bu':'platform/hardware/wifi/realtek/drivers/8723bu', 
@@ -66,6 +68,7 @@ branches = {
     '8192du':'BR2_PACKAGE_RTK8192DU_GIT_VERSION', 
     '8192eu':'BR2_PACKAGE_RTK8192EU_GIT_VERSION', 
     '8189es':'BR2_PACKAGE_RTK8189ES_GIT_VERSION', 
+    '8189ftv':'BR2_PACKAGE_RTK8189FTV_GIT_VERSION', 
     '8723bs':'BR2_PACKAGE_RTK8723BS_GIT_VERSION', 
     '8723au':'BR2_PACKAGE_RTK8723AU_GIT_VERSION', 
     '8723bu':'BR2_PACKAGE_RTK8723BU_GIT_VERSION', 
@@ -91,6 +94,7 @@ tar = {
    '8192du':'rtk8192du', 
    '8192eu':'rtk8192eu', 
    '8189es':'rtk8189es', 
+   '8189ftv':'rtk8189ftv', 
    '8723bs':'rtk8723bs', 
    '8723au':'rtk8723au', 
    '8723bu':'rtk8723bu', 
@@ -116,6 +120,7 @@ location = {
    '8192du':'wifi', 
    '8192eu':'wifi', 
    '8189es':'wifi', 
+   '8189ftv':'wifi', 
    '8723bs':'wifi', 
    '8723au':'wifi', 
    '8723bu':'wifi', 
@@ -162,6 +167,16 @@ def getpkg(string):
         loc = re.match(rev, string)
         if loc != None:
             return loc.group(1), loc.group(2), loc.group(2)
+        else:
+            rev = re.compile('<project dest-branch=\"([a-z0-9\-\.]*)\".* name=\"([a-z0-9/]*)\".* path=\".*\" revision=\"([a-z0-9]*)\" upstream=\"(.*)\"/>')
+            loc = re.match(rev, string)
+            if loc != None:
+                return loc.group(2), loc.group(3), loc.group(1)
+            else:
+                rev = re.compile('<project dest-branch=\"([a-z0-9\-\.]*)\".* name=\"([a-z0-9/]*)\".* revision=\"([a-z0-9]*)\" upstream=\"(.*)\"/>')
+                loc = re.match(rev, string)
+                if loc != None:
+                    return loc.group(2), loc.group(3), loc.group(1)
 
 def download_pkg(xml, config, download = 0):
     server_addr = None
@@ -174,6 +189,10 @@ def download_pkg(xml, config, download = 0):
                   else:
                       if repos[i] in line:
                           name, pkgloc, b = getpkg(line)
+                          branch = re.compile('refs/heads/([a-zA-Z0-9\-]*)')
+                          loc = re.match(branch, b)
+                          if loc != None:
+                              b = loc.group(1)
                           if name != repos[i]:
                               break
                           server = server_addr + repos[i]
