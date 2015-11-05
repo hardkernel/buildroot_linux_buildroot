@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define POWER_UP    _IO('m',1)
-#define POWER_DOWN  _IO('m',2)
+#define USB_POWER_UP    _IO('m',1)
+#define USB_POWER_DOWN  _IO('m',2)
+#define SDIO_POWER_UP    _IO('m', 3)
+#define SDIO_POWER_DOWN  _IO('m', 4)
 
 void set_wifi_power(int on)
 {
@@ -13,15 +15,18 @@ void set_wifi_power(int on)
     fd = open("/dev/wifi_power", O_RDWR);
     if (fd != -1) {
         if(on == 1) {
-            if(ioctl(fd,POWER_UP) < 0)
-            {
-                printf("Set Wi-Fi power up error!!!\n");
-                return;
+            if(ioctl(fd,USB_POWER_UP) < 0) {
+		    if(ioctl(fd,SDIO_POWER_UP) < 0) {
+			    printf("Set Wi-Fi power up error!!!\n");
+			    return;
+		    }
             }
         } else {
-            if(ioctl(fd,POWER_DOWN)<0) {
-                printf("Set Wi-Fi power down error!!!\n");
-                return;
+            if(ioctl(fd,USB_POWER_DOWN)<0) {
+		    if(ioctl(fd,SDIO_POWER_DOWN) < 0) {
+			    printf("Set Wi-Fi power down error!!!\n");
+			    return;
+		    }
             }    
         }
     } else {
