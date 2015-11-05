@@ -32,3 +32,8 @@ config BR2_PACKAGE_GPU_UMP
 	depends on BR2_PACKAGE_GPU
 	help
 	  enable ump on standalone ko
+config BR2_PACKAGE_GPU_MALI_DRM
+	bool "enable mali_drm"
+	depends on BR2_PACKAGE_GPU
+	help
+	  build mali_drm.ko
