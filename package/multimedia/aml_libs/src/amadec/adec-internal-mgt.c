@@ -581,8 +581,13 @@ static int set_linux_audio_decoder(aml_audio_dec_t *audec)
             adec_print("DOLBY_USE_ARMDEC=%d",DOLBY_USE_ARMDEC);
             audio_decoder = AUDIO_ARM_DECODER;					  
         #else
+            #if 0
             audio_decoder = AUDIO_ARC_DECODER;
             adec_print("<DOLBY_USE_ARMDEC> is not DEFINED,use ARC_Decoder\n!");
+            #else
+            audio_decoder = AUDIO_ARM_DECODER;
+            adec_print("<DOLBY_USE_ARMDEC> is DEFINED,use ARM_DECODER\n!");
+            #endif
         #endif
         }else{
             audio_decoder = AUDIO_ARM_DECODER;
@@ -634,7 +639,7 @@ int audiodec_init(aml_audio_dec_t *audec)
     int res = 0;	
     pthread_t    tid;
 	char value[PROPERTY_VALUE_MAX]={0};
-    adec_print("audiodec_init!");
+    adec_print("audiodec_init!\n");
     adec_message_pool_init(audec);
     get_output_func(audec);
     int nCodecType=audec->format;

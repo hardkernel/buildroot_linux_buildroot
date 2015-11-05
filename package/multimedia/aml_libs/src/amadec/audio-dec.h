@@ -229,6 +229,13 @@ struct adec_status {
 #define    ACODEC_FMT_WIFIDISPLAY 22
 
 
+//audio output type
+
+#define    AUDIO_PCM_OUTPUT 0//output pcm data
+#define    AUDIO_SPDIF_PASSTHROUGH 1//passthrough type as dd
+#define    AUDIO_HDMI_PASSTHROUGH 2//passthrough type as ddplus
+
+
 /***********************************************************************************************/
 extern void android_basic_init(void);
 int audiodec_init(aml_audio_dec_t *aml_audio_dec);
