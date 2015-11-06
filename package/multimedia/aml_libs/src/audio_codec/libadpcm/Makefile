@@ -13,7 +13,7 @@ LDFLAGS += -shared
 TOPDIR=$(shell pwd)
 SRC?=$(TOPDIR)
 
-CFLAGS+=-O2 -mlong-calls -fPIC -g
+CFLAGS+=-O2 -fPIC -g
 CFLAGS+=-I$(SRC)  -I$(SRC)/../../amadec/include -I$(SRC)/../../amadec/
 
 

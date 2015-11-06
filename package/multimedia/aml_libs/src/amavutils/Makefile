@@ -13,7 +13,7 @@ LDFLAGS += -shared -lpthread -lm -lrt
 TOPDIR=$(shell pwd)
 SRC?=$(TOPDIR)
 
-CFLAGS+=-O2 -mlong-calls -fPIC -g
+CFLAGS+=-O2 -fPIC -g
 CFLAGS+=-I$(SRC) -I$(SRC)/include -I$(SRC)/../amcodec/include -L${LIB_DIR} -I$(HEADERS_DIR)
 
 

@@ -983,6 +983,7 @@ THREADS_LIST='
 '
 
 ARCH_LIST='
+    aarch64
     alpha
     arm
     avr32
@@ -2161,6 +2162,9 @@ fi
 
 # Deal with common $arch aliases
 case "$arch" in
+    aarch64|arm64)
+        arch="aarch64"
+    ;;
     arm*)
         arch="arm"
     ;;
@@ -2338,6 +2342,16 @@ elif enabled avr32; then
             cpuflags="-march=$cpu"
         ;;
     esac
+elif enabled aarch64; then
+
+    case $cpu in
+        armv*)
+            cpuflags="-march=$cpu"
+        ;;
+        *)
+            cpuflags="-mcpu=$cpu"
+        ;;
+    esac
 
 fi
 
@@ -2370,7 +2384,7 @@ check_host_cflags -std=c99
 check_host_cflags -Wall
 
 case "$arch" in
-    alpha|ia64|mips|parisc|sparc)
+    aarch64|lpha|ia64|mips|parisc|sparc)
         spic=$shared
     ;;
     x86)

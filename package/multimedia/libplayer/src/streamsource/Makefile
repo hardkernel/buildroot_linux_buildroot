@@ -14,7 +14,7 @@ LDFLAGS += -shared -lpthread -lm -lrt -L$(INSTALL_DIR) -lamplayer
 TOPDIR=$(shell pwd)
 SRC?=$(TOPDIR)
 
-CFLAGS+=-O2 -mlong-calls -fPIC
+CFLAGS+=-O2 -fPIC
 CFLAGS+=-I$(SRC) -I$(SRC)/../amffmpeg/ -I$(SRC)/../../../aml_libs/amavutils/include -I${M_PREFIX}/include -I$(HEADERS_DIR)
 
 

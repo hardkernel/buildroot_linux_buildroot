@@ -692,7 +692,7 @@ HOSTPROGS = aac_tablegen aacps_tablegen cbrt_tablegen cos_tablegen      \
 
 DIRS = alpha arm bfin mlib ppc ps2 sh4 sparc x86
 
-include $(shell pwd)/libavcodec/$(ARCH)/Makefile
+#include $(shell pwd)/libavcodec/$(ARCH)/Makefile
 
 CLEANFILES = *_tables.c *_tables.h *_tablegen$(HOSTEXESUF)
 

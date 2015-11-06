@@ -15,7 +15,7 @@ LDFLAGS += -shared -lpthread -lm -lasound -lrt
 TOPDIR=$(shell pwd)
 SRC?=$(TOPDIR)
 
-CFLAGS+=-O2 -mlong-calls -fPIC -g
+CFLAGS+=-O2 -fPIC -g
 CFLAGS+=-I$(SRC) -I$(SRC)/include -I$(SRC)/../amavutils/include -I$(SRC)/../amplayer/player/include -I${HEADERS_DIR} -L${LIB_DIR}
 CFLAGS+=-DALSA_OUT
 

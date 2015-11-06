@@ -103,7 +103,6 @@ typedef enum {
 #define CODEC_TAG_mp4v      (0x7634706d)
 #define CODEC_TAG_AVC1      (0x31435641)
 #define CODEC_TAG_avc1      (0x31637661)
-#define CODEC_TAG_hvc1      (0x31637668)
 #define CODEC_TAG_H264      (0x34363248)
 #define CODEC_TAG_h264      (0x34363268)
 #define CODEC_TAG_HEVC      (0x43564548)
@@ -120,5 +119,7 @@ typedef enum {
 #define CODEC_TAG_WMVA      (0x41564d57)
 #define CODEC_TAG_FMP4      (0x34504d46)
 #define CODEC_TAG_FVFW      (0x57465646)
+#define CODEC_TAG_VC_1      (0x312d4356)
+#define CODEC_TAG_vc_1      (0x312d6376)
 
 #endif /* VFORMAT_H */
