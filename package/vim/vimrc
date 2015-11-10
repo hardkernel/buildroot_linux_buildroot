@@ -18,5 +18,4 @@ set cindent
 set encoding=utf-8
 set smartcase
 set ruler
-set cursorline
 set fileencodings=ucs-bom,utf-8,euc-jp,cp936,big5,gb18030,euc-kr,latin1
