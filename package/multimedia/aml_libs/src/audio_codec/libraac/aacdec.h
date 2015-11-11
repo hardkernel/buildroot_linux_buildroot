@@ -71,7 +71,7 @@
 #elif defined(_SOLARIS) && !defined(__GNUC__)
 #
 #elif defined(_ARC32)
-#define __inline _Inline
+#define __inline inline
 #else
 #error No platform defined. See valid options in aacdec.h
 #endif

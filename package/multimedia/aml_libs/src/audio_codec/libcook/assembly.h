@@ -59,14 +59,21 @@
  * target architecture: ARM v.4 and above (requires 'M' type processor for 32x32->64 multiplier)
  */
 
-
+#if defined(__aarch64__)
+static __inline__ int MULSHIFT32(int x, int y)
+{
+    long c;
+    c = (long)x * y;
+    return (int)c;
+}
+#else
 static __inline__ int MULSHIFT32(int x, int y)
 {
     int zlow;
     __asm__ volatile ("smull %0,%1,%2,%3" : "=&r" (zlow), "=r" (y) : "r" (x), "1" (y));
     return y;
 }
-
+#endif
 static __inline short CLIPTOSHORT(int x)
 {
 	int sign;

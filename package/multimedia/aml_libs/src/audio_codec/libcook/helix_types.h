@@ -163,7 +163,7 @@ typedef unsigned int UINT32;
 #elif defined(_VXWORKS)
 typedef unsigned int UINT32;
 #else
-typedef unsigned int UINT32;
+    typedef unsigned long UINT32;
 #endif
 
 #endif /* #ifndef UINT32 */

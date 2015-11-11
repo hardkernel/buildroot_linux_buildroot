@@ -47,7 +47,7 @@ static int pcm_read(pcm_read_ctl_t *pcm_read_ctx,unsigned char* outbuf,int size)
 }
 
 struct t_wave_buf{
-	unsigned addr;
+    void *addr;
 	unsigned size;
 };
 static unsigned wave_timestamplen = 0;
@@ -98,7 +98,7 @@ static int adpcm_init(aml_audio_dec_t *audec)
     PRINTF("[%s]audec->format/%d adec_ops->samplerate/%d adec_ops->channels/%d\n",
            __FUNCTION__,audec->format,adec_ops->samplerate,adec_ops->channels);
 
-	wave_decoder_buffer[0].addr = (int)malloc(WAVE_BLOCK_SIZE);
+    wave_decoder_buffer[0].addr = malloc(WAVE_BLOCK_SIZE);
 	if(wave_decoder_buffer[0].addr== 0)
 	{
 		PRINTF("[%s %d]Error: malloc adpcm buffer failed!\n",__FUNCTION__,__LINE__);
@@ -830,13 +830,13 @@ static int adpcm_decode_release(void)
 {
 	if(wave_decoder_buffer[0].addr)
 	{
-		free((void*)wave_decoder_buffer[0].addr);
+        free(wave_decoder_buffer[0].addr);
 		wave_decoder_buffer[0].addr=0;
 		wave_decoder_buffer[0].size=0;
 	}
 	if(wave_decoder_buffer[1].addr)
 	{
-		free((void*)wave_decoder_buffer[1].addr);
+        free(wave_decoder_buffer[1].addr);
 		wave_decoder_buffer[1].addr=0;
 		wave_decoder_buffer[1].size=0;
 	}

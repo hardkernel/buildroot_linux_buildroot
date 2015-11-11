@@ -57,14 +57,22 @@
 /* toolchain:           ARM gcc
  * target architecture: ARM v.4 and above (requires 'M' type processor for 32x32->64 multiplier)
  */
+#if defined(__aarch64__)
+static __inline__ int MULSHIFT32(int x, int y)
+{
+    long c;
+    c = (long)x * y;
+    return (int)c;
+}
+#else
 static __inline__ int MULSHIFT32(int x, int y)
 {
     int zlow;
     __asm__ volatile ("smull %0,%1,%2,%3" : "=&r" (zlow), "=r" (y) : "r" (x), "1" (y) : "cc");
     return y;
 }
-
-static __inline short CLIPTOSHORT(int x)
+#endif
+static __inline__ short CLIPTOSHORT(int x)
 {
 	int sign;
 
@@ -76,7 +84,7 @@ static __inline short CLIPTOSHORT(int x)
 	return (short)x;
 }
 
-static __inline int FASTABS(int x) 
+static __inline__ int FASTABS(int x)
 {
 	int sign;
 
@@ -87,7 +95,7 @@ static __inline int FASTABS(int x)
 	return x;
 }
 
-static __inline int CLZ(int x)
+static __inline__ int CLZ(int x)
 {
 	int numZeros;
 
@@ -114,7 +122,14 @@ typedef union _U64 {
 	} r;
 } U64;
 
-static __inline Word64 MADD64(Word64 sum64, int x, int y)
+#if defined(__aarch64__)
+static __inline__ Word64 MADD64(Word64 sum64, int x, int y)
+{
+	sum64 += (long)x * y;
+    return sum64;
+}
+#else
+static __inline__ Word64 MADD64(Word64 sum64, int x, int y)
 {
 	U64 u;
 	u.w64 = sum64;
@@ -123,6 +138,6 @@ static __inline Word64 MADD64(Word64 sum64, int x, int y)
 	
 	return u.w64;
 }
-
+#endif
 
 #endif /* _ASSEMBLY_H */
