@@ -220,6 +220,8 @@ define UBOOT_INSTALL_IMAGES_CMDS
 		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_AMLOGIC),
 		cp -dpf $(@D)/mksdcard $(BINARIES_DIR)/)
+	$(if $(BR2_TARGET_UBOOT_AMLOGIC_2015),
+		cp -dpf $(@D)/fip/u-boot.bin.sd.bin $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_ENVIMAGE),
 		$(HOST_DIR)/usr/bin/mkenvimage -s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE) \
 		$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUNDANT),-r) \
