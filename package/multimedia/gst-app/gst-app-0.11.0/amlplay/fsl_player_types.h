@@ -48,7 +48,11 @@ typedef int fsl_player_s32;
 #ifdef WIN32
 typedef __int64 fsl_player_s64;
 #else
+#ifdef __aarch64__
+typedef long fsl_player_s64;
+#else
 typedef long long fsl_player_s64;
+#endif
 #endif
 
 /*! 8 bit unsinged char type */
@@ -56,12 +60,16 @@ typedef unsigned char fsl_player_u8;
 /*! 16 bit unsinged char type */
 typedef unsigned short fsl_player_u16;
 /*! 32 bit unsinged char type */
-typedef unsigned long fsl_player_u32;
+typedef unsigned int fsl_player_u32;
 /*! 64 bit unsinged char type */
 #ifdef WIN32
 typedef unsigned __int64 fsl_player_u64;
 #else
+#ifdef __aarch64__
+typedef unsigned long fsl_player_u64;
+#else
 typedef unsigned long long fsl_player_u64;
+#endif
 #endif
 
 /*! boolean type */

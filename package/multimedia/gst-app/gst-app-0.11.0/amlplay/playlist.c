@@ -203,14 +203,15 @@ destroyPlayList(void * hdl)
     PlayList * pl = (PlayList *)hdl;
     PlayItemCtl * item, *itemnext;
 
-     if (pl->title){
-      MEM_FREE(pl->title);
-     }
-    
     if (pl==NULL){
         PL_ERR("%s failed, parameters error!\n", __FUNCTION__);
         return;
     }
+
+     if (pl->title){
+      MEM_FREE(pl->title);
+     }
+
     item = pl->head;
     while(item){
         itemnext = item->next;

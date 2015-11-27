@@ -17,5 +17,5 @@ lib_LIBRARIES = libcommon.a
 libcommon_a_SOURCES = amlsysctl/gstamlsysctl.c amlsysctl/gstamlsysctl.h amstreaminfo/amlstreaminfo.c amstreaminfo/amlstreaminfo.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libcommon_a_CFLAGS = $(GST_CFLAGS)
+libcommon_a_CFLAGS = $(GST_CFLAGS) -fPIC
 noinst_HEADERS = amlsysctl/gstamlsysctl.h amstreaminfo/amlstreaminfo.h

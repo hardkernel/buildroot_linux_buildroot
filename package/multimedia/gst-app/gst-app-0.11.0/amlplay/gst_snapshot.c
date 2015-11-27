@@ -197,7 +197,7 @@ GstBuffer* gst_frame_convert(GstBuffer* buf, GstCaps* to_caps)
 typedef long BOOL;
 typedef long LONG;
 typedef unsigned char BYTE;
-typedef unsigned long DWORD;
+typedef unsigned int DWORD;
 typedef unsigned short WORD;
 
 #pragma pack(2)
