@@ -54,6 +54,7 @@ VLC_CONF_OPTS += \
 	--disable-mfx \
 	--disable-vdpau \
 	--disable-addonmanagermodules \
+	--enable-run-as-root \
 	--disable-atmo \
 	--disable-gles2 \
 	--disable-gles1 \
@@ -64,7 +65,6 @@ VLC_CONF_OPTS += \
 	--disable-fontconfig \
 	--disable-aa \
 	--disable-nls \
-	--enable-run-as-root
 # Building static and shared doesn't work, so force static off.
 ifeq ($(BR2_STATIC_LIBS),)
 VLC_CONF_OPTS += --disable-static
@@ -333,6 +333,13 @@ VLC_CONF_OPTS += --enable-speex
 VLC_DEPENDENCIES += speex
 else
 VLC_CONF_OPTS += --disable-speex
+endif
+
+ifeq ($(BR2_PACKAGE_TAGLIB),y)
+VLC_CONF_OPTS += --enable-taglib
+VLC_DEPENDENCIES += taglib
+else
+VLC_CONF_OPTS += --disable-taglib
 endif
 
 ifeq ($(BR2_PACKAGE_TREMOR),y)

@@ -84,15 +84,29 @@ else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
 	UBOOT_BIN := sd_fuse/$(UBOOT_BIN)
 endif
 
+# The kernel calls AArch64 'arm64', but U-Boot calls it just 'arm', so
+# we have to special case it. Similar for i386/x86_64 -> x86
+ifeq ($(KERNEL_ARCH),arm64)
+UBOOT_ARCH = arm
+else ifneq ($(filter $(KERNEL_ARCH),i386 x86_64),)
+UBOOT_ARCH = x86
+else
 UBOOT_ARCH = $(KERNEL_ARCH)
+endif
+
 ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID)),y) 
 UBOOT_MAKE_OPTS += \
 	ARCH=$(UBOOT_ARCH)
 else
 UBOOT_MAKE_OPTS += \
-	CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
 	ARCH=$(UBOOT_ARCH)
 endif
+
+ifeq ($(BR2_TARGET_UBOOT_NEEDS_DTC),y)
+UBOOT_DEPENDENCIES += host-dtc
+endif
+
 # Helper function to fill the U-Boot config.h file.
 # Argument 1: option name
 # Argument 2: option value
