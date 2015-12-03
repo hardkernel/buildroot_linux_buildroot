@@ -1812,8 +1812,17 @@ static int mpegts_probe(AVProbeData *p)
     int check_count= size / TS_FEC_PACKET_SIZE;
 #define CHECK_COUNT 10
 
-    if (check_count < CHECK_COUNT)
+    if (check_count < 5)
         return -1;
+    {
+      char *ppbuf=p->buf;
+      int scannum=188;
+      while(scannum-->0 && ppbuf[0]!=0x47) ppbuf++;
+      if(ppbuf[0] == 0x47 && ppbuf[188] == 0x47 && ppbuf[188*2] == 0x47)
+          return AVPROBE_SCORE_MAX;
+    }
+	if (check_count < CHECK_COUNT)
+			return -1;
 
     score     = analyze(p->buf, TS_PACKET_SIZE     *check_count, TS_PACKET_SIZE     , NULL)*CHECK_COUNT/check_count;
     dvhs_score= analyze(p->buf, TS_DVHS_PACKET_SIZE*check_count, TS_DVHS_PACKET_SIZE, NULL)*CHECK_COUNT/check_count;
