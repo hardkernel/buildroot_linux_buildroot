@@ -19,10 +19,10 @@ endif
 
 ifeq ($(BR2_PACKAGE_GPU_MALI_DRM),y)
 MALI_DRM_BUILD_CMD = \
-	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(@D)/egl/x11/drm_module/mali_drm ARCH=$(KERNEL_ARCH) \
+	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(LINUX_DIR)/drivers/gpu/drm/mali_drm ARCH=$(KERNEL_ARCH) \
 		CROSS_COMPILE=$(TARGET_CROSS) modules
 MALI_DRM_INSTALL_TARGET_CMDS = \
-	$(INSTALL) -m 0666 $(@D)/egl/x11/drm_module/mali_drm/mali_drm.ko $(GPU_INSTALL_DIR); \
+	$(INSTALL) -m 0666 $(LINUX_DIR)/drivers/gpu/drm/mali_drm/mali_drm.ko $(GPU_INSTALL_DIR); \
 	echo $(GPU_MODULE_DIR)/mali_drm.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 endif
 ifeq ($(BR2_PACKAGE_GPU_UMP),y)
