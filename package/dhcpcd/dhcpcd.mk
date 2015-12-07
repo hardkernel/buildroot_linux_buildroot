@@ -48,8 +48,6 @@ define DHCPCD_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/libexec/dhcpcd-hooks/
 	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/02-dump \
 		$(TARGET_DIR)/libexec/dhcpcd-hooks/
-	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/10-mtu \
-		$(TARGET_DIR)/libexec/dhcpcd-hooks/
 	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/10-wpa_supplicant \
 		$(TARGET_DIR)/libexec/dhcpcd-hooks/
 	$(INSTALL) -D -m 0644 $(@D)/dhcpcd-hooks/15-timezone \

@@ -169,12 +169,7 @@
 ./etc/protocols
 ./linuxrc
 ./opt
-./home
-./home/ftp
 ./root
-./root/.bash_logout
-./root/.bash_profile
-./root/.bash_history
 ./sys
 ./usr
 ./usr/lib

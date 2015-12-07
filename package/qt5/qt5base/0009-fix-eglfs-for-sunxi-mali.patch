@@ -83,27 +83,3 @@ index cea62fb..09781bc 100755
              CFG_EGLFS_MALI=yes
          else
              CFG_EGLFS_MALI=no
-diff --git a/src/plugins/platforms/eglfs/deviceintegration/eglfs_mali/qeglfsmaliintegration.cpp b/src/plugins/platforms/eglfs/deviceintegration/eglfs_mali/qeglfsmaliintegration.cpp
-index 455d780..43decdf 100644
---- a/src/plugins/platforms/eglfs/deviceintegration/eglfs_mali/qeglfsmaliintegration.cpp
-+++ b/src/plugins/platforms/eglfs/deviceintegration/eglfs_mali/qeglfsmaliintegration.cpp
-@@ -32,7 +32,6 @@
- ****************************************************************************/
-
- #include "qeglfsmaliintegration.h"
--#include <EGL/fbdev_window.h>
-
- #include <unistd.h>
- #include <fcntl.h>
-@@ -43,6 +42,11 @@
-
- QT_BEGIN_NAMESPACE
-
-+struct fbdev_window {
-+    unsigned short width;
-+    unsigned short height;
-+};
-+
- void QEglFSMaliIntegration::platformInit()
- {
-     // Keep the non-overridden base class functions based on fb0 working.

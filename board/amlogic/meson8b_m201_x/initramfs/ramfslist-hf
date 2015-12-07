@@ -173,12 +173,7 @@
 ./etc/protocols
 ./linuxrc
 ./opt
-./home
-./home/ftp
 ./root
-./root/.bash_logout
-./root/.bash_profile
-./root/.bash_history
 ./sys
 ./usr
 ./usr/lib
@@ -201,7 +196,7 @@
 ./usr/lib/libe2p.so.2.3
 ./usr/lib/libz.so.1.2.8
 ./usr/lib/libkmod.so.2.2.10
-./usr/lib/libglib-2.0.so.0.4400.1
+./usr/lib/libglib-2.0.so.0.4600.1
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
 ./usr/lib/libz.so
@@ -258,7 +253,6 @@
 ./usr/bin/expr
 ./usr/bin/md5sum
 ./usr/bin/nslookup
-./usr/bin/pango-querymodules
 ./usr/bin/mkfifo
 ./usr/bin/less
 ./usr/bin/yes
