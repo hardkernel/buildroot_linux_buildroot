@@ -257,54 +257,6 @@ endif
 define LINUX_KCONFIG_FIXUP_CMDS
         $(if $(BR2_PACKAGE_AML_CUSTOMER),
                 ln -sf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
-        $(if $(BR2_PACKAGE_GPU),
-		mkdir -p  $(LINUX_DIR)/../hardware/arm;
-                ln -sf $(GPU_DIR) $(LINUX_DIR)/../hardware/arm/gpu)
-        $(if $(BR2_PACKAGE_AML_NAND),
-		mkdir -p  $(LINUX_DIR)/../hardware/amlogic;
-                ln -sf $(AML_NAND_DIR) $(LINUX_DIR)/../hardware/amlogic/nand)
-        $(if $(BR2_PACKAGE_RTK8188EU), 
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8188EU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu)
-        $(if $(BR2_PACKAGE_RTK8192CU),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8192CU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192cu)
-        $(if $(BR2_PACKAGE_RTK8192DU),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8192DU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192du)
-        $(if $(BR2_PACKAGE_RTK8192EU),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8192EU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8192eu)
-        $(if $(BR2_PACKAGE_RTK8189ES),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8189ES_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8189es)
-        $(if $(BR2_PACKAGE_RTK8723BS),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8723BS_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8723bs)
-        $(if $(BR2_PACKAGE_RTK8723AU),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8723AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8723au)
-        $(if $(BR2_PACKAGE_RTK8811AU),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8811AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8811au)
-        $(if $(BR2_PACKAGE_RTK8812AU),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
-                ln -sf $(RTK8812AU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8812au)
-        $(if $(BR2_PACKAGE_BRCMAP6XXX),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
-                ln -sf $(BRCMAP6XXX_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx)
-        $(if $(BR2_PACKAGE_BRCMUSI),
-		mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
-                ln -sf $(BRCMUSI_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/usi)
-        $(if $(BR2_PACKAGE_AML_TVIN),
-		mkdir -p $(LINUX_DIR)/../hardware;
-                ln -sf $(AML_TVIN_DIR) $(LINUX_DIR)/../hardware/tvin)
-        $(if $(BR2_PACKAGE_AML_PMU),
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic;
-                ln -sf $(AML_PMU_DIR) $(LINUX_DIR)/../hardware/amlogic/pmu)
-        $(if $(BR2_PACKAGE_AML_TOUCH),
-		mkdir -p $(LINUX_DIR)/../hardware/amlogic;
-                ln -sf $(AML_TOUCH_DIR) $(LINUX_DIR)/../hardware/amlogic/touch)
 	$(if $(LINUX_NEEDS_MODULES),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_MODULES,$(@D)/.config))
         $(if $(BR2_arm)$(BR2_armeb),

@@ -10,11 +10,9 @@ AML_CUSTOMER_LICENSE = GPLv2+
 AML_CUSTOMER_LICENSE_FILES = COPYING.GPL
 
 define AML_CUSTOMER_BUILD_CMDS
-	@echo ============================================
 endef
 
 define AML_CUSTOMER_INSTALL_TARGET_CMDS
-	@echo **********************************************
 endef
 
 $(eval $(generic-package))

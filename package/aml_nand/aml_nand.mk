@@ -18,6 +18,11 @@ define AML_NAND_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0666 $(@D)/module/aml_nftl_dev.ko $(AML_NAND_INSTALL_DIR)
 	echo $(AML_NAND_MODULE_DIR)/aml_nftl_dev.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 endef
+else
+define AML_NAND_BUILD_CMDS
+	mkdir -p  $(LINUX_DIR)/../hardware/amlogic;
+	ln -sf $(AML_NAND_DIR) $(LINUX_DIR)/../hardware/amlogic/nand
+endef
 endif
 
 $(eval $(generic-package))

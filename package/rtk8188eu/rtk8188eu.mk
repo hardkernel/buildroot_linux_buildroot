@@ -22,6 +22,11 @@ define RTK8188EU_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0666 $(@D)/rtl8xxx_EU/8188eu.ko $(RTK8188EU_INSTALL_DIR)
 	echo $(RTK8188EU_MODULE_DIR)/8188eu.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 endef
+else
+define RTK8188EU_BUILD_CMDS
+	mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+	ln -sf $(RTK8188EU_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8188eu
+endef
 endif
 
 $(eval $(generic-package))

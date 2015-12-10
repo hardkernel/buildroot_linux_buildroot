@@ -56,6 +56,11 @@ define GPU_INSTALL_TARGET_CMDS
 	$(MALI_UMP_INSTALL_TARGET_CMDS) 
 	$(MALI_DRM_INSTALL_TARGET_CMDS)
 endef
+else
+define GPU_BUILD_CMDS
+	mkdir -p  $(LINUX_DIR)/../hardware/arm;
+	ln -sf $(GPU_DIR) $(LINUX_DIR)/../hardware/arm/gpu
+endef
 endif
 $(eval $(generic-package))
 

@@ -23,6 +23,11 @@ define BRCMAP6XXX_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0666 $(@D)/bcmdhd_1_201_59_x/dhd.ko $(BRCMAP6XXX_INSTALL_DIR)
 	echo $(BRCMAP6XXX_MODULE_DIR)/dhd.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 endef
+else
+define BRCMAP6XXX_BUILD_CMDS
+	mkdir -p $(LINUX_DIR)/../hardware/wifi/broadcom/drivers;
+	ln -sf $(BRCMAP6XXX_DIR) $(LINUX_DIR)/../hardware/wifi/broadcom/drivers/ap6xxx
+endef
 endif
 
 

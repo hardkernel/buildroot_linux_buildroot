@@ -22,5 +22,10 @@ define RTK8189ES_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0666 $(@D)/rtl8189ES/8189es.ko $(RTK8189ES_INSTALL_DIR)
 	echo $(RTK8189ES_MODULE_DIR)/8189es.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 endef
+else
+define RTK8189ES_BUILD_CMDS
+	mkdir -p $(LINUX_DIR)/../hardware/wifi/realtek/drivers;
+	ln -sf $(RTK8189ES_DIR) $(LINUX_DIR)/../hardware/wifi/realtek/drivers/8189es
+endef
 endif
 $(eval $(generic-package))
