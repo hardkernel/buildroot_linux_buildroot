@@ -80,13 +80,17 @@ ifneq ($(BR2_PACKAGE_RTK8188EU_STANDALONE),y)
 endif
 endif
 ifeq ($(BR2_PACKAGE_RTK8192CU),y)
+ifneq ($(BR2_PACKAGE_RTK8192CU_STANDALONE),y)
 	LINUX_DEPENDENCIES += rtk8192cu
+endif
 endif
 ifeq ($(BR2_PACKAGE_RTK8192DU),y)
 	LINUX_DEPENDENCIES += rtk8192du
 endif
 ifeq ($(BR2_PACKAGE_RTK8192EU),y)
+ifneq ($(BR2_PACKAGE_RTK8192EU_STANDALONE),y)
 	LINUX_DEPENDENCIES += rtk8192eu
+endif
 endif
 ifeq ($(BR2_PACKAGE_RTK8189ES),y)
 ifneq ($(BR2_PACKAGE_RTK8189ES_STANDALONE),y)
@@ -362,12 +366,16 @@ define LINUX_INSTALL_DTB_TARGET
 		$(addprefix $(KERNEL_ARCH_PATH)/boot/dts/amlogic/,$(KERNEL_DTBS))),dts/amlogic/),$(KERNEL_DTBS)) \
 		$(TARGET_DIR)/boot/
 endef
-
 else #BR2_LINUX_KERNEL_AMLOGIC_DTD
-
+ifeq ($(BR2_LINUX_KERNEL_DEFAULT_DTS),y)
 define LINUX_BUILD_DTB
 	$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) $(KERNEL_DTBS)
 endef
+else
+define LINUX_BUILD_DTB
+	$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) dtbs
+endef
+endif
 define LINUX_INSTALL_DTB
 	# dtbs moved from arch/<ARCH>/boot to arch/<ARCH>/boot/dts since 3.8-rc1
 	cp $(addprefix \

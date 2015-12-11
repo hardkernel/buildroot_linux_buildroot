@@ -394,9 +394,14 @@ config BR2_TARGET_UBOOT_AMLOGIC_2015
         amlogic uboot 2015
 
 config BR2_TARGET_UBOOT_ODROID
-    bool "odroid uboot"
+    bool "odroidc1 uboot"
     help
-        odroid uboot
+        odroidc1 uboot
+
+config BR2_TARGET_UBOOT_ODROID_C2
+    bool "odroidc2 uboot"
+    help
+        odroidc2 uboot
 
 config BR2_TARGET_USBTOOL_AMLOGIC
     bool "amlogic usb tool"

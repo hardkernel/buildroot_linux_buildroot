@@ -10,6 +10,7 @@ GPU_SITE    = $(patsubst %/,%,$(dir $(GPU_TARBALL)))
 GPU_SOURCE  = $(notdir $(GPU_TARBALL))
 else
 GPU_SITE = $(call qstrip,$(BR2_PACKAGE_GPU_GIT_URL))
+GPU_SITE_METHOD = git
 endif
 GPU_MODULE_DIR = kernel/amlogic/gpu
 GPU_INSTALL_DIR = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/$(GPU_MODULE_DIR)

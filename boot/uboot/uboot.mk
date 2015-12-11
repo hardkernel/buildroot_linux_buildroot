@@ -76,7 +76,7 @@ UBOOT_BIN = u-boot.bin
 UBOOT_BIN_IFT = $(UBOOT_BIN).ift
 endif
 
-ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
+ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_ODROID_C2)),y)
 	UBOOT_BIN := fip/$(UBOOT_BIN)
 else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
 	UBOOT_BIN := build/$(UBOOT_BIN)
@@ -94,7 +94,7 @@ else
 UBOOT_ARCH = $(KERNEL_ARCH)
 endif
 
-ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID)),y) 
+ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y) 
 UBOOT_MAKE_OPTS += \
 	ARCH=$(UBOOT_ARCH)
 else
@@ -203,6 +203,12 @@ endef
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
 endif
 else
+ifeq ($(BR2_TARGET_UBOOT_ODROID_C2),y)
+define UBOOT_BUILD_CMDS
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
+		$(MAKE1) -C $(@D) $(UBOOT_MAKE_TARGET)
+endef
+else
 define UBOOT_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS) 		\
@@ -218,6 +224,7 @@ define UBOOT_BUILD_CMDS
 
 endef
 endif
+endif
 
 define UBOOT_BUILD_OMAP_IFT
 	$(HOST_DIR)/usr/bin/gpsign -f $(@D)/u-boot.bin \
@@ -230,8 +237,10 @@ define UBOOT_INSTALL_IMAGES_CMDS
 		cp -dpf $(@D)/$(UBOOT_MAKE_TARGET) $(BINARIES_DIR))
 	$(if $(BR2_TARGET_UBOOT_SPL),
 		cp -dpf $(@D)/$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)) $(BINARIES_DIR)/)
-	$(if $(BR2_TARGET_UBOOT_ODROID),
+	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
 		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
+	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
+		cp -dpf $(@D)/sd_fuse/bl1.bin.hardkernel $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_AMLOGIC),
 		cp -dpf $(@D)/mksdcard $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_AMLOGIC_2015),
