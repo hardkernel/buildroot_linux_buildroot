@@ -229,6 +229,7 @@ define DOWNLOAD_INNER
 		fi ; \
 		case "$$scheme" in \
 			git) $($(3)_GIT) && exit ;; \
+			ssh) $($(3)_GIT) && exit ;; \
 			svn) $($(3)_SVN) && exit ;; \
 			cvs) $($(3)_CVS) && exit ;; \
 			bzr) $($(3)_BZR) && exit ;; \
