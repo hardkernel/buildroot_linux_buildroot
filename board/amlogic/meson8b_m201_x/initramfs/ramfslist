@@ -135,7 +135,6 @@
 ./bin/cpio
 ./bin/watch
 ./etc
-./etc/inputrc
 ./etc/resolv.conf
 ./etc/issue
 ./etc/udev
@@ -158,15 +157,12 @@
 ./etc/inetd.conf
 ./etc/mtab
 ./etc/hosts
-./etc/ld.so.cache
 ./etc/os-release
 ./etc/init.d
 ./etc/init.d/rcK
 ./etc/init.d/rcS
 ./etc/init.d/S10udev
 ./etc/fstab
-./etc/ld.so.conf
-./etc/ld.so.conf.d
 ./etc/inittab
 ./etc/ts.conf
 ./etc/protocols
@@ -189,11 +185,10 @@
 ./usr/lib/libblkid.so
 ./usr/lib/libcom_err.so.2.1
 ./usr/lib/libz.so.1
-./usr/lib/libgudev-1.0.so
 ./usr/lib/libe2p.so.2.3
 ./usr/lib/libz.so.1.2.8
-./usr/lib/libkmod.so.2.2.10
-./usr/lib/libglib-2.0.so.0.4600.1
+./usr/lib/libkmod.so.2.3.0
+./usr/lib/libglib-2.0.so.0.4600.2
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
 ./usr/lib/libz.so
@@ -403,6 +398,4 @@
 ./run
 ./media
 ./tmp
-./tmp/ldconfig
-./tmp/ldconfig/aux-cache
 ./tmp/fontconfig

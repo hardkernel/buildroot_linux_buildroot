@@ -83,7 +83,6 @@
 ./bin/cpio
 ./bin/watch
 ./etc
-./etc/inputrc
 ./etc/resolv.conf
 ./etc/issue
 ./etc/shadow
@@ -106,14 +105,11 @@
 ./etc/inetd.conf
 ./etc/mtab
 ./etc/hosts
-./etc/ld.so.cache
 ./etc/os-release
 ./etc/init.d
 ./etc/init.d/rcK
 ./etc/init.d/rcS
 ./etc/fstab
-./etc/ld.so.conf
-./etc/ld.so.conf.d
 ./etc/inittab
 ./etc/mdev.conf
 ./etc/protocols
@@ -289,5 +285,3 @@
 ./run
 ./media
 ./tmp
-./tmp/ldconfig
-./tmp/ldconfig/aux-cache

@@ -4,9 +4,11 @@
 #
 ################################################################################
 
-PULSEAUDIO_VERSION = 7.1
+PULSEAUDIO_VERSION = 8.0
 PULSEAUDIO_SOURCE = pulseaudio-$(PULSEAUDIO_VERSION).tar.xz
 PULSEAUDIO_SITE = http://freedesktop.org/software/pulseaudio/releases
+# 0002-musl-fixes.patch patches configure.ac
+PULSEAUDIO_AUTORECONF = YES
 PULSEAUDIO_INSTALL_STAGING = YES
 PULSEAUDIO_LICENSE = LGPLv2.1+ (specific license for modules, see LICENSE file)
 PULSEAUDIO_LICENSE_FILES = LICENSE GPL LGPL
@@ -15,9 +17,14 @@ PULSEAUDIO_CONF_OPTS = \
 	--disable-legacy-database-entry-format \
 	--disable-manpages
 
+# Make sure we don't detect libatomic_ops. Indeed, since pulseaudio
+# requires json-c, which needs 4 bytes __sync builtins, there should
+# be no need for pulseaudio to rely on libatomic_ops.
+PULSE_AUDIO_CONF_ENV += \
+	ac_cv_header_atomic_ops_h=no
+
 PULSEAUDIO_DEPENDENCIES = \
 	host-pkgconf libtool json-c libsndfile speex host-intltool \
-	$(if $(BR2_PACKAGE_LIBATOMIC_OPS),libatomic_ops) \
 	$(if $(BR2_PACKAGE_LIBSAMPLERATE),libsamplerate) \
 	$(if $(BR2_PACKAGE_ALSA_LIB),alsa-lib) \
 	$(if $(BR2_PACKAGE_LIBGLIB2),libglib2) \

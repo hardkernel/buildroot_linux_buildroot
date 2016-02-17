@@ -117,9 +117,10 @@ void drm_platform_exit(struct drm_driver *driver, struct platform_device *platfo
 {
 	struct drm_device *dev, *tmp;
 	DRM_DEBUG("\n");
-
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(3,10,33))
 	list_for_each_entry_safe(dev, tmp, &driver->legacy_dev_list, legacy_dev_list)
 		drm_put_dev(dev);
+#endif
 	DRM_INFO("Module unloaded\n");
 }
 
