@@ -1571,7 +1571,7 @@ int player_dec_init(play_para_t *p_para)
         log_print("====bitrate=%d max_raw_size=%d\n", p_para->pFormatCtx->bit_rate, p_para->max_raw_size);
     }
     subtitle_para_init(p_para);
-
+     log_print("[player_dec_init]ok\n");
     //set_tsync_enable(1);        //open av sync
     //p_para->playctrl_info.avsync_enable = 1;
     return PLAYER_SUCCESS;

@@ -321,19 +321,20 @@ int ffmpeg_parse_file(play_para_t *am_p)
 
 #include "amconfigutils.h"
 int ffmpeg_load_external_module(){
-    const char *mod_path ="media.libplayer.modules";
+    const char *mod_path ="media_libplayer_modules";
     const int mod_item_max = 16;
-    char value[CONFIG_VALUE_MAX];
+    //char value[CONFIG_VALUE_MAX];
+    char * value;
     int ret = -1;
     char mod[mod_item_max][CONFIG_VALUE_MAX];
     //memset(value,0,CONFIG_VALUE_MAX);
 
-  
-    ret = am_getconfig(mod_path, value,NULL);
+      value = getenv("media_libplayer_modules");
+    /*ret = am_getconfig(mod_path, value,NULL);
     if(ret<=1){
         log_print("Failed to find external module,path:%s\n",mod_path);
         return -1;
-    }
+    }*/
     log_print("Get modules:[%s],mod path:%s\n",value,mod_path);
     int pos = 0;
     const char * psets=value;
