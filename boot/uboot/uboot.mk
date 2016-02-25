@@ -195,13 +195,24 @@ define UBOOT_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
 		$(MAKE) -j4 -C $(@D) $(UBOOT_MAKE_TARGET)
 endef
-ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC), y)
+ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
+define UBOOT_INSTALL_AMLOGIC_USB_TOOL
+	cp -dpf $(@D)/fip/u-boot.bin.usb.bl2 $(BINARIES_DIR)/
+	cp -dpf $(@D)/fip/u-boot.bin.usb.tpl $(BINARIES_DIR)/
+	cp -dpf $(@D)/fip/u-boot.bin.encrypt.usb.bl2 $(BINARIES_DIR)/
+	cp -dpf $(@D)/fip/u-boot.bin.encrypt.usb.tpl $(BINARIES_DIR)/
+	cp -dpf $(@D)/fip/u-boot.bin.encrypt.sd.bin $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))/aml_encrypt_$(BR2_TARGET_UBOOT_PLATFORM) $(HOST_DIR)/usr/bin
+endef
+else #BR2_TARGET_UBOOT_AMLOGIC_2015
 define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/ddr_init.bin $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot-comp.bin $(BINARIES_DIR)/
 endef
+endif #BR2_TARGET_UBOOT_AMLOGIC_2015
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
-endif
+endif #BR2_TARGET_USBTOOL_AMLOGIC
 else
 ifeq ($(BR2_TARGET_UBOOT_ODROID_C2),y)
 define UBOOT_BUILD_CMDS

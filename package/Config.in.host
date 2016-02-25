@@ -29,5 +29,7 @@ menu "Host utilities"
 	source "package/sunxi-tools/Config.in.host"
 	source "package/uboot-tools/Config.in.host"
 	source "package/util-linux/Config.in.host"
+	source "package/aml_image_packer/Config.in.host"
+	source "package/aml_img_packer_new/Config.in.host"
 
 endmenu

@@ -385,13 +385,22 @@ endif # BR2_TARGET_UBOOT_ENVIMAGE
 
 config BR2_TARGET_UBOOT_AMLOGIC
     bool "amlogic uboot"
+    select BR2_PACKAGE_HOST_AML_IMAGE_PACKER
     help
         amlogic uboot
 
 config BR2_TARGET_UBOOT_AMLOGIC_2015
     bool "amlogic uboot 2015"
+    select BR2_PACKAGE_HOST_AML_IMG_PACKER_NEW
     help
         amlogic uboot 2015
+
+config BR2_TARGET_UBOOT_PLATFORM 
+    string "platform name"
+    default "gxb"
+
+config BR2_TARGET_UBOOT_ENCRYPTION
+    bool "secure boot"
 
 config BR2_TARGET_UBOOT_ODROID
     bool "odroidc1 uboot"
