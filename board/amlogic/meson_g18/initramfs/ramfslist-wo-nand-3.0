@@ -134,7 +134,6 @@
 ./bin/cpio
 ./bin/watch
 ./etc
-./etc/inputrc
 ./etc/resolv.conf
 ./etc/issue
 ./etc/mke2fs.conf
@@ -158,14 +157,11 @@
 ./etc/inetd.conf
 ./etc/mtab
 ./etc/hosts
-./etc/ld.so.cache
 ./etc/os-release
 ./etc/init.d
 ./etc/init.d/rcK
 ./etc/init.d/rcS
 ./etc/fstab
-./etc/ld.so.conf
-./etc/ld.so.conf.d
 ./etc/inittab
 ./etc/ts.conf
 ./etc/mdev.conf
@@ -392,6 +388,4 @@
 ./run
 ./media
 ./tmp
-./tmp/ldconfig
-./tmp/ldconfig/aux-cache
 ./tmp/fontconfig

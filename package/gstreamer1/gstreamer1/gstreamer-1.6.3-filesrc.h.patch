@@ -1,0 +1,13 @@
+Index: gstreamer-1.6.3/plugins/elements/gstfilesrc.h
+===================================================================
+--- gstreamer-1.6.3.orig/plugins/elements/gstfilesrc.h	2015-10-22 15:59:12.000000000 +0800
++++ gstreamer-1.6.3/plugins/elements/gstfilesrc.h	2016-02-16 14:30:37.730513525 +0800
+@@ -63,6 +63,8 @@
+   gboolean seekable;                    /* whether the file is seekable */
+   gboolean is_regular;                  /* whether it's a (symlink to a)
+                                            regular file */
++
++  guint64 duration;
+ };
+ 
+ struct _GstFileSrcClass {
