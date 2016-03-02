@@ -300,7 +300,6 @@
 ./usr/sbin
 ./usr/sbin/filefrag
 ./usr/sbin/ether-wake
-./usr/sbin/findfs
 ./usr/sbin/e2label
 ./usr/sbin/mke2fs
 ./usr/sbin/mkfs.ext2
