@@ -210,6 +210,9 @@ def download_pkg(xml, config, download = 0):
                               cmd = 'git clone --depth=0 %s -b %s %s' % (server, b, folder)
                               print cmd
                               os.system(cmd)
+                              cmd = 'cd %s; git checkout %s' % (folder, pkgloc)
+                              print cmd
+                              os.system(cmd)
                               cmd = 'cd %s; git archive --format=tar.gz %s --prefix=%s/ -o %s.tar.gz' % (folder, pkgloc, folder, folder)
                               print cmd
                               os.system(cmd)
