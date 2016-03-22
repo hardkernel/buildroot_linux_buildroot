@@ -12,7 +12,7 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 
 	pcodec->audio_info.sample_rate = audio->sample_rate;
 	pcodec->audio_info.channels = audio->channels;
-
+      
 	if (gst_structure_has_field(structure, "codec_data")) {
 		extra_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");
 		if (extra_data_buf) {
@@ -21,6 +21,12 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 		}
 	}
 	 GST_WARNING("Audio: samplerate=%d channels=%d", audio->sample_rate, audio->channels);
+	 if(0 == pcodec->audio_info.channels)
+	 	pcodec->audio_info.channels = 2;
+	 if(0 == pcodec->audio_info.sample_rate)
+	 	pcodec->audio_info.sample_rate =48000;
+	 pcodec->audio_samplerate = pcodec->audio_info.sample_rate;
+	 pcodec->audio_channels = pcodec->audio_info.channels;
 	return 0;
 }
 

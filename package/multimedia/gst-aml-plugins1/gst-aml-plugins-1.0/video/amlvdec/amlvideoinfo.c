@@ -77,6 +77,10 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
     pcodec->am_sysinfo.width = video->width;
     pcodec->am_sysinfo.rate = video->framerate;
     GST_INFO("Video: width=%d height=%d framerate=%d codec_data=%p", video->width, video->height, video->framerate, data_buf);
+	if(0==pcodec->am_sysinfo.height ||0==pcodec->am_sysinfo.width ) {
+		pcodec->am_sysinfo.height =1080;
+       	pcodec->am_sysinfo.width =1920;
+	}
     return 0;
 }
 
