@@ -62,6 +62,8 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_AMLADEC,GstAmlAdec))
 #define GST_AMLADEC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_AMLADEC,GstAmlAdecClass))
+  #define GST_AMLADEC_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS((obj),GST_TYPE_AMLADEC,GstAmlAdecClass)) 
 #define GST_IS_AMLADEC(obj) \
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLADEC))
 #define GST_IS_AMLADEC_CLASS(klass) \
@@ -86,7 +88,7 @@ struct _GstAmlAdec
 //	gint codec_id;                    ///< codec format id
 //	gint block_align;                    ///< audio block align
 	gboolean is_paused;
-//	gboolean is_eos;
+	gboolean is_eos;
 //
 ////	AmlState eState;
 	codec_para_t *pcodec;

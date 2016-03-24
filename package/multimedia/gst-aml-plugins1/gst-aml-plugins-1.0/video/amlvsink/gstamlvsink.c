@@ -91,6 +91,8 @@ gst_aml_vsink_init (GstAmlVsink * amlvsink)
 {
 	GstVideoSink *bsink;
 	bsink = GST_VIDEO_SINK (amlvsink);
+     gst_base_sink_set_sync (GST_BASE_SINK (amlvsink), FALSE);
+     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), FALSE);
 }
 
 
@@ -136,17 +138,41 @@ gst_aml_vsink_finalize (GObject * object)
 static GstStateChangeReturn
 gst_aml_vsink_change_state (GstElement * element, GstStateChange transition)
 {
-  GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
+    GstAmlVsink *amlvsink= GST_AMLVSINK (element);
+    GstStateChangeReturn result;
+    switch (transition) {
+        case GST_STATE_CHANGE_NULL_TO_READY:
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+                //prepared function
+            break;
+        case GST_STATE_CHANGE_READY_TO_PAUSED:
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        default:
+            break;
+    }
 
-  g_return_val_if_fail (GST_IS_AMLVSINK (element), GST_STATE_CHANGE_FAILURE);
+    result = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+  
+    switch (transition) {
+	  case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+	  	 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
 
-  ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
-
-  switch (transition) {
-    default:
-      break;
-  }
-  return ret;
+	      break;
+        case GST_STATE_CHANGE_PAUSED_TO_READY: 
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        case GST_STATE_CHANGE_READY_TO_NULL:  
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        default:
+            break;
+    }
+	GST_ERROR("%s,%d,result=%d\n",__FUNCTION__,__LINE__,result);
+  return result;
 }
 
 static gboolean

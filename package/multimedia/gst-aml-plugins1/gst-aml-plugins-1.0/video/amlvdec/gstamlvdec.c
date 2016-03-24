@@ -145,6 +145,7 @@ static void 					gst_aml_vdec_flush(GstVideoDecoder * dec);
 
 static gboolean 				gst_set_vstream_info(GstAmlVdec *amlvdec, GstCaps * caps);
 static GstFlowReturn 			gst_aml_vdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf);
+static GstStateChangeReturn gst_aml_vdec_change_state (GstElement * element, GstStateChange transition);
 
 #define gst_aml_vdec_parent_class parent_class
 G_DEFINE_TYPE (GstAmlVdec, gst_aml_vdec, GST_TYPE_VIDEO_DECODER);
@@ -161,7 +162,7 @@ gst_aml_vdec_class_init (GstAmlVdecClass * klass)
 
 	gobject_class->set_property = gst_aml_vdec_set_property;
 	gobject_class->get_property = gst_aml_vdec_get_property;
-
+      element_class->change_state = GST_DEBUG_FUNCPTR (gst_aml_vdec_change_state);
 	gst_element_class_add_pad_template(element_class, gst_static_pad_template_get(&sink_factory));
 	gst_element_class_add_pad_template(element_class, gst_static_pad_template_get(&src_factory));
 
@@ -241,6 +242,7 @@ static gboolean
 gst_aml_vdec_close(GstVideoDecoder * dec)
 {
 	GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
+	GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
 #if DEBUG_DUMP
 	if (amlvdec->dump_fd > 0) {
 		codec_set_dump_fd(NULL, 0);
@@ -278,7 +280,8 @@ gst_aml_vdec_stop(GstVideoDecoder * dec)
 {
 	gint ret = -1;
 	GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
-
+	amlvdec->is_eos =TRUE;
+          GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
 	if (amlvdec->codec_init_ok) {
 		amlvdec->codec_init_ok = 0;
 		if (amlvdec->is_paused == TRUE) {
@@ -374,6 +377,65 @@ gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame)
 	ret = GST_FLOW_OK;
 done:
 	return ret;
+}
+
+static GstStateChangeReturn
+gst_aml_vdec_change_state (GstElement * element, GstStateChange transition)
+{
+  GstStateChangeReturn result = GST_STATE_CHANGE_SUCCESS;
+  gint ret = 0;
+  GstAmlVdec *amlvdec= GST_AMLVDEC (element);
+  GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+  g_return_val_if_fail (GST_IS_AMLVDEC (element), GST_STATE_CHANGE_FAILURE);
+  switch (transition) {
+    case GST_STATE_CHANGE_NULL_TO_READY:
+        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        break;
+  		
+  case GST_STATE_CHANGE_READY_TO_PAUSED:
+        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        break;
+  case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+  	       if (amlvdec->is_paused == TRUE && amlvdec->codec_init_ok) {
+                ret=codec_resume (amlvdec->pcodec);
+                if (ret != 0) {
+                      GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                }else
+                amlvdec->is_paused = FALSE;
+              }
+        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        break;
+
+        default:
+          break;
+    }
+  result = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+
+switch (transition) {
+	case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+		  GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+          if(!amlvdec->is_eos &&  amlvdec->codec_init_ok){ 
+                ret=codec_pause(amlvdec->pcodec);
+                if (ret != 0) {
+                    GST_ERROR("[%s:%d]pause failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+                }else
+                    amlvdec->is_paused = TRUE;
+            }
+            break;
+			
+        case GST_STATE_CHANGE_PAUSED_TO_READY:
+            GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+          break;
+		  
+        case GST_STATE_CHANGE_READY_TO_NULL:
+        	        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+			
+        default:
+            break;
+    }
+  GST_ERROR("%s,%d,ret=%d\n", __FUNCTION__,__LINE__,result);
+  return result;
 }
 
 

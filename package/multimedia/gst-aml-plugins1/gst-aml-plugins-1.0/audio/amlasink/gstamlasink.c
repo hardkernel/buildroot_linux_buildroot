@@ -66,7 +66,8 @@ static GstCaps *gst_aml_asink_getcaps (GstBaseSink * pad);
 
 static void gst_aml_asink_set_property (GObject * object, guint prop_id, const GValue * value, GParamSpec * pspec);
 static void gst_aml_asink_get_property (GObject * object, guint prop_id, GValue * value, GParamSpec * pspec);
-
+static GstStateChangeReturn
+gst_amlasink_change_state (GstElement * element, GstStateChange transition);
 
 #define parent_class gst_aml_asink_parent_class
 G_DEFINE_TYPE (GstAmlAsink, gst_aml_asink, GST_TYPE_AUDIO_SINK);
@@ -84,7 +85,8 @@ gst_aml_asink_class_init (GstAmlAsinkClass * klass)
   gstelement_class = (GstElementClass *) klass;
   gstbasesink_class = (GstBaseSinkClass *) klass;
   gstaudiosink_class = (GstAudioSinkClass *) klass;
-
+    gstelement_class->change_state =
+      GST_DEBUG_FUNCPTR (gst_amlasink_change_state);
   gobject_class->set_property = gst_aml_asink_set_property;
   gobject_class->get_property = gst_aml_asink_get_property;
   gobject_class->finalize = GST_DEBUG_FUNCPTR (gst_aml_asink_finalize);
@@ -121,6 +123,8 @@ gst_aml_asink_init (GstAmlAsink * amlasink)
 {
 	GstAudioSink *bsink;
 	bsink = GST_AUDIO_SINK (amlasink);
+     gst_base_sink_set_sync (GST_BASE_SINK (amlasink), FALSE);
+     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlasink), FALSE);
 }
 
 static void
@@ -158,7 +162,45 @@ gst_aml_asink_get_property (GObject * object, guint prop_id, GValue * value,
       break;
   }
 }
+static GstStateChangeReturn
+gst_amlasink_change_state (GstElement * element, GstStateChange transition)
+{
+    GstAmlAsink *amlasink= GST_AMLASINK (element);
+    GstStateChangeReturn result;
 
+	 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+    switch (transition) {
+        case GST_STATE_CHANGE_NULL_TO_READY:
+                 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        case GST_STATE_CHANGE_READY_TO_PAUSED:
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+			 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        default:
+            break;
+    }
+
+    result = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+  
+    switch (transition) {
+	  case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+	  	 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+	      break;
+        case GST_STATE_CHANGE_PAUSED_TO_READY:    
+		 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        case GST_STATE_CHANGE_READY_TO_NULL:    
+		 GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            break;
+        default:
+            break;
+    }
+	GST_ERROR("%s,%d,result=%d\n",__FUNCTION__,__LINE__,result);
+  return result;
+}
 
 static void
 gst_aml_asink_finalize (GObject * object)
@@ -221,7 +263,7 @@ gst_aml_asink_write (GstAudioSink * asink, gpointer data, guint length)
 {
   GstAmlAsink *amlasink = GST_AMLASINK (asink);
   GstClockTime timestamp;
-  GST_DEBUG_OBJECT(amlasink, "%s %d", __FUNCTION__, length);
+ // GST_DEBUG_OBJECT(amlasink, "%s %d", __FUNCTION__, length);
   return 8;
 }
 
