@@ -40,7 +40,7 @@ void aml_dump_structure(const GstStructure * structure)
 {
 	 GST_WARNING("DUMP structure");
 	gst_structure_foreach(structure, aml_dump_structure_cb, NULL);
-	GST_INFO("-----------------------------------------------%s");
+	GST_INFO("-----------------------------------------------%s end\n",__FUNCTION__);
 }
 void aml_dump_caps(const GstCaps * caps)
 {

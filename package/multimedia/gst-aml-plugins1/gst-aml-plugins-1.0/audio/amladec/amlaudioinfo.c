@@ -12,7 +12,7 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 
 	pcodec->audio_info.sample_rate = audio->sample_rate;
 	pcodec->audio_info.channels = audio->channels;
-      
+     aml_dump_structure(structure);
 	if (gst_structure_has_field(structure, "codec_data")) {
 		extra_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");
 		if (extra_data_buf) {
@@ -354,6 +354,7 @@ gint amlInitMulaw(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *stru
 	pcodec->audio_type = AFORMAT_ADPCM;                    //mulaw & alaw use adpcm now
 	amlAudioInfoInit(info, pcodec, structure);
 	pcodec->audio_info.valid = 1;
+	pcodec->audio_info.codec_id = CODEC_ID_PCM_MULAW;
 	return 0;
 }
 

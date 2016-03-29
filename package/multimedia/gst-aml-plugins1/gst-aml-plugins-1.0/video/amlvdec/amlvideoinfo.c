@@ -500,7 +500,8 @@ AmlStreamInfo *newAmlInfoH263()
 gint amlInitJpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 {      
     pcodec->video_type = VFORMAT_MJPEG;
-    pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MJPEG;     
+    pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MJPEG;  
+    amlVideoInfoInit(info, pcodec, structure);
     return 0;
 }
 
@@ -823,6 +824,7 @@ static const AmlStreamInfoPool amlVstreamInfoPool[] = {
     {"video/x-msmpeg", newAmlInfoMsmpeg},
     {"video/x-h263", newAmlInfoH263},
     {"video/x-jpeg", newAmlInfoJpeg},
+    {"image/jpeg", newAmlInfoJpeg},
     {"video/x-wmv", newAmlInfoWmv},
     {"video/x-divx", newAmlInfoDivx},
     {"video/x-xvid", newAmlInfoXvid},
