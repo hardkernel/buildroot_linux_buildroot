@@ -74,15 +74,16 @@ typedef struct _GstAmlVdecClass GstAmlVdecClass;
 
 struct _GstAmlVdec
 {
-	GstVideoDecoder element;
-	guint codec_init_ok;
+    GstVideoDecoder element;
+    guint codec_init_ok;
     gboolean is_headerfeed;	/* flag for decoder initialization */
     gboolean is_paused;
     gboolean is_eos;
-
-	gdouble      	 trickRate;           //for Mpeg2/TS
-	AmlStreamInfo 	*info;
-	codec_para_t 	*pcodec;
+    gdouble      	 trickRate;           //for Mpeg2/TS
+    AmlStreamInfo 	*info;
+    codec_para_t 	*pcodec;
+    GstTask * eos_task;
+    GStaticRecMutex eos_lock;
 #if DEBUG_DUMP
 	int 			 dump_fd;
 #endif

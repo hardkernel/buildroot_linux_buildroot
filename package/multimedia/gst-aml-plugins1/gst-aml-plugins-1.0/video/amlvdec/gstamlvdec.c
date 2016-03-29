@@ -140,11 +140,11 @@ static gboolean 				gst_aml_vdec_close(GstVideoDecoder * dec);
 static gboolean 				gst_aml_vdec_start(GstVideoDecoder * dec);
 static gboolean 				gst_aml_vdec_stop(GstVideoDecoder * dec);
 static gboolean 				gst_aml_vdec_set_format(GstVideoDecoder *dec, GstVideoCodecState *state);
-static GstFlowReturn 			gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame);
+static GstFlowReturn 		gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame);
 static void 					gst_aml_vdec_flush(GstVideoDecoder * dec);
-
+static gboolean                    gst_amlvdec_sink_event  (GstVideoDecoder * amlvdec, GstEvent * event);
 static gboolean 				gst_set_vstream_info(GstAmlVdec *amlvdec, GstCaps * caps);
-static GstFlowReturn 			gst_aml_vdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf);
+static GstFlowReturn 		gst_aml_vdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf);
 static GstStateChangeReturn gst_aml_vdec_change_state (GstElement * element, GstStateChange transition);
 
 #define gst_aml_vdec_parent_class parent_class
@@ -162,6 +162,7 @@ gst_aml_vdec_class_init (GstAmlVdecClass * klass)
 
 	gobject_class->set_property = gst_aml_vdec_set_property;
 	gobject_class->get_property = gst_aml_vdec_get_property;
+	
       element_class->change_state = GST_DEBUG_FUNCPTR (gst_aml_vdec_change_state);
 	gst_element_class_add_pad_template(element_class, gst_static_pad_template_get(&sink_factory));
 	gst_element_class_add_pad_template(element_class, gst_static_pad_template_get(&src_factory));
@@ -179,7 +180,7 @@ gst_aml_vdec_class_init (GstAmlVdecClass * klass)
 	base_class->set_format = GST_DEBUG_FUNCPTR(gst_aml_vdec_set_format);
 	base_class->handle_frame = GST_DEBUG_FUNCPTR(gst_aml_vdec_handle_frame);
 	base_class->flush = GST_DEBUG_FUNCPTR(gst_aml_vdec_flush);
-
+      base_class->sink_event =  GST_DEBUG_FUNCPTR(gst_amlvdec_sink_event);
 
 }
 
@@ -238,11 +239,129 @@ gst_aml_vdec_open(GstVideoDecoder * dec)
 #endif
 	return TRUE;
 }
+
+static void gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
+{
+    unsigned rp_move_count = 40,count=0;
+    struct buf_status vbuf;
+    unsigned last_rp = 0;
+    int ret=1;	
+    do {
+	  if(count>2000)//avoid infinite loop
+	      break;	
+        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
+        if (ret != 0) {
+            GST_ERROR("codec_get_vbuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != vbuf.read_pointer){
+            last_rp = vbuf.read_pointer;
+            rp_move_count = 200;
+        }else
+            rp_move_count--;        
+        usleep(1000*30);
+        count++;	
+
+     /*   if(amlvdec->passthrough) {
+          break;
+        }*/
+    } while (vbuf.data_len > 0x100 && rp_move_count > 0);
+   // amlvdec->passthrough = FALSE;
+    //gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
+    gst_task_pause (amlvdec->eos_task);
+
+}
+
+static void
+	start_eos_task (GstAmlVdec *amlvdec)
+{
+    if (! amlvdec->eos_task) {
+        amlvdec->eos_task =
+        gst_task_new ((GstTaskFunction) gst_amlvdec_polling_eos, amlvdec,NULL);
+        gst_task_set_lock (amlvdec->eos_task, &amlvdec->eos_lock);
+    }
+    gst_task_start (amlvdec->eos_task);
+}
+
+static void
+	stop_eos_task (GstAmlVdec *amlvdec)
+{
+    if (! amlvdec->eos_task)
+        return;
+
+    gst_task_stop (amlvdec->eos_task);
+
+    g_rec_mutex_lock (&amlvdec->eos_lock);
+
+    g_rec_mutex_unlock (&amlvdec->eos_lock);
+    gst_task_join (amlvdec->eos_task);
+    gst_object_unref (amlvdec->eos_task);
+    amlvdec->eos_task = NULL;
+}
+#if 0
+static gboolean gst_amlvdec_polling_eos (GstAmlVdec *amlvdec)
+{
+    unsigned rp_move_count = 40,count=0;
+    struct buf_status vbuf;
+    unsigned last_rp = 0;
+    gint ret = 1;	
+    do {
+	  if(count>2000)//avoid infinite loop
+	      break;	
+        ret = codec_get_vbuf_state(amlvdec->pcodec, &vbuf);
+        if (ret != 0) {
+            GST_ERROR("codec_get_vbuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != vbuf.read_pointer){
+            last_rp = vbuf.read_pointer;
+            rp_move_count = 200;
+        }else
+            rp_move_count--;        
+        usleep(1000*30);
+        count++;	
+
+       /* if(amlvdec->passthrough) {
+          break;
+        }*/
+    } while (vbuf.data_len > 0x100 && rp_move_count > 0);
+
+    return TRUE;
+}
+#endif
 static gboolean
 gst_aml_vdec_close(GstVideoDecoder * dec)
 {
 	GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
+	gint ret=0;
 	GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+	stop_eos_task (amlvdec);
+	if (amlvdec->codec_init_ok) {
+		amlvdec->codec_init_ok = 0;
+		if (amlvdec->is_paused == TRUE) {
+			ret = codec_resume(amlvdec->pcodec);
+			if (ret != 0) {
+				GST_ERROR("[%s:%d]resume failed!ret=%d", __FUNCTION__, __LINE__, ret);
+			} else
+				amlvdec->is_paused = FALSE;
+		}
+		set_black_policy(1);
+		codec_close(amlvdec->pcodec);
+
+		amlvdec->is_headerfeed = FALSE;
+		if (amlvdec->input_state) {
+			gst_video_codec_state_unref(amlvdec->input_state);
+			amlvdec->input_state = NULL;
+		}
+		
+		set_fb0_blank(0);
+		set_fb1_blank(0);
+//T?		set_display_axis(1);
+	}
+	if (amlvdec->info) {
+			amlvdec->info->finalize(amlvdec->info);
+			amlvdec->info = NULL;
+		}
 #if DEBUG_DUMP
 	if (amlvdec->dump_fd > 0) {
 		codec_set_dump_fd(NULL, 0);
@@ -278,38 +397,14 @@ gst_aml_vdec_start(GstVideoDecoder * dec)
 static gboolean
 gst_aml_vdec_stop(GstVideoDecoder * dec)
 {
-	gint ret = -1;
-	GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
-	amlvdec->is_eos =TRUE;
-          GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
-	if (amlvdec->codec_init_ok) {
-		amlvdec->codec_init_ok = 0;
-		if (amlvdec->is_paused == TRUE) {
-			ret = codec_resume(amlvdec->pcodec);
-			if (ret != 0) {
-				GST_ERROR("[%s:%d]resume failed!ret=%d", __FUNCTION__, __LINE__, ret);
-			} else
-				amlvdec->is_paused = FALSE;
-		}
-		set_black_policy(1);
-		codec_close(amlvdec->pcodec);
-
-		amlvdec->is_headerfeed = FALSE;
-		if (amlvdec->input_state) {
-			gst_video_codec_state_unref(amlvdec->input_state);
-			amlvdec->input_state = NULL;
-		}
-		
-		set_fb0_blank(0);
-		set_fb1_blank(0);
-//T?		set_display_axis(1);
-	}
-	if (amlvdec->info) {
-			amlvdec->info->finalize(amlvdec->info);
-			amlvdec->info = NULL;
-		}
-	
-	return TRUE;
+    gboolean ret = FALSE;
+    GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
+    GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);   
+  /*  if(amlvdec->codec_init_ok && amlvdec->is_eos ==TRUE)
+        ret=gst_amlvdec_polling_eos(amlvdec);
+    else */
+        ret = TRUE; 
+    return ret;
 }
 static gboolean gst_aml_vdec_set_format(GstVideoDecoder *dec, GstVideoCodecState *state)
 {
@@ -379,6 +474,82 @@ done:
 	return ret;
 }
 
+static gboolean
+gst_amlvdec_sink_event  (GstVideoDecoder * dec, GstEvent * event)
+{
+    gboolean ret = TRUE;
+     GstAmlVdec *amlvdec = GST_AMLVDEC(dec);	
+     GST_ERROR_OBJECT (amlvdec, "Got %s event on sink pad", GST_EVENT_TYPE_NAME (event));
+    switch (GST_EVENT_TYPE (event)) {
+      /*  case GST_EVENT_NEWSEGMENT:
+        {
+            gboolean update;
+            GstFormat format;
+            gdouble rate, arate;
+            gint64 start, stop, time;
+						
+						stop_eos_task (amlvdec);
+            gst_event_parse_new_segment_full (event, &update, &rate, &arate, &format, &start, &stop, &time);
+
+            if (format != GST_FORMAT_TIME)
+                goto newseg_wrong_format;
+            amlvdec_forward_process(amlvdec, update, rate, format, start, stop, time);
+            gst_segment_set_newsegment_full (&amlvdec->segment, update, rate, arate, format, start, stop, time);
+
+            GST_DEBUG_OBJECT (amlvdec,"Pushing newseg rate %g, applied rate %g, format %d, start %"
+                G_GINT64_FORMAT ", stop %" G_GINT64_FORMAT ", pos %" G_GINT64_FORMAT,
+                rate, arate, format, start, stop, time);
+
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+        }*/
+		
+        case GST_EVENT_FLUSH_START:
+            
+       /*     if(amlvdec->codec_init_ok){
+                set_black_policy(0);
+            }
+            ret = gst_pad_push_event (amlvdec->src_factory, event);*/
+            break;
+	  
+        case GST_EVENT_FLUSH_STOP:
+        {
+        	/*	stop_eos_task (amlvdec);
+            if(amlvdec->codec_init_ok){
+                gint res = -1;
+                res = codec_reset(amlvdec->pcodec);
+                if (res < 0) {
+                    GST_ERROR("reset vcodec failed, res= %x\n", res);
+                    return FALSE;
+                }            
+                amlvdec->is_headerfeed = FALSE; 
+            }
+            g_print("vformat:%d\n", amlvdec->pcodec->video_type);
+            ret = gst_pad_push_event (amlvdec->src_factory, event);*/
+            break;
+        } 
+		
+        case GST_EVENT_EOS:
+            GST_WARNING("get GST_EVENT_EOS,check for video end\n");
+            if(amlvdec->codec_init_ok)	{
+			start_eos_task(amlvdec);	
+                amlvdec->is_eos = TRUE;
+            }
+                
+     
+            ret = TRUE;
+            break;
+		 
+        default:           
+            break;
+    }
+
+done:
+     ret = GST_VIDEO_DECODER_CLASS (parent_class)->sink_event (amlvdec, event);
+
+    return ret;
+}
+
 static GstStateChangeReturn
 gst_aml_vdec_change_state (GstElement * element, GstStateChange transition)
 {
@@ -443,7 +614,8 @@ static void
 gst_aml_vdec_flush(GstVideoDecoder * dec)
 {
 	GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
-	codec_reset(amlvdec->pcodec);
+	GST_WARNING_OBJECT("%s,%d\n", __FUNCTION__,__LINE__);
+	//codec_reset(amlvdec->pcodec);
 }
 
 static gboolean

@@ -89,6 +89,8 @@ struct _GstAmlAdec
 //	gint block_align;                    ///< audio block align
 	gboolean is_paused;
 	gboolean is_eos;
+	GstTask * eos_task;
+      GStaticRecMutex eos_lock;
 //
 ////	AmlState eState;
 	codec_para_t *pcodec;

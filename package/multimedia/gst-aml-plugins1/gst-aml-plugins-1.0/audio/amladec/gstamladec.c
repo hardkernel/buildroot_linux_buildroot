@@ -166,7 +166,7 @@ static GstFlowReturn 			gst_aml_adec_handle_frame(GstAudioDecoder * dec, GstBuff
 static void 					gst_aml_adec_flush(GstAudioDecoder * dec, gboolean hard);
 
 static gboolean 				gst_set_astream_info(GstAmlAdec *amladec, GstCaps * caps);
-
+static gboolean                    gst_amladec_sink_event  (GstAudioDecoder * dec, GstEvent * event);
 static gboolean 				aml_decode_init(GstAmlAdec *amladec);
 static GstFlowReturn 		gst_aml_adec_decode (GstAmlAdec *amladec, GstBuffer * buf);
 static GstStateChangeReturn gst_aml_adec_change_state (GstElement * element, GstStateChange transition);
@@ -206,6 +206,7 @@ gst_aml_adec_class_init (GstAmlAdecClass * klass)
 	base_class->set_format = GST_DEBUG_FUNCPTR(gst_aml_adec_set_format);
 	base_class->handle_frame = GST_DEBUG_FUNCPTR(gst_aml_adec_handle_frame);
 	base_class->flush = GST_DEBUG_FUNCPTR(gst_aml_adec_flush);
+     base_class->sink_event =  GST_DEBUG_FUNCPTR(gst_amladec_sink_event);
 
 
 }
@@ -266,17 +267,122 @@ gst_aml_adec_open(GstAudioDecoder * dec)
 	amladec->pcodec->adec_priv = NULL;
 	return TRUE;
 }
+
+static void gst_amladec_polling_eos (GstAmlAdec *amladec)
+{
+    unsigned rp_move_count = 40,count=0;
+    struct buf_status abuf;
+    unsigned last_rp = 0;
+    int ret=1;	
+    do {
+	  if(count>2000)//avoid infinite loop
+	      break;	
+        ret = codec_get_abuf_state(amladec->pcodec, &abuf);
+        if (ret != 0) {
+            GST_ERROR("codec_get_vbuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != abuf.read_pointer){
+            last_rp = abuf.read_pointer;
+            rp_move_count = 200;
+        }else
+            rp_move_count--;        
+        usleep(1000*30);
+        count++;	
+
+     /*   if(amlvdec->passthrough) {
+          break;
+        }*/
+    } while (abuf.data_len > 0x100 && rp_move_count > 0);
+   // amlvdec->passthrough = FALSE;
+    //gst_pad_push_event (amlvdec->srcpad, gst_event_new_eos ());
+    gst_task_pause (amladec->eos_task);
+
+}
+
+static void
+	start_eos_task (GstAmlAdec *amladec)
+{
+    if (! amladec->eos_task) {
+        amladec->eos_task =
+        gst_task_new ((GstTaskFunction) gst_amladec_polling_eos, amladec,NULL);
+
+        gst_task_set_lock (amladec->eos_task, &amladec->eos_lock);
+    }
+    gst_task_start (amladec->eos_task);
+}
+
+static void
+	stop_eos_task (GstAmlAdec *amladec)
+{
+    if (! amladec->eos_task)
+        return;
+
+    gst_task_stop (amladec->eos_task);
+    g_rec_mutex_lock (&amladec->eos_lock);
+    g_rec_mutex_unlock (&amladec->eos_lock);
+    gst_task_join (amladec->eos_task);
+    gst_object_unref (amladec->eos_task);
+    amladec->eos_task = NULL;
+}
+#if 0
+static gboolean gst_amladec_polling_eos (GstAmlAdec *amladec)  
+{
+    unsigned rp_move_count = 40,count=0;
+    unsigned last_rp = 0;
+    struct buf_status abuf;
+    int ret=1;	
+    do {
+        if(count>2000)//avoid infinite loop
+	          break;	
+        ret = codec_get_abuf_state (amladec->pcodec, &abuf);
+        if (ret != 0) {
+            GST_ERROR("codec_get_abuf_state error: %x\n", -ret);
+            break;
+        }
+        if(last_rp != abuf.read_pointer){
+            last_rp = abuf.read_pointer;
+            rp_move_count = 200;//40;
+        }else
+           rp_move_count--;        
+        usleep(1000*30);
+        count++;	
+    } while (abuf.data_len > 0x100 && rp_move_count > 0);
+    return TRUE;
+
+}
+
+#endif
 static gboolean
 gst_aml_adec_close(GstAudioDecoder * dec)
 {
 	GstAmlAdec *amladec = GST_AMLADEC(dec);
+	gint ret = -1 ;
+	stop_eos_task (amladec);
+	if (amladec->codec_init_ok) {
+		amladec->codec_init_ok = 0;
+		if (amladec->is_paused == TRUE) {
+			ret = codec_resume(amladec->pcodec);
+			if (ret != 0) {
+				GST_ERROR("[%s:%d]resume failed!ret=%d", __FUNCTION__, __LINE__, ret);
+			} else {
+				amladec->is_paused = FALSE;
+			}
+		}
+		codec_close(amladec->pcodec);
+	}
 	
+	if (amladec->info) {
+		amladec->info->finalize(amladec->info);
+		amladec->info = NULL;
+	}
 	if (amladec->pcodec) {
 		g_free(amladec->pcodec);
 		amladec->pcodec = NULL;
 	}
 	return TRUE;
 }
+
 static gboolean
 gst_aml_adec_start(GstAudioDecoder * dec)
 {
@@ -320,27 +426,15 @@ gst_aml_adec_start(GstAudioDecoder * dec)
 static gboolean
 gst_aml_adec_stop(GstAudioDecoder * dec)
 {
-	int ret;
+	int ret = FALSE;
 	GstAmlAdec *amladec = GST_AMLADEC(dec);
-	amladec->is_eos = TRUE;
-	if (amladec->codec_init_ok) {
-		amladec->codec_init_ok = 0;
-		if (amladec->is_paused == TRUE) {
-			ret = codec_resume(amladec->pcodec);
-			if (ret != 0) {
-				GST_ERROR("[%s:%d]resume failed!ret=%d", __FUNCTION__, __LINE__, ret);
-			} else {
-				amladec->is_paused = FALSE;
-			}
-		}
-		codec_close(amladec->pcodec);
-	}
-	if (amladec->info) {
-		amladec->info->finalize(amladec->info);
-		amladec->info = NULL;
-	}
-	return TRUE;
+	//if (amladec->codec_init_ok && amladec->is_eos == TRUE ) 
+	 //   ret = gst_amladec_polling_eos(amladec);
+	//else 
+	    ret = TRUE;
+	return ret;
 }
+	
 static gboolean
 gst_aml_adec_set_format(GstAudioDecoder *dec, GstCaps *caps)
 {
@@ -442,6 +536,82 @@ gst_aml_adec_handle_frame(GstAudioDecoder * dec, GstBuffer * buffer)
 	return ret;
 }
 
+static gboolean
+gst_amladec_sink_event  (GstAudioDecoder * dec, GstEvent * event)
+{
+    gboolean ret = TRUE;
+    GstAmlAdec *amladec = GST_AMLADEC(dec);
+     GST_ERROR_OBJECT (amladec, "Got %s event on sink pad", GST_EVENT_TYPE_NAME (event));
+    switch (GST_EVENT_TYPE (event)) {
+      /*  case GST_EVENT_NEWSEGMENT:
+        {
+            gboolean update;
+            GstFormat format;
+            gdouble rate, arate;
+            gint64 start, stop, time;
+						
+						stop_eos_task (amlvdec);
+            gst_event_parse_new_segment_full (event, &update, &rate, &arate, &format, &start, &stop, &time);
+
+            if (format != GST_FORMAT_TIME)
+                goto newseg_wrong_format;
+            amlvdec_forward_process(amlvdec, update, rate, format, start, stop, time);
+            gst_segment_set_newsegment_full (&amlvdec->segment, update, rate, arate, format, start, stop, time);
+
+            GST_DEBUG_OBJECT (amlvdec,"Pushing newseg rate %g, applied rate %g, format %d, start %"
+                G_GINT64_FORMAT ", stop %" G_GINT64_FORMAT ", pos %" G_GINT64_FORMAT,
+                rate, arate, format, start, stop, time);
+
+            ret = gst_pad_push_event (amlvdec->srcpad, event);
+            break;
+        }*/
+		
+        case GST_EVENT_FLUSH_START:
+            
+       /*     if(amlvdec->codec_init_ok){
+                set_black_policy(0);
+            }
+            ret = gst_pad_push_event (amlvdec->src_factory, event);*/
+            break;
+	  
+        case GST_EVENT_FLUSH_STOP:
+        {
+        	/*	stop_eos_task (amlvdec);
+            if(amlvdec->codec_init_ok){
+                gint res = -1;
+                res = codec_reset(amlvdec->pcodec);
+                if (res < 0) {
+                    GST_ERROR("reset vcodec failed, res= %x\n", res);
+                    return FALSE;
+                }            
+                amlvdec->is_headerfeed = FALSE; 
+            }
+            g_print("vformat:%d\n", amlvdec->pcodec->video_type);
+            ret = gst_pad_push_event (amlvdec->src_factory, event);*/
+            break;
+        } 
+		
+        case GST_EVENT_EOS:
+            GST_WARNING("get GST_EVENT_EOS,check for video end\n");
+            if(amladec->codec_init_ok)	{ 
+			start_eos_task(amladec);		
+                amladec->is_eos = TRUE;
+            }
+                
+     
+            ret = TRUE;
+            break;
+		 
+        default:           
+            break;
+    }
+
+done:
+     ret = GST_AUDIO_DECODER_CLASS (parent_class)->sink_event (amladec, event);
+
+    return ret;
+}
+
 static GstStateChangeReturn
 gst_aml_adec_change_state (GstElement * element, GstStateChange transition)
 {
@@ -505,9 +675,9 @@ static void
 gst_aml_adec_flush(GstAudioDecoder * dec, gboolean hard)
 {
 	GstAmlAdec *amladec = GST_AMLADEC(dec);
-	if (hard) {
-		codec_reset(amladec->pcodec);
-	}
+	//if (hard) {
+	//	codec_reset(amladec->pcodec);
+	//}
 }
 
 static gboolean
