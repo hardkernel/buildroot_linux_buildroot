@@ -385,6 +385,26 @@ gint wma_writeheader(AmlStreamInfo* info, codec_para_t *pcodec)
     pcodec->audio_info.valid = 1;
     return 0;	
 }
+
+
+gint cook_writeheader(AmlStreamInfo* info, codec_para_t *pcodec)
+{
+	GstMapInfo map;
+    if(info->configdata){
+    	gst_buffer_map(info->configdata, &map, GST_MAP_READ);
+        pcodec->audio_info.extradata_size = map.size;
+        if (pcodec->audio_info.extradata_size > 0) {
+            if (pcodec->audio_info.extradata_size >  AUDIO_EXTRA_DATA_SIZE) {
+                GST_WARNING("[%s:%d],extra data size exceed max  extra data buffer,cut it to max buffer size ", __FUNCTION__, __LINE__);
+                pcodec->audio_info.extradata_size =  AUDIO_EXTRA_DATA_SIZE;
+            }
+            memcpy((char*)pcodec->audio_info.extradata, map.data, pcodec->audio_info.extradata_size);
+        }
+        gst_buffer_unmap(info->configdata, &map);
+    }
+    pcodec->audio_info.valid = 1;
+    return 0;	
+}
 gint amlInitWma(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 { 
     AmlAinfoWma *audio = (AmlAinfoWma*) info;
@@ -485,17 +505,6 @@ gint amlInitApe(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *struct
   return 0; 
 }
 
-gint amlInitDTS(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
-{
-	pcodec->audio_type = AFORMAT_DTS;	
-	pcodec->audio_info.codec_id = CODEC_ID_DTS;
-	//pcodec->audio_info.valid = 1;
-	amlAudioInfoInit(info, pcodec, structure);
-	GST_WARNING("[%s:%d]", __FUNCTION__, __LINE__);
-
-  return 0; 
-}
-
 AmlStreamInfo * newAmlAinfoApe()
 {
     AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoApe));
@@ -506,6 +515,16 @@ AmlStreamInfo * newAmlAinfoApe()
     return info;
 }
 
+gint amlInitDTS(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{
+	pcodec->audio_type = AFORMAT_DTS;	
+	pcodec->audio_info.codec_id = CODEC_ID_DTS;
+	//pcodec->audio_info.valid = 1;
+	amlAudioInfoInit(info, pcodec, structure);
+	GST_WARNING("[%s:%d]", __FUNCTION__, __LINE__);
+
+  return 0; 
+}
 AmlStreamInfo * newAmlAinfoDts()
 {
     AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoDts));
@@ -516,6 +535,25 @@ AmlStreamInfo * newAmlAinfoDts()
     return info;
 }
 
+gint amlInitCook(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{
+	pcodec->audio_type = AFORMAT_COOK;	
+	pcodec->audio_info.codec_id = CODEC_ID_COOK;
+	//pcodec->audio_info.valid = 1;
+	amlAudioInfoInit(info, pcodec, structure);
+	GST_WARNING("[%s:%d]", __FUNCTION__, __LINE__);
+
+  return 0; 
+}
+AmlStreamInfo * newAmlAinfoCook()
+{
+    AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoCook));
+    info->init = amlInitCook;
+    info->writeheader = cook_writeheader;
+    info->add_startcode = NULL;
+		
+    return info;
+}
 
 static const AmlStreamInfoPool amlAstreamInfoPool[] = {
 	
@@ -533,6 +571,7 @@ static const AmlStreamInfoPool amlAstreamInfoPool[] = {
     {"application/x-ape", newAmlAinfoApe},
     {"audio/x-private1-dts", newAmlAinfoDts},
     {"audio/x-dts", newAmlAinfoDts},
+    {"audio/x-pn-realaudio", newAmlAinfoCook},
     {NULL, NULL}
 };
 AmlStreamInfo *amlAstreamInfoInterface(gchar *format)

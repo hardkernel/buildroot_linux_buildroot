@@ -410,6 +410,10 @@ typedef struct{
 typedef struct{
     AmlAudioInfo audioinfo;
 }AmlAinfoDts;
+
+typedef struct{
+    AmlAudioInfo audioinfo;
+}AmlAinfoCook;
 AmlStreamInfo *createAudioInfo(gint size);
 AmlStreamInfo * newAmlAinfoMpeg();
 AmlStreamInfo * newAmlAinfoAc3();
@@ -422,6 +426,6 @@ AmlStreamInfo * newAmlAinfoMulaw();
 AmlStreamInfo * newAmlAinfoPcm();
 AmlStreamInfo * newAmlAinfoApe();
 AmlStreamInfo * newAmlAinfoDts();
-
+AmlStreamInfo * newAmlAinfoCook();
 AmlStreamInfo *amlAstreamInfoInterface(gchar *format);
 #endif

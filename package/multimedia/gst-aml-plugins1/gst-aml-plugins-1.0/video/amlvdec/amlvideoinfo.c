@@ -816,6 +816,34 @@ AmlStreamInfo *newAmlInfoXvid()
     return info;
 }
 
+gint amlInitReal(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{       
+     gint version;
+    pcodec->video_type = VFORMAT_REAL;
+    gst_structure_get_int(structure, "rmversion", &version);
+
+    GST_INFO("Video: rmversion=%d", version);	
+     switch(version){
+        case 3:
+            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_REAL_8;
+            break;
+        case 4:
+            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_REAL_9;
+            break;
+
+    } 
+    amlVideoInfoInit(info, pcodec, structure);
+    return 0;
+}
+
+AmlStreamInfo * newAmlInfoReal()
+{
+    AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoXvid));
+    info->init = amlInitReal;
+    
+    return info;
+}
+
 static const AmlStreamInfoPool amlVstreamInfoPool[] = {
     /*******video format information*******/
     {"video/x-h265", newAmlInfoH265},
@@ -829,6 +857,7 @@ static const AmlStreamInfoPool amlVstreamInfoPool[] = {
     {"video/x-divx", newAmlInfoDivx},
     {"video/x-xvid", newAmlInfoXvid},
     {"video/x-flv", newAmlInfoH263},
+    {"video/x-pn-realvideo", newAmlInfoReal},
     {NULL, NULL}
 };
 AmlStreamInfo *amlVstreamInfoInterface(gchar *format)
