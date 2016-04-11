@@ -7,6 +7,7 @@
 
 typedef struct {
     int exist;
+    int support_4k;
 } sys_h264_profile_t;
 
 typedef struct {

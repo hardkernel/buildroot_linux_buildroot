@@ -736,7 +736,9 @@ static void get_stream_info(play_para_t *p_para)
                 unsupported_video = 1;
                 log_print("[%s:%d] H.264 video profile not supported", __FUNCTION__, __LINE__);
             } else if ((p_para->vstream_info.video_width * p_para->vstream_info.video_height) > (1920 * 1088)) {
-                if (p_para->vdec_profile.h264_4k2k_para.exist) {
+                if (p_para->vdec_profile.h264_para.support_4k) {
+                    p_para->vstream_info.video_format = VFORMAT_H264;
+                } else if (p_para->vdec_profile.h264_4k2k_para.exist) {
                     p_para->vstream_info.video_format = VFORMAT_H264_4K2K;
                     log_print("H.264 4K2K video format applied.");
                 } else {
@@ -835,7 +837,9 @@ static int set_decode_para(play_para_t*am_p)
             am_p->vstream_info.video_format=VFORMAT_H264;/*if kernel not support mvc,just playing as 264 now.*/
             if ((am_p->vstream_info.video_width > 1920) ||
                 (am_p->vstream_info.video_height > 1088)) {
-                if (am_p->vdec_profile.h264_4k2k_para.exist) {
+                if (am_p->vdec_profile.h264_para.support_4k) {
+                    am_p->vstream_info.video_format = VFORMAT_H264;
+                } else if (am_p->vdec_profile.h264_4k2k_para.exist) {
                     am_p->vstream_info.video_format = VFORMAT_H264_4K2K;
                     log_print("H.264 4K2K video format applied.");
                 } else {
