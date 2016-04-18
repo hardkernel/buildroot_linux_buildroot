@@ -533,7 +533,7 @@ gst_aml_adec_handle_frame(GstAudioDecoder * dec, GstBuffer * buffer)
 	outbuffer = gst_buffer_new_and_alloc(8 * amladec->pcodec->audio_info.channels);
 	ret = gst_audio_decoder_finish_frame(dec, outbuffer, 1);
 	GST_DEBUG_OBJECT(dec, "ret=%d,%s %d", ret,__FUNCTION__, __LINE__);
-	return ret;
+	return GST_FLOW_OK;
 }
 
 static gboolean

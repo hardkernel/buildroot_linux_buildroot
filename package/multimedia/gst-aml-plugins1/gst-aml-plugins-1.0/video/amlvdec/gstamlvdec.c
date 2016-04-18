@@ -743,7 +743,7 @@ amlvdec_init (GstPlugin * amlvdec)
 	 */
 	GST_DEBUG_CATEGORY_INIT(gst_aml_vdec_debug, "amlvdec", 0, "Amlogic Video Decoder");
 
-	return gst_element_register(amlvdec, "amlvdec", GST_RANK_PRIMARY, GST_TYPE_AMLVDEC);
+	return gst_element_register(amlvdec, "amlvdec", GST_RANK_PRIMARY+1, GST_TYPE_AMLVDEC);
 }
 
 /* PACKAGE: this is usually set by autotools depending on some _INIT macro
