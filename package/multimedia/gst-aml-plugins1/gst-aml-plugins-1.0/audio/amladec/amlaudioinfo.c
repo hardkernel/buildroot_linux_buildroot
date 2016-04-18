@@ -127,7 +127,7 @@ int extract_adts_header_info(AmlStreamInfo *info,codec_para_t *pcodec, GstBuffer
 		buf[6] = (char) (((hdr.adts_buffer_fullness & 0x3f) << 2) | hdr.number_of_raw_data_blocks_in_frame);
 		gst_buffer_unmap(buffer, &map);
 
-		gst_buffer_unref(info->configdata);
+		//gst_buffer_unref(info->configdata);
 		info->configdata = gst_buffer_copy(buffer);
 
 //        gst_buffer_make_writable(info->configdata);
