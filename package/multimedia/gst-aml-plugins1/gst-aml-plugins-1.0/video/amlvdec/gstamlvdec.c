@@ -506,15 +506,15 @@ gst_amlvdec_sink_event  (GstVideoDecoder * dec, GstEvent * event)
 		
         case GST_EVENT_FLUSH_START:
             
-       /*     if(amlvdec->codec_init_ok){
+            if(amlvdec->codec_init_ok){
                 set_black_policy(0);
             }
-            ret = gst_pad_push_event (amlvdec->src_factory, event);*/
+            ret = TRUE;
             break;
 	  
         case GST_EVENT_FLUSH_STOP:
         {
-        	/*	stop_eos_task (amlvdec);
+        		stop_eos_task (amlvdec);
             if(amlvdec->codec_init_ok){
                 gint res = -1;
                 res = codec_reset(amlvdec->pcodec);
@@ -524,8 +524,7 @@ gst_amlvdec_sink_event  (GstVideoDecoder * dec, GstEvent * event)
                 }            
                 amlvdec->is_headerfeed = FALSE; 
             }
-            g_print("vformat:%d\n", amlvdec->pcodec->video_type);
-            ret = gst_pad_push_event (amlvdec->src_factory, event);*/
+            GST_WARNING("vformat:%d\n", amlvdec->pcodec->video_type);          
             break;
         } 
 		
