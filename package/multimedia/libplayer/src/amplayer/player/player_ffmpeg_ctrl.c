@@ -228,9 +228,18 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
                 if ((st->codec->codec_id == CODEC_ID_VP8) || \
                     (st->codec->codec_id == CODEC_ID_VP6) || \
                     (st->codec->codec_id == CODEC_ID_VP6F) || \
-                    (st->codec->codec_id == CODEC_ID_VP6A)) {
+                    (st->codec->codec_id == CODEC_ID_VP6A) || \
+                    (st->codec->codec_id == CODEC_ID_VP9)) {
                     if (vpx_flag == 0) {
-                        sprintf(vpx_string, "%s", (st->codec->codec_id == CODEC_ID_VP8) ? "vp8" : "vp6");
+						if (st->codec->codec_id == CODEC_ID_VP9){
+							sprintf(vpx_string, "%s", "vp9");
+						}
+						else if (st->codec->codec_id == CODEC_ID_VP8){
+							sprintf(vpx_string, "%s", "vp8");
+						}
+						else {
+							sprintf(vpx_string, "%s", "vp6");
+						}
                         vpx_flag = 1;
                     }
                 }
