@@ -730,7 +730,14 @@ static void get_stream_info(play_para_t *p_para)
     }
 
     if (video_index != -1) {
-        if (p_para->vstream_info.video_format == VFORMAT_H264) {
+        if (p_para->vstream_info.video_format == VFORMAT_VP9) {
+            if (p_para->vdec_profile.vp9_para.exist) {
+                ;
+            } else {
+                log_print("VP9 not support by current hardware!!\n");
+                unsupported_video = 1;
+            }
+        } else if (p_para->vstream_info.video_format == VFORMAT_H264) {
             if ((p_para->vstream_info.video_width > 4096) ||
                 (p_para->vstream_info.video_height > 2304)) {
                 unsupported_video = 1;

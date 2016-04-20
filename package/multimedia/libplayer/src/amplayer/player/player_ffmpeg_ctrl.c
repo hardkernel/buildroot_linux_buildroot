@@ -240,7 +240,11 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
 						else {
 							sprintf(vpx_string, "%s", "vp6");
 						}
-                        vpx_flag = 1;
+						if (st->codec->codec_id == CODEC_ID_VP9 && am_p->vdec_profile.vp9_para.exist) {
+							/*hardware support vp9,decoder with hardware now, .*/
+						} else {
+							vpx_flag = 1;
+						}
                     }
                 }
                 if(st->codec->codec_id == CODEC_ID_HEVC) {

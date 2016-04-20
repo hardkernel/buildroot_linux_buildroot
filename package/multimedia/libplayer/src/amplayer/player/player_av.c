@@ -232,6 +232,9 @@ vformat_t video_type_convert(enum CodecID id)
     case CODEC_ID_AVS:
         format = VFORMAT_AVS;
         break;
+	case CODEC_ID_VP9:
+		format = VFORMAT_VP9;
+		break;
     default:
         format = VFORMAT_UNSUPPORT;
         log_print("video_type_convert failed:unsupport video,codec_id=0x%x\n", id);
@@ -382,9 +385,12 @@ vdec_type_t video_codec_type_convert(unsigned int id)
         log_print("[video_codec_type_convert]VIDEO_DEC_FORMAT_AVS(0x%x)\n", id);
         dec_type = VIDEO_DEC_FORMAT_AVS;
         break;
-
+     case  CODEC_ID_VP9:
+        log_print("[video_codec_type_convert]VIDEO_DEC_FORMAT_VP9(0x%x)\n", id);
+        dec_type = VIDEO_DEC_FORMAT_VP9;
+        break;
     default:
-        log_print("[video_codec_type_convert]error:VIDEO_TYPE_UNKNOW  id = 0x%x\n", id);
+        log_print("1aa[video_codec_type_convert]error:VIDEO_TYPE_UNKNOW  id = 0x%x\n", id);
         dec_type = VIDEO_DEC_FORMAT_UNKNOW;
         break;
     }
@@ -2106,6 +2112,14 @@ int set_header_info(play_para_t *para)
                  && para->file_type != STREAM_FILE) {
                 if (!(para->p_pkt->avpkt->flags & AV_PKT_FLAG_ISDECRYPTINFO)){
                     ret = hevc_update_frame_header(pkt);
+                    if (ret != PLAYER_SUCCESS) {
+                        return ret;
+                    }
+                }
+            } else if (para->vstream_info.video_format == VFORMAT_VP9
+                       && para->file_type != STREAM_FILE) {
+                if (!(para->p_pkt->avpkt->flags & AV_PKT_FLAG_ISDECRYPTINFO)) {
+                    ret = vp9_update_frame_header(pkt);
                     if (ret != PLAYER_SUCCESS) {
                         return ret;
                     }

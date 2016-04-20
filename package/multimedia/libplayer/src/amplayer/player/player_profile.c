@@ -110,6 +110,31 @@ static int parse_hevc_param(char *str, sys_hevc_profile_t *para, int size)
     return 0;
 }
 
+static int parse_vp9_param(char *str, sys_hevc_profile_t *para, int size)
+{
+    para->exist = 1;
+
+    log_info("vp9 decoder exist.");
+
+    if (strstr(str, "4k")) {
+        para->support4k = 1;
+    }
+    if (strstr(str, "9bit")) {
+        para->support_9bit = 1;
+    }
+    if (strstr(str, "10bit")) {
+        para->support_10bit = 1;
+    }
+    if (strstr(str, "dwrite")) {
+        para->support_dwwrite = 1;
+    }
+    if (strstr(str, "compressed")) {
+        para->support_compressed = 1;
+    }
+    return 0;
+}
+
+
 static int parse_real_param(char *str, sys_real_profile_t *para, int size)
 {
     return 0;
@@ -167,6 +192,8 @@ static int parse_param(char *str, char **substr, int size, vdec_profile_t *para)
         parse_h264_param(str, &para->h264_para, size);
     } else if (!strcmp(*substr, "hevc:")) {
         parse_hevc_param(str, &para->hevc_para, size);
+    } else if (!strcmp(*substr, "vp9:")) {
+        parse_vp9_param(str, &para->vp9_para, size);
     } else if (!strcmp(*substr, "real:")) {
         parse_real_param(str, &para->real_para, size);
     } else if (!strcmp(*substr, "mpeg12:")) {
@@ -179,7 +206,7 @@ static int parse_param(char *str, char **substr, int size, vdec_profile_t *para)
         parse_h264_4k2k_param(str, &para->h264_4k2k_para, size);
     } else if (!strcmp(*substr, "hmvc:")) {
         parse_hmvc_param(str, &para->hmvc_para, size);
-    }else if (!strcmp(*substr, "avs:")) {
+    } else if (!strcmp(*substr, "avs:")) {
         parse_avs_param(str, &para->avs_para, size);
     }
     return 0;
@@ -190,7 +217,8 @@ static int parse_sysparam_str(vdec_profile_t *m_vdec_profiles, char *str)
     int i, j;
     int pos_start, pos_end;
     char *p;
-    char *substr[] = {"vc1:", "h264:", "real:", "mpeg12:", "mpeg4:", "mjpeg:", "h264_4k2k:", "hmvc:", "hevc:", "avs:"};
+    char *substr[] = {"vc1:", "h264:", "real:", "mpeg12:", "mpeg4:", "mjpeg:",
+         "h264_4k2k:", "hmvc:", "hevc:", "avs:","vp9:"};
     for (j = 0; j < sizeof(substr) / sizeof(char *); j ++) {
         char line[256];
         int line_len=0;

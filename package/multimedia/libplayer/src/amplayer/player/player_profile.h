@@ -20,6 +20,16 @@ typedef struct {
 } sys_hevc_profile_t;
 
 typedef struct {
+    int exist;
+    int support4k;
+    int support_9bit;
+    int support_10bit;
+    int support_dwwrite;
+    int support_compressed;
+} sys_vp9_profile_t;
+
+
+typedef struct {
     int progressive_enable;
     int interlace_enable;
     int wmv1_enable;
@@ -60,6 +70,7 @@ typedef struct {
 typedef struct _system_para_ {
     sys_h264_profile_t      h264_para;
     sys_hevc_profile_t      hevc_para;
+    sys_vp9_profile_t       vp9_para;
     sys_vc1_profile_t       vc1_para;
     sys_real_profile_t      real_para;
     sys_mpeg12_profile_t    mpeg12_para;
