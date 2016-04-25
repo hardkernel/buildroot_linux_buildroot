@@ -5,10 +5,10 @@ outputmode=$(cat /sys/class/display/mode)
 hpdstate=$(cat /sys/class/amhdmitx/amhdmitx0/hpd_state)
 old_state=$hpdstate
 
-# outputmode=720p
+# outputmode=720p60hz
 #if [ "$hpdstate" = "1" ]; then
 #	if [ "$outputmode" = "480cvbs" -o "$outputmode" = "576cvbs" ] ; then
-#    outputmode=720p
+#    outputmode=720p60hz
 #  fi
 #else
 #	if [ "$outputmode" != "480cvbs" -a "$outputmode" != "576cvbs" ] ; then
@@ -51,8 +51,8 @@ echo 1 > /sys/class/graphics/fb0/freescale_mode
 		;;
  
 		*)
-		#outputmode= 720p
-		echo 720p > /sys/class/display/mode  
+		#outputmode= 720p60hz
+		echo 720p60hz > /sys/class/display/mode  
 		echo 0 0 1279 719 > /sys/class/graphics/fb0/free_scale_axis
 		echo 0 0 1279 719 > /sys/class/graphics/fb0/window_axis 
 
