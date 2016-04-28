@@ -1,6 +1,6 @@
 #!/usr/bin/awk
 BEGIN{
-    output_mode = "720p"
+    output_mode = "720p60hz"
 }
 /\*/{
     output_mode = $0
