@@ -3,8 +3,16 @@
 #export CC BUILD_DIR STAGING_DIR TARGET_DIR
 all:
 	mkdir -p $(shell pwd)/../../staging/usr/lib/libplayer
-	-$(MAKE) -C amffmpeg all
+	-$(MAKE) -C amadec all
+	-$(MAKE) -C amadec install
+	-$(MAKE) -C amavutils all		
+	-$(MAKE) -C amavutils install
+	-$(MAKE) -C amffmpeg all		
 	-$(MAKE) -C amffmpeg install
+	-$(MAKE) -C amcodec all
+	-$(MAKE) -C amcodec install	
+	-$(MAKE) -C audio_codec all
+	-$(MAKE) -C audio_codec install
 	-$(MAKE) -C amplayer all
 	-$(MAKE) -C amplayer install
 	-$(MAKE) -C streamsource all

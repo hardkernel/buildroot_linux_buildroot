@@ -11,8 +11,8 @@ INSTALL_DIR=${LIB_DIR}/libplayer/
 TOPDIR=$(shell pwd)
 SRC?=$(TOPDIR)
 CFLAGS+=-O2 -fPIC
-CFLAGS+=-I$(STAGING_DIR)/usr/include/curl -I$(SRC)/../include -I$(SRC)/../../../amffmpeg/  -I$(SRC)/../../../amffmpeg/$(wildcard libavformat/*.h) -I$(TOP)/multimedia/aml_libs/amavutils/include 
-LDFLAGS +=-L$(M_PREFIX)/lib/libplayer -lavutil -lavformat -lavcodec -lm -lz -lpthread -lamcodec -ldl -lamplayer -lamadec -lasound -lamstreaming  -L$(STAGING_DIR)/usr/lib/aml_libs -lamavutils -lrt -lstdc++ -lcurl 
+CFLAGS+=-I$(STAGING_DIR)/usr/include/curl -I$(SRC)/../include -I$(SRC)/../../../amffmpeg/  -I$(SRC)/../../../amffmpeg/$(wildcard libavformat/*.h) -I$(SRC)/../../../amavutils/include 
+LDFLAGS +=-L$(M_PREFIX)/lib/libplayer -lavutil -lavformat -lavcodec -lm -lz -lpthread -lamcodec -ldl -lamplayer -lamadec -lasound -lamstreaming  -lamavutils -lrt -lstdc++ -lcurl 
 
 export CC CFLAGS  LIBMOD_DIR
 

@@ -13,7 +13,7 @@ SRC?=$(TOPDIR)
 
 CFLAGS+=-O2 -fPIC
 CFLAGS+= -I$(SRC)/../include -I$(SRC)/../../../amffmpeg/ -I$(SRC)/../../../amffmpeg/libavutil/ 
-LDFLAGS+= -L$(PREFIX)/lib/libplayer -lavutil -lavformat -lavcodec -lm -lz -lpthread -lamcodec -ldl -lamplayer -lamadec -lasound -lamstreaming -L$(STAGING_DIR)/usr/lib/aml_libs -lamavutils -lrt -lstdc++ -lcurl 
+LDFLAGS+= -L$(PREFIX)/lib/libplayer -lavutil -lavformat -lavcodec -lm -lz -lpthread -lamcodec -ldl -lamplayer -lamadec -lasound -lamstreaming  -lamavutils -lrt -lstdc++ -lcurl 
 AR =$(STAGING_DIR)/../../bin/arm-linux-gnueabihf-ar
 export CC CFLAGS
 all: $(TARGET) 
