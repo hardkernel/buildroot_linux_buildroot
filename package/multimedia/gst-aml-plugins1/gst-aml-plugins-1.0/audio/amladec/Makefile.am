@@ -19,7 +19,7 @@ libgstamladec_la_SOURCES = gstamladec.c gstamladec.h amlaudioinfo.c
 # compiler and linker flags used to compile this plugin, set in configure.ac
 libgstamladec_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
 libgstamladec_la_LIBADD = $(GST_LIBS) -lgstaudio-1.0
-libgstamladec_la_LIBADD += ../../common/libcommon.a -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils
+libgstamladec_la_LIBADD += ../../common/libcommon.a -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils -lamplayer
 libgstamladec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamladec_la_LIBTOOLFLAGS = --tag=disable-static
 

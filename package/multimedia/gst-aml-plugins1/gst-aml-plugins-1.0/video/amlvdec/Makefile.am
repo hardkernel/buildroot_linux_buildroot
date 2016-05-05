@@ -19,7 +19,7 @@ libgstamlvdec_la_SOURCES = gstamlvdec.c gstamlvdec.h  amlvideoinfo.c
 # compiler and linker flags used to compile this plugin, set in configure.ac
 libgstamlvdec_la_CFLAGS = $(GST_CFLAGS) -I ../../common/amlsysctl -I../../common/amstreaminfo
 libgstamlvdec_la_LIBADD = $(GST_LIBS) -lgstvideo-1.0 
-libgstamlvdec_la_LIBADD += ../../common/libcommon.a  -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils
+libgstamlvdec_la_LIBADD += ../../common/libcommon.a  -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils -lamplayer
 libgstamlvdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamlvdec_la_LIBTOOLFLAGS = --tag=disable-static
 

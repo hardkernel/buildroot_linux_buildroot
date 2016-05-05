@@ -20,7 +20,7 @@ libgstamlasink_la_SOURCES = gstamlasink.c gstamlasink.h amlasink_prop.c amlasink
 libgstamlasink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
 libgstamlasink_la_LIBADD = $(GST_LIBS) -lgstaudio-1.0
 libgstamlasink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstamlasink_la_LIBADD += ../../common/libcommon.a -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils 
+libgstamlasink_la_LIBADD += ../../common/libcommon.a -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils -lamplayer
 libgstamlasink_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
