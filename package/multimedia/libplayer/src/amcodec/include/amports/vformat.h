@@ -52,6 +52,8 @@ typedef enum {
     VIDEO_DEC_FORMAT_H264_4K2K,
     VIDEO_DEC_FORMAT_HEVC,
     VIDEO_DEC_FORMAT_VP9 ,
+    VIDEO_DEC_FORMAT_VP6F,
+    VIDEO_DEC_FORMAT_VP8,
     VIDEO_DEC_FORMAT_MAX
 } vdec_type_t;
 
@@ -72,6 +74,7 @@ typedef enum {
     VFORMAT_H264_ENC,
     VFORMAT_JPEG_ENC,
     VFORMAT_VP9,
+    VFORMAT_SWCODEC, //add
 
 /*add new here before.*/
     VFORMAT_MAX,

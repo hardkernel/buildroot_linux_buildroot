@@ -33,7 +33,7 @@ all: ${TARGET}
 	mkdir -p $(TARGET_DIR)/../lib/firmware
 install:all
 	install $(INSTALL_FLAGS) $(TARGET) $(TARGET_DIR)/bin
-	cp -rf $(LIB_DIR)/*.so $(TARGET_DIR)/lib
+	cp -rf $(LIB_DIR)/*.so* $(TARGET_DIR)/lib
       
 distclean:clean
     

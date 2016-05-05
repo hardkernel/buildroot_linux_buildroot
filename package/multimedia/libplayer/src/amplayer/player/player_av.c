@@ -67,6 +67,7 @@ static const media_type media_array[] = {
     {"amr", AMR_FILE, STREAM_AUDIO},
     {"rtp", STREAM_FILE, STREAM_ES},
     {"dash", MP4_FILE, STREAM_ES},
+	 {"matroska,webm", WEBM_FILE, STREAM_ES},
 };
 
 aformat_t audio_type_convert(enum CodecID id, pfile_type File_type)
@@ -225,7 +226,8 @@ vformat_t video_type_convert(enum CodecID id)
         break;
 
     case CODEC_ID_VP6F:
-        format = VFORMAT_SW;
+	case CODEC_ID_VP8:
+        format = VFORMAT_SWCODEC;
         break;
 
     case CODEC_ID_CAVS:
@@ -376,7 +378,12 @@ vdec_type_t video_codec_type_convert(unsigned int id)
 
     case CODEC_ID_VP6F:
         log_print("[video_codec_type_convert]VIDEO_DEC_FORMAT_SW(0x%x)\n", id);
-        dec_type = VIDEO_DEC_FORMAT_SW;
+        dec_type = VIDEO_DEC_FORMAT_VP6F;
+        break;
+
+	case CODEC_ID_VP8:
+        log_print("[video_codec_type_convert]VIDEO_DEC_FORMAT_SW(0x%x)\n", id);
+        dec_type = VIDEO_DEC_FORMAT_VP8;
         break;
 
     case CODEC_ID_CAVS:
@@ -1855,7 +1862,14 @@ int write_av_packet(play_para_t *para)
 					return PLAYER_SUCCESS;
 				}
 			}
-            write_bytes = codec_write(pkt->codec, (char *)buf, size);
+
+			if(pkt->codec->video_type == VFORMAT_SWCODEC)
+				write_bytes = codec_write_swcodec(pkt->codec, pkt->avpkt);
+            else
+                write_bytes = codec_write(pkt->codec, (char *)buf, size);
+			
+			//log_print("codec_write size:%d write_bytes:%d\n", size, write_bytes);
+			
             if (write_bytes < 0 || write_bytes > size) {
                 if (-errno != AVERROR(EAGAIN)) {
                     para->playctrl_info.check_lowlevel_eagain_cnt = 0;

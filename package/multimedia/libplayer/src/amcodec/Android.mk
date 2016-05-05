@@ -5,6 +5,7 @@ LOCAL_SRC_FILES := \
 	codec/codec_ctrl.c \
 	codec/codec_h_ctrl.c \
 	codec/codec_msg.c \
+	codec/codec_sw_decoder.c \
 	audio_ctl/audio_ctrl.c
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
@@ -25,6 +26,7 @@ LOCAL_SRC_FILES := \
 	codec/codec_ctrl.c \
 	codec/codec_h_ctrl.c \
 	codec/codec_msg.c \
+	codec/codec_sw_decoder.c \
 	audio_ctl/audio_ctrl.c
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/codec $(LOCAL_PATH)/audio_ctl $(LOCAL_PATH)/../amadec/include 

@@ -48,7 +48,9 @@ int codec_audio_reinit(codec_para_t *pcodec);
 int codec_set_dec_reset(codec_para_t *pcodec);
 
 int codec_write(codec_para_t *pcodec, void *buffer, int len);
+int codec_write_swcodec(codec_para_t *pcodec, AVPacket *avpkt);
 int codec_checkin_pts(codec_para_t *pcodec, unsigned long pts);
+int codec_checkin_video_ratio(float ratio);
 int codec_get_vbuf_state(codec_para_t *, struct buf_status *);
 int codec_get_abuf_state(codec_para_t *, struct buf_status *);
 int codec_get_vdec_state(codec_para_t *, struct vdec_status *);

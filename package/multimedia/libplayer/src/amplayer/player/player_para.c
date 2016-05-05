@@ -160,6 +160,7 @@ static void get_av_codec_type(play_para_t *p_para)
     if (video_index != -1) {
         pStream = pFormatCtx->streams[video_index];
         pCodecCtx = pStream->codec;
+		p_para->vstream_info.codec_id = pCodecCtx->codec_id;
         p_para->vstream_info.video_format   = video_type_convert(pCodecCtx->codec_id);
         if (pFormatCtx->drmcontent) {
             log_print("[%s:%d]DRM content found, not support yet.\n", __FUNCTION__, __LINE__);
@@ -204,7 +205,7 @@ static void get_av_codec_type(play_para_t *p_para)
                 }
             }
         } else if (p_para->vstream_info.video_format == VFORMAT_SW) {
-            p_para->vstream_info.has_video = 0;
+            p_para->vstream_info.has_video = 1;
         } else if (p_para->vstream_info.video_format == VFORMAT_MPEG4) {
             int wrap_points = (pCodecCtx->mpeg4_vol_sprite >> 16) & 0xffff;
             int vol_sprite = pCodecCtx->mpeg4_vol_sprite & 0xffff;
@@ -239,6 +240,8 @@ static void get_av_codec_type(play_para_t *p_para)
             if (0 != pStream->time_base.den) {
                 p_para->vstream_info.video_duration = ((float)pStream->time_base.num / pStream->time_base.den) * UNIT_FREQ;
                 p_para->vstream_info.video_pts      = ((float)pStream->time_base.num / pStream->time_base.den) * PTS_FREQ;
+
+				codec_checkin_video_ratio(p_para->vstream_info.video_pts);
             }
             p_para->vstream_info.video_width    = pCodecCtx->width;
             p_para->vstream_info.video_height   = pCodecCtx->height;
