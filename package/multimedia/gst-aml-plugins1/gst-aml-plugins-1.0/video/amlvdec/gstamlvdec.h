@@ -69,6 +69,12 @@ G_BEGIN_DECLS
 #define GST_IS_AMLVDEC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLVDEC))
 
+#define AMLDEC_FLAG  (1<<16)
+
+typedef struct {
+    guint32 flag[2];
+} amdec_flag_t, *amdec_flag_p;
+
 typedef struct _GstAmlVdec      GstAmlVdec;
 typedef struct _GstAmlVdecClass GstAmlVdecClass;
 

@@ -128,7 +128,7 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-	GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("xRGB"))
+	GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("I420"))
     );
 
 
@@ -428,7 +428,7 @@ static gboolean gst_aml_vdec_set_format(GstVideoDecoder *dec, GstVideoCodecState
 		ret = gst_set_vstream_info(amlvdec, state->caps);
 		if (!amlvdec->output_state) {
 			info = &amlvdec->input_state->info;
-			fmt = GST_VIDEO_FORMAT_xRGB;
+			fmt = GST_VIDEO_FORMAT_I420;//GST_VIDEO_FORMAT_xRGB;
 			GST_VIDEO_INFO_WIDTH (info) = amlvdec->pcodec->am_sysinfo.width;
 			GST_VIDEO_INFO_HEIGHT (info) = amlvdec->pcodec->am_sysinfo.height;
 			par_num = GST_VIDEO_INFO_PAR_N(info);
@@ -451,7 +451,8 @@ gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame)
 	GstBuffer *outbuffer;
 	GstFlowReturn ret;
 	GstVideoCodecState *state;
-
+      GstMapInfo map;
+	 amdec_flag_p amflag;
 	GST_DEBUG_OBJECT(dec, "%s %d", __FUNCTION__, __LINE__);
 
 	if (G_UNLIKELY(!frame))
@@ -466,9 +467,9 @@ gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame)
 	}
 
 	gst_aml_vdec_decode(amlvdec, frame->input_buffer);
+      GST_BUFFER_FLAG_SET(frame->output_buffer,(1<<16));
 	gst_video_decoder_finish_frame(dec, frame);
-//	gst_video_codec_frame_unref(frame);
-//	gst_video_decoder_release_frame(dec, frame);
+
 	ret = GST_FLOW_OK;
 done:
 	return ret;

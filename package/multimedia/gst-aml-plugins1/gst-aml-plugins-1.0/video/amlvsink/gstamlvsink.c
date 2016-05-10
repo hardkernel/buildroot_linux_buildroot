@@ -3,8 +3,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #include "gstamlvsink.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_aml_vsink_debug);
@@ -34,16 +35,12 @@ static void gst_aml_vsink_set_property (GObject * object, guint prop_id, const G
 static void gst_aml_vsink_get_property (GObject * object, guint prop_id, GValue * value, GParamSpec * pspec);
 static GstStateChangeReturn gst_aml_vsink_change_state (GstElement * element, GstStateChange transition);
 
-#define VIDEO_CAPS "{ xRGB }"
+#define VIDEO_CAPS "{ I420 }"
 
 static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("video/x-raw, "
-    	    "format = (string) { xRGB }, "
-    	    "width = " GST_VIDEO_SIZE_RANGE ", "
-    	    "height = " GST_VIDEO_SIZE_RANGE ", "
-    	    "framerate = " GST_VIDEO_FPS_RANGE )
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE(VIDEO_CAPS))
     );
 
 #define parent_class gst_aml_vsink_parent_class
@@ -77,9 +74,9 @@ gst_aml_vsink_class_init (GstAmlVsinkClass * klass)
   videosink_class->show_frame = GST_DEBUG_FUNCPTR (gst_aml_vsink_show_frame);
 
   gst_element_class_set_static_metadata (gstelement_class,
-		  "Amlogic Fake Video Sink",
+		  "Amlogic Video Sink",
 		  "Sink/Video",
-		  "Amlogic fake videosink",
+		  "Amlogic videosink",
 		  "mm@amlogic.com>");
 
   gst_element_class_add_pad_template (gstelement_class,
@@ -91,11 +88,163 @@ gst_aml_vsink_init (GstAmlVsink * amlvsink)
 {
 	GstVideoSink *bsink;
 	bsink = GST_VIDEO_SINK (amlvsink);
-     gst_base_sink_set_sync (GST_BASE_SINK (amlvsink), FALSE);
-     gst_base_sink_set_async_enabled (GST_BASE_SINK(amlvsink), FALSE);
+	gst_base_sink_set_sync(GST_BASE_SINK(amlvsink), TRUE);
+	gst_base_sink_set_async_enabled(GST_BASE_SINK(amlvsink), FALSE);
+	amlvsink->amvideo_dev = NULL;
+	amlvsink->framerate_d = 1;
+	amlvsink->framerate_n = 0;
+
+	amlvsink->height = -1;
+	amlvsink->align_width = -1;
+	amlvsink->mIonFd = 0;
+	amlvsink->mOutBuffer = NULL;
+	amlvsink->use_yuvplayer = 0;
+#if DEBUG_DUMP
+	amlvsink->dump_fd = open("/tmp/gst_aml_vsink.dump", O_CREAT | O_TRUNC | O_WRONLY, 0777);
+#endif
+}
+
+int AllocDmaBuffers(GstAmlVsink *amlvsink)
+{
+	struct ion_handle *ion_hnd;
+	int shared_fd;
+	int ret = 0;
+	int buffer_size;
+	buffer_size = amlvsink->align_width * amlvsink->height * 3 / 2;
+	amlvsink->mIonFd = ion_open();
+	if (amlvsink->mIonFd < 0) {
+		GST_ERROR("ion open failed!\n");
+		return -1;
+	}
+	int i = 0;
+	while (i < OUT_BUFFER_COUNT) {
+		unsigned int ion_flags = ION_FLAG_CACHED | ION_FLAG_CACHED_NEEDS_SYNC;
+		ret = ion_alloc(amlvsink->mIonFd, buffer_size, 0, ION_HEAP_CARVEOUT_MASK, ion_flags, &ion_hnd);
+		if (ret) {
+			GST_ERROR("ion alloc error");
+			ion_close(amlvsink->mIonFd);
+			return -1;
+		}
+		ret = ion_share(amlvsink->mIonFd, ion_hnd, &shared_fd);
+		if (ret) {
+			GST_ERROR("ion share error!\n");
+			ion_free(amlvsink->mIonFd, ion_hnd);
+			ion_close(amlvsink->mIonFd);
+			return -1;
+		}
+		void *cpu_ptr = mmap(NULL, buffer_size, PROT_READ | PROT_WRITE, MAP_SHARED, shared_fd, 0);
+		if (MAP_FAILED == cpu_ptr) {
+			GST_ERROR("ion mmap error!\n");
+			ion_free(amlvsink->mIonFd, ion_hnd);
+			ion_close(amlvsink->mIonFd);
+			return -1;
+		}
+
+		GST_INFO("[%s %d] i:%d shared_fd:%d cpu_ptr:%x\n", __FUNCTION__, __LINE__, i, shared_fd, cpu_ptr);
+
+		amlvsink->mOutBuffer[i].index = i;
+		amlvsink->mOutBuffer[i].fd = shared_fd;
+		amlvsink->mOutBuffer[i].pBuffer = NULL;
+		amlvsink->mOutBuffer[i].own_by_v4l = -1;
+		amlvsink->mOutBuffer[i].fd_ptr = cpu_ptr;
+		amlvsink->mOutBuffer[i].ion_hnd = ion_hnd;
+		i++;
+	}
+	return ret;
+}
+
+int FreeDmaBuffers(GstAmlVsink *amlvsink)
+{
+	int i = 0;
+	int buffer_size;
+	buffer_size = amlvsink->align_width * amlvsink->height * 3 / 2;
+	while (i < OUT_BUFFER_COUNT) {
+		munmap(amlvsink->mOutBuffer[i].fd_ptr, buffer_size);
+		close(amlvsink->mOutBuffer[i].fd);
+		GST_INFO("FreeDmaBuffers_mOutBuffer[i].fd=%d,mIonFd=%d\n", amlvsink->mOutBuffer[i].fd, amlvsink->mIonFd);
+		ion_free(amlvsink->mIonFd, amlvsink->mOutBuffer[i].ion_hnd);
+		i++;
+	}
+	int ret = ion_close(amlvsink->mIonFd);
+	return ret;
 }
 
 
+static gboolean gst_aml_vsink_yuvplayer_init(GstAmlVsink *amlvsink)
+{
+	int ret, i;
+	vframebuf_t vf;
+	amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+	amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default yuvplayer amvideo");
+	amsysfs_set_sysfs_str("/sys/class/graphics/fb0/blank", "1");
+	amsysfs_set_sysfs_str("/sys/class/graphics/fb1/blank", "1");
+
+	amlvsink->mOutBuffer = (out_buffer_t *) malloc(sizeof(out_buffer_t) * OUT_BUFFER_COUNT);
+	memset(amlvsink->mOutBuffer, 0, sizeof(out_buffer_t) * OUT_BUFFER_COUNT);
+	AllocDmaBuffers(amlvsink);
+	amlvsink->amvideo_dev = new_amvideo(FLAGS_V4L_MODE);
+	amlvsink->amvideo_dev->display_mode = 0;
+
+	ret = amvideo_init(amlvsink->amvideo_dev, 0, amlvsink->align_width, amlvsink->height, V4L2_PIX_FMT_YUV420,
+			OUT_BUFFER_COUNT);
+	if (ret < 0) {
+		GST_ERROR("amvideo_init failed =%d\n", ret);
+		amvideo_release(amlvsink->amvideo_dev);
+		amlvsink->amvideo_dev = NULL;
+		return -__LINE__;
+	}
+	i = 0;
+	while (i < OUT_BUFFER_COUNT) {
+		vf.index = amlvsink->mOutBuffer[i].index;
+		vf.fd = amlvsink->mOutBuffer[i].fd;
+		vf.length = amlvsink->align_width * amlvsink->height * 3 / 2;
+
+		memset(amlvsink->mOutBuffer[i].fd_ptr, 0x0, amlvsink->align_width * amlvsink->height);
+		memset(amlvsink->mOutBuffer[i].fd_ptr + amlvsink->align_width * amlvsink->height, 0x80,
+				amlvsink->align_width * amlvsink->height / 2);
+
+		int ret = amlv4l_queuebuf(amlvsink->amvideo_dev, &vf);
+		if (ret < 0) {
+			GST_ERROR("amlv4l_queuebuf failed =%d\n", ret);
+		}
+
+		if (i == 1) {
+			ret = amvideo_start(amlvsink->amvideo_dev);
+			GST_INFO("amvideo_start ret=%d\n", ret);
+			if (ret < 0) {
+				GST_ERROR("amvideo_start failed =%d\n", ret);
+				amvideo_release(amlvsink->amvideo_dev);
+				amlvsink->amvideo_dev = NULL;
+			}
+		}
+		i++;
+	}
+	amlvsink->use_yuvplayer = 1;
+	return TRUE;
+}
+
+static gboolean gst_aml_vsink_yuvplayer_deinit(GstAmlVsink *amlvsink)
+{
+	vframebuf_t vf;
+	int i;
+	for (i = 0; i < OUT_BUFFER_COUNT; i++) {
+		amlv4l_dequeuebuf(amlvsink->amvideo_dev, &vf);
+	}
+
+	if (amlvsink->amvideo_dev) {
+		amvideo_stop(amlvsink->amvideo_dev);
+		amvideo_release(amlvsink->amvideo_dev);
+		amlvsink->amvideo_dev = NULL;
+	}
+	amsysfs_set_sysfs_str("/sys/class/graphics/fb0/blank", "0");
+	amsysfs_set_sysfs_str("/sys/class/graphics/fb1/blank", "0");
+	amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+	amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder ppmgr deinterlace amvideo");
+
+	FreeDmaBuffers(amlvsink);
+	amlvsink->use_yuvplayer = 0;
+	return TRUE;
+}
 static void
 gst_aml_vsink_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
@@ -133,6 +282,9 @@ gst_aml_vsink_finalize (GObject * object)
   GstAmlVsink *amlvsink = GST_AMLVSINK (object);
   GST_DEBUG_OBJECT(amlvsink, "%s", __FUNCTION__);
   G_OBJECT_CLASS (parent_class)->finalize (object);
+  if (amlvsink->use_yuvplayer) {
+	  gst_aml_vsink_yuvplayer_deinit(amlvsink);
+  }
 }
 
 static GstStateChangeReturn
@@ -185,6 +337,11 @@ gst_aml_vsink_setcaps (GstBaseSink * bsink, GstCaps * vscapslist)
   amlvsink = GST_AMLVSINK (bsink);
   GST_DEBUG_OBJECT(amlvsink, "%s", __FUNCTION__);
   structure = gst_caps_get_structure (vscapslist, 0);
+  gst_structure_get_int(structure, "width", &amlvsink->width);
+  gst_structure_get_int(structure, "height", &amlvsink->height);
+  gst_structure_get_fraction(structure, "framerate", &amlvsink->framerate_n, &amlvsink->framerate_d);
+  amlvsink->align_width = (amlvsink->width + 31) & (~31);
+  amlvsink->yuv_width = (amlvsink->width + 15) & (~15);
   return TRUE;
 }
 
@@ -200,7 +357,7 @@ gst_aml_vsink_getcaps (GstBaseSink * bsink, GstCaps * filter)
   caps = gst_static_pad_template_get_caps (&sink_template);
 
 
-  format = GST_VIDEO_FORMAT_xRGB;
+  format = GST_VIDEO_FORMAT_I420;
   caps = gst_caps_make_writable (caps);
   gst_caps_set_simple (caps, "format", G_TYPE_STRING,
       gst_video_format_to_string (format), NULL);
@@ -241,16 +398,92 @@ static GstFlowReturn
 gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 {
 
-  GstAmlVsink *amlvsink;
-  amlvsink = GST_AMLVSINK (videosink);
-  GST_DEBUG_OBJECT(amlvsink, "%s %llu", __FUNCTION__, GST_BUFFER_TIMESTAMP (buf));
-  return GST_FLOW_OK;
+	GstAmlVsink *amlvsink;
+	vframebuf_t vf;
+	GstMapInfo map;
+	int ret;
+	void *cpu_ptr = NULL;
+	amlvsink = GST_AMLVSINK(videosink);
+	GST_DEBUG_OBJECT(amlvsink, "%s %llu", __FUNCTION__, GST_BUFFER_TIMESTAMP (buf));
+		
+	if(GST_BUFFER_FLAG_IS_SET(buf,(1<<16))){
+         g_print("AMDEC FLAG SET\n");	
+	}else if(amlvsink->use_yuvplayer == 0) {
+	    gst_aml_vsink_yuvplayer_init(amlvsink);
+		g_print("yuvplayer\n");	
+	}
+	if (amlvsink->use_yuvplayer) {
+		gst_buffer_map(buf, &map, GST_MAP_READ);
+		ret = amlv4l_dequeuebuf(amlvsink->amvideo_dev, &vf);
+		if (ret >= 0) {
+			int j, i = 0;
+			while (i < OUT_BUFFER_COUNT) {
+				if (vf.fd == amlvsink->mOutBuffer[i].fd) {
+					cpu_ptr = amlvsink->mOutBuffer[i].fd_ptr;
+					break;
+				}
+				i++;
+			}
+			//		output_frame_count++;
+
+			vf.index = amlvsink->mOutBuffer[i].index;
+			vf.fd = amlvsink->mOutBuffer[i].fd;
+			vf.length = amlvsink->align_width * amlvsink->height * 3 / 2;
+			vf.pts = GST_BUFFER_TIMESTAMP (buf) * 9LL / 100000LL + 1L;
+#if 0	//workaround for pts issue
+			vf.pts = vf.pts * 9LL / 10LL;
+#endif
+			vf.width = amlvsink->align_width;
+			vf.height = amlvsink->height;
+
+			for (j = 0; j < amlvsink->height; j++) {
+				memcpy(cpu_ptr + amlvsink->align_width * j, map.data + j * amlvsink->width, amlvsink->width);
+				memset(cpu_ptr + amlvsink->align_width * j + amlvsink->width, 0,
+						amlvsink->align_width - amlvsink->width);
+			}
+
+			for (j = 0; j < amlvsink->height / 2; j++) {
+				memcpy(cpu_ptr + amlvsink->align_width * amlvsink->height + amlvsink->align_width * j / 2,
+						map.data + amlvsink->width * amlvsink->height + j * amlvsink->yuv_width / 2,
+						amlvsink->yuv_width / 2);
+				memset(
+						cpu_ptr + amlvsink->align_width * amlvsink->height + amlvsink->align_width * j / 2
+								+ amlvsink->width / 2, 0x80, (amlvsink->align_width - amlvsink->width) / 2);
+			}
+
+			for (j = 0; j < amlvsink->height / 2; j++) {
+				memcpy(
+						cpu_ptr + amlvsink->align_width * amlvsink->height
+								+ amlvsink->align_width * amlvsink->height / 4 + amlvsink->align_width * j / 2,
+						map.data + amlvsink->width * amlvsink->height + amlvsink->yuv_width * amlvsink->height / 4
+								+ j * amlvsink->yuv_width / 2, amlvsink->width / 2);
+				memset(
+						cpu_ptr + amlvsink->align_width * amlvsink->height
+								+ amlvsink->align_width * amlvsink->height / 4 + amlvsink->align_width * j / 2
+								+ amlvsink->width / 2, 0x80, (amlvsink->align_width - amlvsink->width) / 2);
+			}
+
+#if DEBUG_DUMP
+			if (amlvsink->dump_fd > 0) {
+				write(amlvsink->dump_fd, cpu_ptr, amlvsink->align_width * amlvsink->height * 3 / 2);
+			}
+#endif
+
+			ret = amlv4l_queuebuf(amlvsink->amvideo_dev, &vf);
+			if (ret < 0) {
+				GST_ERROR("amlv4l_queuebuf failed =%d\n", ret);
+			}
+		}
+		gst_buffer_unmap(buf, &map);
+	}
+	
+	return GST_FLOW_OK;
 }
 
 static gboolean
 amlvsink_init (GstPlugin * plugin)
 {
-	GST_DEBUG_CATEGORY_INIT(gst_aml_vsink_debug, "amlvsink", 0, "Amlogic Fake Video Sink");
+	GST_DEBUG_CATEGORY_INIT(gst_aml_vsink_debug, "amlvsink", 0, "Amlogic Video Sink");
 	return gst_element_register(plugin, "amlvsink", GST_RANK_SECONDARY, GST_TYPE_AMLVSINK);
 }
 
@@ -262,7 +495,7 @@ amlvsink_init (GstPlugin * plugin)
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
     amlvsink,
-    "Amlogic Fake Video Sink",
+    "Amlogic Video Sink",
     amlvsink_init,
 	VERSION,
 	"LGPL",

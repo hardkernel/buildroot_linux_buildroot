@@ -17,8 +17,9 @@ plugin_LTLIBRARIES = libgstamlvsink.la
 libgstamlvsink_la_SOURCES = gstamlvsink.c gstamlvsink.h  
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstamlvsink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo
+libgstamlvsink_la_CFLAGS = $(GST_CFLAGS) -I../../common/amlsysctl -I../../common/amstreaminfo  -I../../common/include -I../../common/include/yuvplayer 
 libgstamlvsink_la_LIBADD = $(GST_LIBS) -lgstvideo-1.0
+libgstamlvsink_la_LIBADD += -L$(TARGET_DIR)/usr/lib -lamcodec -lamadec -lamavutils -lamplayer
 libgstamlvsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstamlvsink_la_LIBADD += ../../common/libcommon.a
 libgstamlvsink_la_LIBTOOLFLAGS = --tag=disable-static
