@@ -64,7 +64,7 @@ typedef enum {
 
 } aformat_t;
 
-#define AUDIO_EXTRA_DATA_SIZE   (4096)
+#define AUDIO_EXTRA_DATA_SIZE   (8192)
 #define IS_AFMT_VALID(afmt)	((afmt > AFORMAT_UNKNOWN) && (afmt < AFORMAT_MAX))
     
 #define IS_AUIDO_NEED_EXT_INFO(afmt) ((afmt == AFORMAT_ADPCM) \
@@ -80,6 +80,7 @@ typedef enum {
 								 ||(afmt == AFORMAT_EAC3) \								 
 								 ||(afmt == AFORMAT_APE) \
 								 ||(afmt == AFORMAT_FLAC)\
+								 ||afmt == AFORMAT_VORBIS \
 								 ||(afmt == AFORMAT_PCM_WIFIDISPLAY))
 
 
@@ -91,7 +92,7 @@ typedef enum {
 #define IS_AUDIO_NOT_SUPPORT_EXCEED_FS48k(afmt) ((afmt == AFORMAT_WMAPRO))
 
 
-#define IS_AUIDO_NEED_PREFEED_HEADER(afmt) ((afmt == AFORMAT_VORBIS) )
+#define IS_AUIDO_NEED_PREFEED_HEADER(afmt) ((afmt == AFORMAT_UNSUPPORT) )
 #define IS_AUDIO_NOT_SUPPORTED_BY_AUDIODSP(afmt,codec)  \
 							((afmt == AFORMAT_AAC_LATM || afmt == AFORMAT_AAC) \
 							 &&codec->profile == 0/* FF_PROFILE_AAC_MAIN*/)

@@ -3,6 +3,8 @@
 gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 {
 	GValue *extra_data_buf = NULL;
+	GValue *headers = NULL;
+	guint i, num;
 	AmlAudioInfo *audio = AML_AUDIOINFO_BASE(info);
 
 	if (gst_structure_has_field(structure, "rate"))
@@ -14,12 +16,45 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 	pcodec->audio_info.channels = audio->channels;
      aml_dump_structure(structure);
 	if (gst_structure_has_field(structure, "codec_data")) {
-		extra_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");
+		extra_data_buf = (GValue *) gst_structure_get_value(structure, "streamheader");
 		if (extra_data_buf) {
 			info->configdata = gst_value_get_buffer(extra_data_buf);
 			AML_DUMP_BUFFER(info->configdata, "Audio Codec Data");
 		}
 	}
+	
+	if (gst_structure_has_field(structure, "streamheader")) {
+		 headers = gst_structure_get_value (structure, "streamheader");
+          if (headers == NULL || !GST_VALUE_HOLDS_ARRAY (headers)) {
+            GST_WARNING ( "no 'streamheader' field in input caps,\n");
+            return FALSE;
+          }
+        num = gst_value_array_get_size (headers);
+	   GST_WARNING ( "num=%d\n",num);	
+    
+
+    for (i = 0; i < num; ++i) {
+        const GValue *header_val;
+        GstBuffer *header_buf;
+
+        header_val = gst_value_array_get_value (headers, i);
+        if (header_val == NULL || !GST_VALUE_HOLDS_BUFFER (header_val))
+          return FALSE;
+	   if(i==0){
+	       info->configdata = gst_buffer_make_writable(gst_value_get_buffer(header_val));
+		  if(pcodec->audio_type == AFORMAT_VORBIS)
+		   	pcodec->audio_info.extradata[1] = gst_buffer_get_size (info->configdata );
+	   } else {
+	   	   header_buf = g_value_dup_boxed (header_val);
+		   if(pcodec->audio_type ==AFORMAT_VORBIS && i==1)
+		   	pcodec->audio_info.extradata[2] = gst_buffer_get_size (header_buf);
+                GST_WARNING ("pushing header buffer of %" G_GSIZE_FORMAT " bytes "
+              " into adapter", gst_buffer_get_size (header_buf));
+		   if(header_buf)
+	         gst_buffer_copy_into(info->configdata,header_buf,GST_BUFFER_COPY_MEMORY,0,-1);	     
+		}
+	  } 
+    }
 	 GST_WARNING("Audio: samplerate=%d channels=%d", audio->sample_rate, audio->channels);
 	 if(0 == pcodec->audio_info.channels)
 	 	pcodec->audio_info.channels = 2;
@@ -321,6 +356,27 @@ AmlStreamInfo * newAmlAinfoFlac()
 	return info;
 }
 
+gint vorbis_writeheader(AmlStreamInfo* info, codec_para_t *pcodec)
+{
+	GstMapInfo map;
+    if(info->configdata){
+    	gst_buffer_map(info->configdata, &map, GST_MAP_READ);
+        pcodec->audio_info.extradata_size = map.size;
+	   GST_WARNING("size=%d\n",pcodec->audio_info.extradata_size);
+        if (pcodec->audio_info.extradata_size > 0) {
+            if (pcodec->audio_info.extradata_size >  AUDIO_EXTRA_DATA_SIZE) {
+                GST_WARNING("[%s:%d],extra data size exceed max  extra data buffer,cut it to max buffer size ", __FUNCTION__, __LINE__);
+                pcodec->audio_info.extradata_size =  AUDIO_EXTRA_DATA_SIZE;
+            }
+		 pcodec->audio_info.extradata[0] = 0x02;
+            memcpy((char*)pcodec->audio_info.extradata+3, map.data, pcodec->audio_info.extradata_size);
+        }
+        gst_buffer_unmap(info->configdata, &map);
+    }
+	pcodec->audio_info.extradata_size= pcodec->audio_info.extradata_size +3;
+    pcodec->audio_info.valid = 1;
+    return 0;	
+}
 gint vorbis_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buffer)
 {
 	gint32 buf_size;
@@ -344,7 +400,7 @@ AmlStreamInfo * newAmlAinfoVorbis()
 {
 	AmlStreamInfo *info = createAudioInfo(sizeof(AmlAinfoVorbis));
 	info->init = amlInitVorbis;
-	info->writeheader = NULL;
+	info->writeheader = vorbis_writeheader;
 	info->add_startcode = vorbis_startcode;
 	return info;
 }

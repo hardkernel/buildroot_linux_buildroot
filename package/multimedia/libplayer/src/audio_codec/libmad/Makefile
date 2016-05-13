@@ -1,7 +1,7 @@
 DW_NAME		= mad
-M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
+M_PREFIX=$(LIBLPAYER_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
-INSTALL_DIR	= $(LIB_DIR)/aml_libs
+INSTALL_DIR	= $(LIB_DIR)/libplayer
 SRC_PATH		= ./
 SRC_FILES		=  $(wildcard $(SRC_PATH)*.c)
 EXPORT_INCLUDE_FILES	= $(wildcard $(SRC_PATH)*.h) 

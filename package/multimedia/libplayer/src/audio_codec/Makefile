@@ -8,7 +8,8 @@ all:
 	-make -C libflac all
 	-make -C liblpcm all
 	-make -C libraac all
-	-make -C libpcm all	
+	-make -C libpcm all
+	-make -C libvorbisdec
 install:
 	-make -C libmad install
 	-make -C libadpcm install
@@ -19,7 +20,8 @@ install:
 	-make -C libflac install
 	-make -C liblpcm install
 	-make -C libraac install
-	-make -C libpcm install	
+	-make -C libpcm install
+	-make -C libvorbisdec install
 clean:
 	-make -C libmad clean
 	-make -C libadpcm clean
@@ -30,4 +32,5 @@ clean:
 	-make -C libflac clean
 	-make -C liblpcm clean
 	-make -C libraac clean
-	-make -C libpcm clean		
+	-make -C libpcm clean
+	-make -C libvorbisdec clean

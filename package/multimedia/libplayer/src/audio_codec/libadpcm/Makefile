@@ -1,4 +1,4 @@
-M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
+M_PREFIX=$(LIBPLAYER_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
 HEADERS_DIR?=$(M_PREFIX)/include
 
@@ -6,7 +6,7 @@ TARGET_OBJS=adpcm_decode.o
 
 TARGET=libadpcm.so
 
-INSTALL_DIR=${LIB_DIR}/aml_libs
+INSTALL_DIR=${LIB_DIR}/libplayer
 
 LDFLAGS += -shared 
 

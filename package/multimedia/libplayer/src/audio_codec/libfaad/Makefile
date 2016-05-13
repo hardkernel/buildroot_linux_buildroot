@@ -1,6 +1,6 @@
-M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
+M_PREFIX=$(LIBPLAYER_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
-INSTALL_DIR	= $(LIB_DIR)/aml_libs
+INSTALL_DIR	= $(LIB_DIR)/libplayer
 DW_NAME		= faad
 
 SRC_PATH		= ./
