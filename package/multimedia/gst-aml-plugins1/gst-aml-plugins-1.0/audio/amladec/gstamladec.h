@@ -119,6 +119,13 @@ struct _GstAmlAdecClass
 	GstAudioDecoderClass parent_class;
 };
 
+struct AmlControl
+{
+  GstCaps *firstcaps;
+  gboolean passthrough;
+  guint adecnumber;
+};
+
 GType gst_aml_adec_get_type (void);
 
 G_END_DECLS

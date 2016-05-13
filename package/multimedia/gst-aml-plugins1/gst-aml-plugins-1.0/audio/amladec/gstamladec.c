@@ -171,6 +171,7 @@ static gboolean 				aml_decode_init(GstAmlAdec *amladec);
 static GstFlowReturn 		gst_aml_adec_decode (GstAmlAdec *amladec, GstBuffer * buf);
 static GstStateChangeReturn gst_aml_adec_change_state (GstElement * element, GstStateChange transition);
 
+struct AmlControl *amlcontrol;
 #define gst_aml_adec_parent_class parent_class
 G_DEFINE_TYPE (GstAmlAdec, gst_aml_adec, GST_TYPE_AUDIO_DECODER);
 
@@ -222,6 +223,11 @@ gst_aml_adec_init (GstAmlAdec * amladec)
 	GstAudioDecoder *dec;
 	dec = GST_AUDIO_DECODER (amladec);
 	codec_audio_basic_init();
+     if(!amlcontrol){
+     amlcontrol = g_malloc(sizeof(struct AmlControl));
+     memset(amlcontrol, 0, sizeof(struct AmlControl));
+    }	 
+    amlcontrol->passthrough = FALSE;	 
 }
 
 static void
@@ -380,12 +386,18 @@ gst_aml_adec_close(GstAudioDecoder * dec)
 		g_free(amladec->pcodec);
 		amladec->pcodec = NULL;
 	}
+
+   if (amlcontrol) {	
+        g_free(amlcontrol);
+        amlcontrol = NULL;
+    }
 	return TRUE;
 }
 
 static gboolean
 gst_aml_adec_start(GstAudioDecoder * dec)
 {
+      
 	GstAmlAdec *amladec = GST_AMLADEC(dec);
 
 	amladec->pcodec->audio_pid = 0;
@@ -416,9 +428,7 @@ gst_aml_adec_start(GstAudioDecoder * dec)
 //	amladec->apeparser->currentframe = 0;
 	amladec->is_ape = FALSE;
 
-//	amlcontrol->adecnumber++;
-//	amladec->order = amlcontrol->adecnumber;
-//	amlcontrol->passthrough = FALSE;
+	amlcontrol->adecnumber++;     
 	amladec->adecomit = FALSE;
 
 	return TRUE;
@@ -615,8 +625,8 @@ gst_aml_adec_change_state (GstElement * element, GstStateChange transition)
 {
   GstStateChangeReturn result = GST_STATE_CHANGE_SUCCESS;
   gint ret = 0 ;
-   GstAmlAdec *amladec = GST_AMLADEC(element);
-   GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+  GstAmlAdec *amladec = GST_AMLADEC(element);
+  GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
   g_return_val_if_fail (GST_IS_AMLADEC (element), GST_STATE_CHANGE_FAILURE);
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
@@ -700,9 +710,9 @@ gst_set_astream_info(GstAmlAdec *amladec, GstCaps * caps)
 	if (amladec->pcodec && amladec->pcodec->stream_type == STREAM_TYPE_ES_AUDIO) {
 		if (info->writeheader)
 			info->writeheader(info, amladec->pcodec);
-		if (!amladec->codec_init_ok && /*!amlcontrol->passthrough &&*/ !amladec->adecomit) {
-			if (!aml_decode_init(amladec))
-				return FALSE;
+		if (!amladec->codec_init_ok && !amlcontrol->passthrough && !amladec->adecomit) {
+              if (!aml_decode_init(amladec))
+              return FALSE;
 		}
 	}
 
@@ -719,6 +729,7 @@ aml_decode_init(GstAmlAdec *amladec)
 		return FALSE;
 	}
 	amladec->codec_init_ok = 1;
+	amlcontrol->passthrough = TRUE;
 	set_tsync_enable(1);
 
 	return TRUE;
@@ -831,6 +842,7 @@ amladec_init (GstPlugin * amladec)
 	 *
 	 * exchange the string 'Template amladec' with your description
 	 */
+	
 	GST_DEBUG_CATEGORY_INIT(gst_aml_adec_debug, "amladec", 0, "Amlogic Audio Decoder");
 
 	return gst_element_register(amladec, "amladec", GST_RANK_PRIMARY+1, GST_TYPE_AMLADEC);
