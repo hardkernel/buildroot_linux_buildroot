@@ -54,7 +54,7 @@ int audio_dec_init(audio_decoder_operations_t *adec_ops)
     ic->extradata = adec_ops->extradata;
     ic->extradata_size = adec_ops->extradata_size;
 	
-#if 1
+#if 0
         FILE *fp2= fopen("/data/audio_out3.extradata","a+"); 
         if(fp2 ){ 
         int flen=fwrite(adec_ops->extradata ,1,adec_ops->extradata_size ,fp2); 
@@ -143,7 +143,7 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
             bytes =8;
             break;
         }
-#if 1
+#if 0
         FILE *fp2= fopen("/data/audio_out3.vorbis","a+"); 
         if(fp2 ){ 
         int flen=fwrite(p.data,1,p.size,fp2); 
