@@ -407,7 +407,7 @@ gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 	GST_DEBUG_OBJECT(amlvsink, "%s %llu", __FUNCTION__, GST_BUFFER_TIMESTAMP (buf));
 		
 	if(GST_BUFFER_FLAG_IS_SET(buf,(1<<16))){
-         g_print("AMDEC FLAG SET\n");	
+         ;//g_print("AMDEC FLAG SET\n");	
 	}else if(amlvsink->use_yuvplayer == 0) {
 	    gst_aml_vsink_yuvplayer_init(amlvsink);
 		g_print("yuvplayer\n");	

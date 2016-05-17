@@ -16,7 +16,7 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 	pcodec->audio_info.channels = audio->channels;
      aml_dump_structure(structure);
 	if (gst_structure_has_field(structure, "codec_data")) {
-		extra_data_buf = (GValue *) gst_structure_get_value(structure, "streamheader");
+		extra_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");
 		if (extra_data_buf) {
 			info->configdata = gst_value_get_buffer(extra_data_buf);
 			AML_DUMP_BUFFER(info->configdata, "Audio Codec Data");
