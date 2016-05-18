@@ -1,7 +1,7 @@
 
 #include "amlvideoinfo.h"
-//#include "h263vld.h"
-
+ #include "h263vld.h"
+#include <stdio.h>
 //media stream info class ,in clude audio and video
 static int check_size_in_buffer(unsigned char *p, int len)
 {
@@ -76,7 +76,7 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
     pcodec->am_sysinfo.height = video->height;
     pcodec->am_sysinfo.width = video->width;
     pcodec->am_sysinfo.rate = video->framerate;
-    GST_INFO("Video: width=%d height=%d framerate=%d codec_data=%p", video->width, video->height, video->framerate, data_buf);
+    GST_WARNING("Video: width=%d height=%d framerate=%d codec_data=%p", video->width, video->height, video->framerate, data_buf);
 	if(0==pcodec->am_sysinfo.height ||0==pcodec->am_sysinfo.width ) {
 		pcodec->am_sysinfo.height =1080;
        	pcodec->am_sysinfo.width =1920;
@@ -458,7 +458,7 @@ AmlStreamInfo *newAmlInfoMsmpeg()
     info->writeheader = NULL;
     return info;
 }
-/*
+
 static gint h263_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buf)
 {
 	GstMapInfo map_in, map_out;
@@ -470,20 +470,30 @@ static gint h263_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuf
 		gst_buffer_map(buf, &map_in, GST_MAP_READ);
 		gst_buffer_map(vld_buf, &map_out, GST_MAP_WRITE);
 		size = h263vld(map_in.data, map_out.data, map_in.size, 0);
-		codec_write(pcodec, map_out.data, size);
+		gst_buffer_copy_into(buf, vld_buf, GST_BUFFER_COPY_MEMORY, 0, size);
+		//codec_write(pcodec, map_out.data, size);
+#if 0
+        FILE *fp2= fopen("/data/h263.data","a+"); 
+        if(fp2 ){ 
+        int flen=fwrite(map_out.data,1,size,fp2);        
+        fclose(fp2); 
+        }else{
+        g_print("could not open file:h263.data");
+        }
+#endif		
 		gst_buffer_unmap(buf, &map_in);
 		gst_buffer_unmap(vld_buf, &map_out);
-		gst_buffer_resize(buf, 0, 0);
+		//gst_buffer_resize(buf, 0, 0);
 		gst_buffer_unref(vld_buf);
 	}
 	return 0;
-}*/
+}
 
 gint amlInitH263(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 {
     pcodec->video_type = VFORMAT_MPEG4;
     pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H263;
-    //info->add_startcode = h263_add_startcode;
+    info->add_startcode = h263_add_startcode;
     amlVideoInfoInit(info, pcodec, structure);
 	aml_dump_structure(structure);
     return 0;
