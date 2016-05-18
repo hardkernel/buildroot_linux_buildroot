@@ -88,7 +88,7 @@ gst_aml_vsink_init (GstAmlVsink * amlvsink)
 {
 	GstVideoSink *bsink;
 	bsink = GST_VIDEO_SINK (amlvsink);
-	gst_base_sink_set_sync(GST_BASE_SINK(amlvsink), TRUE);
+	gst_base_sink_set_sync(GST_BASE_SINK(amlvsink), FALSE);
 	gst_base_sink_set_async_enabled(GST_BASE_SINK(amlvsink), FALSE);
 	amlvsink->amvideo_dev = NULL;
 	amlvsink->framerate_d = 1;
