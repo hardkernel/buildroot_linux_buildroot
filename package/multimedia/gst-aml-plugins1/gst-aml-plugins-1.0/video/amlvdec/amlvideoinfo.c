@@ -432,33 +432,6 @@ AmlStreamInfo *newAmlInfoMpeg()
     return info;
 }
 
-gint amlInitMsmpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
-{   
-    AmlInfoMsmpeg *msmpeg = (AmlInfoMsmpeg *)info;
-    
-    gint version; 
-    gst_structure_get_int (structure, "msmpegversion", &version);
-    msmpeg->version = version;
-    switch(version){
-        case 43:
-            pcodec->video_type = VFORMAT_MPEG4;
-            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
-            
-            break;
-        default:break;
-    }
-    amlVideoInfoInit(info, pcodec, structure);
-    return 0;
-}
-
-AmlStreamInfo *newAmlInfoMsmpeg()
-{
-    AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoMsmpeg));
-    info->init = amlInitMsmpeg;
-    info->writeheader = NULL;
-    return info;
-}
-
 static gint h263_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buf)
 {
 	GstMapInfo map_in, map_out;
@@ -469,6 +442,7 @@ static gint h263_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuf
 	if (vld_buf) {
 		gst_buffer_map(buf, &map_in, GST_MAP_READ);
 		gst_buffer_map(vld_buf, &map_out, GST_MAP_WRITE);
+		
 		size = h263vld(map_in.data, map_out.data, map_in.size, 0);
 		gst_buffer_copy_into(buf, vld_buf, GST_BUFFER_COPY_MEMORY, 0, size);
 		//codec_write(pcodec, map_out.data, size);
@@ -503,6 +477,56 @@ AmlStreamInfo *newAmlInfoH263()
 {
     AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoH263));
     info->init = amlInitH263;
+    info->writeheader = NULL;
+    return info;
+}
+
+
+static gint flvh263_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buf)
+{
+	GstMapInfo map_in, map_out;
+	GstBuffer *vld_buf;
+	int size;
+
+	vld_buf = gst_buffer_new_and_alloc(pcodec->am_sysinfo.height * pcodec->am_sysinfo.width * 2);
+	if (vld_buf) {
+		gst_buffer_map(buf, &map_in, GST_MAP_READ);
+		gst_buffer_map(vld_buf, &map_out, GST_MAP_WRITE);
+		
+		size = h263vld(map_in.data, map_out.data, map_in.size, 1);
+		gst_buffer_copy_into(buf, vld_buf, GST_BUFFER_COPY_MEMORY, 0, size);
+		//codec_write(pcodec, map_out.data, size);
+#if 0
+        FILE *fp2= fopen("/data/h263.data","a+"); 
+        if(fp2 ){ 
+        int flen=fwrite(map_out.data,1,size,fp2);        
+        fclose(fp2); 
+        }else{
+        g_print("could not open file:h263.data");
+        }
+#endif		
+		gst_buffer_unmap(buf, &map_in);
+		gst_buffer_unmap(vld_buf, &map_out);
+		//gst_buffer_resize(buf, 0, 0);
+		gst_buffer_unref(vld_buf);
+	}
+	return 0;
+}
+
+gint amlInitFlvH263(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{
+    pcodec->video_type = VFORMAT_MPEG4;
+    pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_H263;
+    info->add_startcode = flvh263_add_startcode;
+    amlVideoInfoInit(info, pcodec, structure);
+	aml_dump_structure(structure);
+    return 0;
+}
+
+AmlStreamInfo *newAmlInfoFlvH263()
+{
+    AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoH263));
+    info->init = amlInitFlvH263;
     info->writeheader = NULL;
     return info;
 }
@@ -752,6 +776,15 @@ static int divx3_write_header(AmlStreamInfo* info, codec_para_t *pcodec)
     divx311_add[5] = (i >> 16) & 0xff;
     divx311_add[6] = (i >> 8) & 0xff;
     divx311_add[7] = i & 0xff;
+	#if 0
+        FILE *fp2= fopen("/data/codec.data","a+"); 
+        if(fp2 ){ 
+        int flen=fwrite(divx311_add,1,sizeof(divx311_add),fp2);        
+        fclose(fp2); 
+        }else{
+        g_print("could not open file:h263.data");
+        }
+#endif	
     codec_write(pcodec, divx311_add, sizeof(divx311_add));
     return 0;
 }
@@ -768,6 +801,15 @@ static gint divx3_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBu
     prefix[DIVX311_CHUNK_HEAD_SIZE + 1] = (data_size >> 16) & 0xff;
     prefix[DIVX311_CHUNK_HEAD_SIZE + 2] = (data_size >>  8) & 0xff;
     prefix[DIVX311_CHUNK_HEAD_SIZE + 3] = data_size & 0xff;
+#if 0
+        FILE *fp2= fopen("/data/codec.data","a+"); 
+        if(fp2 ){ 
+        int flen=fwrite(prefix,1,sizeof(prefix),fp2);        
+        fclose(fp2); 
+        }else{
+        g_print("could not open file:h263.data");
+        }
+#endif		
     codec_write(pcodec, prefix, sizeof(prefix));
     return 0;
 }
@@ -807,6 +849,33 @@ AmlStreamInfo *newAmlInfoDivx()
     info->writeheader = NULL;
     info->add_startcode = NULL;
 
+    return info;
+}
+gint amlInitMsmpeg(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
+{   
+    AmlInfoMsmpeg *msmpeg = (AmlInfoMsmpeg *)info;
+    
+    gint version; 
+    gst_structure_get_int (structure, "msmpegversion", &version);
+    msmpeg->version = version;
+    switch(version){
+        case 43:
+            pcodec->video_type = VFORMAT_MPEG4;
+            pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_MPEG4_3;
+            info->writeheader = divx3_write_header;
+            info->add_startcode = divx3_add_startcode;
+            break;
+        default:break;
+    }
+    amlVideoInfoInit(info, pcodec, structure);
+    return 0;
+}
+
+AmlStreamInfo *newAmlInfoMsmpeg()
+{
+    AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoMsmpeg));
+    info->init = amlInitMsmpeg;
+    info->writeheader = NULL;
     return info;
 }
 
@@ -866,7 +935,7 @@ static const AmlStreamInfoPool amlVstreamInfoPool[] = {
     {"video/x-wmv", newAmlInfoWmv},
     {"video/x-divx", newAmlInfoDivx},
     {"video/x-xvid", newAmlInfoXvid},
-    {"video/x-flv", newAmlInfoH263},
+    {"video/x-flash-video", newAmlInfoFlvH263},
     {"video/x-pn-realvideo", newAmlInfoReal},
     {NULL, NULL}
 };

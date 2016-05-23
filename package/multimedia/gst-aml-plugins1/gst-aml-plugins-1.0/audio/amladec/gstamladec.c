@@ -723,6 +723,7 @@ static gboolean
 aml_decode_init(GstAmlAdec *amladec)
 {
 	int ret;
+	//amladec->pcodec->abuf_size =  0xc0000;
 	ret = codec_init(amladec->pcodec);
 	if (ret != CODEC_ERROR_NONE) {
 		GST_ERROR_OBJECT(amladec, "codec init failed, ret=-0x%x", -ret);

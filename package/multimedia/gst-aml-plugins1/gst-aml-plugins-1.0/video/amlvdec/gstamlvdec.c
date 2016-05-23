@@ -62,7 +62,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <gst/gst.h>
-
+#include <stdio.h>
 #include "gstamlvdec.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_aml_vdec_debug);
@@ -100,8 +100,10 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
 //	        COMMON_VIDEO_CAPS "; "
 //	        "video/x-dv, "
 //	        COMMON_VIDEO_CAPS "; "
-	        "video/x-h263, "
+	        "video/x-flash-video, "
 	        COMMON_VIDEO_CAPS "; "
+	        "video/x-h263, "
+	        COMMON_VIDEO_CAPS "; "        
 	        "video/x-msmpeg, "
 	        COMMON_VIDEO_CAPS "; "
 	        "image/jpeg, "
@@ -637,6 +639,7 @@ gst_set_vstream_info(GstAmlVdec *amlvdec, GstCaps * caps)
 	videoinfo->init(videoinfo, amlvdec->pcodec, structure);
 	if (amlvdec->pcodec && amlvdec->pcodec->stream_type == STREAM_TYPE_ES_VIDEO) {
 		if (!amlvdec->codec_init_ok) {
+			//amlvdec->pcodec->vbuf_size = 0xf20000;
 			ret = codec_init(amlvdec->pcodec);
 			if (ret != CODEC_ERROR_NONE) {
 				GST_ERROR("codec init failed, ret=-0x%x", -ret);
@@ -707,6 +710,15 @@ gst_aml_vdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
 		gst_buffer_map(buf, &map, GST_MAP_READ);
 		data = map.data;
 		size = map.size;
+#if 0
+        FILE *fp2= fopen("/data/codec.data","a+"); 
+        if(fp2 ){ 
+        int flen=fwrite(data,1,size,fp2);        
+        fclose(fp2); 
+        }else{
+        g_print("could not open file:codec.data");
+        }
+#endif		
 		while (size > 0) {
 			written = codec_write(amlvdec->pcodec, data, size);
 			if (written >= 0) {
