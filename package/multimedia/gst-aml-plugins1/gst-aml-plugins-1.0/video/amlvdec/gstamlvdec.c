@@ -688,9 +688,12 @@ gst_aml_vdec_decode (GstAmlVdec *amlvdec, GstBuffer * buf)
 			}
 			usleep(20000);
 		}
-		timestamp = GST_BUFFER_TIMESTAMP (buf);
-		pts = timestamp * 9LL / 100000LL + 1L;
-
+		if (GST_BUFFER_PTS_IS_VALID(buf))
+		timestamp = GST_BUFFER_PTS(buf);	
+		else if (GST_BUFFER_DTS_IS_VALID(buf))
+		timestamp = GST_BUFFER_DTS(buf);		
+		pts = timestamp * 9LL / 100000LL + 1L;      
+        
 		if (timestamp != GST_CLOCK_TIME_NONE) {
 			GST_INFO_OBJECT(amlvdec, " video pts = %x", (unsigned long) pts);
 			if (codec_checkin_pts(amlvdec->pcodec, (unsigned long) pts) != 0)

@@ -724,6 +724,7 @@ aml_decode_init(GstAmlAdec *amladec)
 {
 	int ret;
 	//amladec->pcodec->abuf_size =  0xc0000;
+	g_print("%s,%d\n",__FUNCTION__,__LINE__);
 	ret = codec_init(amladec->pcodec);
 	if (ret != CODEC_ERROR_NONE) {
 		GST_ERROR_OBJECT(amladec, "codec init failed, ret=-0x%x", -ret);
@@ -765,7 +766,10 @@ gst_aml_adec_decode (GstAmlAdec *amladec, GstBuffer * buf)
 			usleep(40000);
 		}
 
-		timestamp = GST_BUFFER_TIMESTAMP (buf);
+		if (GST_BUFFER_PTS_IS_VALID(buf))
+		timestamp = GST_BUFFER_PTS(buf);	
+		else if (GST_BUFFER_DTS_IS_VALID(buf))
+		timestamp = GST_BUFFER_DTS(buf);
 		pts = timestamp * 9LL / 100000LL + 1L;
 		codec_set_av_threshold(amladec->pcodec, 100);
 		if (timestamp != GST_CLOCK_TIME_NONE) {

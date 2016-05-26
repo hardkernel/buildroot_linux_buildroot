@@ -735,6 +735,7 @@ int codec_init(codec_para_t *pcodec)
     }
 
 	if (pcodec->video_type != VFORMAT_SWCODEC) {
+	    CODEC_PRINT("[%s %d]type =%d\n", __FUNCTION__, __LINE__,pcodec->stream_type);
 	    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_PORT_INIT, 0);
 	    if (ret != 0) {
 			CODEC_PRINT("[%s %d]\n", __FUNCTION__, __LINE__);

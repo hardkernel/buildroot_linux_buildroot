@@ -429,7 +429,10 @@ gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 			vf.index = amlvsink->mOutBuffer[i].index;
 			vf.fd = amlvsink->mOutBuffer[i].fd;
 			vf.length = amlvsink->align_width * amlvsink->height * 3 / 2;
-			vf.pts = GST_BUFFER_TIMESTAMP (buf) * 9LL / 100000LL + 1L;
+			if (GST_BUFFER_PTS_IS_VALID(buf))
+		     vf.pts = GST_BUFFER_PTS(buf) * 9LL / 100000LL + 1L;
+		     else if (GST_BUFFER_DTS_IS_VALID(buf))		
+			vf.pts = GST_BUFFER_DTS(buf) * 9LL / 100000LL + 1L;
 #if 0	//workaround for pts issue
 			vf.pts = vf.pts * 9LL / 10LL;
 #endif
