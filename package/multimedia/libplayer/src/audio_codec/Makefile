@@ -9,7 +9,7 @@ all:
 	-make -C liblpcm all
 	-make -C libraac all
 	-make -C libpcm all
-	-make -C libvorbisdec
+	-make -C libamffmpegdec all
 install:
 	-make -C libmad install
 	-make -C libadpcm install
@@ -21,7 +21,7 @@ install:
 	-make -C liblpcm install
 	-make -C libraac install
 	-make -C libpcm install
-	-make -C libvorbisdec install
+	-make -C libamffmegdec install
 clean:
 	-make -C libmad clean
 	-make -C libadpcm clean
@@ -33,4 +33,4 @@ clean:
 	-make -C liblpcm clean
 	-make -C libraac clean
 	-make -C libpcm clean
-	-make -C libvorbisdec clean
+	-make -C libamffmpegdec clean

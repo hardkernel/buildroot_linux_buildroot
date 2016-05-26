@@ -43,7 +43,9 @@ audio_lib_t audio_lib_list[] =
     {ACODEC_FMT_COOK, "libcook.so"},
     {ACODEC_FMT_RAAC, "libraac.so"},
     {ACODEC_FMT_AMR, "libamr.so"},
-    {ACODEC_FMT_VORBIS, "libvorbis.so"},
+    {ACODEC_FMT_VORBIS, "libamffmpegdec.so"},
+    {ACODEC_FMT_WMA, "libamffmpegdec.so"},
+    {ACODEC_FMT_WMAPRO, "libamffmpegdec.so"},
 
     {ACODEC_FMT_PCM_S16BE,"libpcm.so"},
     {ACODEC_FMT_PCM_S16LE,"libpcm.so"},
