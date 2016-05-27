@@ -21,7 +21,7 @@ install:
 	-make -C liblpcm install
 	-make -C libraac install
 	-make -C libpcm install
-	-make -C libamffmegdec install
+	-make -C libamffmpegdec install
 clean:
 	-make -C libmad clean
 	-make -C libadpcm clean

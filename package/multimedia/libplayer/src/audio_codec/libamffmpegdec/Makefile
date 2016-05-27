@@ -1,7 +1,7 @@
 DW_NAME		= amffmpegdec
-M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
+M_PREFIX=$(LIBPLAYER_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
-INSTALL_DIR	= $(LIB_DIR)/aml_libs
+INSTALL_DIR	= $(LIB_DIR)/libplayer
 SRC_PATH		= ./
 SRC_FILES		=  $(wildcard $(SRC_PATH)*.c)
 EXPORT_INCLUDE_FILES	= $(wildcard $(SRC_PATH)*.h)  $(SRC_PATH)/../../amadec/include $(SRC_PATH)/../../amadec/
@@ -20,8 +20,7 @@ LD 		= $(CROSS)ld
 
 DEBUG_CFLAGS     := -c -Wall -shared -fPIC -Wno-format -g -DDEBUG -fexceptions -fnon-call-exceptions
 RELEASE_CFLAGS   := -c -Wall -shared -fPIC -Wno-unknown-pragmas -Wno-format -O3 -fexceptions -fnon-call-exceptions
-
-DEBUG_LDFLAGS    := -g -shared -fPIC 
+DEBUG_LDFLAGS    := -g -shared -fPIC -L$(INSTALL_DIR)  -lavformat -lavcodec -lavutil -lamadec 
 RELEASE_LDFLAGS  := -shared -fPIC
 
 

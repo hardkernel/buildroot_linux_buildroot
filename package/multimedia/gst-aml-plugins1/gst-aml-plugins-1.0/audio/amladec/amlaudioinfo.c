@@ -392,6 +392,7 @@ gint vorbis_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buff
 gint amlInitVorbis(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *structure)
 {
 	pcodec->audio_type = AFORMAT_VORBIS;
+	pcodec->audio_info.codec_id = CODEC_ID_VORBIS;
 	amlAudioInfoInit(info, pcodec, structure);
 	return 0;
 }
