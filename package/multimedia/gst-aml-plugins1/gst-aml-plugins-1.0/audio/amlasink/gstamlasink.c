@@ -63,7 +63,7 @@ static guint gst_aml_asink_write (GstAudioSink * asink, gpointer data, guint len
 static guint gst_aml_asink_delay (GstAudioSink * asink);
 static void gst_aml_asink_reset (GstAudioSink * asink);
 static GstCaps *gst_aml_asink_getcaps (GstBaseSink * pad);
-
+static void gst_aml_asink_get_times (GstBaseSink * asink, GstBuffer * buffer, GstClockTime * start, GstClockTime * end);
 static void gst_aml_asink_set_property (GObject * object, guint prop_id, const GValue * value, GParamSpec * pspec);
 static void gst_aml_asink_get_property (GObject * object, guint prop_id, GValue * value, GParamSpec * pspec);
 static GstStateChangeReturn
@@ -97,6 +97,7 @@ gst_aml_asink_class_init (GstAmlAsinkClass * klass)
           G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS));
 
   gstbasesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_aml_asink_getcaps);
+  gstbasesink_class->get_times = GST_DEBUG_FUNCPTR (gst_aml_asink_get_times);
 
   gstaudiosink_class->open = GST_DEBUG_FUNCPTR (gst_aml_asink_open);
   gstaudiosink_class->close = GST_DEBUG_FUNCPTR (gst_aml_asink_close);
@@ -228,7 +229,7 @@ gst_aml_asink_prepare (GstAudioSink * asink, GstAudioRingBufferSpec * spec)
   guint32 buf_samples;
   GST_DEBUG_OBJECT(amlasink, "%s", __FUNCTION__);
   buf_samples = spec->info.rate * 2;
-  spec->segsize = buf_samples * spec->info.bpf;
+  spec->segsize = 8 * spec->info.channels;
   spec->segtotal = 1;
   return TRUE;
 }
@@ -247,7 +248,7 @@ gst_aml_asink_delay (GstAudioSink * asink)
 	GstAmlAsink *amlasink = GST_AMLASINK(asink);
 
 	GST_DEBUG_OBJECT(amlasink, "%s", __FUNCTION__);
-	return 100000L;
+	return 0L;
 }
  
 static void
@@ -264,7 +265,7 @@ gst_aml_asink_write (GstAudioSink * asink, gpointer data, guint length)
   GstAmlAsink *amlasink = GST_AMLASINK (asink);
   GstClockTime timestamp;
  // GST_DEBUG_OBJECT(amlasink, "%s %d", __FUNCTION__, length);
-  return 8;
+  return length;
 }
 
 
@@ -285,6 +286,16 @@ gst_aml_asink_close (GstAudioSink * asink)
   return TRUE;
 }
 
+
+static void
+gst_aml_asink_get_times (GstBaseSink * asink, GstBuffer * buffer,
+    GstClockTime * start, GstClockTime * end)
+{
+  GstAmlAsink *amlasink = GST_AMLASINK (asink);
+  *start = GST_BUFFER_TIMESTAMP (buffer);
+  if (GST_BUFFER_DURATION_IS_VALID (buffer))
+    *end = *start + GST_BUFFER_DURATION (buffer);
+}
 
 static gboolean
 amlasink_init (GstPlugin * plugin)

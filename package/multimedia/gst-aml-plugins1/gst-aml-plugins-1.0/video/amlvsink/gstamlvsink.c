@@ -340,7 +340,7 @@ gst_aml_vsink_setcaps (GstBaseSink * bsink, GstCaps * vscapslist)
   gst_structure_get_int(structure, "width", &amlvsink->width);
   gst_structure_get_int(structure, "height", &amlvsink->height);
   gst_structure_get_fraction(structure, "framerate", &amlvsink->framerate_n, &amlvsink->framerate_d);
-  amlvsink->align_width = (amlvsink->width + 31) & (~31);
+  amlvsink->align_width = (amlvsink->width + 63) & (~63);
   amlvsink->yuv_width = (amlvsink->width + 15) & (~15);
   return TRUE;
 }
@@ -401,7 +401,7 @@ gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 	GstAmlVsink *amlvsink;
 	vframebuf_t vf;
 	GstMapInfo map;
-	int ret;
+	int ret, retry = 0;
 	void *cpu_ptr = NULL;
 	amlvsink = GST_AMLVSINK(videosink);
 	GST_DEBUG_OBJECT(amlvsink, "%s %llu", __FUNCTION__, GST_BUFFER_TIMESTAMP (buf));
@@ -414,7 +414,11 @@ gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 	}
 	if (amlvsink->use_yuvplayer) {
 		gst_buffer_map(buf, &map, GST_MAP_READ);
-		ret = amlv4l_dequeuebuf(amlvsink->amvideo_dev, &vf);
+		while ((ret = amlv4l_dequeuebuf(amlvsink->amvideo_dev, &vf) ) < 0 && retry < 5) {
+			//wait amlv4l ready
+			usleep(10000);
+			retry++;
+		}
 		if (ret >= 0) {
 			int j, i = 0;
 			while (i < OUT_BUFFER_COUNT) {
@@ -433,12 +437,9 @@ gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 		     vf.pts = GST_BUFFER_PTS(buf) * 9LL / 100000LL + 1L;
 		     else if (GST_BUFFER_DTS_IS_VALID(buf))		
 			vf.pts = GST_BUFFER_DTS(buf) * 9LL / 100000LL + 1L;
-#if 0	//workaround for pts issue
-			vf.pts = vf.pts * 9LL / 10LL;
-#endif
 			vf.width = amlvsink->align_width;
 			vf.height = amlvsink->height;
-
+			GST_INFO_OBJECT(amlvsink, " yuv pts = %x", (unsigned long) vf.pts);
 			for (j = 0; j < amlvsink->height; j++) {
 				memcpy(cpu_ptr + amlvsink->align_width * j, map.data + j * amlvsink->width, amlvsink->width);
 				memset(cpu_ptr + amlvsink->align_width * j + amlvsink->width, 0,
@@ -476,6 +477,8 @@ gst_aml_vsink_show_frame (GstVideoSink * videosink, GstBuffer * buf)
 			if (ret < 0) {
 				GST_ERROR("amlv4l_queuebuf failed =%d\n", ret);
 			}
+		} else {
+			GST_ERROR("skip frame");
 		}
 		gst_buffer_unmap(buf, &map);
 	}

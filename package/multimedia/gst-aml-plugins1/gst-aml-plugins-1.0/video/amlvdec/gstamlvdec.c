@@ -453,8 +453,7 @@ gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame)
 	GstBuffer *outbuffer;
 	GstFlowReturn ret;
 	GstVideoCodecState *state;
-      GstMapInfo map;
-	 amdec_flag_p amflag;
+
 	GST_DEBUG_OBJECT(dec, "%s %d", __FUNCTION__, __LINE__);
 
 	if (G_UNLIKELY(!frame))
@@ -469,7 +468,7 @@ gst_aml_vdec_handle_frame(GstVideoDecoder *dec, GstVideoCodecFrame *frame)
 	}
 
 	gst_aml_vdec_decode(amlvdec, frame->input_buffer);
-      GST_BUFFER_FLAG_SET(frame->output_buffer,(1<<16));
+	GST_BUFFER_FLAG_SET(frame->output_buffer,(1<<16));
 	gst_video_decoder_finish_frame(dec, frame);
 
 	ret = GST_FLOW_OK;

@@ -34,10 +34,6 @@ typedef struct _GstAmlVsink GstAmlVsink;
 typedef struct _GstAmlVsinkClass GstAmlVsinkClass;
 
 typedef struct {
-	guint32 flag[2];
-} amdec_flag_t, *amdec_flag_p;
-
-typedef struct {
     int index;
     int fd;
     void * pBuffer;

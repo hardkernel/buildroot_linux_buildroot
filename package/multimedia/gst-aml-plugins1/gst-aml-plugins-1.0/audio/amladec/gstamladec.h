@@ -90,7 +90,7 @@ struct _GstAmlAdec
 	gboolean is_paused;
 	gboolean is_eos;
 	GstTask * eos_task;
-      GStaticRecMutex eos_lock;
+    GStaticRecMutex eos_lock;
 //
 ////	AmlState eState;
 	codec_para_t *pcodec;

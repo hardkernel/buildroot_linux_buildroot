@@ -543,7 +543,7 @@ gst_aml_adec_handle_frame(GstAudioDecoder * dec, GstBuffer * buffer)
 	outbuffer = gst_buffer_new_and_alloc(8 * amladec->pcodec->audio_info.channels);
 	ret = gst_audio_decoder_finish_frame(dec, outbuffer, 1);
 	GST_DEBUG_OBJECT(dec, "ret=%d,%s %d", ret,__FUNCTION__, __LINE__);
-	return GST_FLOW_OK;
+	return ret;
 }
 
 static gboolean
@@ -767,9 +767,9 @@ gst_aml_adec_decode (GstAmlAdec *amladec, GstBuffer * buf)
 		}
 
 		if (GST_BUFFER_PTS_IS_VALID(buf))
-		timestamp = GST_BUFFER_PTS(buf);	
+			timestamp = GST_BUFFER_PTS(buf);
 		else if (GST_BUFFER_DTS_IS_VALID(buf))
-		timestamp = GST_BUFFER_DTS(buf);
+			timestamp = GST_BUFFER_DTS(buf);
 		pts = timestamp * 9LL / 100000LL + 1L;
 		codec_set_av_threshold(amladec->pcodec, 100);
 		if (timestamp != GST_CLOCK_TIME_NONE) {

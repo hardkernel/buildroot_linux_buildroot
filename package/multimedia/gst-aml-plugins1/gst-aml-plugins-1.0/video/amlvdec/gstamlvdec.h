@@ -71,10 +71,6 @@ G_BEGIN_DECLS
 
 #define AMLDEC_FLAG  (1<<16)
 
-typedef struct {
-    guint32 flag[2];
-} amdec_flag_t, *amdec_flag_p;
-
 typedef struct _GstAmlVdec      GstAmlVdec;
 typedef struct _GstAmlVdecClass GstAmlVdecClass;
 
