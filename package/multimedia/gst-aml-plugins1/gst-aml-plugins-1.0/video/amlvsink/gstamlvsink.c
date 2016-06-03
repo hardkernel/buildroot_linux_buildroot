@@ -236,6 +236,7 @@ static gboolean gst_aml_vsink_yuvplayer_deinit(GstAmlVsink *amlvsink)
 		amvideo_release(amlvsink->amvideo_dev);
 		amlvsink->amvideo_dev = NULL;
 	}
+	amsysfs_set_sysfs_str("/sys/class/video/disable_video", "2");
 	amsysfs_set_sysfs_str("/sys/class/graphics/fb0/blank", "0");
 	amsysfs_set_sysfs_str("/sys/class/graphics/fb1/blank", "0");
 	amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
