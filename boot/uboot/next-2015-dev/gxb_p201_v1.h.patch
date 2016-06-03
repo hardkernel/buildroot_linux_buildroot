@@ -1,4 +1,4 @@
-Index: uboot-next-2015-dev-new/board/amlogic/configs/gxb_p201_v1.h
+Index: uboot-next-2015-dev/board/amlogic/configs/gxb_p201_v1.h
 ===================================================================
 --- uboot-next-2015-dev.orig/board/amlogic/configs/gxb_p201_v1.h	2016-06-02 17:15:44.000000000 +0800
 +++ uboot-next-2015-dev/board/amlogic/configs/gxb_p201_v1.h	2016-06-03 13:54:26.686804563 +0800
