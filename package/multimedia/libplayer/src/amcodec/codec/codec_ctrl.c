@@ -870,7 +870,7 @@ int codec_close(codec_para_t *pcodec)
         res |= codec_close_sub_fd(pcodec->sub_handle);
     }
 #endif
-
+    if (pcodec->has_video) 
     res |= codec_close_cntl(pcodec);
     res |= codec_h_close(pcodec->handle);
 	

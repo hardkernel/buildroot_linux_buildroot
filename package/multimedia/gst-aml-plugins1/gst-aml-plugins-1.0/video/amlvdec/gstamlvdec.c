@@ -561,11 +561,11 @@ gst_aml_vdec_change_state (GstElement * element, GstStateChange transition)
   g_return_val_if_fail (GST_IS_AMLVDEC (element), GST_STATE_CHANGE_FAILURE);
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
-        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        GST_INFO_OBJECT(amlvdec,"%s,%d\n",__FUNCTION__,__LINE__);
         break;
   		
   case GST_STATE_CHANGE_READY_TO_PAUSED:
-        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        GST_INFO_OBJECT(amlvdec,"%s,%d\n",__FUNCTION__,__LINE__);
         break;
   case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
   	       if (amlvdec->is_paused == TRUE && amlvdec->codec_init_ok) {
@@ -575,7 +575,7 @@ gst_aml_vdec_change_state (GstElement * element, GstStateChange transition)
                 }else
                 amlvdec->is_paused = FALSE;
               }
-        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        GST_INFO_OBJECT(amlvdec,"%s,%d\n",__FUNCTION__,__LINE__);
         break;
 
         default:
@@ -585,7 +585,7 @@ gst_aml_vdec_change_state (GstElement * element, GstStateChange transition)
 
 switch (transition) {
 	case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-		  GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+		  GST_INFO_OBJECT(amlvdec,"%s,%d\n",__FUNCTION__,__LINE__);
           if(!amlvdec->is_eos &&  amlvdec->codec_init_ok){ 
                 ret=codec_pause(amlvdec->pcodec);
                 if (ret != 0) {
@@ -596,17 +596,17 @@ switch (transition) {
             break;
 			
         case GST_STATE_CHANGE_PAUSED_TO_READY:
-            GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+            GST_INFO_OBJECT(amlvdec,"%s,%d\n",__FUNCTION__,__LINE__);
           break;
 		  
         case GST_STATE_CHANGE_READY_TO_NULL:
-        	        GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);
+        	  GST_INFO_OBJECT(amlvdec,"%s,%d\n",__FUNCTION__,__LINE__);
             break;
 			
         default:
             break;
     }
-  GST_ERROR("%s,%d,ret=%d\n", __FUNCTION__,__LINE__,result);
+  GST_WARNING_OBJECT(amlvdec,"%s,%d,ret=%d\n", __FUNCTION__,__LINE__,result);
   return result;
 }
 
@@ -615,7 +615,7 @@ static void
 gst_aml_vdec_flush(GstVideoDecoder * dec)
 {
 	GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
-	GST_WARNING_OBJECT("%s,%d\n", __FUNCTION__,__LINE__);
+	GST_WARNING_OBJECT(amlvdec,"%s,%d\n", __FUNCTION__,__LINE__);
 	//codec_reset(amlvdec->pcodec);
 }
 

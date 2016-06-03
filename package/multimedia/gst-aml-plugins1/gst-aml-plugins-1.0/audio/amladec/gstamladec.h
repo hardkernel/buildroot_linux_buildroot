@@ -111,6 +111,7 @@ struct _GstAmlAdec
 //	gint64 duration;
 //	guint64 filesize;
 	gboolean adecomit;
+     gboolean passthrough;
 
 };
 

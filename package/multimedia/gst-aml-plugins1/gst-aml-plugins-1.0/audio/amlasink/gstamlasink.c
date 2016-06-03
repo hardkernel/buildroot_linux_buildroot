@@ -33,7 +33,7 @@
 GST_DEBUG_CATEGORY_STATIC (gst_aml_asink_debug);
 #define GST_CAT_DEFAULT gst_aml_asink_debug
 #define VERSION	"1.1"
-
+  
 enum
 {
   ARG_0,
