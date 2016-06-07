@@ -22,6 +22,8 @@ install:
 	-make -C libraac install
 	-make -C libpcm install
 	-make -C libamffmpegdec install
+	cp  -rf  libeac3/libeac3.so $(TARGET_DIR)/usr/lib
+	cp  -rf  libdtscore/libdtscore.so $(TARGET_DIR)/usr/lib
 clean:
 	-make -C libmad clean
 	-make -C libadpcm clean
@@ -34,3 +36,6 @@ clean:
 	-make -C libraac clean
 	-make -C libpcm clean
 	-make -C libamffmpegdec clean
+	-make -C libdtscore clean
+	rm  -rf  $(TARGET_DIR)/usr/lib/libeac3.so
+	rm  -rf  $(TARGET_DIR)/usr/lib/libdtscore.so

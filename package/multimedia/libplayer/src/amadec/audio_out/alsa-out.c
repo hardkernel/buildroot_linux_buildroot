@@ -618,7 +618,8 @@ int alsa_init(struct aml_audio_dec* audec)
 #endif
 
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw))&& \
-        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format))){
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)|| \
+        (ACODEC_FMT_DTS == audec->format))){
 
         sound_card_id = alsa_get_aml_card();
         if (sound_card_id  < 0) {
@@ -685,7 +686,8 @@ int alsa_init(struct aml_audio_dec* audec)
 
     //ac3 and eac3 passthrough
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
-        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ){
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format) || \
+        (ACODEC_FMT_DTS == audec->format))){
 
         int err;
         err = alsa_init_raw(audec);
@@ -723,7 +725,8 @@ int alsa_start(struct aml_audio_dec* audec)
 
     //ac3 and eac3 passthrough
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
-        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format) || \
+        (ACODEC_FMT_DTS == audec->format) )) {
         int err = alsa_start_raw(audec);
         if(err) {
             printf("alsa_start_raw return  error: %d\n", err);
@@ -753,9 +756,10 @@ int alsa_pause(struct aml_audio_dec* audec)
         sleep(1);
     }
 
-    //ac3 and eac3 passthrough
+    //ac3 and eac3,dts passthrough
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
-        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format) || \
+        (ACODEC_FMT_DTS == audec->format)) ) {
         int err = alsa_pause_raw(audec);
         if(err) {
             printf("alsa_pause_raw return  error: %d\n", err);
@@ -773,7 +777,7 @@ int alsa_pause(struct aml_audio_dec* audec)
  */
 int alsa_resume(struct aml_audio_dec* audec)
 {
-    adec_print("alsa out rsume\n");
+    adec_print("alsa out resume\n");
 
     int res = 0;
     alsa_param_t *alsa_params;
@@ -781,7 +785,8 @@ int alsa_resume(struct aml_audio_dec* audec)
     //ac3 and eac3 passthrough
     int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
-        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format) || \
+        (ACODEC_FMT_DTS == audec->format)) ) {
         int err = alsa_resume_raw(audec);
         if(err) {
               printf("alsa_resume_raw return  error: %d\n", err);
@@ -827,7 +832,8 @@ int alsa_stop(struct aml_audio_dec* audec)
 
     //ac3 and eac3 passthrough
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
-        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format) || \
+        (ACODEC_FMT_DTS == audec->format)) ) {
 
         adec_print("enter alsa_stop_raw step\n");
         int err = alsa_stop_raw(audec);
@@ -974,7 +980,8 @@ static int alsa_mute(struct aml_audio_dec* audec, adec_bool_t en){
 
     //ac3 and eac3 passthrough
     if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
-    ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+    ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format) || \
+    (ACODEC_FMT_DTS == audec->format)) ) {
         int err = alsa_mute_raw(audec,en);
         if(err) {
             adec_print("alsa_mute_raw return  error: %d\n", err);
