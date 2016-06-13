@@ -244,6 +244,8 @@ static gboolean gst_aml_vsink_yuvplayer_deinit(GstAmlVsink *amlvsink)
 
 	FreeDmaBuffers(amlvsink);
 	amlvsink->use_yuvplayer = 0;
+	if (amlvsink->mOutBuffer)
+		free(amlvsink->mOutBuffer);
 	return TRUE;
 }
 static void

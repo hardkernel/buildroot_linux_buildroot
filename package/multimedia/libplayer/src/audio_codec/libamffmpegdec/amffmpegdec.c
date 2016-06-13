@@ -92,7 +92,7 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
     int framelen =0 ;
     uint8_t ptr_head[4]={0};
     unsigned char *sample ;
-    AVPacket pkt;
+    AVPacket pkt,p;
     codec_id = ic->codec_id;
     sample = (unsigned char *)outbuf;
     char *outdata;
@@ -138,10 +138,13 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
                 break;
 
             }
-            //p.data = indata;
-            pkt.size =  pkt_size ;
-            pkt.data = av_malloc(pkt.size);
-            if(amffmpeg_read(&amffmpeg_read_ctl,(unsigned char*)(pkt.data),pkt.size) < pkt_size){
+            p.data = indata;
+            memset(indata,0,8192);	 
+            p.size =  pkt_size ;
+            pkt.data = NULL;
+		// audio_codec_print("WARNING: vorbis_read p.size=%d [%s %d]!\n",p.size ,__FUNCTION__,__LINE__);	
+            //pkt.data = av_malloc(pkt.size);
+            if(amffmpeg_read(&amffmpeg_read_ctl,(unsigned char*)(p.data),p.size) < pkt_size){
                 //audio_codec_print("WARNING: vorbis_read readbytes failed [%s %d]!\n",__FUNCTION__,__LINE__);
                 bytes =8;
                 break;
@@ -207,7 +210,10 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
             pkt.data = buf;
 
         }else{
-            len = avcodec_decode_audio3(ic, (short *)outdata,&framelen, &pkt);
+            if(codec_id == CODEC_ID_VORBIS)
+                len = avcodec_decode_audio3(ic, (short *)outdata,&framelen, &p);	
+		else
+               len = avcodec_decode_audio3(ic, (short *)outdata,&framelen, &pkt);
             //audio_codec_print("framelen:%d,len:%d\n",framelen,len);
             if(framelen > AMFFMPEG_OUTFRAME_BUFSIZE || framelen < 0) {
                 audio_codec_print("framelen > AMFFMPEG_OUTFRAME_BUFSIZE or < 0\n");
