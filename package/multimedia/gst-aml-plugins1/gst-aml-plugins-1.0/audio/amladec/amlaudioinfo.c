@@ -41,7 +41,7 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
         if (header_val == NULL || !GST_VALUE_HOLDS_BUFFER (header_val))
           return FALSE;
 	   if(i==0){
-	       info->configdata = gst_buffer_make_writable(gst_value_get_buffer(header_val));
+	       info->configdata = gst_buffer_copy(gst_value_get_buffer(header_val));
 		  if(pcodec->audio_type == AFORMAT_VORBIS)
 		   	pcodec->audio_info.extradata[1] = gst_buffer_get_size (info->configdata );
 	   } else {
@@ -50,8 +50,10 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 		   	pcodec->audio_info.extradata[2] = gst_buffer_get_size (header_buf);
                 GST_WARNING ("pushing header buffer of %" G_GSIZE_FORMAT " bytes "
               " into adapter", gst_buffer_get_size (header_buf));
-		   if(header_buf)
-	         gst_buffer_copy_into(info->configdata,header_buf,GST_BUFFER_COPY_MEMORY,0,-1);	     
+		   if(header_buf) {
+	               gst_buffer_copy_into(info->configdata,header_buf,GST_BUFFER_COPY_MEMORY,0,-1);
+		       gst_buffer_unref(header_buf);
+		   }
 		}
 	  } 
     }
