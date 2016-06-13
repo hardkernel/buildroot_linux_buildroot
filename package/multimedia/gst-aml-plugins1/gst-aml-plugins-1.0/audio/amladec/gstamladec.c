@@ -226,11 +226,11 @@ gst_aml_adec_init (GstAmlAdec * amladec)
 	dec = GST_AUDIO_DECODER (amladec);
 	codec_audio_basic_init();
 	GST_WARNING_OBJECT(amladec, "%s %d", __FUNCTION__, __LINE__);	
-/*     if(!amlcontrol){
+     if(!amlcontrol){
      amlcontrol = g_malloc(sizeof(struct AmlControl));
      memset(amlcontrol, 0, sizeof(struct AmlControl));
     }	 
-    amlcontrol->passthrough = FALSE;	 */
+    amlcontrol->passthrough = FALSE;	 
 }
 
 static void
@@ -451,7 +451,7 @@ gst_aml_adec_start(GstAudioDecoder * dec)
 //	amladec->apeparser->currentframe = 0;
 	amladec->is_ape = FALSE;
 
-	amlcontrol->adecnumber++;     
+//	amlcontrol->adecnumber++;     
 	amladec->adecomit = FALSE;
 
 	return TRUE;
@@ -878,9 +878,9 @@ amladec_init (GstPlugin * amladec)
 	GST_ERROR_OBJECT(amladec, "%s %d", __FUNCTION__, __LINE__);
 	GST_DEBUG_CATEGORY_INIT(gst_aml_adec_debug, "amladec", 0, "Amlogic Audio Decoder");
        
-     amlcontrol = g_malloc(sizeof(struct AmlControl));
-     memset(amlcontrol, 0, sizeof(struct AmlControl));   
-     amlcontrol->passthrough = FALSE;	
+        amlcontrol = g_malloc(sizeof(struct AmlControl));
+        memset(amlcontrol, 0, sizeof(struct AmlControl));   
+        amlcontrol->passthrough = FALSE;	
 	return gst_element_register(amladec, "amladec", GST_RANK_PRIMARY+1, GST_TYPE_AMLADEC);
 }
 

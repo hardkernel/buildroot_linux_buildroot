@@ -393,6 +393,8 @@ gst_aml_vdec_start(GstVideoDecoder * dec)
 	amlvdec->is_eos = FALSE;
 	amlvdec->codec_init_ok = 0;
 	amlvdec->trickRate = 1.0;
+	amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+	amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder ppmgr deinterlace amvideo");
 	return TRUE;
 }
 
