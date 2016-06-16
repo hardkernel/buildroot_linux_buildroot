@@ -26,7 +26,7 @@ url="${2}"
 # Caller needs to single-quote its arguments to prevent them from
 # being expanded a second time (in case there are spaces in them)
 _wget() {
-    eval ${WGET} "${@}"
+    eval ${WGET} --no-check-certificate "${@}"
 }
 
 _wget ${verbose} -O "'${output}'" "'${url}'"

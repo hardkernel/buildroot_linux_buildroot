@@ -188,7 +188,7 @@
 ./usr/lib/libe2p.so.2.3
 ./usr/lib/libz.so.1.2.8
 ./usr/lib/libkmod.so.2.3.0
-./usr/lib/libglib-2.0.so.0.4600.2
+./usr/lib/libglib-2.0.so.0.4800.1
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
 ./usr/lib/libz.so
@@ -309,7 +309,6 @@
 ./usr/sbin/killall5
 ./usr/sbin/addgroup
 ./usr/sbin/mkfs.ext4dev
-./usr/sbin/gensprep
 ./usr/sbin/wpa_cli
 ./usr/sbin/fsck.ext4
 ./usr/sbin/loadfont
@@ -319,9 +318,7 @@
 ./usr/sbin/fsck
 ./usr/sbin/mkfs.ext4
 ./usr/sbin/iw
-./usr/sbin/genccode
 ./usr/sbin/fdformat
-./usr/sbin/gencmn
 ./usr/sbin/e2fsck
 ./usr/sbin/e2undo
 ./usr/sbin/badblocks
@@ -332,7 +329,6 @@
 ./usr/sbin/inetd
 ./usr/sbin/wpa_supplicant
 ./usr/sbin/readprofile
-./usr/sbin/icupkg
 ./usr/sbin/arping
 ./usr/sbin/fsck.ext4dev
 ./usr/sbin/fsck.ext3

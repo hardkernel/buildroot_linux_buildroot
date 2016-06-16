@@ -85,7 +85,7 @@ define $(2)_REGEN_DOT_CONFIG
 		$$(Q)$$($(2)_KCONFIG_MAKE) olddefconfig,
 		$$(if $$(filter oldnoconfig,$$($(2)_KCONFIG_RULES)),
 			$$(Q)$$($(2)_KCONFIG_MAKE) oldnoconfig,
-			$$(Q)(yes "" | $$($(2)_KCONFIG_MAKE) $$($(2)_KCONFIG_CONFIG_TARGET)))
+			$$(Q)(yes "" | $$($(2)_KCONFIG_MAKE) $$($(2)_KCONFIG_CONFIG_TARGET))))
 endef
 
 # The specified source configuration file and any additional configuration file

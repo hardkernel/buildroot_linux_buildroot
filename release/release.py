@@ -240,7 +240,7 @@ def create_cfg(config):
                     # hack to add uboot patch dir
                     if i == 'uboot':
                         hash_name = filename[i][17:-7]
-                        patch_cfg = 'BR2_TARGET_UBOOT_CUSTOM_PATCH_DIR=\"boot/uboot/%s\"\n' % hash_name 
+                        patch_cfg = 'BR2_TARGET_UBOOT_PATCH=\"boot/uboot/%s\"\n' % hash_name 
                         f.write(patch_cfg)
                 else:
                     cfg = pkgline.split('=')
