@@ -70,7 +70,7 @@ gint amlVideoInfoInit(AmlStreamInfo *info, codec_para_t *pcodec, GstStructure  *
 
     data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");
     if(data_buf){
-        info->configdata = gst_value_get_buffer(data_buf);
+        info->configdata = gst_buffer_copy(gst_value_get_buffer(data_buf));
         AML_DUMP_BUFFER(info->configdata, "Video Codec Data");
     }
     pcodec->am_sysinfo.height = video->height;

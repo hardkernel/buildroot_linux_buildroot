@@ -404,10 +404,14 @@ gst_aml_vdec_stop(GstVideoDecoder * dec)
     gboolean ret = FALSE;
     GstAmlVdec *amlvdec = GST_AMLVDEC(dec);
     GST_ERROR("%s,%d\n",__FUNCTION__,__LINE__);   
-  /*  if(amlvdec->codec_init_ok && amlvdec->is_eos ==TRUE)
-        ret=gst_amlvdec_polling_eos(amlvdec);
-    else */
-        ret = TRUE; 
+    if (amlvdec->is_paused == TRUE && amlvdec->codec_init_ok) {
+        ret=codec_resume (amlvdec->pcodec);
+        if (ret != 0) {
+            GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+        }else
+        amlvdec->is_paused = FALSE;
+    }
+    ret = TRUE; 
     return ret;
 }
 static gboolean gst_aml_vdec_set_format(GstVideoDecoder *dec, GstVideoCodecState *state)

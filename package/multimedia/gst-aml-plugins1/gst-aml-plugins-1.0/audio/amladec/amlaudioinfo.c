@@ -18,7 +18,7 @@ gint amlAudioInfoInit(AmlStreamInfo* info, codec_para_t *pcodec, GstStructure  *
 	if (gst_structure_has_field(structure, "codec_data")) {
 		extra_data_buf = (GValue *) gst_structure_get_value(structure, "codec_data");
 		if (extra_data_buf) {
-			info->configdata = gst_value_get_buffer(extra_data_buf);
+			info->configdata = gst_buffer_copy(gst_value_get_buffer(extra_data_buf));
 			AML_DUMP_BUFFER(info->configdata, "Audio Codec Data");
 		}
 	}
@@ -164,7 +164,7 @@ int extract_adts_header_info(AmlStreamInfo *info,codec_para_t *pcodec, GstBuffer
 		buf[6] = (char) (((hdr.adts_buffer_fullness & 0x3f) << 2) | hdr.number_of_raw_data_blocks_in_frame);
 		gst_buffer_unmap(buffer, &map);
 
-		//gst_buffer_unref(info->configdata);
+		gst_buffer_unref(info->configdata);
 		info->configdata = gst_buffer_copy(buffer);
 
 //        gst_buffer_make_writable(info->configdata);
@@ -201,22 +201,31 @@ gint adts_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *bu
         	gst_buffer_copy_into(buffer1, buffer, GST_BUFFER_COPY_DEEP, 0, ADTS_HEADER_SIZE);
         	gst_buffer_map(buffer1, &map, GST_MAP_READ);
         	adts_header=map.data;
-        	gst_buffer_unmap(buffer1, &map);
-        }
-        else  break;
+        	//gst_buffer_unmap(buffer1, &map);
+			
 		if (((adts_header[0] << 4) | (adts_header[1] & 0xF0) >> 4) != 0xFFF)                    //sync code
 			break;
 		if ((((*(adts_header + 3) & 0x2) << 11) | ((*(adts_header + 4) & 0xFF) << 3)
 				| ((*(adts_header + 5) & 0xE0) >> 5)) != gst_buffer_get_size(buffer))           //frame length
 			break;
+		}
+		else  break;
         GST_WARNING(" AAC es has adts header,don't add again");
+        gst_buffer_unmap(buffer1, &map);
+        if(adts_header){
+            gst_buffer_unref(buffer1);
+             buffer1=NULL;
+        }		
         return 0; //T
     }
 
+
     if(adts_header){
+        gst_buffer_unmap(buffer1, &map);	
         gst_buffer_unref(buffer1);
         buffer1=NULL;
     }
+	
     gst_buffer_map(info->configdata, &map, GST_MAP_WRITE);
 	buf = map.data;
     if (buf!=NULL) {

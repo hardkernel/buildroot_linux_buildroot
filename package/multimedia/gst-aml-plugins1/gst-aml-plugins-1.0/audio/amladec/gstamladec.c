@@ -172,7 +172,7 @@ static gboolean 				aml_decode_init(GstAmlAdec *amladec);
 static GstFlowReturn 		gst_aml_adec_decode (GstAmlAdec *amladec, GstBuffer * buf);
 static GstStateChangeReturn gst_aml_adec_change_state (GstElement * element, GstStateChange transition);
 
-struct AmlControl *amlcontrol;
+struct AmlControl *amlcontrol = NULL;
 #define gst_aml_adec_parent_class parent_class
 G_DEFINE_TYPE (GstAmlAdec, gst_aml_adec, GST_TYPE_AUDIO_DECODER);
 
@@ -228,9 +228,9 @@ gst_aml_adec_init (GstAmlAdec * amladec)
 	GST_WARNING_OBJECT(amladec, "%s %d", __FUNCTION__, __LINE__);	
      if(!amlcontrol){
      amlcontrol = g_malloc(sizeof(struct AmlControl));
-     memset(amlcontrol, 0, sizeof(struct AmlControl));
+     memset(amlcontrol, 0, sizeof(struct AmlControl));    
+     amlcontrol->passthrough = FALSE;
     }	 
-    amlcontrol->passthrough = FALSE;	 
 }
 
 static void
@@ -414,6 +414,7 @@ gst_aml_adec_close(GstAudioDecoder * dec)
         g_free(amlcontrol);
         amlcontrol = NULL;
     }
+  	GST_DEBUG_OBJECT(amladec, "%s %d", __FUNCTION__, __LINE__);
 	return TRUE;
 }
 
@@ -461,10 +462,14 @@ gst_aml_adec_stop(GstAudioDecoder * dec)
 {
 	int ret = FALSE;
 	GstAmlAdec *amladec = GST_AMLADEC(dec);
-	//if (amladec->codec_init_ok && amladec->is_eos == TRUE ) 
-	 //   ret = gst_amladec_polling_eos(amladec);
-	//else 
-	    ret = TRUE;
+     if (amladec->is_paused == TRUE && amladec->codec_init_ok) {
+         ret=codec_resume (amladec->pcodec);
+        if (ret != 0) {
+            GST_ERROR("[%s:%d]resume failed!ret=%d\n", __FUNCTION__, __LINE__, ret);
+        }else
+            amladec->is_paused = FALSE;
+    }
+     ret = TRUE;
 	return ret;
 }
 	
@@ -623,7 +628,7 @@ gst_amladec_sink_event  (GstAudioDecoder * dec, GstEvent * event)
         } 
 		
         case GST_EVENT_EOS:
-            GST_WARNING("get GST_EVENT_EOS,check for video end\n");
+            GST_WARNING("get GST_EVENT_EOS,check for audio end\n");
             if(amladec->codec_init_ok)	{ 
 			start_eos_task(amladec);		
                 amladec->is_eos = TRUE;
@@ -875,12 +880,13 @@ amladec_init (GstPlugin * amladec)
 	 *
 	 * exchange the string 'Template amladec' with your description
 	 */
-	GST_ERROR_OBJECT(amladec, "%s %d", __FUNCTION__, __LINE__);
 	GST_DEBUG_CATEGORY_INIT(gst_aml_adec_debug, "amladec", 0, "Amlogic Audio Decoder");
-       
+    if(!amlcontrol){
         amlcontrol = g_malloc(sizeof(struct AmlControl));
         memset(amlcontrol, 0, sizeof(struct AmlControl));   
         amlcontrol->passthrough = FALSE;	
+    }
+		GST_DEBUG( "%s %d\n", __FUNCTION__, __LINE__);
 	return gst_element_register(amladec, "amladec", GST_RANK_PRIMARY+1, GST_TYPE_AMLADEC);
 }
 
