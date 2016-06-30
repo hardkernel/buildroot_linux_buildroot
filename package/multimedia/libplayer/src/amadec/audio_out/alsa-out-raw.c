@@ -432,7 +432,11 @@ int alsa_init_raw(struct aml_audio_dec* audec)
     }else if(audec->format == ACODEC_FMT_EAC3){
         amsysfs_set_sysfs_int("/sys/class/audiodsp/digital_codec",4);
         audec->codec_type=4;
-    }
+    }else if(audec->format == ACODEC_FMT_DTS){
+        amsysfs_set_sysfs_int("/sys/class/audiodsp/digital_codec",3);
+        audec->codec_type=3;
+
+	}
     }
 
     if(AUDIO_PCM_OUTPUT == dgraw) {
@@ -700,7 +704,8 @@ int alsa_stop_raw(struct aml_audio_dec* audec)
     audec->aout_ops.private_data_raw = NULL;
     adec_print("exit alsa out raw stop\n");
     if((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)){
-        if((audec->format == ACODEC_FMT_AC3) ||(audec->format == ACODEC_FMT_EAC3) ){
+        if((audec->format == ACODEC_FMT_AC3) ||(audec->format == ACODEC_FMT_EAC3) || \
+			(audec->format == ACODEC_FMT_DTS)){
             amsysfs_set_sysfs_int("/sys/class/audiodsp/digital_codec",0);
         }
     }
