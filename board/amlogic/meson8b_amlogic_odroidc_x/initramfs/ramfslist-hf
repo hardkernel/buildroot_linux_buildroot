@@ -305,7 +305,6 @@
 ./usr/sbin/killall5
 ./usr/sbin/addgroup
 ./usr/sbin/mkfs.ext4dev
-./usr/sbin/gensprep
 ./usr/sbin/wpa_cli
 ./usr/sbin/fsck.ext4
 ./usr/sbin/loadfont
