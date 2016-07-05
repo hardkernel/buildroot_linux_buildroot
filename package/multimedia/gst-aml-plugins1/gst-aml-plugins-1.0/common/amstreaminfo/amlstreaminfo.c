@@ -37,6 +37,9 @@ AmlStreamInfo *createStreamInfo(gint size)
 
 void amlStreamInfoFinalize(AmlStreamInfo *info)
 {
+    if (info->configdata)
+        gst_buffer_unref(info->configdata);
+	
     if(info){
         g_free(info);
     }

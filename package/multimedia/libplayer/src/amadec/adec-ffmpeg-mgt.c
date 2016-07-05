@@ -13,8 +13,6 @@
 #include <audio-dec.h>
 
 #define adec_print printf
-
-
 #define HEADER_LENGTH_AFTER_IEC61937 0x4
 
 
@@ -1171,10 +1169,9 @@ exit_decode_loop:
                            audec->decode_offset+=dlen;
                       }
 
-                        int bytesread=0;
-                        while(outlen){
-							if((ACODEC_FMT_AC3 == nAudioFormat) || (ACODEC_FMT_EAC3 == nAudioFormat) || (ACODEC_FMT_DTS == nAudioFormat)){
-
+						if((ACODEC_FMT_AC3 == nAudioFormat) || (ACODEC_FMT_EAC3 == nAudioFormat) || (ACODEC_FMT_DTS == nAudioFormat)){
+                            int bytesread=0;
+							while(outlen){
 	                            //sub the pcm header(4bytes) and the pcm data(0x1800bytes)
 	                            char *output_pcm_buf = outbuf + HEADER_LENGTH_AFTER_IEC61937 + bytesread;
 	                            int output_pcm_len = *(int *)outbuf;
@@ -1218,24 +1215,22 @@ exit_decode_loop:
 										//adec_print("output_raw_len:%d,wlen:%d \n",output_raw_len,wlen);
 	                                    output_raw_len -= wlen;
 	                                }
-
 	                            }
+							}
+                        } else {
+                        audec->pcm_cache_size=outlen;
+                        if(g_bst) {
+                            int wlen=0;
 
-	                        } else {
-                            audec->pcm_cache_size=outlen;
-                            if(g_bst) {
-                                int wlen=0;
+                            while(outlen && !audec->exit_decode_thread) {
+                                if(g_bst->buf_length-g_bst->buf_level<outlen){
+                                usleep(100000);
+                                continue;
+                            }
 
-                                while(outlen && !audec->exit_decode_thread) {
-                                    if(g_bst->buf_length-g_bst->buf_level<outlen){
-                                    usleep(100000);
-                                    continue;
-                                }
-
-                                wlen=write_pcm_buffer(outbuf, g_bst,outlen); 
-                                outlen-=wlen;
-                                audec->pcm_cache_size-=wlen;
-                                }
+                            wlen=write_pcm_buffer(outbuf, g_bst,outlen);
+                            outlen-=wlen;
+                            audec->pcm_cache_size-=wlen;
                             }
                         }
                     }
