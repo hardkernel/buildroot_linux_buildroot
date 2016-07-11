@@ -1,13 +1,22 @@
 Index: uboot-next-2015-dev/board/amlogic/configs/gxb_p201_v1.h
 ===================================================================
---- uboot-next-2015-dev.orig/board/amlogic/configs/gxb_p201_v1.h	2016-06-02 17:15:44.000000000 +0800
-+++ uboot-next-2015-dev/board/amlogic/configs/gxb_p201_v1.h	2016-06-03 13:54:26.686804563 +0800
+--- uboot-next-2015-dev.orig/board/amlogic/configs/gxb_p201_v1.h	2016-07-11 10:51:32.000000000 +0800
++++ uboot-next-2015-dev/board/amlogic/configs/gxb_p201_v1.h	2016-07-11 13:52:43.427164046 +0800
+@@ -72,7 +72,7 @@
+ #define CONFIG_SYS_MAXARGS  64
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+         "firstboot=1\0"\
+-        "upgrade_step=0\0"\
++        "upgrade_step=2\0"\
+         "jtag=apee\0"\
+         "loadaddr=1080000\0"\
+         "outputmode=1080p60hz\0" \
 @@ -101,7 +101,7 @@
          "recovery_offset=0\0"\
          "cvbs_drv=0\0"\
          "initargs="\
 -            "rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 "\
-+            "init=/sbin/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 androidboot.selinux=enforcing"\
++            "init=/sbin/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000"\
              "\0"\
          "upgrade_check="\
              "echo upgrade_step=${upgrade_step}; "\
@@ -16,17 +25,17 @@ Index: uboot-next-2015-dev/board/amlogic/configs/gxb_p201_v1.h
              "\0"\
      "storeargs="\
 -            "setenv bootargs ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${cecconfig} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
-+            "setenv bootargs root=/dev/system rootfstype=ext4 ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "
++            "setenv bootargs root=/dev/system rootfstype=ext4 ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "
  	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
              "run cmdline_keys;"\
              "\0"\
 +        "sdcardargs="\
-+            "setenv bootargs root=/dev/mmcblk0p1 rootfstype=ext2 ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
++            "setenv bootargs root=/dev/mmcblk0p1 rootfstype=ext2 ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag}; "\
 +	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
 +            "run cmdline_keys;"\
 +            "\0"\
 +        "bootupdateargs="\
-+            "setenv bootargs root=/dev/mmcblk0p1 rootfstype=vfat ${initargs} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag} firmware=rootfs.tar.gz; "\
++            "setenv bootargs root=/dev/mmcblk0p1 rootfstype=vfat ${initargs} androidboot.selinux=${EnableSelinux} logo=${display_layer},loaded,${fb_addr},${outputmode} vout=${outputmode},enable hdmimode=${hdmimode} cvbsmode=${cvbsmode} hdmitx=${hdmimode} cvbsdrv=${cvbs_drv} androidboot.firstboot=${firstboot} jtag=${jtag} firmware=rootfs.tar.gz; "\
 +	"setenv bootargs ${bootargs} androidboot.hardware=amlogic;"\
 +             "run cmdline_keys;"\
 +             "\0"\
