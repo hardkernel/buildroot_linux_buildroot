@@ -16,9 +16,9 @@ define MTK7603_BUILD_CMDS
 endef
 define MTK7603_INSTALL_TARGET_CMDS
 	mkdir -p $(MTK7603_INSTALL_DIR)
-	$(INSTALL) -m 0666 $(@D)/mt7603usta.ko $(MTK7603_INSTALL_DIR)
+	$(INSTALL) -m 0666 $(@D)/os/linux/mt7603usta.ko $(MTK7603_INSTALL_DIR)
 	echo $(MTK7603_MODULE_DIR)/mt7603usta.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
-	$(INSTALL) -m 0666 $(@D)/mtprealloc.ko $(MTK7603_INSTALL_DIR)
+	$(INSTALL) -m 0666 $(@D)/os/linux/mtprealloc.ko $(MTK7603_INSTALL_DIR)
 	echo $(MTK7603_MODULE_DIR)/mtprealloc.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 endef
 $(eval $(generic-package))
