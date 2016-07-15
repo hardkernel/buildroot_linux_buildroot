@@ -12,11 +12,7 @@ RTK8723BU_INSTALL_DIR = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/$(RTK8
 ifeq ($(BR2_PACKAGE_RTK8723BU_STANDALONE),y)
 define RTK8723BU_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE1) -C $(LINUX_DIR) M=$(@D)/rtl8723BU ARCH=$(KERNEL_ARCH) \
-		CONFIG_RTL8723BU=m CROSS_COMPILE=$(TARGET_CROSS) modules \
-		EXTRA_CFLAGS+='-Wno-unused-variable -Wno-unused-value -Wno-unused-label \
-		-Wno-unused-parameter -Wno-unused-function -Wno-unused -Wno-date-time \
-		-Wno-implicit-function-declaration -I$(@D)/rtl8723BU/include -I$(@D)/rtl8723BU/platform \
-		-DCONFIG_LITTLE_ENDIAN'
+		CONFIG_RTL8723BU=m CROSS_COMPILE=$(TARGET_CROSS) modules
 endef
 define RTK8723BU_INSTALL_TARGET_CMDS
 	mkdir -p $(RTK8723BU_INSTALL_DIR)
