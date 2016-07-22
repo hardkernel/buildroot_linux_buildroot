@@ -1263,10 +1263,13 @@ int vp9_update_frame_header(am_packet_t *pkt)
     unsigned char *buf = pkt->data;
     unsigned char marker;
     int frame_number;
-    int cur_frame, cur_mag, mag, index_sz, offset[9], size[8];
+    int cur_frame, cur_mag, mag, index_sz, offset[9], size[8], tframesize[9];
     int mag_ptr;
     int ret;
+    unsigned char *old_header = NULL;
+    int total_datasize = 0;
 
+    if (buf == NULL) return PLAYER_SUCCESS; /*something error. skip add header*/
     marker = buf[dsize - 1];
     if ((marker & 0xe0) == 0xc0) {
         frame_number = (marker & 0x7) + 1;
@@ -1277,6 +1280,7 @@ int vp9_update_frame_header(am_packet_t *pkt)
         mag_ptr = dsize - mag * frame_number - 2;
         if (buf[mag_ptr] != marker) {
             log_info(" Wrong marker2 : 0x%X --> 0x%X\n", marker, buf[mag_ptr]);
+            return PLAYER_SUCCESS;
         }
         mag_ptr++;
         for (cur_frame = 0; cur_frame < frame_number; cur_frame++) {
@@ -1286,17 +1290,29 @@ int vp9_update_frame_header(am_packet_t *pkt)
                 mag_ptr++;
             }
             offset[cur_frame+1] = offset[cur_frame] + size[cur_frame];
+            if (cur_frame == 0)
+                tframesize[cur_frame] = size[cur_frame];
+            else
+                tframesize[cur_frame] = tframesize[cur_frame - 1] + size[cur_frame];
+            total_datasize += size[cur_frame];
         }
     } else {
         frame_number = 1;
         offset[0] = 0;
         size[0] = dsize; // or size[0] = bytes_in_buffer - 1; both OK
+        total_datasize += dsize;
+        tframesize[0] = dsize;
+    }
+    if (total_datasize > dsize) {
+        log_info("DATA overflow : 0x%X --> 0x%X\n", total_datasize, dsize);
+        return PLAYER_SUCCESS;
     }
     if (frame_number >= 1) {
         /*
         if only one frame ,can used headers.
         */
-        ret = av_grow_packet(pkt->avpkt, frame_number * 16);
+        int need_more = total_datasize + frame_number * 16 - dsize;
+        ret = av_grow_packet(pkt->avpkt, need_more);
         if (ret < 0) {
             log_info("ERROR!!! grow_packet for apk failed.!!!\n");
             return ret;
@@ -1307,7 +1323,7 @@ int vp9_update_frame_header(am_packet_t *pkt)
     for (cur_frame = frame_number - 1; cur_frame >= 0; cur_frame--) {
         AVPacket *avpkt = pkt->avpkt;
         int framesize = size[cur_frame];
-        int oldframeoff = offset[cur_frame];
+        int oldframeoff = tframesize[cur_frame] - framesize;
         int outheaderoff = oldframeoff + cur_frame * 16;
         uint8_t *fdata = avpkt->data + outheaderoff;
         uint8_t *old_framedata = avpkt->data + oldframeoff;
@@ -1331,6 +1347,16 @@ int vp9_update_frame_header(am_packet_t *pkt)
         fdata[13] = 'M';
         fdata[14] = 'L';
         fdata[15] = 'V';
+        framesize -= 4;/*del 4 to real framesize for check.....*/
+       if (!old_header) {
+           ///nothing
+       } else if (old_header > fdata + 16 + framesize) {
+           log_info("data has gaps,set to 0\n");
+           memset(fdata + 16 + framesize, 0, (old_header - fdata + 16 + framesize));
+       } else if (old_header < fdata + 16 + framesize) {
+           log_info("ERROR!!! data over writed!!!! over write %d\n", fdata + 16 + framesize - old_header);
+       }
+       old_header = fdata;
     }
     return PLAYER_SUCCESS;
 }
