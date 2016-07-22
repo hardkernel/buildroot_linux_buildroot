@@ -303,21 +303,16 @@ static inline int codec_video_es_init(codec_para_t *pcodec)
 
     flags |= pcodec->noblock ? O_NONBLOCK : 0;
     if(pcodec->video_type == VFORMAT_HEVC || pcodec->video_type == VFORMAT_VP9) {
-		printf("OPEN es hevc\n");
+		printf("OPEN es hevc/vp9\n");
       handle = codec_h_open(CODEC_VIDEO_ES_HEVC_DEVICE, flags);
     } else if (pcodec->video_type == VFORMAT_SWCODEC) {
+        printf("OPEN es swcodec\n");
 		codec_sw_decoder_init(pcodec);
-    }
-
-    flags |= pcodec->noblock ? O_NONBLOCK : 0;
-    if (pcodec->video_type == VFORMAT_HEVC) {
-        CODEC_PRINT("OPEN es hevc\n");
-        handle = codec_h_open(CODEC_VIDEO_ES_HEVC_DEVICE, flags);
     } else {
         CODEC_PRINT("OPEN es DEVICE\n");
         handle = codec_h_open(CODEC_VIDEO_ES_DEVICE, flags);
     }
-    
+
     if (handle < 0) {
         codec_r = system_error_to_codec_error(handle);
         print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
