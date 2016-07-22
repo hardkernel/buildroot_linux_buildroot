@@ -96,6 +96,8 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
         COMMON_VIDEO_CAPS "; "
         "video/x-divx, "
         COMMON_VIDEO_CAPS "; "
+        "video/x-vp9, "
+        COMMON_VIDEO_CAPS "; "
 //	        "video/x-huffyuv, "
 //	        COMMON_VIDEO_CAPS "; "
 //	        "video/x-dv, "

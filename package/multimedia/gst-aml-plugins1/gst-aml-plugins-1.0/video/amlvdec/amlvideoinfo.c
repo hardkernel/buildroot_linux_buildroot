@@ -377,7 +377,7 @@ void amlH265Finalize(AmlStreamInfo *info)
     return;
 }
 
-static AmlStreamInfo *newAmlInfoH265()
+AmlStreamInfo *newAmlInfoH265()
 {
     AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoH265));
     
@@ -396,6 +396,143 @@ AmlStreamInfo *newAmlInfoH264()
     info->writeheader = h264_write_header;
     info->add_startcode = h264_add_startcode;
     info->finalize = amlH264Finalize;
+    return info;
+}
+
+
+static gint amlInitVP9(AmlStreamInfo* info, codec_para_t *pcodec,
+GstStructure  *structure)
+{
+//    AmlVideoInfo *videoinfo = AML_VIDEOINFO_BASE(info);
+    amlVideoInfoInit(info, pcodec, structure);
+    pcodec->video_type = VFORMAT_VP9;
+    pcodec->am_sysinfo.format = VIDEO_DEC_FORMAT_VP9;
+//    pcodec->am_sysinfo.param = (void *)( EXTERNAL_PTS);
+    return 0;
+}
+
+static gint vp9_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuffer *buffer)
+{
+    int dsize;
+    unsigned char *buf;
+    unsigned char marker;
+    int frame_number;
+    int cur_frame, cur_mag, mag, index_sz, offset[9], size[8], tframesize[9];
+    int mag_ptr;
+    int ret;
+    unsigned char *old_header = NULL;
+    int total_datasize = 0;
+    GstMapInfo map;
+
+    gst_buffer_map(buffer, &map, GST_MAP_READ);
+    dsize = map.size;
+    buf = map.data;
+    gst_buffer_unmap(buffer, &map);
+    if (buf == NULL) {
+        return -1; /*something error. skip add header*/
+    }
+    marker = buf[dsize - 1];
+    if ((marker & 0xe0) == 0xc0) {
+        frame_number = (marker & 0x7) + 1;
+        mag = ((marker >> 3) & 0x3) + 1;
+        index_sz = 2 + mag * frame_number;
+        GST_INFO(" frame_number : %d, mag : %d; index_sz : %d\n", frame_number, mag, index_sz);
+        offset[0] = 0;
+        mag_ptr = dsize - mag * frame_number - 2;
+        if (buf[mag_ptr] != marker) {
+            GST_ERROR(" Wrong marker2 : 0x%X --> 0x%X\n", marker, buf[mag_ptr]);
+            return -2;
+        }
+        mag_ptr++;
+        for (cur_frame = 0; cur_frame < frame_number; cur_frame++) {
+            size[cur_frame] = 0; // or size[0] = bytes_in_buffer - 1; both OK
+            for (cur_mag = 0; cur_mag < mag; cur_mag++) {
+                size[cur_frame] = size[cur_frame]  | (buf[mag_ptr] << (cur_mag*8) );
+                mag_ptr++;
+            }
+            offset[cur_frame+1] = offset[cur_frame] + size[cur_frame];
+            if (cur_frame == 0)
+                tframesize[cur_frame] = size[cur_frame];
+            else
+                tframesize[cur_frame] = tframesize[cur_frame - 1] + size[cur_frame];
+            total_datasize += size[cur_frame];
+        }
+    } else {
+        frame_number = 1;
+        offset[0] = 0;
+        size[0] = dsize; // or size[0] = bytes_in_buffer - 1; both OK
+        total_datasize += dsize;
+        tframesize[0] = dsize;
+    }
+    if (total_datasize > dsize) {
+        GST_ERROR("DATA overflow : 0x%X --> 0x%X\n", total_datasize, dsize);
+        return -3;
+    }
+
+
+    if (frame_number >= 1) {
+        /*
+        if only one frame ,can used headers.
+        */
+        int need_more = total_datasize + frame_number * 16;
+        gst_buffer_resize(buffer, 0, need_more);
+    }
+    gst_buffer_map(buffer, &map, GST_MAP_READ | GST_MAP_WRITE);
+    for (cur_frame = frame_number - 1; cur_frame >= 0; cur_frame--) {
+        int framesize = size[cur_frame];
+        int oldframeoff = tframesize[cur_frame] - framesize;
+        int outheaderoff = oldframeoff + cur_frame * 16;
+        unsigned char *fdata = map.data + outheaderoff;
+        unsigned char *old_framedata = map.data + oldframeoff;
+        memmove(fdata + 16, old_framedata, framesize);
+        framesize += 4;/*add 4. for shift.....*/
+
+        /*add amlogic frame headers.*/
+        fdata[0] = (framesize >> 24) & 0xff;
+        fdata[1] = (framesize >> 16) & 0xff;
+        fdata[2] = (framesize >> 8) & 0xff;
+        fdata[3] = (framesize >> 0) & 0xff;
+        fdata[4] = ((framesize >> 24) & 0xff) ^0xff;
+        fdata[5] = ((framesize >> 16) & 0xff) ^0xff;
+        fdata[6] = ((framesize >> 8) & 0xff) ^0xff;
+        fdata[7] = ((framesize >> 0) & 0xff) ^0xff;
+        fdata[8] = 0;
+        fdata[9] = 0;
+        fdata[10] = 0;
+        fdata[11] = 1;
+        fdata[12] = 'A';
+        fdata[13] = 'M';
+        fdata[14] = 'L';
+        fdata[15] = 'V';
+        framesize -= 4;/*del 4 to real framesize for check.....*/
+        if (!old_header) {
+           ///nothing
+        } else if (old_header > fdata + 16 + framesize) {
+           GST_INFO("data has gaps,set to 0\n");
+           memset(fdata + 16 + framesize, 0, (old_header - fdata + 16 + framesize));
+        } else if (old_header < fdata + 16 + framesize) {
+           GST_ERROR("ERROR!!! data d writed!!!! over write %d\n", fdata + 16 + framesize - old_header);
+        }
+        old_header = fdata;
+    }
+    gst_buffer_unmap(buffer, &map);
+    return 0;
+}
+void amlVP9Finalize(AmlStreamInfo *info)
+{
+    AmlStreamInfo *baseinfo = AML_STREAMINFO_BASE(info);
+    amlVdeoInfoFinalize(baseinfo);
+    return;
+}
+
+AmlStreamInfo *newAmlInfoVP9()
+{
+    AmlStreamInfo *info = createVideoInfo(sizeof(AmlInfoVP9));
+
+    info->init = amlInitVP9;
+//    info->writeheader = vp9_write_header;
+    info->add_startcode = vp9_add_startcode;
+    info->finalize = amlVP9Finalize;
     return info;
 }
 
@@ -927,6 +1064,7 @@ static const AmlStreamInfoPool amlVstreamInfoPool[] = {
     /*******video format information*******/
     {"video/x-h265", newAmlInfoH265},
     {"video/x-h264", newAmlInfoH264},
+    {"video/x-vp9", newAmlInfoVP9},
     {"video/mpeg", newAmlInfoMpeg},
     {"video/x-msmpeg", newAmlInfoMsmpeg},
     {"video/x-h263", newAmlInfoH263},
