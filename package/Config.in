@@ -453,6 +453,7 @@ endif
 	source "package/rpi-userland/Config.in"
 	source "package/rtl8188eu/Config.in"
 	source "package/rtk8189ftv/Config.in"
+	source "package/rtk8192es/Config.in"
 	source "package/rtk8822bu/Config.in"
 	source "package/mtk7601/Config.in"
 	source "package/mtk7603/Config.in"
