@@ -41,6 +41,10 @@ endif
 
 ifeq ($(BR2_TARGET_UBOOT_FORMAT_ELF),y)
 UBOOT_BIN = u-boot
+# To make elf usable for debuging on ARC use special target
+ifeq ($(BR2_arc),y)
+UBOOT_MAKE_TARGET = mdbtrick
+endif
 else ifeq ($(BR2_TARGET_UBOOT_FORMAT_KWB),y)
 UBOOT_BIN = u-boot.kwb
 UBOOT_MAKE_TARGET = $(UBOOT_BIN)
@@ -106,7 +110,7 @@ else
 UBOOT_MAKE_OPTS += \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
 	ARCH=$(UBOOT_ARCH) \
-	HOSTCFLAGS="$(HOST_CFLAGS)" \
+	HOSTCC="$(HOSTCC) $(HOST_CFLAGS)" \
 	HOSTLDFLAGS="$(HOST_LDFLAGS)"
 endif
 
@@ -232,7 +236,10 @@ define UBOOT_INSTALL_IMAGES_CMDS
 	$(if $(BR2_TARGET_UBOOT_FORMAT_NAND),
 		cp -dpf $(@D)/$(UBOOT_MAKE_TARGET) $(BINARIES_DIR))
 	$(if $(BR2_TARGET_UBOOT_SPL),
-		cp -dpf $(@D)/$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)) $(BINARIES_DIR)/)
+		$(foreach f,$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)), \
+			cp -dpf $(@D)/$(f) $(BINARIES_DIR)/
+		)
+	)
 	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
 		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
 	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
@@ -242,9 +249,10 @@ define UBOOT_INSTALL_IMAGES_CMDS
 	$(if $(BR2_TARGET_UBOOT_AMLOGIC_2015),
 		cp -dpf $(@D)/fip/u-boot.bin.sd.bin $(BINARIES_DIR)/)
 	$(if $(BR2_TARGET_UBOOT_ENVIMAGE),
-		$(HOST_DIR)/usr/bin/mkenvimage -s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE) \
-		$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUNDANT),-r) \
-		-o $(BINARIES_DIR)/uboot-env.bin $(BR2_TARGET_UBOOT_ENVIMAGE_SOURCE))
+		cat $(call qstrip,$(BR2_TARGET_UBOOT_ENVIMAGE_SOURCE)) | \
+			$(HOST_DIR)/usr/bin/mkenvimage -s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE) \
+			$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUNDANT),-r) \
+			-o $(BINARIES_DIR)/uboot-env.bin -)
 endef
 
 define UBOOT_INSTALL_OMAP_IFT_IMAGE
@@ -267,8 +275,9 @@ endif
 
 ifeq ($(BR2_TARGET_UBOOT_ZYNQ_IMAGE),y)
 define UBOOT_GENERATE_ZYNQ_IMAGE
-	$(HOST_DIR)/usr/bin/python2 $(HOST_DIR)/usr/bin/zynq-boot-bin.py \
-		-u $(@D)/$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME))     \
+	$(HOST_DIR)/usr/bin/python2 \
+		$(HOST_DIR)/usr/bin/zynq-boot-bin.py \
+		-u $(@D)/$(firstword $(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME))) \
 		-o $(BINARIES_DIR)/BOOT.BIN
 endef
 UBOOT_DEPENDENCIES += host-zynq-boot-bin
@@ -277,8 +286,11 @@ endif
 
 ifeq ($(BR2_TARGET_UBOOT_ALTERA_SOCFPGA_IMAGE_CRC),y)
 define UBOOT_CRC_ALTERA_SOCFPGA_IMAGE
-	$(HOST_DIR)/usr/bin/mkpimage -o $(BINARIES_DIR)/$(notdir $(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME))).crc \
-		$(@D)/$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME))
+	$(foreach f,$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)), \
+		$(HOST_DIR)/usr/bin/mkpimage \
+			-o $(BINARIES_DIR)/$(notdir $(call qstrip,$(f))).crc \
+			$(@D)/$(call qstrip,$(f))
+	)
 endef
 UBOOT_DEPENDENCIES += host-mkpimage
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_CRC_ALTERA_SOCFPGA_IMAGE
