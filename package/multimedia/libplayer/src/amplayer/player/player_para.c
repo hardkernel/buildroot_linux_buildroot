@@ -1718,11 +1718,11 @@ int player_decoder_init(play_para_t *p_para)
 		log_print("DRMdemux :: LOCAL_OEMCRYPTO_LEVEL -> L1 or PlayReady TVP\n");
 		if (p_para->vcodec){
 			log_print("DRMdemux setdrmmodev vcodec\n");
-			codec_set_drmmode(p_para->vcodec);
+			codec_set_drmmode(p_para->vcodec, 1);
 		}
 		if (p_para->acodec){
 			log_print("DRMdemux setdrmmodev acodec\n");
-			codec_set_drmmode(p_para->acodec);	
+			codec_set_drmmode(p_para->acodec, 1);
 		}
 	}
  
