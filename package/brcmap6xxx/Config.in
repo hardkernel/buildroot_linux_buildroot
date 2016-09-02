@@ -16,6 +16,17 @@ config BR2_PACKAGE_BRCMAP6XXX_GIT_REPO_URL
 	help
 		brcmap6xxx git
 
+config BR2_PACKAGE_BRCMAP6XXX_LOCAL
+	bool "brcmap6xxx local"
+	help
+		brcmap6xxx local
+
+config BR2_PACKAGE_BRCMAP6XXX_LOCAL_PATH
+	string "brcmap6xxx local path"
+	depends on BR2_PACKAGE_BRCMAP6XXX_LOCAL
+	help
+		brcmap6xxx local path
+
 config BR2_PACKAGE_BRCMAP6XXX_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_BRCMAP6XXX

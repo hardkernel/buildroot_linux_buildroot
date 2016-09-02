@@ -468,8 +468,41 @@ static gint vp9_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuff
         GST_ERROR("DATA overflow : 0x%X --> 0x%X\n", total_datasize, dsize);
         return -3;
     }
+#if 1
+    if (frame_number >= 1) {
+        gst_buffer_map(buffer, &map, GST_MAP_READ | GST_MAP_WRITE);
+        for (cur_frame = 0; cur_frame < frame_number; cur_frame++) {
+            int framesize = size[cur_frame];
+            int oldframeoff = tframesize[cur_frame] - framesize;
+            unsigned char fdata[16];
+            unsigned char *old_framedata = map.data + oldframeoff;
 
-
+            framesize += 4;
+            /*add amlogic frame headers.*/
+            fdata[0] = (framesize >> 24) & 0xff;
+            fdata[1] = (framesize >> 16) & 0xff;
+            fdata[2] = (framesize >> 8) & 0xff;
+            fdata[3] = (framesize >> 0) & 0xff;
+            fdata[4] = ((framesize >> 24) & 0xff) ^0xff;
+            fdata[5] = ((framesize >> 16) & 0xff) ^0xff;
+            fdata[6] = ((framesize >> 8) & 0xff) ^0xff;
+            fdata[7] = ((framesize >> 0) & 0xff) ^0xff;
+            fdata[8] = 0;
+            fdata[9] = 0;
+            fdata[10] = 0;
+            fdata[11] = 1;
+            fdata[12] = 'A';
+            fdata[13] = 'M';
+            fdata[14] = 'L';
+            fdata[15] = 'V';
+            codec_write(pcodec, fdata, 16);
+            framesize -= 4;
+            codec_write(pcodec, old_framedata, framesize);
+        }
+        gst_buffer_resize(buffer, 0, 0);
+        gst_buffer_unmap(buffer, &map);
+    }
+#else
     if (frame_number >= 1) {
         /*
         if only one frame ,can used headers.
@@ -516,6 +549,7 @@ static gint vp9_add_startcode(AmlStreamInfo* info, codec_para_t *pcodec, GstBuff
         old_header = fdata;
     }
     gst_buffer_unmap(buffer, &map);
+#endif
     return 0;
 }
 void amlVP9Finalize(AmlStreamInfo *info)

@@ -84,6 +84,10 @@ config BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION
 	string "URL of custom kernel tarball"
 	depends on BR2_LINUX_KERNEL_CUSTOM_TARBALL
 
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE
+	string "local version"
+	depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
+
 if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG || BR2_LINUX_KERNEL_CUSTOM_SVN
 
 config BR2_LINUX_KERNEL_CUSTOM_REPO_URL
@@ -115,7 +119,8 @@ config BR2_LINUX_KERNEL_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL
 	default BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION \
 		if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG || BR2_LINUX_KERNEL_CUSTOM_SVN
-	default "custom" if BR2_LINUX_KERNEL_CUSTOM_LOCAL
+	default BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE \
+		if BR2_LINUX_KERNEL_CUSTOM_LOCAL
 
 #
 # Patch selection
@@ -123,7 +128,6 @@ config BR2_LINUX_KERNEL_VERSION
 
 config BR2_LINUX_KERNEL_PATCH
 	string "Custom kernel patches"
-	depends on !BR2_LINUX_KERNEL_CUSTOM_LOCAL
 	help
 	  A space-separated list of patches to apply to the
 	  kernel. Each patch can be described as an URL, a local file

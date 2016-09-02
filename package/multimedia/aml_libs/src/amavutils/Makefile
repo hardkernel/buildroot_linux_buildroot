@@ -2,7 +2,7 @@ M_PREFIX=$(AML_LIBS_STAGING_DIR)/usr
 LIB_DIR?=$(M_PREFIX)/lib
 HEADERS_DIR?=$(M_PREFIX)/include
 
-TARGET_OBJS=amaudioutils.o amconfigutils.o amdisplayutils.o ammodule.o amsysfsutils.o Amvideoutils.o itemlist.o\
+TARGET_OBJS=amaudioutils.o amconfigutils.o amdisplayutils.o ammodule.o amsysfsutils.o Amvideoutils.o itemlist.o amdrmutils.o\
 
 TARGET=libamavutils.so
 

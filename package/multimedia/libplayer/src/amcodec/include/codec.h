@@ -117,6 +117,8 @@ int codec_get_audio_cur_bitrate(codec_para_t *pcodec,int *bitrate);
 
 int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode);
 
+int codec_set_drmmode(codec_para_t *pcodec, unsigned int mode);
+
 int codec_get_last_checkout_apts(codec_para_t* pcodec, unsigned long *apts);
 int codec_get_last_checkin_apts(codec_para_t* pcodec, unsigned long *apts);
 /*add for gstreamer fast/slow forward*/

@@ -22,6 +22,18 @@ config BR2_PACKAGE_GPU_CUSTOM_TARBALL_LOCATION
 	help
 	  the URL of amlogic gpu driver
 
+config BR2_PACKAGE_GPU_LOCAL
+	bool "amlogic gpu driver local"
+	depends on BR2_PACKAGE_GPU
+	help
+		gpu local
+
+config BR2_PACKAGE_GPU_LOCAL_PATH
+	string "amlogic gpu local path"
+	depends on BR2_PACKAGE_GPU_LOCAL
+	help
+		gpu local path
+
 config BR2_PACKAGE_GPU_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_GPU

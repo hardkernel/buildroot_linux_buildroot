@@ -16,6 +16,17 @@ config BR2_PACKAGE_RTK8189FTV_GIT_REPO_URL
 	help
 		rtk8189ftv git
 
+config BR2_PACKAGE_RTK8189FTV_LOCAL
+	bool "rtk8189ftv local"
+	help
+		rtk8189ftv local
+
+config BR2_PACKAGE_RTK8189FTV_LOCAL_PATH
+	string "rtk8189ftv local path"
+	depends on BR2_PACKAGE_RTK8189FTV_LOCAL
+	help
+		rtk8189ftv local path
+
 config BR2_PACKAGE_RTK8189FTV_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_RTK8189FTV

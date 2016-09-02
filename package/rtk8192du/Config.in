@@ -16,3 +16,14 @@ config BR2_PACKAGE_RTK8192DU_GIT_REPO_URL
 	help
 		rtk8192du git
 
+config BR2_PACKAGE_RTK8192DU_LOCAL
+	bool "rtk8192du local"
+	help
+		rtk8192du local
+
+config BR2_PACKAGE_RTK8192DU_LOCAL_PATH
+	string "rtk8192du local path"
+	depends on BR2_PACKAGE_RTK8192DU_LOCAL
+	help
+		rtk8192du local path
+

@@ -16,3 +16,13 @@ config BR2_PACKAGE_RTK8723AU_GIT_REPO_URL
 	help
 		rtk8723au git
 
+config BR2_PACKAGE_RTK8723AU_LOCAL
+	bool "rtk8723au local"
+	help
+		rtk8723au local
+
+config BR2_PACKAGE_RTK8723AU_LOCAL_PATH
+	string "rtk8723au local path"
+	depends on BR2_PACKAGE_RTK8723AU_LOCAL
+	help
+		rtk8723au local path
