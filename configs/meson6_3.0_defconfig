@@ -42,6 +42,7 @@ BR2_TARGET_ROOTFS_INITRAMFS=y
 # Kernel                                                                    
 #                                                                           
 BR2_LINUX_KERNEL=y                                                                                         
+BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_CUSTOM_GIT=y                                               
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="git://scgit.amlogic.com/kernel/common"
 BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="amlogic-3.0"                           

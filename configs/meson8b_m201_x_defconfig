@@ -241,6 +241,7 @@ BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_OVERLAY="board/amlogic/meson8b_m201_x/rootfs/"
 BR2_LINUX_KERNEL=y                                                                                         
+BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_CUSTOM_GIT=y                                               
 BR2_LINUX_KERNEL_CUSTOM_REPO_URL="git://git.myamlogic.com/kernel/common.git"
 BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="amlogic-3.10-bringup"                           
