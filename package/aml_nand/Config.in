@@ -15,6 +15,17 @@ config BR2_PACKAGE_AML_NAND_GIT_URL
 	help
 	  the URL of amlogic nand git
 
+config BR2_PACKAGE_AML_NAND_LOCAL
+	bool "amlogic nand local"
+	help
+		amlogic nand local
+
+config BR2_PACKAGE_AML_NAND_LOCAL_PATH
+	string "amlogic nand local path"
+	depends on BR2_PACKAGE_AML_NAND_LOCAL
+	help
+		amlogic nand local path
+
 config BR2_PACKAGE_AML_NAND_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_AML_NAND

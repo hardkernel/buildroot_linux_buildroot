@@ -16,6 +16,17 @@ config BR2_PACKAGE_RTK8723BU_GIT_REPO_URL
 	help
 		rtk8723bu git
 
+config BR2_PACKAGE_RTK8723BU_LOCAL
+	bool "rtk8723bu local"
+	help
+		rtk8723bu local
+
+config BR2_PACKAGE_RTK8723BU_LOCAL_PATH
+	string "rtk8723bu local path"
+	depends on BR2_PACKAGE_RTK8723BU_LOCAL
+	help
+		rtk8723bu local path
+
 config BR2_PACKAGE_RTK8723BU_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_RTK8723BU

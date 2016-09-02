@@ -8,6 +8,9 @@ ifneq ($(BR2_PACKAGE_GPU_CUSTOM_TARBALL_LOCATION),"")
 GPU_TARBALL = $(call qstrip,$(BR2_PACKAGE_GPU_CUSTOM_TARBALL_LOCATION))
 GPU_SITE    = $(patsubst %/,%,$(dir $(GPU_TARBALL)))
 GPU_SOURCE  = $(notdir $(GPU_TARBALL))
+else ifeq ($(BR2_PACKAGE_GPU_LOCAL),y)
+GPU_SITE_METHOD = local
+GPU_SITE    = $(call qstrip,$(BR2_PACKAGE_GPU_LOCAL_PATH))
 else
 GPU_SITE = $(call qstrip,$(BR2_PACKAGE_GPU_GIT_URL))
 GPU_SITE_METHOD = git
