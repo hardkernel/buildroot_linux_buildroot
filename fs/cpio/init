@@ -75,6 +75,7 @@ get_boot() {
 if [ -n "${firmware}" ]; then
     if [ -f "/mnt/${firmware}" ] ; then
         echo "formating file system"
+		export LD_LIBRARY_PATH=/usr/lib
         mkfs.ext4 -F /dev/system
         mkdir -p system
         mount -t ext4 /dev/system /system
