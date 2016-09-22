@@ -210,6 +210,7 @@ BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV=y
 BR2_ROOTFS_OVERLAY="board/amlogic/meson8b_m200/rootfs/"
 BR2_LINUX_KERNEL=y                                                                                         
+BR2_LINUX_KERNEL_UIMAGE=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="http://openlinux.amlogic.com:8000/download/ARM/kernel/arm-src-kernel-2015-01-15-321cfb5a46.tar.gz"
 BR2_LINUX_KERNEL_DEFCONFIG="meson8b"
