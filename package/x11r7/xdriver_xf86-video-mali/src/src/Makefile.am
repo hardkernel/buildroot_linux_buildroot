@@ -23,11 +23,11 @@
 MALI_DDK="/home/amlogic/trunk/ddk"
 
 mali_drv_la_LTLIBRARIES = mali_drv.la
-mali_drv_la_LDFLAGS = -module -avoid-version -L$(MALI_DDK)/lib -lMali -lUMP -lpthread
+mali_drv_la_LDFLAGS = -module -avoid-version -L$(MALI_DDK)/lib -lMali -lpthread
 mali_drv_ladir = @moduledir@/drivers
 
 AM_CFLAGS = @XORG_CFLAGS@ \
-	-I/usr/include/libdrm \
+	-I$(oldincludedir)/libdrm \
 	-I$(MALI_DDK)/include \
 	-I$(MALI_DDK)/3rdparty/include/khronos \
 	-I$(MALI_DDK)/src/ump/include \

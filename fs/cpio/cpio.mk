@@ -29,7 +29,7 @@ ROOTFS_CPIO_PRE_GEN_HOOKS += ROOTFS_CPIO_ADD_INIT
 
 ifneq ($(BR2_TARGET_ROOTFS_INITRAMFS_LIST),"")
 define ROOTFS_CPIO_CMD
-	cd $(TARGET_DIR) && cat $(CONFIG_DIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
+	cd $(TARGET_DIR) && cat $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
 endef
 else
 define ROOTFS_CPIO_CMD

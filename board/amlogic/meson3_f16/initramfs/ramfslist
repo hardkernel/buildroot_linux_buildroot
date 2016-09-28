@@ -348,7 +348,6 @@
 ./sbin/syslogd
 ./sbin/reboot
 ./sbin/iptunnel
-./sbin/fsck
 ./sbin/udhcpc
 ./sbin/vconfig
 ./sbin/runlevel
