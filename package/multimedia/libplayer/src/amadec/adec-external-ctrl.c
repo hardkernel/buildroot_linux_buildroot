@@ -585,6 +585,7 @@ int audio_dec_ready(void *handle)
  * \param handle pointer to player private data
  * \return n = audiodec frame number, -1 = error
  */
+ /*
 int audio_get_decoded_nb_frames(void *handle)
 {
     aml_audio_dec_t *audec = (aml_audio_dec_t *)handle;
@@ -601,7 +602,59 @@ int audio_get_decoded_nb_frames(void *handle)
     } else {
         return -2;
     }
+}*/
+
+int audio_get_decoded_nb_frames(void *handle)
+{
+    aml_audio_dec_t *audec = (aml_audio_dec_t *)handle;
+
+    if (!handle) {
+        adec_print("audio handle is NULL !\n");
+        return -1;
+    }
+
+    adec_print("audio_get_decoded_nb_frames:  %d!", audec->decoded_nb_frames);
+    if (audec->decoded_nb_frames >= 0) {
+        return audec->decoded_nb_frames;
+    } else {
+        return -2;
+    }
 }
+
+int audio_get_dropped_nb_frames(void *handle)
+{
+    aml_audio_dec_t *audec = (aml_audio_dec_t *)handle;
+
+    if (!handle) {
+        adec_print("audio handle is NULL !\n");
+        return -1;
+    }
+
+    adec_print("audec->dropped_nb_frames:  %d!", audec->dropped_nb_frames);
+    if (audec->dropped_nb_frames >= 0) {
+        return audec->dropped_nb_frames;
+    } else {
+        return -2;
+    }
+}
+
+int audio_get_error_nb_frames(void *handle)
+{
+    aml_audio_dec_t *audec = (aml_audio_dec_t *)handle;
+
+    if (!handle) {
+        adec_print("audio handle is NULL !\n");
+        return -1;
+    }
+
+    adec_print("audec->error_nb_frames:  %d!", audec->error_nb_frames);
+    if (audec->error_nb_frames >= 0) {
+        return audec->error_nb_frames;
+    } else {
+        return -2;
+    }
+}
+
 
 /**
  * \brief set av sync threshold in ms.

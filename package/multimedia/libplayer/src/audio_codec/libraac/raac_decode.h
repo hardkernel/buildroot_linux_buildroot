@@ -18,6 +18,9 @@ typedef struct
     UINT32              input_buffer_size;
     BYTE*		     input_buf;	
     UINT32	            decoded_size;
+    UINT32            decoded_frames;
+    UINT32            dropped_frames;
+    UINT32            error_frames;
 	
 } raac_decoder_info_t;
 
