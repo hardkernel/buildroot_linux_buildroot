@@ -187,6 +187,12 @@ else
 TARGET_CROSS = $(HOST_DIR)/usr/bin/$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_PREFIX))-
 endif
 
+#ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
+TARGET_KERNEL_CROSS = $(KERNEL_TOOLCHAIN_EXTERNAL_INSTALL_DIR)/bin/$(call qstrip,$(BR2_TOOLCHAIN_KERNEL_EXTERNAL_PREFIX))-
+#else
+#TARGET_KERNEL_CROSS = $(HOST_DIR)/usr/bin/$(call qstrip,$(BR2_TOOLCHAIN_KERNEL_EXTERNAL_PREFIX))-
+#endif
+
 # Define TARGET_xx variables for all common binutils/gcc
 TARGET_AR       = $(TARGET_CROSS)ar
 TARGET_AS       = $(TARGET_CROSS)as
@@ -207,12 +213,12 @@ STRIP_STRIP_UNNEEDED := --strip-unneeded
 STRIP_STRIP_ALL := --strip-all
 TARGET_STRIP = $(TARGET_CROSS)strip
 STRIPCMD = $(TARGET_CROSS)strip --remove-section=.comment --remove-section=.note
-KSTRIPCMD = $(STRIPCMD) $(STRIP_STRIP_UNNEEDED)
+KSTRIPCMD = $(TARGET_KERNEL_CROSS)strip $(STRIP_STRIP_UNNEEDED)
 endif
 ifeq ($(BR2_STRIP_none),y)
 TARGET_STRIP = true
 STRIPCMD = $(TARGET_STRIP)
-KSTRIPCMD = $(TARGET_STRIP)
+KSTRIPCMD = $(TARGET_KERNEL_CROSS)strip
 endif
 INSTALL := $(shell which install || type -p install)
 FLEX := $(shell which flex || type -p flex)

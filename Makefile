@@ -376,7 +376,9 @@ QUIET := $(if $(findstring s,$(filter-out --%,$(MAKEFLAGS))),-q)
 # Strip off the annoying quoting
 ARCH := $(call qstrip,$(BR2_ARCH))
 
-KERNEL_ARCH := $(shell echo "$(ARCH)" | sed -e "s/-.*//" \
+KERNEL_ARCH := $(call qstrip,$(BR2_KERNEL_ARCH))
+
+KERNEL_ARCH ?= $(shell echo "$(ARCH)" | sed -e "s/-.*//" \
 	-e s/i.86/i386/ -e s/sun4u/sparc64/ \
 	-e s/arcle/arc/ \
 	-e s/arceb/arc/ \
