@@ -20,7 +20,7 @@ endif
 ifeq ($(BR2_PACKAGE_AML_NAND_STANDALONE),y)
 define AML_NAND_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(@D)/amlnf_3.14 ARCH=$(KERNEL_ARCH) \
-		EXTRA_CFLAGS+='-I$(@D)/amlnf/include -I$(LINUX_DIR)/drivers/amlogic/amlnf/ntd' CROSS_COMPILE=$(TARGET_CROSS) modules
+		EXTRA_CFLAGS+='-I$(@D)/amlnf/include -I$(LINUX_DIR)/drivers/amlogic/amlnf/ntd' CROSS_COMPILE=$(TARGET_KERNEL_CROSS) modules
 endef
 define AML_NAND_INSTALL_TARGET_CMDS
 	mkdir -p $(AML_NAND_INSTALL_DIR);
