@@ -890,10 +890,10 @@ int codec_close(codec_para_t *pcodec)
 void codec_close_audio(codec_para_t *pcodec)
 {
     if (pcodec) {
-        pcodec->has_audio = 0;		
+        pcodec->has_audio = 0;
+    		audio_stop(&pcodec->adec_priv);
+    		return;
     }
-    audio_stop(&pcodec->adec_priv);
-    return;
 }
 
 /* --------------------------------------------------------------------------*/
