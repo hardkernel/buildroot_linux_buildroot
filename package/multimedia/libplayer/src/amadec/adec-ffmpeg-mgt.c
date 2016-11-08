@@ -479,6 +479,9 @@ static int audio_codec_init(aml_audio_dec_t *audec)
       audec->sn_threadid=-1;
       audec->sn_getpackage_threadid=-1;
       audec->OmxFirstFrameDecoded=0;
+      audec->decoded_nb_frames=0;
+      audec->dropped_nb_frames=0;
+      audec->error_nb_frames=0;
       package_list_init(audec);
       while(0!=set_sysfs_int(DECODE_ERR_PATH,DECODE_NONE_ERR))
       {

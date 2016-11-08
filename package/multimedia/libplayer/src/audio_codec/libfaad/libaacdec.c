@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <audio-dec.h>
 
 #define min(a,b) ( (a) < (b) ? (a) : (b) )
 
@@ -491,7 +492,7 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
     char *in_buf;
     long inbuf_size;
     long inbuf_consumed=0;
-
+    aml_audio_dec_t *audec=(aml_audio_dec_t *)(adec_ops->priv_data);
     in_buf = inbuf;
     inbuf_size = inlen;
     outmaxlen = (*outlen);
@@ -541,6 +542,7 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
     {
     gSampleRate=frameInfo.samplerate;
     gChannels=frameInfo.channels;
+    audec->decoded_nb_frames++;
     
     if( (outmaxlen-(*outlen)) >= (2*frameInfo.samples)){
 		    memcpy(outbuf+(*outlen), sample_buffer, 2*frameInfo.samples);
@@ -554,6 +556,8 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
 	if (frameInfo.error > 0)//failed seek to the head
 	{
 	    audio_codec_print( "Error: %s\n", NeAACDecGetErrorMessage(frameInfo.error));
+        audec->dropped_nb_frames++;
+        audec->error_nb_frames++;
         advance_buffer(&gFaadCxt.b, 1);
         fill_buffer(&(gFaadCxt.b), in_buf, &inbuf_size, &inbuf_consumed);
 	 error_count++;

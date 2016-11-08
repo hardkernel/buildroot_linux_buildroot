@@ -1,7 +1,16 @@
-Index: gpu-r4p0-01/ump/Kbuild
+Index: gpu-2014-08-24-fab0449480/ump/Kbuild
 ===================================================================
---- gpu-r4p0-01.orig/ump/Kbuild	2014-09-12 14:32:18.000000000 +0800
-+++ gpu-r4p0-01/ump/Kbuild	2014-09-23 13:58:03.911128661 +0800
+--- gpu-2014-08-24-fab0449480.orig/ump/Kbuild	2016-09-21 21:09:33.942622395 +0500
++++ gpu-2014-08-24-fab0449480/ump/Kbuild	2016-09-21 21:11:19.142620966 +0500
+@@ -32,7 +32,7 @@
+ UDD_FILE_PREFIX = ../mali/
+ 
+ # Get subversion revision number, fall back to 0000 if no svn info is available
+-SVN_REV := $(shell ((svnversion | grep -qv exported && echo -n 'Revision: ' && svnversion) || git svn info | sed -e 's/$$$$/M/' | grep '^Revision: ' || echo ${MALI_RELEASE_NAME}) 2>/dev/null | sed -e 's/^Revision: //')
++SVN_REV := 0
+ 
+ ccflags-y += -DSVN_REV=$(SVN_REV)
+ ccflags-y += -DSVN_REV_STRING=\"$(SVN_REV)\"
 @@ -42,29 +42,19 @@
  ccflags-y += -DMALI_STATE_TRACKING=0
  ccflags-y += -DMALI_ENABLE_CPU_CYCLES=0

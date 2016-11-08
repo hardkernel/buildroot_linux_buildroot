@@ -16,6 +16,17 @@ config BR2_PACKAGE_RTK8192CU_GIT_REPO_URL
 	help
 		rtk8192cu git
 
+config BR2_PACKAGE_RTK8192CU_LOCAL
+	bool "rtk8192cu local"
+	help
+		rtk8192cu local
+
+config BR2_PACKAGE_RTK8192CU_LOCAL_PATH
+	string "rtk8192cu local path"
+	depends on BR2_PACKAGE_RTK8192CU_LOCAL
+	help
+		rtk8192cu local path
+
 config BR2_PACKAGE_RTK8192CU_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_RTK8192CU

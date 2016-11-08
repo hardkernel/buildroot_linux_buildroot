@@ -368,3 +368,20 @@ int audio_set_avsync_threshold(void *priv, int threshold)
 {
     return audio_set_av_sync_threshold(priv, threshold);
 }
+
+/* --------------------------------------------------------------------------*/
+/**
+* @brief  audio_get_decoded_info   Get decodded info
+*
+* @param[in]  p         Pointer of codec parameter structure
+* @param[out]  a_ainfo   decoded_nb_frames dropped_nb_frames error_nb_frames
+*
+*/
+/* --------------------------------------------------------------------------*/
+
+void audio_get_decoded_info(void *priv,arm_audio_info *a_ainfo){
+
+    a_ainfo->decoded_nb_frames = audio_get_decoded_nb_frames(priv);
+    a_ainfo->dropped_nb_frames = audio_get_dropped_nb_frames(priv);
+    a_ainfo->error_nb_frames = audio_get_error_nb_frames(priv);
+}

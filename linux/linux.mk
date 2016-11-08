@@ -8,6 +8,13 @@ LINUX_VERSION = $(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
 LINUX_LICENSE = GPLv2
 LINUX_LICENSE_FILES = COPYING
 
+define LINUX_HELP_CMDS
+	@echo '  linux-menuconfig       - Run Linux kernel menuconfig'
+	@echo '  linux-savedefconfig    - Run Linux kernel savedefconfig'
+	@echo '  linux-update-defconfig - Save the Linux configuration to the path specified'
+	@echo '                             by BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE'
+endef
+
 # Compute LINUX_SOURCE and LINUX_SITE from the configuration
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TARBALL),y)
 LINUX_TARBALL = $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION))
@@ -148,7 +155,7 @@ LINUX_MAKE_FLAGS = \
 	HOSTCFLAGS="$(HOSTCFLAGS)" \
 	ARCH=$(KERNEL_ARCH) \
 	INSTALL_MOD_PATH=$(TARGET_DIR) \
-	CROSS_COMPILE="$(TARGET_CROSS)" \
+	CROSS_COMPILE="$(TARGET_KERNEL_CROSS)" \
 	DEPMOD=$(HOST_DIR)/sbin/depmod
 
 LINUX_MAKE_ENV = \
@@ -273,6 +280,8 @@ LINUX_POST_PATCH_HOOKS += LINUX_TRY_PATCH_TIMECONST
 
 ifeq ($(BR2_LINUX_KERNEL_USE_DEFCONFIG),y)
 LINUX_KCONFIG_DEFCONFIG = $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig
+else ifeq ($(BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG),y)
+LINUX_KCONFIG_DEFCONFIG = defconfig
 else ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
 LINUX_KCONFIG_FILE = $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE))
 endif
@@ -283,6 +292,20 @@ LINUX_KCONFIG_CONFIG_TARGET = olddefconfig
 
 # If no package has yet set it, set it from the Kconfig option
 LINUX_NEEDS_MODULES ?= $(BR2_LINUX_NEEDS_MODULES)
+
+# Make sure the Linux kernel is built with the right endianness. Not
+# all architectures support
+# CONFIG_CPU_BIG_ENDIAN/CONFIG_CPU_LITTLE_ENDIAN in Linux, but the
+# option will be thrown away and ignored if it doesn't exist.
+ifeq ($(BR2_ENDIAN),"BIG")
+define LINUX_FIXUP_CONFIG_ENDIANNESS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CPU_BIG_ENDIAN,$(@D)/.config)
+endef
+else
+define LINUX_FIXUP_CONFIG_ENDIANNESS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CPU_LITTLE_ENDIAN,$(@D)/.config)
+endef
+endif
 
 ifeq ($(BR2_TARGET_ROOTFS_CPIO_GZIP),y)
 	ROOTFS_CPIO = rootfs.cpio.gz
@@ -299,6 +322,7 @@ define LINUX_KCONFIG_FIXUP_CMDS
 	$(foreach opt, $(LINUX_COMPRESSION_OPT_),
 		$(call KCONFIG_DISABLE_OPT,$(opt),$(@D)/.config)
 	)
+	$(LINUX_FIXUP_CONFIG_ENDIANNESS)
         $(if $(BR2_arm)$(BR2_armeb),
                 $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
 	$(if $(BR2_PACKAGE_XSERVER_XORG_SERVER),
@@ -510,6 +534,9 @@ define LINUX_INSTALL_HOST_TOOLS
 	# Installing dtc (device tree compiler) as host tool, if selected
 	if grep -q "CONFIG_DTC=y" $(@D)/.config; then 	\
 		$(INSTALL) -D -m 0755 $(@D)/scripts/dtc/dtc $(HOST_DIR)/usr/bin/linux-dtc ;	\
+		if [ ! -e $(HOST_DIR)/usr/bin/dtc ]; then	\
+			ln -sf linux-dtc $(HOST_DIR)/usr/bin/dtc ;	\
+		fi	\
 	fi
 endef
 

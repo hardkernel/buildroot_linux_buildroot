@@ -136,6 +136,9 @@ typedef struct {
 	int SessionID;
 	int dspdec_not_supported;//check some profile that audiodsp decoder can not support,we switch to arm decoder	
 	int droppcm_flag;				// drop pcm flag, if switch audio (1)
+	int decoded_nb_frames;
+	int dropped_nb_frames;
+	int error_nb_frames;
 } arm_audio_info;
 
 //audio decoder type, default arc

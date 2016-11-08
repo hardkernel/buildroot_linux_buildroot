@@ -5,7 +5,8 @@ LOCAL_MODULE    := libfaad
 LOCAL_SRC_FILES := $(notdir $(wildcard $(LOCAL_PATH)/*.c))
 LOCAL_ARM_MODE := arm
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
-	  $(LOCAL_PATH)/codebook    
+	  $(LOCAL_PATH)/codebook \
+      $(LOCAL_PATH)/../../amadec
 
 include $(BUILD_STATIC_LIBRARY)
 

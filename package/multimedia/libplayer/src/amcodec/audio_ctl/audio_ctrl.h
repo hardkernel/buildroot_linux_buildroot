@@ -17,5 +17,6 @@ void audio_stop(void **priv);
 void audio_pause(void *priv);
 void audio_resume(void *priv);
 void audio_basic_init(void);
+void audio_get_decoded_info(void *priv,arm_audio_info *a_ainfo);
 #endif
 

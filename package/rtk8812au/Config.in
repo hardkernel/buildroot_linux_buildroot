@@ -16,6 +16,17 @@ config BR2_PACKAGE_RTK8812AU_GIT_REPO_URL
 	help
 		rtk8812au git
 
+config BR2_PACKAGE_RTK8812AU_LOCAL
+	bool "rtk8812au local"
+	help
+		rtk8812au local
+
+config BR2_PACKAGE_RTK8812AU_LOCAL_PATH
+	string "rtk8812au local path"
+	depends on BR2_PACKAGE_RTK8812AU_LOCAL
+	help
+		rtk8812au local path
+
 config BR2_PACKAGE_RTK8812AU_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_RTK8812AU

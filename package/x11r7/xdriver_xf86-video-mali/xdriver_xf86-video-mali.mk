@@ -9,7 +9,7 @@ XDRIVER_XF86_VIDEO_MALI_SITE = $(TOPDIR)/package/x11r7/xdriver_xf86-video-mali/s
 XDRIVER_XF86_VIDEO_MALI_SITE_METHOD = local
 XDRIVER_XF86_VIDEO_MALI_DEPENDENCIES = xserver_xorg-server xproto_xf86driproto xproto_fontsproto xproto_randrproto xproto_renderproto xproto_videoproto xproto_xproto
 XDRIVER_XF86_VIDEO_MALI_AUTORECONF = YES
-XDRIVER_XF86_VIDEO_MALI_CONF_OPTS += CPPFLAGS="-I$(@D)/ddk-include/include"
+XDRIVER_XF86_VIDEO_MALI_CONF_OPTS += CPPFLAGS="-I$(@D)/ddk-include/include" --oldincludedir=$(TARGET_DIR)/usr/include
 
 define XDRIVER_XF86_VIDEO_MALI_CHANGE_MODE
 	chmod +x $(@D)/configure

@@ -187,7 +187,7 @@
 ./usr/lib/libz.so.1
 ./usr/lib/libe2p.so.2.3
 ./usr/lib/libz.so.1.2.8
-./usr/lib/libkmod.so.2.3.0
+./usr/lib/libkmod.so.2.3.1
 ./usr/lib/libglib-2.0.so.0.4800.1
 ./usr/lib/libe2p.so
 ./usr/lib/libext2fs.so.2.4
@@ -363,7 +363,6 @@
 ./sbin/syslogd
 ./sbin/reboot
 ./sbin/iptunnel
-./sbin/fsck
 ./sbin/udhcpc
 ./sbin/vconfig
 ./sbin/runlevel

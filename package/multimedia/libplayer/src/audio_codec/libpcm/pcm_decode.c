@@ -548,6 +548,7 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
                  pcm_read_ctl->UsedDataLen-=4;
                  return 0;
             }
+            audec->decoded_nb_frames++;
         }
 
         if(pPcm_priv_data->bit_per_sample == 24){
@@ -620,6 +621,7 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
                  pcm_read_ctl->UsedDataLen-=Wifi_Display_Private_Header_Size;
                  return -1;
             }
+            audec->decoded_nb_frames++;
             pPcm_priv_data->bit_per_sample=bps;
         }else{
             frame_size = Wifi_Display_Private_Header_Size;    //transimit error or something?

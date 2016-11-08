@@ -107,6 +107,8 @@ struct aml_audio_dec {
     int auto_mute;
     int muted;
     int decoded_nb_frames;
+    int dropped_nb_frames;
+    int error_nb_frames;
     int avsync_threshold;
     float volume; //left or main volume
     float volume_ext; //right	

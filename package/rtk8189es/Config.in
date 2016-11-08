@@ -16,6 +16,17 @@ config BR2_PACKAGE_RTK8189ES_GIT_REPO_URL
 	help
 		rtk8189es git
 
+config BR2_PACKAGE_RTK8189ES_LOCAL
+        bool "rtk8189es local"
+        help
+                rtk8189es local
+
+config BR2_PACKAGE_RTK8189ES_LOCAL_PATH
+        string "rtk8189es local path"
+        depends on BR2_PACKAGE_RTK8189ES_LOCAL
+        help
+                rtk8189es local path
+
 config BR2_PACKAGE_RTK8189ES_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_RTK8189ES

@@ -16,6 +16,17 @@ config BR2_PACKAGE_RTK8188EU_GIT_REPO_URL
 	help
 		rtk8188eu git
 
+config BR2_PACKAGE_RTK8188EU_LOCAL
+	bool "rtk8188eu local"
+	help
+		local for rtk8188eu
+
+config BR2_PACKAGE_RTK8188EU_LOCAL_PATH
+	string "rtk8188eu local path"
+	depends on BR2_PACKAGE_RTK8188EU_LOCAL
+	help
+		local path for rtk8188eu
+
 config BR2_PACKAGE_RTK8188EU_STANDALONE
 	bool "standalone kernel module"
 	depends on BR2_PACKAGE_RTK8188EU

@@ -17,6 +17,7 @@
 #include "aacdec.h"
 
 #include "../../amadec/adec-armdec-mgt.h"
+#include "../../amadec/audio-dec.h"
 #ifdef ANDROID
 #include <android/log.h>
 
@@ -380,7 +381,7 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
     UINT32 ulNumSamplesOut = 0;
    	UINT32 ulMaxSamples    = 0;
 	UINT32 out_data_len = 0;
-
+    aml_audio_dec_t *audec=(aml_audio_dec_t *)(adec_ops->priv_data);
 	if(inlen > 0){
 		int len = inlen - cook_input.buf_len;
 		int read_len;
@@ -407,7 +408,9 @@ int audio_dec_decode(audio_decoder_operations_t *adec_ops, char *outbuf, int *ou
 			break;
 		}
 	}
-	
+	audec->decoded_nb_frames = raac_dec_info.decoded_frames;
+	audec->dropped_nb_frames = raac_dec_info.dropped_frames;
+	audec->error_nb_frames = raac_dec_info.error_frames;
 	*outlen = 0;
 	if(cook_output.buf_len > 0){
 		memcpy(outbuf, cook_output.buf, cook_output.buf_len);
@@ -524,6 +527,7 @@ HX_RESULT _raac_block_available(void* pAvail, UINT32 ulSubStream, ra_block* pBlo
                                   	  pBlock->ulTimestamp*90);
 
 			if (retVal == HXR_OK){
+				 raac_dec_info.decoded_frames++;
 				 if (ulBytesConsumed){
 	                		ulBytesLeft -= ulBytesConsumed;
 				 }
@@ -536,6 +540,8 @@ HX_RESULT _raac_block_available(void* pAvail, UINT32 ulSubStream, ra_block* pBlo
 				return 0;
 			}
 			else{
+				raac_dec_info.dropped_frames++;
+				raac_dec_info.error_frames++;
 				raac_print("raac decode error.\n");
 				return 0;
 			}
@@ -760,6 +766,9 @@ int audio_dec_init(audio_decoder_operations_t *adec_ops)
 	raac_dec_info.ulStatus = RADEC_PLAY;
 	raac_dec_info.ulTotalSample = 0;
 	raac_dec_info.ulTotalSamplePlayed = 0;
+	raac_dec_info.decoded_frames = 0;
+	raac_dec_info.dropped_frames = 0;
+	raac_dec_info.error_frames = 0;
 	UINT32 ulBufSize = 2048/*max sample*/ * 2/*max channel*/ * sizeof(UINT16) * SBR_MUL;
 	raac_dec_info.ulOutBufSize = ulBufSize;
 	raac_dec_info.pOutBuf = (BYTE*) malloc(raac_dec_info.ulOutBufSize);

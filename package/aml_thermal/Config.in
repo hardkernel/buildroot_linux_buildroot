@@ -18,3 +18,14 @@ config BR2_PACKAGE_AML_THERMAL_VERSION
 	string "aml thermal version"
 	help
 		aml thermal version
+
+config BR2_PACKAGE_AML_THERMAL_LOCAL
+	bool "aml thermal local"
+	help
+		aml thermal local
+
+config BR2_PACKAGE_AML_THERMAL_LOCAL_PATH
+	string "aml thermal local path"
+	depends on BR2_PACKAGE_AML_THERMAL_LOCAL
+	help
+		aml thermal local path

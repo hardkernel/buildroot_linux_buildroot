@@ -42,6 +42,9 @@ struct mad_decoder {
   enum mad_decoder_mode mode;
 
   int options;
+  int decoded_nb_frames;
+  int droppped_nb_frames;
+  int error_nb_frames;
 
   struct {
     long pid;

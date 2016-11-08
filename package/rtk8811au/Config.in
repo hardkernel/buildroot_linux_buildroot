@@ -16,3 +16,13 @@ config BR2_PACKAGE_RTK8811AU_GIT_REPO_URL
 	help
 		rtk8811au git
 
+config BR2_PACKAGE_RTK8811AU_LOCAL
+	bool "rtk8811au local"
+	help
+		rtk8811au local
+
+config BR2_PACKAGE_RTK8811AU_LOCAL_PATH
+	string "rtk8811au local path"
+	depends on BR2_PACKAGE_RTK8811AU_LOCAL
+	help
+		rtk8811au local path

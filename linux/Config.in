@@ -18,16 +18,15 @@ config BR2_LINUX_NEEDS_MODULES
 # Version selection. We provide the choice between:
 #
 #  1. A single fairly recent stable kernel version
-#  2. In case an internal toolchain has been built, the same kernel
-#     version as the kernel headers
-#  3. A custom stable version
-#  4. A custom tarball
+#  2. A custom stable version
+#  3. A custom tarball
+#  4. A set of custom repository locations
 #
 choice
 	prompt "Kernel version"
 
 config BR2_LINUX_KERNEL_LATEST_VERSION
-	bool "Latest version (4.5.4)"
+	bool "Latest version (4.7.2)"
 
 config BR2_LINUX_KERNEL_CUSTOM_VERSION
 	bool "Custom version"
@@ -85,6 +84,10 @@ config BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION
 	string "URL of custom kernel tarball"
 	depends on BR2_LINUX_KERNEL_CUSTOM_TARBALL
 
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE
+	string "local version"
+	depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
+
 if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG || BR2_LINUX_KERNEL_CUSTOM_SVN
 
 config BR2_LINUX_KERNEL_CUSTOM_REPO_URL
@@ -110,13 +113,14 @@ config BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "4.5.4" if BR2_LINUX_KERNEL_LATEST_VERSION
+	default "4.7.2" if BR2_LINUX_KERNEL_LATEST_VERSION
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE \
 		if BR2_LINUX_KERNEL_CUSTOM_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL
 	default BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION \
 		if BR2_LINUX_KERNEL_CUSTOM_GIT || BR2_LINUX_KERNEL_CUSTOM_HG || BR2_LINUX_KERNEL_CUSTOM_SVN
-	default "custom" if BR2_LINUX_KERNEL_CUSTOM_LOCAL
+	default BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE \
+		if BR2_LINUX_KERNEL_CUSTOM_LOCAL
 
 #
 # Patch selection
@@ -124,7 +128,6 @@ config BR2_LINUX_KERNEL_VERSION
 
 config BR2_LINUX_KERNEL_PATCH
 	string "Custom kernel patches"
-	depends on !BR2_LINUX_KERNEL_CUSTOM_LOCAL
 	help
 	  A space-separated list of patches to apply to the
 	  kernel. Each patch can be described as an URL, a local file
@@ -141,6 +144,14 @@ choice
 
 config BR2_LINUX_KERNEL_USE_DEFCONFIG
 	bool "Using an in-tree defconfig file"
+
+config BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG
+	bool "Use the architecture default configuration"
+	help
+	  This option will use the default configuration for the
+	  selected architecture. I.e, it is equivalent to running
+	  "make ARCH=<foo> defconfig". This is useful on architectures
+	  that have a single defconfig file, such as ARM64.
 
 config BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG
 	bool "Using a custom (def)config file"
@@ -237,7 +248,7 @@ config BR2_LINUX_KERNEL_SIMPLEIMAGE
 
 config BR2_LINUX_KERNEL_IMAGE
 	bool "Image"
-	depends on BR2_aarch64
+	depends on BR2_aarch64 || BR2_ARM_KERNEL_64
 
 config BR2_LINUX_KERNEL_LINUX_BIN
 	bool "linux.bin"
