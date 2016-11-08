@@ -26,7 +26,7 @@ choice
 	prompt "Kernel version"
 
 config BR2_LINUX_KERNEL_LATEST_VERSION
-	bool "Latest version (4.7.2)"
+	bool "Latest version (4.8.6)"
 
 config BR2_LINUX_KERNEL_CUSTOM_VERSION
 	bool "Custom version"
@@ -38,6 +38,12 @@ config BR2_LINUX_KERNEL_CUSTOM_VERSION
 	  kernel, because these kernels are not located at the standard
 	  URL at kernel.org. Instead, select "Custom tarball" and
 	  specify the right URL directly.
+
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL
+       bool "Local directory"
+       help
+         This option allows Buildroot to get the Linux kernel source
+         code from a local directory.
 
 config BR2_LINUX_KERNEL_CUSTOM_TARBALL
 	bool "Custom tarball"
@@ -68,17 +74,17 @@ config BR2_LINUX_KERNEL_CUSTOM_SVN
 	  This option allows Buildroot to get the Linux kernel source
 	  code from a Subversion repository.
 
-config BR2_LINUX_KERNEL_CUSTOM_LOCAL
-	bool "Local directory"
-	help
-	  This option allows Buildroot to get the Linux kernel source
-	  code from a local directory.
-
 endchoice
 
 config BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE
 	string "Kernel version"
 	depends on BR2_LINUX_KERNEL_CUSTOM_VERSION
+
+config BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH
+       string "Path to the local directory"
+       depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
+       help
+         Path to the local directory with the Linux kernel source code.
 
 config BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION
 	string "URL of custom kernel tarball"
@@ -105,15 +111,9 @@ config BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION
 
 endif
 
-config BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH
-	string "Path to the local directory"
-	depends on BR2_LINUX_KERNEL_CUSTOM_LOCAL
-	help
-	  Path to the local directory with the Linux kernel source code.
-
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "4.7.2" if BR2_LINUX_KERNEL_LATEST_VERSION
+	default "4.8.6" if BR2_LINUX_KERNEL_LATEST_VERSION
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE \
 		if BR2_LINUX_KERNEL_CUSTOM_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL
@@ -201,7 +201,7 @@ config BR2_LINUX_KERNEL_UIMAGE
 	bool "uImage"
 	depends on BR2_arc || BR2_arm || BR2_armeb || BR2_bfin || \
 		   BR2_powerpc || BR2_powerpc64 || BR2_powerpc64le || \
-		   BR2_sh || BR2_sh64 || BR2_mips || BR2_mipsel || \
+		   BR2_sh || BR2_mips || BR2_mipsel || \
 		   BR2_mips64 || BR2_mips64el
 	select BR2_LINUX_KERNEL_UBOOT_IMAGE
 
@@ -220,7 +220,7 @@ config BR2_LINUX_KERNEL_ZIMAGE
 	bool "zImage"
 	depends on BR2_arm || BR2_armeb || BR2_powerpc || \
 		   BR2_powerpc64 || BR2_powerpc64le || BR2_sparc || \
-		   BR2_sh || BR2_sh64 || BR2_xtensa
+		   BR2_sh || BR2_xtensa
 
 config BR2_LINUX_KERNEL_ZIMAGE_EPAPR
 	bool "zImage.epapr"
@@ -257,7 +257,7 @@ config BR2_LINUX_KERNEL_LINUX_BIN
 
 config BR2_LINUX_KERNEL_VMLINUX_BIN
 	bool "vmlinux.bin"
-	depends on BR2_mips || BR2_mipsel || BR2_sh || BR2_sh64
+	depends on BR2_mips || BR2_mipsel || BR2_sh
 
 config BR2_LINUX_KERNEL_VMLINUX
 	bool "vmlinux"
@@ -459,7 +459,7 @@ source "package/aml_pmu/Config.in"
 source "package/aml_touch/Config.in"
 
 # Linux tools
-source "linux/Config.tools.in"
+source "package/linux-tools/Config.in"
 
 endif # BR2_LINUX_KERNEL
 

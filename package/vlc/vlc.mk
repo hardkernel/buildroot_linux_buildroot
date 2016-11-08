@@ -65,6 +65,12 @@ VLC_CONF_OPTS += \
 	--disable-fontconfig \
 	--disable-aa \
 	--disable-nls \
+
+# Uses __atomic_fetch_add_4
+ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
+VLC_CONF_ENV += LIBS="-latomic"
+endif
+
 # Building static and shared doesn't work, so force static off.
 ifeq ($(BR2_STATIC_LIBS),)
 VLC_CONF_OPTS += --disable-static
