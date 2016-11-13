@@ -1074,6 +1074,12 @@ exit_decode_loop:
           //detect audio info changed
           memset(&g_AudioInfo,0,sizeof(AudioInfo));
           adec_ops->getinfo(audec->adec_ops, &g_AudioInfo);
+          //add for get dolbly decode info
+          if ( nAudioFormat == ACODEC_FMT_AC3 || nAudioFormat == ACODEC_FMT_EAC3) {
+              audec->decoded_nb_frames = g_AudioInfo.decoded_nb_frames;
+              audec->dropped_nb_frames = g_AudioInfo.dropped_nb_frames;
+              audec->error_nb_frames = g_AudioInfo.error_nb_frames;
+          }
           if(g_AudioInfo.channels!=0&&g_AudioInfo.samplerate!=0)
           {
                if((g_AudioInfo.channels !=g_bst->channels)||(g_AudioInfo.samplerate!=g_bst->samplerate))

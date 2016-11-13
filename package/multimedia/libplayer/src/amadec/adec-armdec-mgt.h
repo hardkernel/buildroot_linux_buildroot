@@ -18,6 +18,9 @@ typedef struct _audio_info {
     int samplerate;
     int channels;
     int file_profile;
+    int decoded_nb_frames;
+    int dropped_nb_frames;
+    int error_nb_frames;
 }AudioInfo;
 
 /* audio decoder operation*/
