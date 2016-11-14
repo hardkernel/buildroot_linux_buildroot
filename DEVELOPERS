@@ -338,6 +338,7 @@ N:	Cédric Chépied <cedric.chepied@gmail.com>
 F:	package/znc/
 
 N:	Cyril Bur <cyrilbur@gmail.com>
+F:	arch/Config.in.powerpc
 F:	package/kvm-unit-tests
 
 N:	Dagg Stompler <daggs@gmx.com>
@@ -567,14 +568,6 @@ F:	package/libnice/
 F:	package/libsrtp/
 F:	package/libwebsock/
 F:	package/sofia-sip/
-
-N:	Gregory Hermant <gregory.hermant@calao-systems.com>
-F:	package/bcusdk/
-F:	package/dfu-util/
-F:	package/libpthsem/
-F:	package/linknx/
-F:	package/snowball-hdmiservice/
-F:	package/ux500-firmware/
 
 N:	Guillaume Gardet <guillaume.gardet@oliseo.fr>
 F:	package/c-icap/
@@ -1647,6 +1640,7 @@ F:	package/modem-manager/
 F:	package/nuttcp/
 F:	package/parted/
 F:	package/python*
+F:	package/ser2net/
 F:	package/socketcand/
 F:	package/qt5/qt5serialbus/
 F:	package/sdparm/
