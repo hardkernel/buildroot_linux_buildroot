@@ -29,8 +29,8 @@ install:
 	cp  -rf $(AML_LIBS_STAGING_DIR)/usr/lib/aml_libs/*.so $(AML_LIBS_STAGING_DIR)/usr/lib/libplayer 
 	mkdir -p $(TARGET_DIR)/lib/firmware
 	install -D -m 0644 amadec/${FIRMDIR}/*.bin $(TARGET_DIR)/lib/firmware 
-	cp  -rf drm-libs/*.tzo $(TARGET_DIR)/lib/ 
-	cp  -rf drm-libs/*.so $(TARGET_DIR)/lib/
+	cp  -rf drm-libs/s905-wvlibs/*.ta $(TARGET_DIR)/lib/teetz/
+	cp  -rf drm-libs/s905-secmemlibs/*.ta $(TARGET_DIR)/lib/teetz/
 	cp  -rf audio_codec/libeac3/libeac3.so $(TARGET_DIR)/usr/lib
 clean:
 	-$(MAKE) -C amadec clean
