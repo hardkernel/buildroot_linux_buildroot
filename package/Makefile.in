@@ -187,11 +187,11 @@ else
 TARGET_CROSS = $(HOST_DIR)/usr/bin/$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_PREFIX))-
 endif
 
-#ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
+ifeq ($(BR2_TOOLCHAIN_EXTERNAL_PREINSTALLED),y)
 TARGET_KERNEL_CROSS = $(KERNEL_TOOLCHAIN_EXTERNAL_INSTALL_DIR)/bin/$(call qstrip,$(BR2_TOOLCHAIN_KERNEL_EXTERNAL_PREFIX))-
-#else
-#TARGET_KERNEL_CROSS = $(HOST_DIR)/usr/bin/$(call qstrip,$(BR2_TOOLCHAIN_KERNEL_EXTERNAL_PREFIX))-
-#endif
+else
+TARGET_KERNEL_CROSS = $(HOST_DIR)/usr/bin/$(call qstrip,$(BR2_TOOLCHAIN_KERNEL_EXTERNAL_PREFIX))-
+endif
 
 # Define TARGET_xx variables for all common binutils/gcc
 TARGET_AR       = $(TARGET_CROSS)ar

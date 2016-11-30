@@ -42,7 +42,8 @@ sha256 6cf41c8944be56279cc14992aa075174b7a4c5938502536266eaaeef048f9440  gcc-lin
 sha256 d43227248f282a652da42322fcf4abfd3021f2a2f62e0cf6e242d82f55966ba9  gcc-linaro-5.3.1-2016.05-i686_aarch64-linux-gnu.tar.xz
 sha256 1941dcf6229d6706bcb89b7976d5d43d170efdd17c27d5fe1738e7ecf22adc37  gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
 sha256 ca2537e1a8bd82833e0f1e491efedad2cdbb4cbac645a09d59749674b29ad63c  gcc-linaro-arm-linux-gnueabihf-4.9-2014.05_linux.tar.xz
-md5 129053fa42f3b3d19061866e164f4fb4 gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2
+sha256 3954f496ab01de67241109e82abfaa9b7625fdab4f05e79e7902e9814a07b832  gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux.tar.xz
+sha256 a04a52570d55e21f0f69f177b73e5dac487902065b8e823221e3dce1aa27aa67  gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2
 
 # Codescape toolchains from Imagination Technologies
 # From: http://codescape-mips-sdk.imgtec.com/components/toolchain/2016.05-03/downloads.html
