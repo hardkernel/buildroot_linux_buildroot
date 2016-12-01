@@ -4,7 +4,8 @@
 #
 ################################################################################
 
-LUAJIT_VERSION = 2.0.4
+#LUAJIT_VERSION = 2.0.4
+LUAJIT_VERSION = 2.1.0-beta2
 LUAJIT_SOURCE = LuaJIT-$(LUAJIT_VERSION).tar.gz
 LUAJIT_SITE = http://luajit.org/download
 LUAJIT_LICENSE = MIT
