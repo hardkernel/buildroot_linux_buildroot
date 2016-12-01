@@ -1,3 +1,14 @@
+2016.11, Released November 30th, 2016
+
+	Minor fixes.
+
+	Updated/fixed packages: bzip2, gcc, jasper, sane-backends,
+	uboot, uclibc
+
+	Issues resolved (http://bugs.buildroot.org):
+
+	#9451: packages/postgresql/postgresql.mk contains wrong POST...
+
 2016.11-rc3, Released November 28th, 2016
 
 	Fixes all over the tree, including a number of security fixes.
@@ -10,7 +21,7 @@
 	Linux kernel: update default to 4.8.11.
 
 	Defconfigs: Updates/fixes for imx28ek, mx6udoo, imx6ulpico,
-	olimex a20 olinuxino lime malo, roseapplepi, synopsis aarch64
+	olimex a20 olinuxino lime mali, roseapplepi, synopsis aarch64
 	vdk, axs101, axs103 and hs38 smd vdk.
 
 	Updated/fixed packages: autossh, chrony, dosfstools,
