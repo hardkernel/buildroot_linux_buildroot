@@ -532,15 +532,20 @@ static
 			}
 
 			if (mad_frame_decode(frame, stream) == -1) {
-				decoder->droppped_nb_frames++;
-				decoder->error_nb_frames++;
-				if (!MAD_RECOVERABLE(stream->error))
+				if (!MAD_RECOVERABLE(stream->error)){
+					//for RECOVERABLE error ,do not cal  
+					//decoder->droppped_nb_frames++;
+					//decoder->error_nb_frames++;
 					break;
+
+				}
 
 				switch (error_func(decoder->cb_data, stream, frame)) {
 				case MAD_FLOW_STOP:
 					goto done;
 				case MAD_FLOW_BREAK:
+					decoder->droppped_nb_frames++;
+					decoder->error_nb_frames++;
 					goto fail;
 				case MAD_FLOW_IGNORE:
 					break;
@@ -549,10 +554,10 @@ static
 					continue;
 				}
 			}
-			else{
+			else {
 				bad_last_frame = 0;
 				decoder->decoded_nb_frames++;
-				}
+			}
 
 			if (decoder->filter_func) {
 				switch (decoder->filter_func(decoder->cb_data, stream, frame)) {
@@ -873,7 +878,7 @@ int audio_dec_decode(
 {
 	int result;
 	struct buffer buffer;
-    aml_audio_dec_t *audec=(aml_audio_dec_t *)(adec_ops->priv_data);
+	aml_audio_dec_t *audec=(aml_audio_dec_t *)(adec_ops->priv_data);
 	buffer.start  = inbuf;
 	buffer.length = inlen;
 
@@ -889,9 +894,9 @@ int audio_dec_decode(
 	/* start decoding */
 
 	result = mad_decoder_run(&decoder, MAD_DECODER_MODE_SYNC);
-    audec->decoded_nb_frames = decoder.decoded_nb_frames;
-    audec->dropped_nb_frames = decoder.droppped_nb_frames;
-    audec->error_nb_frames = decoder.error_nb_frames;
+	audec->decoded_nb_frames = decoder.decoded_nb_frames;
+	audec->dropped_nb_frames = decoder.droppped_nb_frames;
+	audec->error_nb_frames = decoder.error_nb_frames;
 	/* release the decoder */
 
 	return result;
