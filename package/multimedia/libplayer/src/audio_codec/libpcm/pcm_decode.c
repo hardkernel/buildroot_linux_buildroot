@@ -478,6 +478,7 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
     short *sample;
     unsigned char *src;
     int size=0, n, i, j, bps=16, wifi_display_drop_header = 0;
+    int errorflag = 0;
     int sample_size;
     unsigned int header;
     int16_t *dst_int16_t;
@@ -497,8 +498,12 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
         short tmp_buf[10];
         if(!pPcm_priv_data->frame_size_check_flag){
             frame_size=check_frame_size(pcm_read_ctl,audec,&bps);
-            if(frame_size<0)
+            if(frame_size<0){
+               audec->dropped_nb_frames++;
+               audec->error_nb_frames++;
                return 0;
+            }
+            audec->decoded_nb_frames++;
         }else{
             if(pPcm_priv_data->jump_read_head_flag==1)
             {
@@ -514,6 +519,11 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
                              (pPcm_priv_data->pcm_buffer[2]<<8)  | (pPcm_priv_data->pcm_buffer[3]);
                     if(header == pPcm_priv_data->pcm_bluray_header){
                         break;
+                    }
+                    if (!errorflag){
+                        audec->dropped_nb_frames++;
+                        audec->error_nb_frames++;
+                        errorflag = 1;
                     }
                     pPcm_priv_data->pcm_buffer[0] = pPcm_priv_data->pcm_buffer[1];
                     pPcm_priv_data->pcm_buffer[1] = pPcm_priv_data->pcm_buffer[2];
@@ -624,6 +634,8 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
             audec->decoded_nb_frames++;
             pPcm_priv_data->bit_per_sample=bps;
         }else{
+            audec->dropped_nb_frames++;
+            audec->error_nb_frames++;
             frame_size = Wifi_Display_Private_Header_Size;    //transimit error or something?
         }
 
@@ -653,7 +665,7 @@ static int pcm_decode_frame(pcm_read_ctl_t *pcm_read_ctl,unsigned char *buf, int
         byte_to_read = byte_to_read>>1;
     }
     size = pcm_read(pcm_read_ctl,pPcm_priv_data->pcm_buffer, byte_to_read);
-    
+    audec->decoded_nb_frames++;
     sample_size = av_get_bits_per_sample(audec->format)/8;
     n = size /sample_size;
 
