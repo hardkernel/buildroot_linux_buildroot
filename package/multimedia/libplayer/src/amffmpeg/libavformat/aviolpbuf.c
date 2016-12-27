@@ -325,7 +325,10 @@ int url_lpread(URLContext *s,unsigned char * buf,int size)
 		{
 			int rlen;
 			lp_unlock(&lp->mutex);
-			rlen=url_lpfillbuffer(s,lp->block_read_size);
+			if((len<lp->block_read_size) && (lp->seekflags & LESS_BUFF_DATA))
+				rlen=url_lpfillbuffer(s,len);
+			else
+				rlen=url_lpfillbuffer(s,lp->block_read_size);
 			if(rlen<=0)
 				{
 				lp_unlock(&lp->mutex);
@@ -346,6 +349,8 @@ int url_lpread(URLContext *s,unsigned char * buf,int size)
 			if(lp->rp>=lp->buffer_end)
 				lp->rp=lp->buffer;
 			len-=valid_data_can_read;
+			if(lp->seekflags & NO_READ_RETRY)
+				break;
 		}
 		LP_ASSERT(lp->rp>=lp->buffer);
 		LP_ASSERT(lp->rp<lp->buffer_end);

@@ -908,6 +908,12 @@ void *player_thread(play_para_t *player)
         }while(1);
     }
 
+    if (player->pFormatCtx && player->pFormatCtx->pb && player->pFormatCtx->pb->is_slowmedia) {
+        URLContext *h = url_fileno(player->pFormatCtx->pb);
+        if (!strcmp(h->prot->name, "udp"))
+            url_set_seek_flags(player->pFormatCtx->pb, LESS_BUFF_DATA | NO_READ_RETRY);
+    }
+
     set_player_state(player, PLAYER_INITOK);
     update_playing_info(player);
 	log_print("%s,%d\n",__FUNCTION__,__LINE__);

@@ -269,41 +269,47 @@ int64_t url_ftell(AVIOContext *s)
     return avio_seek(s, 0, SEEK_CUR);
 }
 #endif
+int url_set_seek_flags(AVIOContext *s,unsigned int flags)
+{
+    unsigned int oldflags;
+    if(!s)
+        return -1;
+    oldflags=s->seekflags;
+    s->seekflags|=flags;
+    av_log(NULL, AV_LOG_INFO, "url_set_seek_flags %x->%x\n",oldflags,s->seekflags);
+    if(s->enabled_lp_buffer)
+        return url_lp_set_seekflags(s->opaque,flags);
+
+    return 0;
+}
+int url_clear_seek_flags(AVIOContext *s,unsigned int flags)
+{
+    unsigned int oldflags;
+    if(!s)
+        return -1;
+    s->seekflags&=~flags;
+       av_log(NULL, AV_LOG_INFO, "url_clear_seek_flags %x->%x\n",oldflags,s->seekflags);
+    if(s->enabled_lp_buffer)
+        return url_lp_clear_seekflags(s->opaque,flags);
+    return 0;
+}
+
 int url_start_user_seek(AVIOContext *s)
 {	
-	if(!s)
-		return -1;
-	s->seekflags|=LESS_READ_SEEK;
-	if(s->enabled_lp_buffer)
-		return url_lp_set_seekflags(s->opaque,LESS_READ_SEEK);
-	return 0;
+    return url_set_seek_flags(s,LESS_READ_SEEK);
 }
 int url_finished_user_seek(AVIOContext *s)
 {
-	if(!s)
-		return -1;
-	s->seekflags&=~LESS_READ_SEEK;
-	if(s->enabled_lp_buffer)
-		return url_lp_clear_seekflags(s->opaque,LESS_READ_SEEK);
-	return 0;
+    return url_clear_seek_flags(s,LESS_READ_SEEK);
 }
 int url_set_more_data_seek(AVIOContext *s)
 {	
-	if(!s)
-		return -1;
-	s->seekflags|=MORE_READ_SEEK;
-	if(s->enabled_lp_buffer)
-		return url_lp_set_seekflags(s->opaque,MORE_READ_SEEK);
-	return 0;
+    return url_set_seek_flags(s,MORE_READ_SEEK);
+
 }
 int url_clear_more_data_seek(AVIOContext *s)
 {
-	if(!s)
-		return -1;
-	s->seekflags&=~MORE_READ_SEEK;
-	if(s->enabled_lp_buffer)
-		return url_lp_clear_seekflags(s->opaque,MORE_READ_SEEK);
-	return 0;
+    return url_clear_seek_flags(s,MORE_READ_SEEK);
 }
 int64_t avio_size(AVIOContext *s)
 {
@@ -815,7 +821,7 @@ int avio_read(AVIOContext *s, unsigned char *buf, int size)
         if (len > size)
             len = size;
         if (len == 0) {
-            if(size > s->buffer_size && !s->update_checksum){
+            if((size > s->buffer_size && !s->update_checksum) || (s->seekflags& LESS_BUFF_DATA)){
                 if(s->read_packet)
                     len = s->read_packet(s->opaque, buf, size);
                 if (len <= 0) {
@@ -825,8 +831,11 @@ int avio_read(AVIOContext *s, unsigned char *buf, int size)
 			        	s->eof_reached = 1;
 			        if(len<0 && len !=AVERROR(EAGAIN))
 			            s->error= len;
-					if(len == AVERROR(EAGAIN) && retry_num-->0)
+					if(len == AVERROR(EAGAIN) && retry_num-->0){
+					    if((s->seekflags& NO_READ_RETRY) && (size1 - size)>0)
+                            break;
 						continue;
+					}
                     if (len == AVERROR(EAGAIN)) {
                         av_log(NULL, AV_LOG_ERROR, "[%s:%d]retry timeout, read packet failed\n", __FUNCTION__, __LINE__);
                     }
@@ -837,6 +846,8 @@ int avio_read(AVIOContext *s, unsigned char *buf, int size)
                     buf += len;
                     s->buf_ptr = s->buffer;
                     s->buf_end = s->buffer/* + len*/;
+                    if((s->seekflags& NO_READ_RETRY))
+                        break;
                 }
             }else{
                 do {
