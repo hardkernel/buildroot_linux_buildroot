@@ -1338,6 +1338,11 @@ static void pmt_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
         p = desc_list_end;
     }
 
+    if(ts->stream->iformat!=NULL&&!(ts->stream->iformat->flags&AVFMT_TS_HASPMT)){
+       ts->stream->iformat->flags|=AVFMT_TS_HASPMT;
+       av_log(ts->stream,AV_LOG_INFO,"[%s:%d]Use pmt to init the stream\n",__FUNCTION__,__LINE__);
+    }
+
  out:
     av_free(mp4_dec_config_descr);
 }

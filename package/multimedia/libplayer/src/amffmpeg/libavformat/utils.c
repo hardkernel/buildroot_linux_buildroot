@@ -3020,6 +3020,7 @@ static int has_codec_parameters(AVCodecContext *enc)
 #define ASF_PARSE_MODE  8
 #define SPEED_PARSE_MODE 9
 #define WFD_PARSE_MODE  10
+#define TS_HASPMT_PLUS  128
 
 static int has_codec_parameters_ex(AVCodecContext *enc,int fastmode)
 {
@@ -3049,13 +3050,19 @@ static int has_codec_parameters_ex(AVCodecContext *enc,int fastmode)
 	}else{
 		switch(enc->codec_type) {
 		case AVMEDIA_TYPE_AUDIO:
-		    //val = enc->sample_rate && enc->channels && enc->sample_fmt != AV_SAMPLE_FMT_NONE;
-		    
-		    if((fastmode == 2) && (enc->codec_id != CODEC_ID_PCM_WIFIDISPLAY)){
-		       val =1;
-                 }else{
+		    if (fastmode &&
+                (enc->codec_id == CODEC_ID_AAC) ||
+                (enc->codec_id == CODEC_ID_MP3) ||
+                (enc->codec_id == CODEC_ID_AC3) ||
+                (enc->codec_id == CODEC_ID_EAC3) ||
+                (enc->codec_id == CODEC_ID_DTS))
+                {
+                    val = 1;
+                }
+                else
+                {
                     val = enc->sample_rate && enc->channels;
-                 }
+                }
 		    break;
 		case AVMEDIA_TYPE_VIDEO:
 			if(fastmode == 8){
@@ -3074,6 +3081,14 @@ static int has_codec_parameters_ex(AVCodecContext *enc,int fastmode)
     if (WFD_PARSE_MODE == fastmode) {
         return val != 0;
     } else {
+        if (fastmode > (PARSE_MODE_BASE + TS_HASPMT_PLUS))  // only ts stream have pmt, can use the skip mode. add by le.yang@amlogic.com
+        {
+            if (enc->codec_type == AVMEDIA_TYPE_DATA ||
+                    enc->codec_type == AVMEDIA_TYPE_ATTACHMENT)
+            {
+                return 1;
+            }
+        }
         return enc->codec_id != CODEC_ID_NONE && val != 0;
     }
 }
@@ -3229,9 +3244,15 @@ int av_find_stream_info(AVFormatContext *ic)
     int fast_switch = 1;
     float value;
 	int64_t streamtype = -1;
+	int max_video_frame = 10;
 
     if (am_getconfig_float("media.libplayer.fastswitch", &value) == 0) {
         fast_switch = (int)value;
+    }
+
+    /* read $maxframe packets to detect DRM stream*/
+    if (am_getconfig_float("media.libplayer.maxframe", &value) == 0) {
+        max_video_frame = (int)value;
     }
 
 	if(ic->pb&&ic->pb->local_playback && fast_switch){
@@ -3342,6 +3363,8 @@ int av_find_stream_info(AVFormatContext *ic)
     count = 0;
     read_size = 0;
     int stream_parser_count = 0;
+    int video_frame = 0;
+    int parse_mode = fast_switch;
     for(;;) {
         if(url_interrupt_cb()){
             ret= AVERROR_EXIT;
@@ -3358,9 +3381,14 @@ int av_find_stream_info(AVFormatContext *ic)
         for(i=0;i<ic->nb_streams;i++) {
             int fps_analyze_framecount = 20;
             st = ic->streams[i];
-            int parse_mode = fast_switch;
-            if(ic->pb && ic->pb->is_streamed ==1&&!strcmp(ic->iformat->name, "mpegts")){
-                parse_mode = PARSE_MODE_BASE + fast_switch;
+            parse_mode = fast_switch;
+            if(ic->pb && ic->pb->is_streamed ==1
+                    && !strncmp(ic->filename, "udp://", 6)
+                    && !strcmp(ic->iformat->name, "mpegts")){
+               if(ic->iformat!=NULL&&(ic->iformat->flags&AVFMT_TS_HASPMT))
+                   parse_mode = PARSE_MODE_BASE + TS_HASPMT_PLUS + fast_switch;
+               else
+                   parse_mode = PARSE_MODE_BASE + fast_switch;
             }
 	   if(!strcmp(ic->iformat->name, "asf")){
 	        parse_mode = ASF_PARSE_MODE ;
@@ -3372,8 +3400,25 @@ int av_find_stream_info(AVFormatContext *ic)
        		//av_log(NULL, AV_LOG_INFO, "parse_mode=%d\n",parse_mode);
             st->codec->durcount=st->info->duration_count;
 
-            if (!has_codec_parameters_ex(st->codec,parse_mode)){
-                break;
+
+            if (ic->pb && ic->pb->is_streamed ==1&&!strcmp(ic->iformat->name, "mpegts")
+                    && st->codec->codec_type == AVMEDIA_TYPE_VIDEO
+                    && ic->iformat!=NULL&&(ic->iformat->flags&AVFMT_TS_HASDRM)) {
+                /* If DRM decteted, increase stream_parser_count  */
+                stream_parser_count =i+1;
+            } else if (!has_codec_parameters_ex(st->codec,parse_mode)){
+                /* Codec info not found */
+                if (st->codec->codec_type == AVMEDIA_TYPE_VIDEO
+                        && (parse_mode > PARSE_MODE_BASE + TS_HASPMT_PLUS)
+                        && video_frame >= max_video_frame) {
+                    /* If codec info not found, but video frame counter reach max video frame number
+                     * then increase stream_parser_count
+                     *  */
+                    stream_parser_count =i+1;
+                } else {
+                    /* Keep looping */
+                    break;
+                }
             }else{
                 stream_parser_count =i+1;
             }
@@ -3393,7 +3438,7 @@ int av_find_stream_info(AVFormatContext *ic)
                && st->info->duration_count < fps_analyze_framecount
                && st->codec->codec_type == AVMEDIA_TYPE_VIDEO)
                 break;
-            if(st->parser && st->parser->parser->split && !st->codec->extradata)
+            if(st->parser && st->parser->parser->split && !st->codec->extradata && (parse_mode < PARSE_MODE_BASE + TS_HASPMT_PLUS))
                 break;
             if(!fast_switch &&  st->first_dts == AV_NOPTS_VALUE)
                 break;
@@ -3402,7 +3447,7 @@ int av_find_stream_info(AVFormatContext *ic)
             /* NOTE: if the format has no header, then we need to read
                some packets to get most of the streams, so we cannot
                stop here */
-            if (!(ic->ctx_flags & AVFMTCTX_NOHEADER) ||(fast_switch && ic->nb_streams>=2) || (2==fast_switch && 1==ic->nb_streams)) {
+            if (!(ic->ctx_flags & AVFMTCTX_NOHEADER) ||(fast_switch && ic->nb_streams>=2) || (parse_mode>=2 && 1==ic->nb_streams)) {
                 /* if we found the info for all the codecs, we can stop */
                 ret = count;
                 av_log(ic, AV_LOG_INFO, "All info found\n");
@@ -3423,7 +3468,7 @@ int av_find_stream_info(AVFormatContext *ic)
             ret = -1; /* we could not have all the codec parameters before EOF */
             for(i=0;i<ic->nb_streams;i++) {
                 st = ic->streams[i];
-                if (!has_codec_parameters_ex(st->codec,fast_switch)){
+                if (!has_codec_parameters_ex(st->codec,parse_mode)){
                     char buf[256];
                     avcodec_string(buf, sizeof(buf), st->codec, 0);
                     av_log(ic, AV_LOG_WARNING, "Could not find codec parameters (%s)\n", buf);
@@ -3452,6 +3497,11 @@ int av_find_stream_info(AVFormatContext *ic)
             }
             st->info->codec_info_duration += pkt->duration;
         }
+
+        if(st->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+            video_frame++;
+        }
+
         {
             int64_t last = st->info->last_dts;
             int64_t duration= pkt->dts - last;
@@ -3491,7 +3541,10 @@ int av_find_stream_info(AVFormatContext *ic)
            it takes longer and uses more memory. For MPEG-4, we need to
            decompress for QuickTime. */
         if (!has_codec_parameters_ex(st->codec,fast_switch) ||( !fast_switch && !has_decode_delay_been_guessed(st))){
-            try_decode_frame(st, pkt);	
+            /* If we are playing udp, do not decode frame */
+            if(strncmp(ic->filename, "udp://", 6)){
+                try_decode_frame(st, pkt);
+            }
         }
 		
         st->codec_info_nb_frames++;

@@ -273,6 +273,7 @@ typedef struct AVFormatParameters {
 #define AVFMT_TS_NONSTRICT  0x8000 /**< Format does not require strictly
                                           increasing timestamps, but they must
                                           still be monotonic */
+#define AVFMT_TS_HASPMT     0x10000
 
 typedef struct AVOutputFormat {
     const char *name;
