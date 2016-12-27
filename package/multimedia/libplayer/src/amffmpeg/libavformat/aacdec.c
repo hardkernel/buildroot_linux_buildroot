@@ -74,7 +74,7 @@ static int adts_aac_read_header(AVFormatContext *s,
 {
     AVStream *st;
 	int err;
-    uint8_t *buf=s->pb->buffer;
+    uint8_t *buf = NULL;
     st = av_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
@@ -84,6 +84,7 @@ static int adts_aac_read_header(AVFormatContext *s,
     st->need_parsing = AVSTREAM_PARSE_FULL;
 
     ff_id3v1_read(s);
+    buf = s->pb->buffer;
 	//LCM of all possible ADTS sample rates
 	av_set_pts_info(st, 64, 1, 28224000);
     ff_id3v2_read(s,"ID3");
