@@ -96,12 +96,30 @@ int am_getconfig(const char * path, char *val, const char * def)
 			i=1;
 	}
 #else
-	//if(i<0){
-		/*get failed,get from android prop settings*/
-	// 	val=getenv(path);	
-	//	if(val!=NULL)
-		//	i=1;
-	//}
+	{
+		/*linux settings*/
+		char *tmpchar = malloc(strlen(path) + 1);
+		char *tmpval;
+		int j = 0;
+
+		if (tmpchar){
+		      strcpy(tmpchar, path);
+		     tmpchar[strlen(path)] = '\0' ;
+		}
+		for(j=0;j<strlen(tmpchar);j++)
+			if(tmpchar[j]=='.') {
+				tmpchar[j]='_';
+		}
+		//printf("tmpchar: %s,path=%s\n", tmpchar,path);
+		tmpval=getenv(tmpchar);
+		free(tmpchar);
+		if(tmpval != NULL) {
+			strcpy(val, tmpval);
+			return atoi(tmpval);
+		}else {
+			return strlen(val);
+		} 
+	}
 #endif
     return strlen(val) ;
 }
