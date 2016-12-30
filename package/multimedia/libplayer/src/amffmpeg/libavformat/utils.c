@@ -3401,12 +3401,7 @@ int av_find_stream_info(AVFormatContext *ic)
             st->codec->durcount=st->info->duration_count;
 
 
-            if (ic->pb && ic->pb->is_streamed ==1&&!strcmp(ic->iformat->name, "mpegts")
-                    && st->codec->codec_type == AVMEDIA_TYPE_VIDEO
-                    && ic->iformat!=NULL&&(ic->iformat->flags&AVFMT_TS_HASDRM)) {
-                /* If DRM decteted, increase stream_parser_count  */
-                stream_parser_count =i+1;
-            } else if (!has_codec_parameters_ex(st->codec,parse_mode)){
+            if (!has_codec_parameters_ex(st->codec,parse_mode)){
                 /* Codec info not found */
                 if (st->codec->codec_type == AVMEDIA_TYPE_VIDEO
                         && (parse_mode > PARSE_MODE_BASE + TS_HASPMT_PLUS)
