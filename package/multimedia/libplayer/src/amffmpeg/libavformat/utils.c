@@ -635,7 +635,12 @@ retry_probe:
        }
        else{       
 	    av_log(NULL, AV_LOG_WARNING, "[%s]no new data for probe,retry\n", __FUNCTION__);
-	}
+	    if(url_interrupt_cb()){
+           ret= AVERROR_EXIT;
+           av_log(NULL, AV_LOG_DEBUG, "interrupted\n");
+           break;
+       }
+       }
 	if (eof_flag == 1){
 	    av_log(NULL, AV_LOG_WARNING, "[%s]read end, exit probe format\n", __FUNCTION__);
 	    break;
