@@ -595,6 +595,7 @@ static const StreamType HDMV_types[] = {
     { 0x82, AVMEDIA_TYPE_AUDIO, CODEC_ID_DTS },
     { 0x83, AVMEDIA_TYPE_AUDIO, CODEC_ID_TRUEHD },
     { 0x84, AVMEDIA_TYPE_AUDIO, CODEC_ID_EAC3 },
+    { 0x87, AVMEDIA_TYPE_AUDIO, CODEC_ID_EAC3 },
     { 0x90, AVMEDIA_TYPE_SUBTITLE, CODEC_ID_HDMV_PGS_SUBTITLE },
     { 0 },
 };
@@ -683,8 +684,7 @@ static int mpegts_set_stream_info(AVStream *st, PESContext *pes,
                 sub_st->need_parsing = AVSTREAM_PARSE_FULL;
                 sub_pes->sub_st = pes->sub_st = sub_st;
             }
-        } 
-        else {
+		} else if (pes->stream_type != 0x87) {
             if (st->codec->codec_id != CODEC_ID_NONE) {
                 /* wrong case, don't have to probe */
                 st->codec->codec_type = AVMEDIA_TYPE_DATA;
