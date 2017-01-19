@@ -1,7 +1,0 @@
-config BR2_PACKAGE_MEDIASUPPORT
-        bool "mediasupport"
-        help
-          amlogic media support process.
-
-          http://openlinux.amlogic.com
-

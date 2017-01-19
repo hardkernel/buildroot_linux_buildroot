@@ -11,7 +11,7 @@ menu "amlogic"
 endmenu
 
 menu "Audio and video applications"
-	source "package/multimedia/Config.in"
+	source "../multimedia/Config.in"
 	source "package/alsa-utils/Config.in"
 	source "package/aumix/Config.in"
 	source "package/bellagio/Config.in"
