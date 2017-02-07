@@ -489,7 +489,6 @@ config BR2_GCC_TARGET_MODE
 
 choice
         prompt "Kernel 64bit"
-        depends on BR2_cortex_a9
         default BR2_ARM_KERNEL_32
 
         help
@@ -507,4 +506,4 @@ endchoice
 config BR2_KERNEL_ARCH
         string
         default "arm64"      if BR2_ARM_KERNEL_64
-	default "arm"	     if BR2_arm
+	default "arm"	     if BR2_ARM_KERNEL_32

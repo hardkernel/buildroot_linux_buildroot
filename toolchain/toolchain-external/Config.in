@@ -656,7 +656,7 @@ comment "Linaro toolchains available for Cortex-A + EABIhf"
 config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_201409_U32K64
         bool "Linaro AArch64 14.09"
         depends on BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
-	depends on BR2_ARCH = "aarch64"
+	depends on BR2_KERNEL_ARCH="arm64"
         depends on !BR2_STATIC_LIBS
         help
           Toolchain for the AArch64 architecture, from
@@ -665,7 +665,7 @@ config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_201409_U32K64
 config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_201511_U32K64
         bool "Linaro AArch64 2015.11"
         depends on BR2_HOSTARCH = "x86_64"
-	depends on BR2_ARCH = "aarch64"
+	depends on BR2_KERNEL_ARCH="arm64"
         depends on !BR2_STATIC_LIBS
         help
           Toolchain for the AArch64 architecture, from
@@ -674,7 +674,7 @@ config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_201511_U32K64
 config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_AARCH64_U32K64
         bool "CodeSourcery AArch64 2014.05"
         depends on BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
-	depends on BR2_ARCH = "aarch64"
+	depends on BR2_KERNEL_ARCH="arm64"
         depends on !BR2_STATIC_LIBS
         help
           Sourcery CodeBench toolchain for the AArch64 architecture,
