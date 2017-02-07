@@ -15,7 +15,6 @@
 ./lib/libnss_files-2.19-2014.05.so
 ./lib/libnsl.so.1
 ./lib/libutil.so.1
-./lib/firmware
 ./lib/libnsl-2.19-2014.05.so
 ./lib/librt-2.19-2014.05.so
 ./lib/libudev.so.1
