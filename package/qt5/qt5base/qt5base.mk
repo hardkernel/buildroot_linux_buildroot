@@ -15,8 +15,16 @@ define X11_PATCH
 	support/scripts/apply-patches.sh $(@D) package/qt5/qt5base/x11/  qt5base-\*.patch
 endef
 
+define 5_6_X11_PATCH
+	support/scripts/apply-patches.sh $(@D) package/qt5/qt5base/5_6_x11/  qt5base-\*.patch
+endef
+
 ifeq ($(BR2_PACKAGE_XSERVER_XORG_SERVER),y)
+ifeq ($(BR2_QT5_VERSION_5_6),y)
+QT5BASE_POST_PATCH_HOOKS += 5_6_X11_PATCH
+else
 QT5BASE_POST_PATCH_HOOKS += X11_PATCH
+endif
 endif
 # A few comments:
 #  * -no-pch to workaround the issue described at

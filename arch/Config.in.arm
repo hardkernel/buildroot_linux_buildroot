@@ -510,6 +510,10 @@ config BR2_ENDIAN
 	default "LITTLE" if (BR2_arm || BR2_aarch64)
 	default "BIG"	 if (BR2_armeb || BR2_aarch64_be)
 
+config BR2_KERNEL_ARCH
+	default "arm"		if BR2_arm
+	default "arm64"     if BR2_aarch64
+
 config BR2_GCC_TARGET_CPU
 	default "arm920t"	if BR2_arm920t
 	default "arm922t"	if BR2_arm922t
