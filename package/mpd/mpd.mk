@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-MPD_VERSION_MAJOR = 0.19
-MPD_VERSION = $(MPD_VERSION_MAJOR).19
+MPD_VERSION_MAJOR = 0.20
+MPD_VERSION = $(MPD_VERSION_MAJOR).4
 MPD_SOURCE = mpd-$(MPD_VERSION).tar.xz
 MPD_SITE = http://www.musicpd.org/download/mpd/$(MPD_VERSION_MAJOR)
-MPD_DEPENDENCIES = host-pkgconf boost libglib2
+MPD_DEPENDENCIES = host-pkgconf boost
 MPD_LICENSE = GPLv2+
 MPD_LICENSE_FILES = COPYING
 MPD_AUTORECONF = YES
@@ -222,7 +222,10 @@ endif
 
 ifeq ($(BR2_PACKAGE_MPD_TREMOR),y)
 MPD_DEPENDENCIES += tremor
-MPD_CONF_OPTS += --with-tremor
+# Help mpd to find tremor in static linking scenarios
+MPD_CONF_ENV += \
+	TREMOR_LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs vorbisidec`"
+MPD_CONF_OPTS += --with-tremor=$(STAGING_DIR)/usr
 endif
 
 ifeq ($(BR2_PACKAGE_MPD_TWOLAME),y)

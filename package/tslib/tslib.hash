@@ -1,2 +1,2 @@
-# Locally generated
-sha256  121750e9ae0f05ce840ab8dbefdae1297258f0a69dd1967f55c40ac6e87d5ee9  tslib-1.1.tar.gz
+# taken from https://github.com/kergoth/tslib/releases/tag/1.4
+sha256  ad0373f1dbfda27caec92cb10421227f226c79d160488f1ac915585ba947741f  tslib-1.4.tar.xz

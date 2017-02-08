@@ -1,3 +1,31 @@
+2016.11.2, Released January 25th, 2017
+
+	Important / security related fixes.
+
+	A fix for BR2_EXTERNAL trees referenced using relative paths,
+	which broke in 2016.11.
+
+	Updated/fixed packages: bind, docker-engine, gd, gnutls, go,
+	imagemagick, irssi, libpng, libvncserver, musl, opus, php,
+	php-imagick, rabbitmq-server, runc, wireshark,
+
+	Issues resolved (http://bugs.buildroot.org):
+
+	#9576: External tree with BR 2016.11 does not work anymore
+
+2016.11.1, Released December 29th, 2016
+
+	Important / security related fixes.
+
+	Updated/fixed packages: apache, cryptopp, docker-engine,
+	dovecot, exim, gdk-pixbuf, libcurl, libupnp, links, monit,
+	nodejs, openssh, php, python, python-bottle, samba4, squid,
+	uboot, vim, wireshark, xorg-server uboot
+
+	Issues resolved (http://bugs.buildroot.org):
+
+	#9466: VIM_REMOVE_DOCS removes rgb.txt
+
 2016.11, Released November 30th, 2016
 
 	Minor fixes.

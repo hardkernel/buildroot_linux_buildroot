@@ -22,12 +22,15 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <time.h>
 
 #ifdef BR_CCACHE
 static char ccache_path[PATH_MAX];
 #endif
 static char path[PATH_MAX];
 static char sysroot[PATH_MAX];
+static char source_time[sizeof("-D__TIME__=\"HH:MM:SS\"")];
+static char source_date[sizeof("-D__DATE__=\"MMM DD YYYY\"")];
 
 /**
  * GCC errors out with certain combinations of arguments (examples are
@@ -39,8 +42,11 @@ static char sysroot[PATH_MAX];
  * 	-mfloat-abi=
  * 	-march=
  * 	-mcpu=
+ * 	-D__TIME__=
+ * 	-D__DATE__=
+ * 	-Wno-builtin-macro-redefined
  */
-#define EXCLUSIVE_ARGS	3
+#define EXCLUSIVE_ARGS	6
 
 static char *predef_args[] = {
 #ifdef BR_CCACHE
@@ -83,23 +89,44 @@ static char *predef_args[] = {
 #endif
 };
 
-struct unsafe_opt_s {
-	const char *arg;
+/* A {string,length} tuple, to avoid computing strlen() on constants.
+ *  - str must be a \0-terminated string
+ *  - len does not account for the terminating '\0'
+ */
+struct str_len_s {
+	const char *str;
 	size_t     len;
+};
+
+/* Define a {string,length} tuple. Takes an unquoted constant string as
+ * parameter. sizeof() on a string literal includes the terminating \0,
+ * but we don't want to count it.
+ */
+#define STR_LEN(s) { #s, sizeof(#s)-1 }
+
+/* List of paths considered unsafe for cross-compilation.
+ *
+ * An unsafe path is one that points to a directory with libraries or
+ * headers for the build machine, which are not suitable for the target.
+ */
+static const struct str_len_s unsafe_paths[] = {
+	STR_LEN(/lib),
+	STR_LEN(/usr/include),
+	STR_LEN(/usr/lib),
+	STR_LEN(/usr/local/include),
+	STR_LEN(/usr/local/lib),
+	{ NULL, 0 },
 };
 
 /* Unsafe options are options that specify a potentialy unsafe path,
  * that will be checked by check_unsafe_path(), below.
- *
- * sizeof() on a string literal includes the terminating \0.
  */
-#define UNSAFE_OPT(o) { #o, sizeof(#o)-1 }
-static const struct unsafe_opt_s unsafe_opts[] = {
-	UNSAFE_OPT(-I),
-	UNSAFE_OPT(-idirafter),
-	UNSAFE_OPT(-iquote),
-	UNSAFE_OPT(-isystem),
-	UNSAFE_OPT(-L),
+static const struct str_len_s unsafe_opts[] = {
+	STR_LEN(-I),
+	STR_LEN(-idirafter),
+	STR_LEN(-iquote),
+	STR_LEN(-isystem),
+	STR_LEN(-L),
 	{ NULL, 0 },
 };
 
@@ -119,13 +146,10 @@ static void check_unsafe_path(const char *arg,
 			      int paranoid,
 			      int arg_has_path)
 {
-	char **c;
-	static char *unsafe_paths[] = {
-		"/lib", "/usr/include", "/usr/lib", "/usr/local/include", "/usr/local/lib", NULL,
-	};
+	const struct str_len_s *p;
 
-	for (c = unsafe_paths; *c != NULL; c++) {
-		if (strncmp(path, *c, strlen(*c)))
+	for (p=unsafe_paths; p->str; p++) {
+		if (strncmp(path, p->str, p->len))
 			continue;
 		fprintf(stderr,
 			"%s: %s: unsafe header/library path used in cross-compilation: '%s%s%s'\n",
@@ -139,6 +163,47 @@ static void check_unsafe_path(const char *arg,
 	}
 }
 
+/* Read SOURCE_DATE_EPOCH from environment to have a deterministic
+ * timestamp to replace embedded current dates to get reproducible
+ * results.  Returns -1 if SOURCE_DATE_EPOCH is not defined.
+ */
+static time_t get_source_date_epoch()
+{
+	char *source_date_epoch;
+	long long epoch;
+	char *endptr;
+
+	source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+	if (!source_date_epoch)
+		return (time_t) -1;
+
+	errno = 0;
+	epoch = strtoll(source_date_epoch, &endptr, 10);
+	if ((errno == ERANGE && (epoch == LLONG_MAX || epoch == LLONG_MIN))
+			|| (errno != 0 && epoch == 0)) {
+		fprintf(stderr, "environment variable $SOURCE_DATE_EPOCH: "
+				"strtoll: %s\n", strerror(errno));
+		exit(2);
+	}
+	if (endptr == source_date_epoch) {
+		fprintf(stderr, "environment variable $SOURCE_DATE_EPOCH: "
+				"no digits were found: %s\n", endptr);
+		exit(2);
+	}
+	if (*endptr != '\0') {
+		fprintf(stderr, "environment variable $SOURCE_DATE_EPOCH: "
+				"trailing garbage: %s\n", endptr);
+		exit(2);
+	}
+	if (epoch < 0) {
+		fprintf(stderr, "environment variable $SOURCE_DATE_EPOCH: "
+				"value must be nonnegative: %lld \n", epoch);
+		exit(2);
+	}
+
+	return (time_t) epoch;
+}
+
 int main(int argc, char **argv)
 {
 	char **args, **cur, **exec_args;
@@ -149,6 +214,7 @@ int main(int argc, char **argv)
 	char *paranoid_wrapper;
 	int paranoid;
 	int ret, i, count = 0, debug;
+	time_t source_date_epoch;
 
 	/* Calculate the relative paths */
 	basename = strrchr(progpath, '/');
@@ -254,6 +320,28 @@ int main(int argc, char **argv)
 	}
 #endif /* ARCH || CPU */
 
+	source_date_epoch = get_source_date_epoch();
+	if (source_date_epoch != -1) {
+		struct tm *tm = localtime(&source_date_epoch);
+		if (!tm) {
+			perror("__FILE__: localtime");
+			return 3;
+		}
+		ret = strftime(source_time, sizeof(source_time), "-D__TIME__=\"%T\"", tm);
+		if (!ret) {
+			perror("__FILE__: overflow");
+			return 3;
+		}
+		*cur++ = source_time;
+		ret = strftime(source_date, sizeof(source_date), "-D__DATE__=\"%b %e %Y\"", tm);
+		if (!ret) {
+			perror("__FILE__: overflow");
+			return 3;
+		}
+		*cur++ = source_date;
+		*cur++ = "-Wno-builtin-macro-redefined";
+	}
+
 	paranoid_wrapper = getenv("BR_COMPILER_PARANOID_UNSAFE_PATH");
 	if (paranoid_wrapper && strlen(paranoid_wrapper) > 0)
 		paranoid = 1;
@@ -262,10 +350,10 @@ int main(int argc, char **argv)
 
 	/* Check for unsafe library and header paths */
 	for (i = 1; i < argc; i++) {
-		const struct unsafe_opt_s *opt;
-		for (opt=unsafe_opts; opt->arg; opt++ ) {
+		const struct str_len_s *opt;
+		for (opt=unsafe_opts; opt->str; opt++ ) {
 			/* Skip any non-unsafe option. */
-			if (strncmp(argv[i], opt->arg, opt->len))
+			if (strncmp(argv[i], opt->str, opt->len))
 				continue;
 
 			/* Handle both cases:
