@@ -4,15 +4,15 @@ LOCAL_DIR=$(pwd)
 BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
-DEFCONFIG_ARRAY=("mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200")
-BOARD_ARRAY=("p200" "p200" "p201" "p201" "p212" "p212" "p230" "p230" "q200" "q200" "k200" "k200b" "m200" "m201" "n200")
-BUILD_TYPE_ARRAY=("64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "32" "32" "32" "32" "32")
+DEFCONFIG_ARRAY=("mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p212_4358_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200")
+BOARD_ARRAY=("p200" "p200" "p201" "p201" "p212" "p212" "p212" "p230" "p230" "q200" "q200" "k200" "k200b" "m200" "m201" "n200")
+BUILD_TYPE_ARRAY=("64" "32" "64" "32" "64" "32" "32" "64" "32" "64" "32" "32" "32" "32" "32" "32")
 
 DEFCONFIG_ARRAY_LEN=${#DEFCONFIG_ARRAY[@]}
 
-while [ $i -lt $DEFCONFIG_ARRAY_LEN ]
+i=0
+while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
 do
-	echo ${DEFCONFIG_ARRAY[$i]}
 	let i++
 done
 
@@ -22,7 +22,7 @@ function choose_info()
 	echo "You're building on Linux"
 	echo "Lunch menu...pick a combo:"
 	i=0
-	while [ $i -lt $DEFCONFIG_ARRAY_LEN ]
+	while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
 	do
 		echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}_release"
 		let i++
