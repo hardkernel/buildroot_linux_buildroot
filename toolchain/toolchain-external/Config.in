@@ -24,6 +24,7 @@ source "toolchain/toolchain-external/toolchain-external-synopsys-arc/Config.in"
 # ARM (use Linaro toolchain by default)
 source "toolchain/toolchain-external/toolchain-external-linaro-arm/Config.in"
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-4dot9/Config.in"
+source "toolchain/toolchain-external/toolchain-external-linaro-arm-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-codesourcery-arm/Config.in"
 
 # ARM big-endian
@@ -74,7 +75,6 @@ config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_201409_U32K64
         depends on BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
 	depends on BR2_KERNEL_ARCH="arm64"
         depends on !BR2_STATIC_LIBS
-        depends on BR2_ARCH_IS_64
         help
           Toolchain for the AArch64 architecture, from
           http://www.linaro.org/engineering/armv8/
@@ -84,7 +84,6 @@ config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_U32K64
         depends on BR2_HOSTARCH = "x86_64"
 	depends on BR2_KERNEL_ARCH="arm64"
         depends on !BR2_STATIC_LIBS
-        depends on BR2_ARCH_IS_64
         help
           Toolchain for the AArch64 architecture, from
           http://www.linaro.org/engineering/armv8/
@@ -94,7 +93,6 @@ config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_AARCH64_U32K64
         depends on BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
 	depends on BR2_KERNEL_ARCH="arm64"
         depends on !BR2_STATIC_LIBS
-        depends on BR2_ARCH_IS_64
         help
           Sourcery CodeBench toolchain for the AArch64 architecture,
           from Mentor Graphics. It uses gcc 4.8.3, binutils 2.24,
@@ -144,7 +142,9 @@ config BR2_TOOLCHAIN_KERNEL_EXTERNAL_PREFIX
         default "aarch64-linux-gnu"      if BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_U32K64
         default "aarch64-linux-gnu"      if BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_201409_U32K64
         default "aarch64-linux-gnu"      if BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_AARCH64_U32K64
-	default "arm-linux-gnueabihf"	 if BR2_TOOLCHAIN_EXTERNAL_LINARO_ARM_201405
+        default "arm-linux-gnueabihf"	 if BR2_TOOLCHAIN_EXTERNAL_LINARO_ARM
+        default "arm-linux-gnueabihf"    if BR2_TOOLCHAIN_EXTERNAL_LINARO_ARM_PREINSTALLED
+        default "arm-linux-gnueabihf"    if BR2_TOOLCHAIN_EXTERNAL_LINARO_ARM_4DOT9
 
 config BR2_TOOLCHAIN_EXTERNAL_GLIBC
 	bool
@@ -187,6 +187,7 @@ source "toolchain/toolchain-external/toolchain-external-synopsys-arc/Config.in.o
 # ARM
 source "toolchain/toolchain-external/toolchain-external-linaro-arm/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-4dot9/Config.in.options"
+source "toolchain/toolchain-external/toolchain-external-linaro-arm-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-codesourcery-arm/Config.in.options"
 
 # ARM big-endian

@@ -4,6 +4,6 @@ config BR2_TOOLCHAIN_EXTERNAL_PREFIX
 	default "arm-linux-gnueabihf"
 
 config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
-	default "toolchain-external-linaro-arm"
+	default "toolchain-external-linaro-arm-preinstalled"
 
 endif

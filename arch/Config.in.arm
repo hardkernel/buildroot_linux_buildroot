@@ -590,6 +590,6 @@ config BR2_ARM_KERNEL_64
 endchoice
 
 config BR2_KERNEL_ARCH
-        string
-        default "arm64"      if BR2_ARM_KERNEL_64
+	string
+	default "arm64"      if BR2_ARM_KERNEL_64
 	default "arm"	     if BR2_ARM_KERNEL_32
