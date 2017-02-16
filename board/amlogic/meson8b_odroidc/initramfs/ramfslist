@@ -15,7 +15,6 @@
 ./lib/libnsl.so.1
 ./lib/libcrypt-2.13.so
 ./lib/libutil.so.1
-./lib/firmware
 ./lib/ld-linux.so.3
 ./lib/modules
 ./lib/modules/3.10.75

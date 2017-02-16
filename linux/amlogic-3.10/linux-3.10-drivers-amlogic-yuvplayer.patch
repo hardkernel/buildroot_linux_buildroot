@@ -1164,11 +1164,13 @@
  #
 --- a/drivers/amlogic/Makefile
 +++ b/drivers/amlogic/Makefile
-@@ -134,3 +134,4 @@ obj-y += crypto/
+@@ -144,5 +144,5 @@
  #obj-$(CONFIG_MESON_TRUSTZONE) += trustzone/
  obj-$(CONFIG_MESON_TRUSTZONE) += secure_monitor/
  obj-y += spi/
+-
 +obj-y += yuvplayer/
+ obj-y += defendkey/
 --- /dev/null
 +++ b/drivers/amlogic/yuvplayer/ion_priv.h
 @@ -0,0 +1,271 @@

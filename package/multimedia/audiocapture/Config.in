@@ -1,7 +1,0 @@
-config BR2_PACKAGE_AUDIOCAPTURE
-        bool "audiocapture"
-        help
-          amlogic audio capture process.
-
-          http://openlinux.amlogic.com
-

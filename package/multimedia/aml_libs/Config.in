@@ -1,7 +1,0 @@
-config BR2_PACKAGE_AML_LIBS
-        bool "aml_libs"
-        help
-          amlogic media player library.
-
-          http://openlinux.amlogic.com
-

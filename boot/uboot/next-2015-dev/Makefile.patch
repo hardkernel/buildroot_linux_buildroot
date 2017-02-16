@@ -1,0 +1,13 @@
+Index: uboot-2015-dev/Makefile
+===================================================================
+--- uboot-2015-dev.orig/Makefile	2017-01-17 20:34:21.725233577 +0800
++++ uboot-2015-dev/Makefile	2017-02-13 18:55:29.377556382 +0800
+@@ -246,7 +246,7 @@
+ CROSS_COMPILE ?=
+ endif
+ 
+-export CROSS_COMPILE=/opt/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
++export CROSS_COMPILE=aarch64-none-elf-
+ 
+ KCONFIG_CONFIG	?= .config
+ export KCONFIG_CONFIG
