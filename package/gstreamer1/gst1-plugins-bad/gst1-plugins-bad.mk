@@ -10,7 +10,7 @@ GST1_PLUGINS_BAD_SITE = https://gstreamer.freedesktop.org/src/gst-plugins-bad
 GST1_PLUGINS_BAD_LICENSE_FILES = COPYING COPYING.LIB
 # Unknown and GPL licensed plugins will append to GST1_PLUGINS_BAD_LICENSE if
 # enabled.
-GST1_PLUGINS_BAD_LICENSE = LGPLv2+ LGPLv2.1+
+GST1_PLUGINS_BAD_LICENSE = LGPLv2+, LGPLv2.1+
 
 GST1_PLUGINS_BAD_CONF_OPTS = \
 	--disable-examples \
