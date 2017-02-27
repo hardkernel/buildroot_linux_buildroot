@@ -1,0 +1,27 @@
+cfg80211
+mac80211
+mali
+8189es
+dwc3
+aml_thermal
+dwc_otg
+
+# media modules
+media_clock
+firmware
+decoder_common
+stream_input
+vavs
+vh264
+vh264_4k2k
+vh264_multi
+vh264_mvc
+vh265
+vmjpeg
+vmjpeg_multi
+vmpeg12
+vmpeg4
+vmpeg4_multi
+vreal
+vvc1
+vvp9
