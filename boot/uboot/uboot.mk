@@ -159,6 +159,13 @@ ifeq ($(BR2_TARGET_UBOOT_NEEDS_OPENSSL),y)
 UBOOT_DEPENDENCIES += host-openssl
 endif
 
+ifeq ($(BR2_PACKAGE_TDK),y)
+UBOOT_DEPENDENCIES += tdk
+define UBOOT_TDK_BINARY
+	cp -f $(TDK_DIR)/secureos/gx/bl32.img $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))
+endef
+UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_TDK_BINARY
+endif
 # prior to u-boot 2013.10 the license info was in COPYING. Copy it so
 # legal-info finds it
 define UBOOT_COPY_OLD_LICENSE_FILE
