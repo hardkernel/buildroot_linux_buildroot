@@ -183,6 +183,15 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 endef
 endif
 
+ifeq ($(WIFI_MODULE),bcm4358)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4358/*.bin $(TARGET_DIR)/etc/wifi/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4358/nvram*.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4358/BT/*.hcd $(TARGET_DIR)/etc/wifi/
+endef
+endif
+
 ifeq ($(WIFI_MODULE),bcm43458)
 define WIFI_FW_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/wifi/
