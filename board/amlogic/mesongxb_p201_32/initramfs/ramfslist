@@ -160,7 +160,6 @@
 ./etc/init.d/rcS
 ./etc/fstab
 ./etc/inittab
-./etc/ts.conf
 ./etc/mdev.conf
 ./etc/protocols
 ./linuxrc
