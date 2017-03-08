@@ -9,6 +9,7 @@ config BR2_TOOLCHAIN_EXTERNAL_LINARO_AARCH64_PREINSTALLED
 	select BR2_TOOLCHAIN_HAS_NATIVE_RPC
 	select BR2_TOOLCHAIN_HAS_FORTRAN
 	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_7
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
 	help
 	  Toolchain for the AArch64 architecture, from
 	  http://www.linaro.org/engineering/armv8/
