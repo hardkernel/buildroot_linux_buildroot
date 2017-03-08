@@ -241,6 +241,8 @@ endef
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
 define UBOOT_INSTALL_AMLOGIC_USB_TOOL
+	cp -dpf $(@D)/fip/u-boot.bin.encrypt $(BINARIES_DIR)/
+	cp -dpf $(@D)/fip/u-boot.bin.encrypt.efuse $(BINARIES_DIR)/
 	cp -dpf $(@D)/fip/u-boot.bin.usb.bl2 $(BINARIES_DIR)/
 	cp -dpf $(@D)/fip/u-boot.bin.usb.tpl $(BINARIES_DIR)/
 	cp -dpf $(@D)/fip/u-boot.bin.encrypt.usb.bl2 $(BINARIES_DIR)/

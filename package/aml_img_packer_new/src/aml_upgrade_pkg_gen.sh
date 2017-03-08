@@ -26,7 +26,18 @@ aml_secureboot_sign_kernel(){
 	${PRODUCT_AML_SECUREBOOT_SIGNTOOL} --imgsig \
         --amluserkey ${PRODUCT_AML_SECUREBOOT_USERKEY}  \
         --input $1 --output ${1}.encrypt
-	echo ----- Made aml secure-boot singed bootloader: $1.encrypt --------
+	echo ----- Made aml secure-boot singed kernel img: $1.encrypt --------
+}
+
+aml_secureboot_sign_bin(){
+	echo -----aml-secureboot-sign-bin ------
+	printf "${PRODUCT_AML_SECUREBOOT_SIGNTOOL} --binsig"
+    printf " --amluserkey ${PRODUCT_AML_SECUREBOOT_USERKEY}"
+    printf " --input $1 --output ${1}.encrypt\n"
+	${PRODUCT_AML_SECUREBOOT_SIGNTOOL} --binsig \
+        --amluserkey ${PRODUCT_AML_SECUREBOOT_USERKEY}  \
+        --input $1 --output ${1}.encrypt
+	echo ----- Made aml secure-boot singed bin: $1.encrypt --------
 }
 
 platform=$1
@@ -90,8 +101,9 @@ PRODUCT_OUTPUT_DIR=${BINARIES_DIR}
 aml_bootloader=${PRODUCT_OUTPUT_DIR}/u-boot.bin
 aml_secureboot_sign_bootloader ${aml_bootloader}
 if [ ! -f ${aml_bootloader}.encrypt ]; then
-    echo "fail to sign bootloader"
-    exit 1
+    echo "fail to sign bootloader -----"
+	cp ${PRODUCT_OUTPUT_DIR}/u-boot.bin ${aml_bootloader}.encrypt
+#    exit 1
 fi
 #rename efuse patten name for windows USB_BURNING_TOOL
 mv ${aml_bootloader}.encrypt.efuse SECURE_BOOT_SET
@@ -100,6 +112,13 @@ aml_kernel=${PRODUCT_OUTPUT_DIR}/boot.img
 aml_secureboot_sign_kernel ${aml_kernel}
 if [ ! -f ${aml_kernel}.encrypt ]; then
     echo "fail to sign kernel image"
+    exit 1
+fi
+
+aml_dtb=${PRODUCT_OUTPUT_DIR}/dtb.img
+aml_secureboot_sign_bin ${aml_dtb}
+if [ ! -f ${aml_dtb}.encrypt ]; then
+    echo "fail to sign dtb image"
     exit 1
 fi
 
