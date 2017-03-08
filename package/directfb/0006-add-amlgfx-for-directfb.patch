@@ -18,7 +18,7 @@ Subject: [PATCH] add amlgfx for directfb
  gfxdrivers/amlgfx/amlfb.h     |   47 ++
  systems/fbdev/fb.h            |    1 +
  14 files changed, 3250 insertions(+), 12 deletions(-)
- mode change 100755 => 100644 configure
+ mode change 100755 => 100755 configure
  create mode 100644 gfxdrivers/amlgfx/Makefile.am
  create mode 100644 gfxdrivers/amlgfx/Makefile.in
  create mode 100644 gfxdrivers/amlgfx/aml.c
@@ -31,7 +31,7 @@ Subject: [PATCH] add amlgfx for directfb
 
 diff --git a/configure b/configure
 old mode 100755
-new mode 100644
+new mode 100755
 index a36e948..6fa6c6f
 --- a/configure
 +++ b/configure
