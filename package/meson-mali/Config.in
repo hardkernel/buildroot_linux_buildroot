@@ -1,0 +1,24 @@
+config BR2_PACKAGE_MESON_MALI
+	bool "amlogic mali opengl provider"
+	select BR2_PACKAGE_HAS_LIBGLES
+	select BR2_PACKAGE_HAS_LIBEGL
+	help
+		amlogic mali400 opengl driver.
+
+		http://openlinux.amlogic.com
+
+config BR2_PACKAGE_MESON_MALI_MODEL
+	string "mali hw model"
+
+config BR2_PACKAGE_MESON_MALI_VERSION
+	string "mali opengl version"
+
+config BR2_PACKAGE_MESON_MALI_WAYLAND_EGL
+	bool "amlogic mali wayland egl"
+	select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+
+config BR2_PACKAGE_PROVIDES_LIBEGL
+	default "meson-mali" if BR2_PACKAGE_MESON_MALI
+
+config BR2_PACKAGE_PROVIDES_LIBGLES
+	default "meson-mali" if BR2_PACKAGE_MESON_MALI

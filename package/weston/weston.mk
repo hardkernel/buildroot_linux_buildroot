@@ -4,12 +4,12 @@
 #
 ################################################################################
 
-WESTON_VERSION = 1.12.0
+WESTON_VERSION = 1.10.0
 WESTON_SITE = http://wayland.freedesktop.org/releases
 WESTON_SOURCE = weston-$(WESTON_VERSION).tar.xz
 WESTON_LICENSE = MIT
 WESTON_LICENSE_FILES = COPYING
-# configure.ac patched by 0003-configure-search-for-lib-with-clock_getres.patch
+# For 0002-build-add-check-for-clock_gettime-in-librt.patch
 WESTON_AUTORECONF = YES
 
 WESTON_DEPENDENCIES = host-pkgconf wayland wayland-protocols \
@@ -18,9 +18,11 @@ WESTON_DEPENDENCIES = host-pkgconf wayland wayland-protocols \
 
 WESTON_CONF_OPTS = \
 	--with-dtddir=$(STAGING_DIR)/usr/share/wayland \
+	--disable-xwayland \
+	--disable-x11-compositor \
+	--disable-wayland-compositor \
 	--disable-headless-compositor \
 	--disable-colord \
-	--disable-devdocs \
 	--disable-setuid-install
 
 WESTON_MAKE_OPTS = \
@@ -52,14 +54,21 @@ else
 WESTON_CONF_OPTS += --disable-weston-launch
 endif
 
-# Needs wayland-egl, which normally only mesa provides
+# Needs wayland-egl, which normally only mesa provides or package opengl.
 ifeq ($(BR2_PACKAGE_MESA3D_OPENGL_EGL)$(BR2_PACKAGE_MESA3D_OPENGL_ES),yy)
 WESTON_CONF_OPTS += --enable-egl
 WESTON_DEPENDENCIES += libegl
+else ifeq ($(BR2_PACKAGE_MESON_MALI),y)
+WESTON_CONF_OPTS += --enable-egl --enable-simple-egl-clients
+WESTON_DEPENDENCIES += libegl
 else
 WESTON_CONF_OPTS += \
-	--disable-egl \
-	--disable-simple-egl-clients
+  --disable-egl \
+  --disable-simple-egl-clients
+endif
+
+ifeq ($(BR2_PACKAGE_CAIRO)$(BR2_PACKAGE_HAS_LIBGLES),yy)
+WESTON_CONF_OPTS += --with-cairo=glesv2
 endif
 
 ifeq ($(BR2_PACKAGE_LIBUNWIND),y)
@@ -92,25 +101,18 @@ else
 WESTON_CONF_OPTS += --disable-drm-compositor
 endif
 
-ifeq ($(BR2_PACKAGE_WESTON_X11),y)
-WESTON_CONF_OPTS += \
-	--enable-x11-compositor \
-	WESTON_NATIVE_BACKEND=x11-backend.so
-WESTON_DEPENDENCIES += libxcb xlib_libX11
+ifeq ($(BR2_PACKAGE_WESTON_RPI),y)
+WESTON_DEPENDENCIES += rpi-userland
+WESTON_CONF_OPTS += --enable-rpi-compositor \
+	--disable-resize-optimization \
+	WESTON_NATIVE_BACKEND=rpi-backend.so
 else
-WESTON_CONF_OPTS += --disable-x11-compositor
-endif
-
-ifeq ($(BR2_PACKAGE_WESTON_XWAYLAND),y)
-WESTON_CONF_OPTS += --enable-xwayland
-WESTON_DEPENDENCIES += cairo libepoxy libxcb xlib_libX11 xlib_libXcursor
-else
-WESTON_CONF_OPTS += --disable-xwayland
-endif
+WESTON_CONF_OPTS += --disable-rpi-compositor
+endif # BR2_PACKAGE_WESTON_RPI
 
 ifeq ($(BR2_PACKAGE_LIBVA),y)
 WESTON_CONF_OPTS += --enable-vaapi-recorder
-WESTON_DEPENDENCIES += libva
+WESTON_DEPENDENIES += libva
 else
 WESTON_CONF_OPTS += --disable-vaapi-recorder
 endif
@@ -134,12 +136,6 @@ WESTON_CONF_OPTS += --enable-junit-xml
 WESTON_DEPENDENCIES += libxml2
 else
 WESTON_CONF_OPTS += --disable-junit-xml
-endif
-
-ifeq ($(BR2_PACKAGE_WESTON_DEMO_CLIENTS),y)
-WESTON_CONF_OPTS += --enable-demo-clients-install
-else
-WESTON_CONF_OPTS += --disable-demo-clients-install
 endif
 
 $(eval $(autotools-package))

@@ -9,6 +9,7 @@ menu "amlogic"
 	source "package/aml_thermal/Config.in"
 	source "package/amlogic_test/Config.in"
 	source "package/aml_brcm_bsa/Config.in"
+	source "package/meson-mali/Config.in"
 endmenu
 
 menu "Audio and video applications"

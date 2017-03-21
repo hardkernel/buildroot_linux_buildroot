@@ -159,10 +159,6 @@ ifeq ($(BR2_PACKAGE_XLIB_LIBXDAMAGE),y)
 	CAIRO_DEPENDENCIES += xlib_libXdamage
 endif
 
-ifeq ($(BR2_PACKAGE_OPENGL),y)
-	CAIRO_DEPENDENCIES += opengl
-endif
-
 ifeq ($(BR2_PACKAGE_CAIRO_SCRIPT),y)
 CAIRO_CONF_OPTS += --enable-script
 else
