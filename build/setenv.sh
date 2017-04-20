@@ -4,9 +4,9 @@ LOCAL_DIR=$(pwd)
 BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
-DEFCONFIG_ARRAY=("mesongxl_p400_kernel49"  "mesongxl_p400_32_kernel49" "mesongxl_p401_kernel49"  "mesongxl_p401_32_kernel49" "mesongxl_p212_32_kernel49" "mesongxl_p212_kernel49" "mesongxm_q200_32_kernel49" "mesongxm_q200_kernel49" "meson8b_m200_kernel49" "mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200")
-BOARD_ARRAY=("p400" "p400" "p401" "p401" "p212" "p212" "q200" "q200" "m200" "p200" "p200" "p201" "p201" "p212" "p212" "p230" "p230" "q200" "q200" "k200" "k200b" "m200" "m201" "n200")
-BUILD_TYPE_ARRAY=("64" "32" "64" "32" "32" "64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "32" "32" "32" "32" "32")
+DEFCONFIG_ARRAY=("mesongxl_p400" "mesongxl_p400_32" "mesongxl_p401" "mesongxl_p401_32" "mesongxl_p400_kernel49"  "mesongxl_p400_32_kernel49" "mesongxl_p401_kernel49"  "mesongxl_p401_32_kernel49" "mesongxl_p212_32_kernel49" "mesongxl_p212_kernel49" "mesongxm_q200_32_kernel49" "mesongxm_q200_kernel49" "meson8b_m200_kernel49" "mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200")
+BOARD_ARRAY=("p400" "p400" "p401" "p401" "p400" "p400" "p401" "p401" "p212" "p212" "q200" "q200" "m200" "p200" "p200" "p201" "p201" "p212" "p212" "p230" "p230" "q200" "q200" "k200" "k200b" "m200" "m201" "n200")
+BUILD_TYPE_ARRAY=("64" "32" "64" "32" "64" "32" "64" "32" "32" "64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "64" "32" "32" "32" "32" "32" "32")
 
 DEFCONFIG_ARRAY_LEN=${#DEFCONFIG_ARRAY[@]}
 
