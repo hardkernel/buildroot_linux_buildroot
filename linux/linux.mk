@@ -506,6 +506,9 @@ define LINUX_BUILD_CMDS
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
 		$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) modules ;	\
 	fi
+	for km in $(LINUX_RDEPENDENCIES); do \
+		make -C $(TOPDIR)/.. $${km}-dirclean; \
+	done
 	$(if $(BR2_LINUX_KERNEL_AMLOGIC_DTD_STRIP), $(LINUX_STRIP_DTD))
 	$(LINUX_BUILD_DTB)
 	$(LINUX_APPEND_DTB)
