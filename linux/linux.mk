@@ -507,7 +507,7 @@ define LINUX_BUILD_CMDS
 		$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) modules ;	\
 	fi
 	for km in $(LINUX_RDEPENDENCIES); do \
-		make -C $(TOPDIR)/.. $${km}-dirclean; \
+		rm -rf $(BUILD_DIR)/$${km}-* ;\
 	done
 	$(if $(BR2_LINUX_KERNEL_AMLOGIC_DTD_STRIP), $(LINUX_STRIP_DTD))
 	$(LINUX_BUILD_DTB)

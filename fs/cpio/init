@@ -16,6 +16,18 @@ get_opt() {
     echo "$@" | cut -d "=" -f 2
 }
 
+get_ubi_rootfs() {
+    echo `awk '
+    BEGIN{
+       mtd = -1
+    }
+    /"upgrade"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4);
+    }
+    END{
+        if (mtd != -1) print "/dev/mtd"mtd
+    }' /proc/mtd`
+}
+
 #Defaults
 init="/sbin/init"
 root="/dev/cardblksd1"
@@ -45,6 +57,10 @@ done
 i=1
 while [ "$i" -le 30 ]
 do
+    if [ "${rootfstype}" = "ubifs" ]; then
+        root=$(get_ubi_rootfs)
+    fi
+
     if [ -b "${root}" ]; then
         echo "${root} is ready now."
         break
@@ -54,7 +70,12 @@ do
     i=$((i+1))
 done
 
-if [ "${rootfstype}" != "" ]; then
+if [ "${rootfstype}" = "ubifs" ]; then
+    echo "#[ubiattach /dev/ubi_ctrl -m 4]"
+    ubiattach /dev/ubi_ctrl -m 4
+    echo "#[ mount -t ubifs /dev/ubi0_0 /mnt ]"
+    mount -t ${rootfstype} "${root}" /mnt
+elif [ "${rootfstype}" != "" ]; then
     mount -t ${rootfstype} "${root}" /mnt
 else
     mount "${root}" /mnt
