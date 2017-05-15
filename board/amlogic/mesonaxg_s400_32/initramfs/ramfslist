@@ -270,7 +270,6 @@
 ./usr/bin/lsusb
 ./usr/bin/tr
 ./usr/bin/traceroute
-./usr/libexec
 ./usr/lib32
 ./usr/sbin
 ./usr/sbin/filefrag
@@ -314,6 +313,12 @@
 ./usr/sbin/setlogcons
 ./usr/sbin/fsck.ext2
 ./usr/sbin/crond
+./usr/sbin/ubiattach
+./usr/sbin/ubidetach
+./usr/sbin/ubiformat
+./usr/sbin/ubinfo
+./usr/sbin/ubimkvol
+./usr/sbin/ubirmvol
 ./lib32
 ./proc
 ./dev

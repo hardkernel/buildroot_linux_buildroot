@@ -306,7 +306,12 @@
 ./usr/sbin/setlogcons
 ./usr/sbin/fsck.ext2
 ./usr/sbin/crond
-./lib64
+./usr/sbin/ubiattach
+./usr/sbin/ubidetach
+./usr/sbin/ubiformat
+./usr/sbin/ubinfo
+./usr/sbin/ubimkvol
+./usr/sbin/ubirmvol
 ./proc
 ./dev
 ./dev/pts
