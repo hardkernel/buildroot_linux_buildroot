@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. ${BINARIES_DIR}/../.config
+
 #only one input param, output signed bootloader and efuse patten
 #param1 is not signed u-boot.bin
 aml_secureboot_sign_bootloader(){
@@ -57,14 +59,19 @@ PRODUCT_AML_IMG_PACK_DIR=${BINARIES_DIR}
 ext4img=${PRODUCT_AML_IMG_PACK_DIR}/rootfs.ext2
 sparseimg=${ext4img}.img2simg
 update_sparse_img=0
-if [ ! -f  ${sparseimg} ]; then update_sparse_img=1; fi
-if [ ${update_sparse_img} -ne 1 ];then
-    t1=`stat -c %Y ${ext4img}`
-    t2=`stat -c %Y ${sparseimg}`
-    if [ ${t1} -gt ${t2} ]; then
-        echo "ext4 file time newer than sparse image"
-        update_sparse_img=1
-    fi
+echo PRODUCT_AML_IMG_PACK_DIR:${PRODUCT_AML_IMG_PACK_DIR}
+if [ ${BR2_PACKAGE_MTD_MKFSUBIFS} = "y" ]; then 
+       echo -e " \n\n !!!!!! use ubifs \n\n"
+else
+       if [ ! -f  ${sparseimg} ]; then update_sparse_img=1; fi
+       if [ ${update_sparse_img} -ne 1 ];then
+           t1=`stat -c %Y ${ext4img}`
+           t2=`stat -c %Y ${sparseimg}`
+           if [ ${t1} -gt ${t2} ]; then
+               echo "ext4 file time newer than sparse image"
+               update_sparse_img=1
+           fi
+       fi
 fi
 if [ ${update_sparse_img} -eq 1 ]; then 
     echo "compress 1g ext4 image to compressed sparse format"
@@ -74,7 +81,6 @@ if [ ${update_sparse_img} -eq 1 ]; then
         exit 1
     fi
 fi
-
 ####Step 3: pack none-secureboot burning image
 aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
 burnPkg=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.img

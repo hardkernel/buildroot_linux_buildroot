@@ -21,7 +21,7 @@ get_ubi_rootfs() {
     BEGIN{
        mtd = -1
     }
-    /"upgrade"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4);
+    /"system"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4);
     }
     END{
         if (mtd != -1) print "/dev/mtd"mtd
@@ -61,7 +61,7 @@ do
         root=$(get_ubi_rootfs)
     fi
 
-    if [ -b "${root}" ]; then
+    if [ -c "${root}" ]; then
         echo "${root} is ready now."
         break
     fi
@@ -74,7 +74,7 @@ if [ "${rootfstype}" = "ubifs" ]; then
     echo "#[ubiattach /dev/ubi_ctrl -m 4]"
     ubiattach /dev/ubi_ctrl -m 4
     echo "#[ mount -t ubifs /dev/ubi0_0 /mnt ]"
-    mount -t ${rootfstype} "${root}" /mnt
+    mount -t ${rootfstype} /dev/ubi0_0  /mnt
 elif [ "${rootfstype}" != "" ]; then
     mount -t ${rootfstype} "${root}" /mnt
 else
