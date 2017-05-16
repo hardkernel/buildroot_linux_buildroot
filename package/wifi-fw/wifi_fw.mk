@@ -201,6 +201,18 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 endef
 endif
 
+ifeq ($(WIFI_MODULE),ath10k)
+define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/
+	mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/QCA6174/
+	mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/QCA6174/hw3.0/
+	mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/QCA9888/
+	mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/QCA9888/hw2.0/
+	$(INSTALL) -D -m 0644 $(@D)/qcom/config/ath10k/QCA6174/hw3.0/*.bin $(TARGET_DIR)/lib/firmware/ath10k/QCA6174/hw3.0/
+	$(INSTALL) -D -m 0644 $(@D)/qcom/config/ath10k/QCA9888/hw2.0/*.bin $(TARGET_DIR)/lib/firmware/ath10k/QCA9888/hw2.0/
+endef
+endif
+
 endif #BR2_PACKAGE_WIFI_CUSTOM_GIT_VERSION
 
 $(eval $(generic-package))
