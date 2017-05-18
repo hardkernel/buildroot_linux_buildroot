@@ -59,11 +59,15 @@ while [ "$i" -le 30 ]
 do
     if [ "${rootfstype}" = "ubifs" ]; then
         root=$(get_ubi_rootfs)
-    fi
-
-    if [ -c "${root}" ]; then
-        echo "${root} is ready now."
-        break
+        if [ -c "${root}" ]; then
+            echo "${root} is ready now."
+            break
+        fi
+    else
+        if [ -b "${root}" ]; then
+            echo "${root} is ready now."
+            break
+        fi
     fi
     echo "${root} is not ready.  Waited for ${i} second"
     sleep 1
