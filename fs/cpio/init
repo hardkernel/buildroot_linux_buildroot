@@ -27,6 +27,9 @@ get_ubi_rootfs() {
         if (mtd != -1) print "/dev/mtd"mtd
     }' /proc/mtd`
 }
+#get system ubi number
+system_mtd_number=$(cat /proc/mtd | grep  -E "system" | awk -F : '{print $1}' | grep -o '[0-9]\+')
+
 
 #Defaults
 init="/sbin/init"
@@ -75,8 +78,8 @@ do
 done
 
 if [ "${rootfstype}" = "ubifs" ]; then
-    echo "#[ubiattach /dev/ubi_ctrl -m 4]"
-    ubiattach /dev/ubi_ctrl -m 4
+    echo "#[ubiattach /dev/ubi_ctrl -m ${system_mtd_number}]"
+    ubiattach /dev/ubi_ctrl -m ${system_mtd_number}
     echo "#[ mount -t ubifs /dev/ubi0_0 /mnt ]"
     mount -t ${rootfstype} /dev/ubi0_0  /mnt
 elif [ "${rootfstype}" != "" ]; then
