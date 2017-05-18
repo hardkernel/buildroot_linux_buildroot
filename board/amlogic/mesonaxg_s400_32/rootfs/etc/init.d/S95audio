@@ -1,0 +1,8 @@
+#!/bin/sh
+#chkconfig:2345 80 90
+#description:auto_coreseek
+
+PH="/sys/kernel/debug/aml_reg/paddr"
+echo ff63c228 c800 > $PH
+echo ffd18004 6780000 > $PH
+echo ff800018 402230 > $PH
