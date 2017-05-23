@@ -56,13 +56,14 @@ PRODUCT_AML_IMG_PACK_DIR=${BINARIES_DIR}
 #ln -sf `ls ${PRODUCT_AML_IMG_PACK_DIR}/*.dtb` ${PRODUCT_AML_IMG_PACK_DIR}/dtb.img
 
 ####Step 2: compress 1g 
-ext4img=${PRODUCT_AML_IMG_PACK_DIR}/rootfs.ext2
-sparseimg=${ext4img}.img2simg
-update_sparse_img=0
 echo PRODUCT_AML_IMG_PACK_DIR:${PRODUCT_AML_IMG_PACK_DIR}
 if [ ${BR2_PACKAGE_MTD_MKFSUBIFS} = "y" ]; then 
        echo -e " \n\n !!!!!! use ubifs \n\n"
 else
+	ext4img=${PRODUCT_AML_IMG_PACK_DIR}/rootfs.ext2
+	sparseimg=${ext4img}.img2simg
+	update_sparse_img=0
+       echo -e " \n\n !!!!!! use ext4 \n\n"
        if [ ! -f  ${sparseimg} ]; then update_sparse_img=1; fi
        if [ ${update_sparse_img} -ne 1 ];then
            t1=`stat -c %Y ${ext4img}`

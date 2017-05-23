@@ -405,7 +405,7 @@ config BR2_TARGET_UBOOT_AMLOGIC
     bool "amlogic uboot"
     depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_CODESOURCERY
     depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_ARC
-    select BR2_PACKAGE_HOST_AML_IMAGE_PACKER
+    select BR2_PACKAGE_HOST_AML_IMG_PACKER_NEW
     help
         amlogic uboot
 
