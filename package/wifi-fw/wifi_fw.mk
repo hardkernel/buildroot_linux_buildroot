@@ -188,6 +188,7 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/wifi/
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.bin $(TARGET_DIR)/etc/wifi/
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/nvram*.txt $(TARGET_DIR)/etc/wifi/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/config.txt $(TARGET_DIR)/etc/wifi/config.txt
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.hcd $(TARGET_DIR)/etc/wifi/
 endef
 endif
