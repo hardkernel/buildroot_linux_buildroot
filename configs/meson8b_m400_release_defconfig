@@ -105,6 +105,11 @@ BR2_PACKAGE_WAVPACK=y
 BR2_PACKAGE_ALSA_LIB=y
 
 #
+#Audio/Sound player
+#
+BR2_PACKAGE_ALSAPLAYER=y
+
+#
 # ALSA lib selection
 #
 BR2_PACKAGE_ALSA_LIB_DEVDIR="/dev/snd"
