@@ -1,8 +1,11 @@
-UTILS = wifi_power usbpower usbtestpm usbtestpm_mx usbtestpm_mx_iddq usbpower_mx_iddq
+UTILS = wifi_power input_eventd usbpower usbtestpm usbtestpm_mx usbtestpm_mx_iddq usbpower_mx_iddq
 .PHONY: all install clean
 
 wifi_power: wifi_power.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+input_eventd: input_eventd.cpp events_process.cpp events.cpp
+	$(CXX) $(CFLAGS) $(LDFLAGS) -lpthread -o $@ $^ $(LDLIBS)
 
 usbpower: usbpower.cpp usbctrl.cpp
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
@@ -29,4 +32,4 @@ install:
 	install -m 755 $(UTILS) $(TARGET_DIR)/usr/bin/
 
 uninstall:
-	rm -f $(TARGET_DIR)/usr/bin/
+	rm -f $(TARGET_DIR)/usr/bin/$(UTILS)

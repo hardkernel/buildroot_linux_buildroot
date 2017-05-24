@@ -1,0 +1,24 @@
+#!/bin/sh
+
+NAME=input_eventd 
+DAEMON=/usr/bin/$NAME 
+PIDFILE=/var/run/$NAME.pid
+
+case "$1" in
+    start)
+        echo "Starting input_eventd..."
+        start-stop-daemon -S -m -p $PIDFILE -b -x $DAEMON  
+	;;
+    stop)
+        echo -n "Stopping input_eventd..."
+        start-stop-daemon -K -o -p $PIDFILE
+        rm -f $PIDFILE 
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
+
+
