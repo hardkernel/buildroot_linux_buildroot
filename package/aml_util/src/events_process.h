@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdint.h>
+#include <sys/time.h>
 // Abstract class for controlling the user interface during recovery.
 class EventsProcess {
   public:
@@ -70,6 +71,7 @@ private:
     pthread_mutex_t key_queue_mutex;
     pthread_cond_t key_queue_cond;
     int key_queue[256], key_queue_len;
+    struct timeval last_queue_time;
     char key_pressed[KEY_MAX + 1];     // under key_queue_mutex
     int key_last_down;                 // under key_queue_mutex
     bool key_long_press;               // under key_queue_mutex

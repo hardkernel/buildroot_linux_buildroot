@@ -24,6 +24,7 @@
 
 #define WAIT_KEY_TIMEOUT_SEC    120
 #define nullptr NULL
+#define KEY_EVENT_TIME_INTERVAL 20
 
 EventsProcess::KeyMapItem_t g_default_keymap[] = {
         { "select", KEY_POWER, {KEY_POWER,KEY_ENTER, KEY_BACK, -1, -1, -1} },
@@ -52,6 +53,7 @@ EventsProcess::EventsProcess()
     pthread_mutex_init(&key_queue_mutex, nullptr);
     pthread_cond_init(&key_queue_cond, nullptr);
     memset(key_pressed, 0, sizeof(key_pressed));
+    memset(&last_queue_time, 0, sizeof(last_queue_time));
     load_key_map();
 }
 
@@ -289,11 +291,27 @@ int EventsProcess::getMapKey(int key) {
 	return -1;
 }
 
+// retrun time interval in millisecond between two timeval.
+long get_time_diff(struct timeval before, struct timeval later) {
+    long before_sec = before.tv_sec;
+    long before_usec = before.tv_usec;
+    long later_sec = later.tv_sec;
+    long later_usec = later.tv_usec;
+
+    return (later_sec - before_sec) * 1000 + (later_usec - before_usec) / 1000;
+}
+
 void EventsProcess::EnqueueKey(int key_code) {
+    struct timeval now;
+    gettimeofday(&now, nullptr);
+
     pthread_mutex_lock(&key_queue_mutex);
     const int queue_max = sizeof(key_queue) / sizeof(key_queue[0]);
     if (key_queue_len < queue_max) {
-        key_queue[key_queue_len++] = key_code;
+        if (last_key != key_code || get_time_diff(last_queue_time, now) >= KEY_EVENT_TIME_INTERVAL) {
+            key_queue[key_queue_len++] = key_code;
+            last_queue_time = now;
+        }
         pthread_cond_signal(&key_queue_cond);
     }
     pthread_mutex_unlock(&key_queue_mutex);
