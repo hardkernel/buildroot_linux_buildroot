@@ -1,0 +1,12 @@
+config BR2_PACKAGE_GCONF
+ bool "gconf"
+ select BR2_PACKAGE_INTLTOOL
+ select BR2_PACKAGE_DBUS_GLIB
+ select BR2_PACKAGE_LIBXML2
+ help
+  GConf is a system for storing application preferences. It is intended
+  for user preferences; *not* configuration of something like Apache,
+  or arbitrary data storage.
+
+  http://projects.gnome.org/gconf
+
