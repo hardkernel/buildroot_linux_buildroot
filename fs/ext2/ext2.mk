@@ -42,7 +42,7 @@ ROOTFS_EXT2_POST_TARGETS += rootfs-ext2-symlink
 endif
 
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
-UPGRADE_DIR := $(DEVICE_DIR)../upgrade
+UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
 rootfs-usb-image-pack:
@@ -53,8 +53,8 @@ rootfs-usb-image-pack:
 	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
 else #BR2_TARGET_UBOOT_AMLOGIC_2015
 rootfs-usb-image-pack:
-	cp -f $(UPGRADE_DIR)/platform.conf $(BINARIES_DIR)
-	$(HOST_DIR)/usr/bin/aml_image_v2_packer -r $(BINARIES_DIR)/usb_burn_package.conf $(BINARIES_DIR)/ $(BINARIES_DIR)/aml_upgrade_package.img
+	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
+	$(HOST_DIR)/usr/bin/aml_image_v2_packer -r $(BINARIES_DIR)/aml_upgrade_package.conf $(BINARIES_DIR)/ $(BINARIES_DIR)/aml_upgrade_package.img
 endif #BR2_TARGET_UBOOT_AMLOGIC_2015
 ROOTFS_EXT2_POST_TARGETS += rootfs-usb-image-pack
 endif #BR2_TARGET_USBTOOL_AMLOGIC

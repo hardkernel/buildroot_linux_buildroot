@@ -707,6 +707,12 @@ endif
 		echo "PRETTY_NAME=\"Buildroot $(BR2_VERSION)\"" \
 	) >  $(TARGET_DIR)/etc/os-release
 
+	@$(foreach d, $(call qstrip,$(BR2_ROOTFS_COMMON_OVERLAY)), \
+		$(call MESSAGE,"Copying overlay $(d)"); \
+		rsync -a --ignore-times --keep-dirlinks $(RSYNC_VCS_EXCLUSIONS) \
+			--chmod=u=rwX,go=rX --exclude .empty --exclude '*~' \
+			$(d)/ $(TARGET_DIR)$(sep))
+
 	@$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \
 		$(call MESSAGE,"Copying overlay $(d)"); \
 		rsync -a --ignore-times --keep-dirlinks $(RSYNC_VCS_EXCLUSIONS) \

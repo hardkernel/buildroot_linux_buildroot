@@ -25,7 +25,7 @@ define ROOTFS_UBIFS_CMD
 endef
 
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
-UPGRADE_DIR := $(DEVICE_DIR)../upgrade
+UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
 rootfs-usb-image-pack-ubifs:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)

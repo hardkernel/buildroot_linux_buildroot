@@ -469,6 +469,18 @@ config BR2_ROOTFS_USERS_TABLES
 
 	  See manual for details on the usage and syntax of these files.
 
+config BR2_ROOTFS_COMMON_OVERLAY
+	string "Root filesystem common overlay directories"
+	default ""
+	help
+	  common directories that are copied over the target root filesystem
+
+config BR2_ROOTFS_UPGRADE_DIR
+	string "amlogic upgrade configure directories"
+	default ""
+	help
+	  amlogic upgrade configure directories"
+
 config BR2_ROOTFS_OVERLAY
 	string "Root filesystem overlay directories"
 	default ""
