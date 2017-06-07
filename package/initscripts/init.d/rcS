@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -f /etc/init.d/rc.modules ]; then
-        /etc/init.d/rc.modules
+        /etc/init.d/rc.modules &
 fi
 
 # Start all init scripts in /etc/init.d
@@ -17,13 +17,13 @@ for i in /etc/init.d/S??* ;do
 	    # Source shell script for speed.
 	    (
 		trap - INT QUIT TSTP
-		set start
+		set start &
 		. $i
 	    )
 	    ;;
 	*)
 	    # No sh extension, so fork subprocess.
-	    $i start
+	    $i start &
 	    ;;
     esac
 done

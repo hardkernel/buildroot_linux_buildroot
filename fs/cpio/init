@@ -7,26 +7,13 @@
 #Create device nodes
 mdev -s
 
-#insert our precious NFTL
-modprobe aml_nftl_dev
-
 #Function for parsing command line options with "=" in them
 # get_opt("init=/sbin/init") will return "/sbin/init"
 get_opt() {
     echo "$@" | cut -d "=" -f 2
 }
 
-get_ubi_rootfs() {
-    echo `awk '
-    BEGIN{
-       mtd = -1
-    }
-    /"system"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4);
-    }
-    END{
-        if (mtd != -1) print "/dev/mtd"mtd
-    }' /proc/mtd`
-}
+
 #get system ubi number
 system_mtd_number=$(cat /proc/mtd | grep  -E "system" | awk -F : '{print $1}' | grep -o '[0-9]\+')
 if [ ${system_mtd_number} = ""]; then
@@ -38,7 +25,7 @@ init="/sbin/init"
 root="/dev/cardblksd1"
 firmware=""
 rootfstype=
-
+system_partition_name="system"
 #Process command line options
 for i in $(cat /proc/cmdline); do
     case $i in
@@ -54,8 +41,35 @@ for i in $(cat /proc/cmdline); do
         init\=*)
             init=$(get_opt $i)
             ;;
+	system_partition_name\=*)
+            system_partition_name=$(get_opt $i)
+            ;;
     esac
 done
+
+get_ubi_rootfs() {
+    if [ "${system_partition_name}" = "upgrade" ]; then
+    echo `awk '
+    BEGIN{
+       mtd = -1
+    }
+    /"upgrade"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4);
+    }
+    END{
+        if (mtd != -1) print "/dev/mtd"mtd
+    }' /proc/mtd`
+    else
+    echo `awk '
+    BEGIN{
+       mtd = -1
+    }
+    /"system"/ {mtd = $1; len = length(mtd); mtd=substr(mtd, 4, len - 4);
+    }
+    END{
+        if (mtd != -1) print "/dev/mtd"mtd
+    }' /proc/mtd`
+    fi
+}
 
 #Mount the root device
 #Waiting for device to become ready

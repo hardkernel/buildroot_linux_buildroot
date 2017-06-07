@@ -11,6 +11,7 @@
 ./var/tmp
 ./var/www
 ./lib
+./lib/modules
 ./lib/arm-linux-gnueabihf
 ./lib/ld-2.19-2014.05.so
 ./lib/ld-linux-armhf.so.3
