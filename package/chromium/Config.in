@@ -8,7 +8,7 @@ config BR2_PACKAGE_CHROMIUM
 	select BR2_PACKAGE_XBKCOMMON
 	select BR2_PACKAGE_CUPS
 	select BR2_PACKAGE_LIBNSS
-        select BR2_PACKAGE_PANGO
+	select BR2_PACKAGE_PANGO
 
 #	select BR2_PACKAGE_CAIRO
 #	select BR2_PACKAGE_FONTCONFIG
@@ -16,3 +16,21 @@ config BR2_PACKAGE_CHROMIUM
 #	select BR2_PACKAGE_NINJA
 #	select BR2_PACKAGE_WAYLAND
 #	select BR2_PACKAGE_OPENSSL
+
+if BR2_PACKAGE_CHROMIUM
+
+choice
+	prompt "chromium compile mode choice"
+	default BR2_PACKAGE_CHROMIUM_PREBUILT
+	help
+	  Select using prebuilt chromium bin or recompile chromium project.
+
+config BR2_PACKAGE_CHROMIUM_COMPILE_ALL
+	bool "recompile the total chromium"
+
+config BR2_PACKAGE_CHROMIUM_PREBUILT
+	bool "Use prebuilt chromium bin"
+
+endchoice
+
+endif
