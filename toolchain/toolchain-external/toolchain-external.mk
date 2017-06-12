@@ -25,8 +25,4 @@ $(error No prefix selected for external toolchain package $(BR2_PACKAGE_PROVIDES
 endif
 endif
 
-ifneq ($(BR2_KERNEL_TOOLCHAIN_EXTERNAL_PATH),)
-KERNEL_TOOLCHAIN_EXTERNAL_INSTALL_DIR = $(call qstrip,$(BR2_KERNEL_TOOLCHAIN_EXTERNAL_PATH))
-endif
-
 include toolchain/toolchain-external/*/*.mk
