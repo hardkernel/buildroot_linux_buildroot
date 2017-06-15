@@ -139,3 +139,6 @@ WESTON_CONF_OPTS += --disable-junit-xml
 endif
 
 $(eval $(autotools-package))
+
+
+include $(sort $(wildcard package/weston/*/*.mk))

@@ -1,13 +1,9 @@
 config BR2_PACKAGE_QT5WAYLAND
 	bool "qt5wayland"
-	select BR2_PACKAGE_QT5BASE
-	select BR2_PACKAGE_QT5DECLARATIVE
 	select BR2_PACKAGE_LIBXKBCOMMON
 	select BR2_PACKAGE_XKEYBOARD_CONFIG
-	depends on BR2_PACKAGE_WAYLAND
-	depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE # qt5declarative
-	depends on BR2_PACKAGE_HAS_LIBEGL # provides wayland-egl
-	depends on BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+	depends on BR2_PACKAGE_WAYLAND && BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+	default y if BR2_PACKAGE_WAYLAND && BR2_PACKAGE_HAS_LIBEGL_WAYLAND
 	help
 	  Qt is a cross-platform application and UI framework for
 	  developers using C++.
