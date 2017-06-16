@@ -7,7 +7,7 @@
 QT5WAYLAND_VERSION = $(QT5_VERSION)
 QT5WAYLAND_SITE = $(QT5_SITE)
 QT5WAYLAND_SOURCE = qtwayland-opensource-src-$(QT5WAYLAND_VERSION).tar.xz
-QT5WAYLAND_DEPENDENCIES = qt5base qt5declarative wayland libxkbcommon xkeyboard-config
+QT5WAYLAND_DEPENDENCIES = qt5base wayland libxkbcommon xkeyboard-config
 #ifeq ($(BR2_PACKAGE_HAS_LIBEGL),y)
 #QT5WAYLAND_DEPENDENCIES += libwayland-egl
 #endif

@@ -335,12 +335,11 @@ define LINUX_KCONFIG_FIXUP_CMDS
                 $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
 	$(if $(BR2_PACKAGE_XSERVER_XORG_SERVER),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM,$(@D)/.config)
-		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM_MALI,$(@D)/.config)
-		$(call KCONFIG_ENABLE_OPT,CONFIG_FB_OSD2_CURSOR,$(@D)/.config)
-		$(call KCONFIG_ENABLE_OPT,CONFIG_UMP,$(@D)/.config)
-		$(call KCONFIG_ENABLE_OPT,CONFIG_MALI400_UMP,$(@D)/.config)
-		$(call KCONFIG_ENABLE_OPT,CONFIG_FB_AMLOGIC_UMP,$(@D)/.config)
-                cp -rf linux/mali_drm $(LINUX_DIR)/drivers/gpu/drm)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM_MESON,$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_FB_OSD2_CURSOR,$(@D)/.config))
+        $(if $(BR2_PACKAGE_WAYLAND),
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM,$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM_MESON,$(@D)/.config))
 	$(if $(BR2_TARGET_ROOTFS_CPIO),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config))
         # As the kernel gets compiled before root filesystems are
