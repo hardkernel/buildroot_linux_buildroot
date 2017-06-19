@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SHAIRPORT_SYNC_VERSION = 2.8.6
+SHAIRPORT_SYNC_VERSION = 3.0.1
 SHAIRPORT_SYNC_SITE = $(call github,mikebrady,shairport-sync,$(SHAIRPORT_SYNC_VERSION))
 
 SHAIRPORT_SYNC_LICENSE = MIT, BSD-3c
@@ -48,13 +48,13 @@ endif
 define SHAIRPORT_SYNC_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/shairport-sync \
 		$(TARGET_DIR)/usr/bin/shairport-sync
-	$(INSTALL) -D -m 0644 $(@D)/scripts/shairport-sync.conf \
+	$(INSTALL) -D -m 0644 package/shairport-sync/shairport-sync.conf \
 		$(TARGET_DIR)/etc/shairport-sync.conf
 endef
 
 define SHAIRPORT_SYNC_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 0755 package/shairport-sync/S99shairport-sync \
-		$(TARGET_DIR)/etc/init.d/S99shairport-sync
+	$(INSTALL) -D -m 0755 package/shairport-sync/S78shairport-sync \
+		$(TARGET_DIR)/etc/init.d/S78shairport-sync
 endef
 
 $(eval $(autotools-package))
