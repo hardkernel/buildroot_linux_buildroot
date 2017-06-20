@@ -5,10 +5,9 @@
 chmod 0700 /run/wayland
 
 export XDG_RUNTIME_DIR=/run/wayland/
-export WESTON_CONFIG_FILE=/etc/aml-weston.ini
 
 NAME=weston
-START_PARAMTERS="--backend=fbdev-backend.so --use-gl --tty=1 --device=/dev/fb0 --idle-time=0 --log=/tmp/weston.log"
+START_PARAMTERS="--config=/etc/aml-weston.ini --backend=fbdev-backend.so --use-gl --tty=1 --device=/dev/fb0 --idle-time=0 --log=/tmp/weston.log"
 DAEMON=/usr/bin/$NAME
 PIDFILE=/var/run/$NAME.pid
 
