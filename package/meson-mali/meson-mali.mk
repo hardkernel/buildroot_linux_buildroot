@@ -18,7 +18,11 @@ MESON_MALI_VERSION = $(call qstrip,$(BR2_PACKAGE_GPU_VERSION))
 endif
 
 API_VERSION = $(call qstrip,$(MESON_MALI_VERSION))
+ifneq ($(BR2_PACKAGE_MESON_MALI_MODEL),"")
 MALI_VERSION = $(call qstrip,$(BR2_PACKAGE_MESON_MALI_MODEL))
+else
+MALI_VERSION = $(call qstrip,$(BR2_PACKAGE_OPENGL_MALI_VERSION))
+endif
 
 ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_EGL),y)
 EGL_PLATFORM_HEADER = EGL_platform/platform_wayland

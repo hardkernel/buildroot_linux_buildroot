@@ -3,7 +3,11 @@
 # amlogic gpu driver
 #
 ##############################################################################
+ifneq ($(BR2_PACKAGE_MESON_MALI_VERSION),"")
+GPU_VERSION = $(call qstrip,$(BR2_PACKAGE_MESON_MALI_VERSION))
+else
 GPU_VERSION = $(call qstrip,$(BR2_PACKAGE_GPU_VERSION))
+endif
 ifneq ($(BR2_PACKAGE_GPU_CUSTOM_TARBALL_LOCATION),"")
 GPU_TARBALL = $(call qstrip,$(BR2_PACKAGE_GPU_CUSTOM_TARBALL_LOCATION))
 GPU_SITE    = $(patsubst %/,%,$(dir $(GPU_TARBALL)))
