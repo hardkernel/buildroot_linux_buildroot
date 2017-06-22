@@ -47,10 +47,11 @@ define MESON_MALI_INSTALL_STAGING_CMDS
 	cp -arf $(MESON_MALI_DIR)/include/GLES $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/GLES2 $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/KHR $(STAGING_DIR)/usr/include/
-	cp -arf $(MESON_MALI_DIR)/include/$(EGL_PLATFORM_HEADER)/*.h $(STAGING_DIR)/usr/include/EGL
-	cp -arf $(MESON_MALI_DIR)/lib/$(MALI_LIB_DIR)/*.so* $(STAGING_DIR)/usr/lib
-	cp -arf $(MESON_MALI_DIR)/lib/*.so* $(STAGING_DIR)/usr/lib
-	cp -arf $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(STAGING_DIR)/usr/lib/pkgconfig
+	cp -arf $(MESON_MALI_DIR)/include/$(EGL_PLATFORM_HEADER)/*.h $(STAGING_DIR)/usr/include/EGL/
+	cp -arf $(MESON_MALI_DIR)/lib/$(MALI_LIB_DIR)/*.so* $(STAGING_DIR)/usr/lib/
+	cp -arf $(MESON_MALI_DIR)/lib/*.so* $(STAGING_DIR)/usr/lib/
+	mkdir -p $(STAGING_DIR)/usr/lib/pkgconfig/
+	cp -arf $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(STAGING_DIR)/usr/lib/pkgconfig/
 endef
 
 define MESON_MALI_INSTALL_TARGET_CMDS
