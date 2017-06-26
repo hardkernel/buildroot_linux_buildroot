@@ -54,7 +54,7 @@ rootfs-usb-image-pack:
 else #BR2_TARGET_UBOOT_AMLOGIC_2015
 rootfs-usb-image-pack:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
-	$(HOST_DIR)/usr/bin/aml_image_v2_packer -r $(BINARIES_DIR)/aml_upgrade_package.conf $(BINARIES_DIR)/ $(BINARIES_DIR)/aml_upgrade_package.img
+	$(HOST_DIR)/usr/bin/aml_image_v2_packer_new -r $(BINARIES_DIR)/aml_upgrade_package.conf $(BINARIES_DIR)/ $(BINARIES_DIR)/aml_upgrade_package.img
 endif #BR2_TARGET_UBOOT_AMLOGIC_2015
 ROOTFS_EXT2_POST_TARGETS += rootfs-usb-image-pack
 endif #BR2_TARGET_USBTOOL_AMLOGIC
