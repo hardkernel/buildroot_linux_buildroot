@@ -3,6 +3,6 @@ config BR2_PACKAGE_LIBXML_PARSER_PERL
        select BR2_PACKAGE_EXPAT
        # Hide from configuration as we only support the host package
        # for the moment
-       depends on BR2_HOST_ONLY
+
        help
          The Perl XML::Parser module.

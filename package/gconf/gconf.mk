@@ -9,7 +9,7 @@ GCONF_MINOR_VERSION = 0
 GCONF_VERSION = $(GCONF_MAJOR_VERSION).$(GCONF_MINOR_VERSION)
 GCONF_SOURCE = GConf-$(GCONF_VERSION).tar.xz
 GCONF_SITE = http://ftp.gnome.org/pub/gnome/sources/GConf/$(GCONF_MAJOR_VERSION)
-GCONF_DEPENDENCIES = dbus-glib intltool libxml2 host-intltool
+GCONF_DEPENDENCIES = dbus-glib libxml2 host-intltool
 GCONF_INSTALL_STAGING = YES
 GCONF_CONF_OPTS += --libexecdir=/usr/lib/GConf --disable-orbit
 
