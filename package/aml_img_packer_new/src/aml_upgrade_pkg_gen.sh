@@ -30,7 +30,16 @@ aml_secureboot_sign_kernel(){
         --input $1 --output ${1}.encrypt
 	echo ----- Made aml secure-boot singed kernel img: $1.encrypt --------
 }
-
+#input para is boot.img or recovery.img
+aml_secureboot_sign_kernel_m8b(){
+	echo -----aml-secureboot-sign-kernel ------
+	${PRODUCT_AML_SECUREBOOT_SIGNTOOL}  \
+		${BINARIES_DIR}/aml-rsa-key.k2a \
+		${PRODUCT_AML_IMG_PACK_DIR}/boot.img \
+		${PRODUCT_AML_IMG_PACK_DIR}/boot.encrypt.img \
+		${BINARIES_DIR}/aml-aes-key.aes
+	echo ----- Made aml secure-boot singed kernel img: boot.img.encrypt --------
+}
 aml_secureboot_sign_bin(){
 	echo -----aml-secureboot-sign-bin ------
 	printf "${PRODUCT_AML_SECUREBOOT_SIGNTOOL} --binsig"
@@ -102,37 +111,53 @@ aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.con
 #########Support compiling out encrypted zip/aml_upgrade_package.img directly
 #PRODCUT_AML_BOOTLOADER_PATH=./output/build/uboot-custom
 PRODUCT_AML_SECUREBOOT_USERKEY=${BINARIES_DIR}/aml-user-key.sig
-PRODUCT_AML_SECUREBOOT_SIGNTOOL=${TOOL_DIR}/aml_encrypt_${platform}
+if [ ${platform} = "meson8b" ];then
+	PRODUCT_AML_SECUREBOOT_SIGNTOOL=${TOOL_DIR}/aml_encrypt_m8b
+else
+	PRODUCT_AML_SECUREBOOT_SIGNTOOL=${TOOL_DIR}/aml_encrypt_${platform}
+fi
 
 PRODUCT_OUTPUT_DIR=${BINARIES_DIR}
 aml_bootloader=${PRODUCT_OUTPUT_DIR}/u-boot.bin
-aml_secureboot_sign_bootloader ${aml_bootloader}
-if [ ! -f ${aml_bootloader}.encrypt ]; then
-    echo "fail to sign bootloader -----"
-	cp ${PRODUCT_OUTPUT_DIR}/u-boot.bin ${aml_bootloader}.encrypt
-#    exit 1
+if [ ${platform} != "meson8b" ];then
+	aml_secureboot_sign_bootloader ${aml_bootloader}
+	if [ ! -f ${aml_bootloader}.encrypt ]; then
+		echo "fail to sign bootloader -----"
+		cp ${PRODUCT_OUTPUT_DIR}/u-boot.bin ${aml_bootloader}.encrypt
+#    	exit 1
+	fi
 fi
 #rename efuse patten name for windows USB_BURNING_TOOL
 mv ${aml_bootloader}.encrypt.efuse SECURE_BOOT_SET
 
 aml_kernel=${PRODUCT_OUTPUT_DIR}/boot.img
-aml_secureboot_sign_kernel ${aml_kernel}
-if [ ! -f ${aml_kernel}.encrypt ]; then
-    echo "fail to sign kernel image"
-    exit 1
+if [ ${platform} = "meson8b" ];then
+	aml_secureboot_sign_kernel_m8b ${aml_kernel}
+	if [ ! -f ${aml_kernel}.encrypt ]; then
+		echo "fail to sign kernel image"
+		exit 1
+	fi
+else
+	aml_secureboot_sign_kernel ${aml_kernel}
+	if [ ! -f ${aml_kernel}.encrypt ]; then
+		echo "fail to sign kernel image"
+		exit 1
+	fi
 fi
 
 aml_dtb=${PRODUCT_OUTPUT_DIR}/dtb.img
-aml_secureboot_sign_bin ${aml_dtb}
-if [ ! -f ${aml_dtb}.encrypt ]; then
-    echo "fail to sign dtb image"
-    exit 1
+if [ ${platform} != "meson8b" ];then
+	aml_secureboot_sign_bin ${aml_dtb}
+	if [ ! -f ${aml_dtb}.encrypt ]; then
+		echo "fail to sign dtb image"
+		exit 1
+	fi
 fi
 
 echo "${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg} "
-${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg} 
-if [ $? -ne 0 ]; then 
-    echo fail to generate burning image; 
+${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg}
+if [ $? -ne 0 ]; then
+    echo fail to generate burning image;
     rm ${burnPkg}
 fi
 exit $?

@@ -254,6 +254,10 @@ else #BR2_TARGET_UBOOT_AMLOGIC_2015
 define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/ddr_init.bin $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot-comp.bin $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot-usb.bin.aml.encrypt.usb.start $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot-usb.bin.aml.encrypt $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.aml.encrypt $(BINARIES_DIR)/
+	cp -dpf $(@D)/tools/secu_boot/aml_encrypt_m8b $(HOST_DIR)/usr/bin
 endef
 endif #BR2_TARGET_UBOOT_AMLOGIC_2015
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
