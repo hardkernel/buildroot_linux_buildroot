@@ -292,13 +292,21 @@ int EventsProcess::getMapKey(int key) {
 }
 
 // retrun time interval in millisecond between two timeval.
-long get_time_diff(struct timeval before, struct timeval later) {
-    long before_sec = before.tv_sec;
-    long before_usec = before.tv_usec;
-    long later_sec = later.tv_sec;
-    long later_usec = later.tv_usec;
+long checkEventTime(struct timeval *before, struct timeval *later) {
+    time_t before_sec = before->tv_sec;
+    suseconds_t before_usec = before->tv_usec;
+    time_t later_sec = later->tv_sec;
+    suseconds_t later_usec = later->tv_usec;
 
-    return (later_sec - before_sec) * 1000 + (later_usec - before_usec) / 1000;
+    long sec_diff = (later_sec - before_sec) * 1000;
+    if (sec_diff < 0)
+        return true;
+
+    long ret = sec_diff + (later_usec - before_usec) / 1000;
+    if (ret >= KEY_EVENT_TIME_INTERVAL)
+        return true;
+
+    return false;
 }
 
 void EventsProcess::EnqueueKey(int key_code) {
@@ -308,7 +316,7 @@ void EventsProcess::EnqueueKey(int key_code) {
     pthread_mutex_lock(&key_queue_mutex);
     const int queue_max = sizeof(key_queue) / sizeof(key_queue[0]);
     if (key_queue_len < queue_max) {
-        if (last_key != key_code || get_time_diff(last_queue_time, now) >= KEY_EVENT_TIME_INTERVAL) {
+        if (last_key != key_code || checkEventTime(&last_queue_time, &now)) {
             key_queue[key_queue_len++] = key_code;
             last_queue_time = now;
         }
