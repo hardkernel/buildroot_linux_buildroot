@@ -1273,3 +1273,39 @@
      if (audio_clock_->front_timestamp() >= ended_timestamp_ &&
          !rendered_end_of_stream_) {
        rendered_end_of_stream_ = true;
+--- a/src/third_party/ffmpeg/chromium/config/Chrome/linux/arm64/config.h
++++ b/src/third_party/ffmpeg/chromium/config/Chrome/linux/arm64/config.h
+@@ -710,6 +710,7 @@
+ #define CONFIG_H263I_DECODER 0
+ #define CONFIG_H263P_DECODER 0
+ #define CONFIG_H264_DECODER 1
++#define CONFIG_H264_AML_DECODER 1
+ #define CONFIG_H264_CRYSTALHD_DECODER 0
+ #define CONFIG_H264_MMAL_DECODER 0
+ #define CONFIG_H264_QSV_DECODER 0
+@@ -717,6 +718,7 @@
+ #define CONFIG_H264_VDPAU_DECODER 0
+ #define CONFIG_HAP_DECODER 0
+ #define CONFIG_HEVC_DECODER 0
++#define CONFIG_HEVC_AML_DECODER 1
+ #define CONFIG_HEVC_QSV_DECODER 0
+ #define CONFIG_HNM4_VIDEO_DECODER 0
+ #define CONFIG_HQ_HQA_DECODER 0
+@@ -745,7 +747,9 @@
+ #define CONFIG_MPEG_XVMC_DECODER 0
+ #define CONFIG_MPEG1VIDEO_DECODER 0
+ #define CONFIG_MPEG2VIDEO_DECODER 0
++#define CONFIG_MPEGVIDEO_AML_DECODER 1
+ #define CONFIG_MPEG4_DECODER 0
++#define CONFIG_MPEG4_AML_DECODER 1
+ #define CONFIG_MPEG4_CRYSTALHD_DECODER 0
+ #define CONFIG_MPEG4_MMAL_DECODER 0
+ #define CONFIG_MPEG4_VDPAU_DECODER 0
+@@ -849,6 +853,7 @@
+ #define CONFIG_VP7_DECODER 0
+ #define CONFIG_VP8_DECODER 1
+ #define CONFIG_VP9_DECODER 0
++#define CONFIG_VP9_AML_DECODER 1
+ #define CONFIG_VQA_DECODER 0
+ #define CONFIG_WEBP_DECODER 0
+ #define CONFIG_WMV1_DECODER 0
