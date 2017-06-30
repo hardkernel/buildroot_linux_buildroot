@@ -67,7 +67,8 @@ PRODUCT_AML_IMG_PACK_DIR=${BINARIES_DIR}
 ####Step 2: compress 1g 
 echo PRODUCT_AML_IMG_PACK_DIR:${PRODUCT_AML_IMG_PACK_DIR}
 if [ ${BR2_PACKAGE_MTD_MKFSUBIFS} = "y" ]; then 
-       echo -e " \n\n !!!!!! use ubifs \n\n"
+	echo -e "\n !!!!!! use ubifs \n"
+	update_sparse_img=0
 else
 	ext4img=${PRODUCT_AML_IMG_PACK_DIR}/rootfs.ext2
 	sparseimg=${ext4img}.img2simg
