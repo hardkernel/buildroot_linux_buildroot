@@ -14,7 +14,7 @@ CHROMIUM_VERSION = 53.0.2785.143
 
 #CHROMIUM_LICENSE = GPLv3+
 #CHROMIUM_LICENSE_FILES = COPYING
-CHROMIUM_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango
+CHROMIUM_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango libplayer
 
 CHROMIUM_SOURCE = chromium-$(CHROMIUM_VERSION).tar.gz
 # This URL will not work directly, it is assumed the chromium tarball is already placed in buildroot/dl

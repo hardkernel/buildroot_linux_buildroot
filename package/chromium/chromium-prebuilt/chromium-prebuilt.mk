@@ -7,7 +7,7 @@ ifeq ($(BR2_PACKAGE_CHROMIUM_PREBUILT),y)
 
 CHROMIUM_PREBUILT_VERSION = 53.0.2785.143
 
-CHROMIUM_PREBUILT_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango
+CHROMIUM_PREBUILT_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango libplayer
 
 #prebuilt defines.
 CHROMIUM_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/chromium

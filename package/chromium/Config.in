@@ -9,6 +9,7 @@ config BR2_PACKAGE_CHROMIUM
 	select BR2_PACKAGE_CUPS
 	select BR2_PACKAGE_LIBNSS
 	select BR2_PACKAGE_PANGO
+	select BR2_PACKAGE_LIBPLAYER
 
 	help
 	  chromium browser
