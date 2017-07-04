@@ -53,6 +53,12 @@ function get_target_board_type() {
 
 function get_target_build_type() {
 	TARGET=$1
+	TYPE="$(echo $TARGET | cut -d '_' -f 1)"
+	if [[ $TYPE =~ "meson8" ]]; then
+		echo "32"
+		return
+	fi
+
 	LENGTH="$(echo $TARGET | awk -F '_' '{print NF}')"
 	if [ $LENGTH -le 2 ]; then
 		echo "64"
