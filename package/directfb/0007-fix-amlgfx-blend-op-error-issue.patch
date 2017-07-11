@@ -1,0 +1,68 @@
+From 9e6ad9bc04bc40eaf9399a775773b14c1af6207f Mon Sep 17 00:00:00 2001
+From: Pengcheng Chen <pengcheng.chen@amlogic.com>
+Date: Tue, 11 Jul 2017 09:26:48 +0800
+Subject: [PATCH] fix amlgfx blend op error issue
+
+Signed-off-by: Pengcheng Chen <pengcheng.chen@amlogic.com>
+---
+ gfxdrivers/amlgfx/aml_state.c |    8 ++++----
+ gfxdrivers/amlgfx/aml_state.h |   24 ++++++++++++------------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/gfxdrivers/amlgfx/aml_state.c b/gfxdrivers/amlgfx/aml_state.c
+index 38d9598..42eda24 100644
+--- a/gfxdrivers/amlgfx/aml_state.c
++++ b/gfxdrivers/amlgfx/aml_state.c
+@@ -410,10 +410,10 @@ aml_blend_optype(AMLGFX_DeviceData *adev, CardState *state)
+ 		amldev->blend_op.color_blending_mode = OPERATION_ADD;
+ 		amldev->blend_op.alpha_blending_mode = OPERATION_ADD;
+
+-		amldev->blend_op.color_blending_src_factor = blend_conf[state->src_blend]->color_blending_factor;
+-		amldev->blend_op.alpha_blending_src_factor = blend_conf[state->src_blend]->alpha_blending_factor;
+-		amldev->blend_op.color_blending_dst_factor = blend_conf[state->dst_blend]->color_blending_factor;
+-		amldev->blend_op.alpha_blending_dst_factor = blend_conf[state->dst_blend]->alpha_blending_factor;
++		amldev->blend_op.color_blending_src_factor = blend_conf[state->src_blend].color_blending_factor;
++		amldev->blend_op.alpha_blending_src_factor = blend_conf[state->src_blend].alpha_blending_factor;
++		amldev->blend_op.color_blending_dst_factor = blend_conf[state->dst_blend].color_blending_factor;
++		amldev->blend_op.alpha_blending_dst_factor = blend_conf[state->dst_blend].alpha_blending_factor;
+
+
+ 		switch (flags) {
+diff --git a/gfxdrivers/amlgfx/aml_state.h b/gfxdrivers/amlgfx/aml_state.h
+index e7b597c..4d56188 100644
+--- a/gfxdrivers/amlgfx/aml_state.h
++++ b/gfxdrivers/amlgfx/aml_state.h
+@@ -49,18 +49,18 @@ typedef  enum
+ 	TYPE_INVALID,
+ }ge2d_src_dst_t;
+
+-static blend_op_config  blend_conf[][2] = {
+-	{{-1}, {-1}},
+-	{{COLOR_FACTOR_ZERO}, {ALPHA_FACTOR_ZERO}},
+-	{{COLOR_FACTOR_ONE}, {ALPHA_FACTOR_ONE}},
+-	{{COLOR_FACTOR_SRC_COLOR}, {ALPHA_FACTOR_SRC_ALPHA}},
+-	{{COLOR_FACTOR_ONE_MINUS_SRC_COLOR}, {ALPHA_FACTOR_ONE_MINUS_SRC_ALPHA}},
+-	{{COLOR_FACTOR_SRC_ALPHA}, {ALPHA_FACTOR_SRC_ALPHA}},
+-	{{COLOR_FACTOR_ONE_MINUS_SRC_ALPHA}, {ALPHA_FACTOR_ONE_MINUS_SRC_ALPHA}},
+-	{{COLOR_FACTOR_DST_ALPHA}, {ALPHA_FACTOR_DST_ALPHA}},
+-	{{COLOR_FACTOR_ONE_MINUS_DST_ALPHA}, {ALPHA_FACTOR_ONE_MINUS_DST_ALPHA}},
+-	{{COLOR_FACTOR_DST_COLOR}, {ALPHA_FACTOR_DST_ALPHA}},
+-	{{COLOR_FACTOR_ONE_MINUS_DST_COLOR}, {ALPHA_FACTOR_ONE_MINUS_DST_ALPHA}},
++static blend_op_config  blend_conf[] = {
++	{-1, -1},
++	{COLOR_FACTOR_ZERO, ALPHA_FACTOR_ZERO},
++	{COLOR_FACTOR_ONE, ALPHA_FACTOR_ONE},
++	{COLOR_FACTOR_SRC_COLOR, ALPHA_FACTOR_SRC_ALPHA},
++	{COLOR_FACTOR_ONE_MINUS_SRC_COLOR, ALPHA_FACTOR_ONE_MINUS_SRC_ALPHA},
++	{COLOR_FACTOR_SRC_ALPHA, ALPHA_FACTOR_SRC_ALPHA},
++	{COLOR_FACTOR_ONE_MINUS_SRC_ALPHA, ALPHA_FACTOR_ONE_MINUS_SRC_ALPHA},
++	{COLOR_FACTOR_DST_ALPHA, ALPHA_FACTOR_DST_ALPHA},
++	{COLOR_FACTOR_ONE_MINUS_DST_ALPHA, ALPHA_FACTOR_ONE_MINUS_DST_ALPHA},
++	{COLOR_FACTOR_DST_COLOR, ALPHA_FACTOR_DST_ALPHA},
++	{COLOR_FACTOR_ONE_MINUS_DST_COLOR,ALPHA_FACTOR_ONE_MINUS_DST_ALPHA},
+ };
+
+ extern void amlCheckState(void *drv, void *dev, CardState *state, DFBAccelerationMask accel );
+
+1.7.9.5
+
