@@ -1,0 +1,28 @@
+config BR2_PACKAGE_AML_LAUNCHER
+	bool "amlogic launcher"
+        help
+
+choice
+        bool "choose a launcher"
+        default BR2_PACKAGE_LAUNCHER_USE_CHROME if BR2_PACKAGE_CHROMIUM
+        default BR2_PACKAGE_LAUNCHER_USE_WPE if !BR2_PACKAGE_CHROMIUM && BR2_PACKAGE_WPE_LAUNCHER
+        default BR2_PACKAGE_LAUNCHER_NONE if !BR2_PACKAGE_CHROMIUM && !BR2_PACKAGE_WPE_LAUNCHER
+        help
+                choose chrome or WPE launcher, or none
+
+config BR2_PACKAGE_LAUNCHER_USE_CHROME
+        bool "chrome"
+        help
+                use chrome as launcher
+
+config BR2_PACKAGE_LAUNCHER_USE_WPE
+        bool "wpe"
+        help
+                use wpe as launcher
+
+config BR2_PACKAGE_LAUNCHER_NONE
+        bool "none"
+        help
+                Do not use launcher
+
+endchoice

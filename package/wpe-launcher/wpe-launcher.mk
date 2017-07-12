@@ -10,16 +10,20 @@ WPE_LAUNCHER_SITE = $(call github,Metrological,wpe-launcher,$(WPE_LAUNCHER_VERSI
 WPE_LAUNCHER_DEPENDENCIES = wpe
 
 define WPE_LAUNCHER_BINS
-	$(INSTALL) -D -m 0644 package/wpe-launcher/wpe.{txt,conf} $(BINARIES_DIR)/
+        mkdir -p $(TARGET_DIR)/etc/wpe
+	$(INSTALL) -D -m 0644 package/wpe-launcher/wpe.{txt,conf} $(TARGET_DIR)/etc/wpe
 	$(INSTALL) -D -m 0755 package/wpe-launcher/wpe $(TARGET_DIR)/usr/bin
 	if [ -f package/wpe-launcher/wpe-update ]; then \
 		$(INSTALL) -D -m 0755 package/wpe-launcher/wpe-update $(TARGET_DIR)/usr/bin; \
 	fi
 endef
 
+ifeq ($(BR2_PACKAGE_LAUNCHER_USE_WPE), y)
 define WPE_LAUNCHER_AUTOSTART
+        rm -rf $(TARGET_DIR)/etc/init.d/S90*
 	$(INSTALL) -D -m 0755 package/wpe-launcher/S90wpe $(TARGET_DIR)/etc/init.d
 endef
+endif
 
 WPE_LAUNCHER_POST_INSTALL_TARGET_HOOKS += WPE_LAUNCHER_BINS
 

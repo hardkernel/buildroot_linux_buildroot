@@ -8,3 +8,4 @@ export DASHLOG_LEVEL=0
 export media_arm_audio_decoder=ape,flac,dts,ac3,eac3,wma,wmapro,mp3,aac,vorbis,raac,cook,amr,pcm,adpcm
 #third party lib modules to use
 export media_libplayer_modules=libcurl_mod.so,libdash_mod.so
+export XDG_RUNTIME_DIR=/run/wayland

@@ -30,7 +30,7 @@ fi
 
 export TZ=$(wget -qO- http://jsonip.metrological.com/ | sed -e 's/^.*"tz":"\([^"]*\)".*$/\1/')
 
-WPE_CONF_FILE="/boot/wpe.conf"
+WPE_CONF_FILE="/etc/wpe/wpe.conf"
 WPE_CONFIG=""
 if [ -e "$WPE_CONF_FILE" ];
 then

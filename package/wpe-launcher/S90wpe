@@ -1,6 +1,8 @@
 #!/bin/sh
 
-WPE_URL_FILE="/boot/wpe.txt"
+WPE_URL_FILE="/etc/wpe/wpe.txt"
+
+export XDG_RUNTIME_DIR=/run/wayland
 
 start() {
 	echo -n "Starting WPE: "

@@ -48,12 +48,15 @@ define CHROMIUM_INSTALL_TARGET_CMDS
 	cp -a $(CHROMIUM_DIR)/src/out/$(CHROMIUM_MODE)/icudtl.dat        $(TARGET_DIR)/usr/bin/chromium-browser
 endef
 
+ifeq ($(BR2_PACKAGE_LAUNCHER_USE_CHROME), y)
 define CHROMIUM_INSTALL_INIT_SYSV
+        rm -rf $(TARGET_DIR)/etc/init.d/S90*
 	$(INSTALL) -D -m 755 package/chromium/S90chrome \
 		$(TARGET_DIR)/etc/init.d/S90chrome
 	$(INSTALL) -D -m 755 package/chromium/amlogic.html \
 		$(TARGET_DIR)/var/www/amlogic.html
 endef
+endif
 
 $(eval $(generic-package))
 
