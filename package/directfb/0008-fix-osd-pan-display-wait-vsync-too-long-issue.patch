@@ -1,7 +1,7 @@
-From 72b78f2587a58574277ef8933e70dd5eb85cee7a Mon Sep 17 00:00:00 2001
+From cc68361329632c491478749aba22a71b24e3fb73 Mon Sep 17 00:00:00 2001
 From: Pengcheng Chen <pengcheng.chen@amlogic.com>
-Date: Tue, 11 Jul 2017 09:30:55 +0800
-Subject: [PATCH] fix osd pan display wait vsync too long issue
+Date: Wed, 12 Jul 2017 11:12:25 +0800
+Subject: [PATCH 2/2] fix osd pan display wait vsync too long issue
 
 Signed-off-by: Pengcheng Chen <pengcheng.chen@amlogic.com>
 ---
@@ -14,7 +14,7 @@ index 5297358..cb2a030 100644
 +++ b/systems/fbdev/fbdev.c
 @@ -1505,21 +1505,21 @@ primaryFlipRegion( CoreLayer             *layer,
       CoreLayerRegionConfig *config = &dfb_fbdev->shared->config;
-
+ 
       D_DEBUG_AT( FBDev_Primary, "%s()\n", __FUNCTION__ );
 -
 +     #if 0
@@ -36,12 +36,12 @@ index 5297358..cb2a030 100644
 -
 +     #endif
       dfb_surface_flip( surface, false );
-
+ 
       return DFB_OK;
 @@ -1598,8 +1598,8 @@ dfb_fbdev_pan( int xoffset, int yoffset, bool onsync )
            var->yoffset = 0;
       }
-
+ 
 -     var->activate = onsync ? FB_ACTIVATE_VBL : FB_ACTIVATE_NOW;
 -
 +     //var->activate = onsync ? FB_ACTIVATE_VBL : FB_ACTIVATE_NOW;
@@ -49,6 +49,6 @@ index 5297358..cb2a030 100644
  #if 0
       ret = fusion_call_execute( &shared->fbdev_ioctl, FCEF_NONE, FBIOPAN_DISPLAY, var, &result );
       if (ret)
-
+-- 
 1.7.9.5
 
