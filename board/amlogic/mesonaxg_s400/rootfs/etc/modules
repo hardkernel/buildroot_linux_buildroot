@@ -1,6 +1,6 @@
 dwc3
 dwc_otg
-dhd
+dhd firmware_path=/etc/wifi/6255/fw_bcm43455c0_ag.bin nvram_path=/etc/wifi/6255/nvram.txt
 # media modules
 media_clock
 firmware
