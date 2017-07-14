@@ -237,6 +237,7 @@ BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_OVERLAY="board/amlogic/meson8_k200_x/rootfs/"
 BR2_LINUX_KERNEL=y                                                                                         
 BR2_LINUX_KERNEL_UIMAGE=y
+BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE="amlogic-3.10-dev"
 BR2_LINUX_KERNEL_CUSTOM_LOCAL=y
 BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH="$(TOPDIR)/../kernel/aml-3.10"
 BR2_LINUX_KERNEL_DEFCONFIG="meson8"
