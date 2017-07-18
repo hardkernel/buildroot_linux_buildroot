@@ -1,6 +1,5 @@
 dwc3
 dwc_otg
-dhd firmware_path=/etc/wifi/4356/fw_bcm4356a2_ag.bin nvram_path=/etc/wifi/4356/nvram.txt
 # media modules
 media_clock
 firmware

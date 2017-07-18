@@ -1,7 +1,10 @@
-UTILS = wifi_power input_eventd usbpower usbtestpm usbtestpm_mx usbtestpm_mx_iddq usbpower_mx_iddq
+UTILS = wifi_power multi_wifi_load_driver input_eventd usbpower usbtestpm usbtestpm_mx usbtestpm_mx_iddq usbpower_mx_iddq
 .PHONY: all install clean
 
 wifi_power: wifi_power.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+multi_wifi_load_driver: multi_wifi_load_driver.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 input_eventd: input_eventd.cpp events_process.cpp events.cpp

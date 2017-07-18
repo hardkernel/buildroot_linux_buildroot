@@ -5,12 +5,15 @@ DAEMON=/usr/sbin/$NAME
 PIDFILE=/var/run/$NAME.pid 
 POWERDEV=/dev/wifi_power
 POWERCTL=/usr/bin/wifi_power
+MULTI_WIFI=/usr/bin/multi_wifi_load_driver
 
 case "$1" in
     start)
         echo "Starting supplicant..."
+        mkdir -p -m 0644 /var/lib/wifi
         if [ -c $POWERDEV ]; then
             $POWERCTL 1
+            $MULTI_WIFI station 1
             sleep 2
         fi
         start-stop-daemon -S -m -p $PIDFILE -b -x $DAEMON -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf 
@@ -25,6 +28,7 @@ case "$1" in
         start-stop-daemon -K -o -p $PIDFILE
         rm -f $PIDFILE 
         if [ -c $POWERDEV ]; then
+            $MULTI_WIFI station 0
             $POWERCTL 0
         fi
         ;;

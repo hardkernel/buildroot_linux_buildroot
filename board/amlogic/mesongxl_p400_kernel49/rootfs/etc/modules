@@ -1,7 +1,6 @@
 cfg80211
 mac80211
 mali
-8189es
 dwc3
 aml_thermal
 dwc_otg
@@ -25,4 +24,3 @@ vmpeg4_multi
 vreal
 vvc1
 vvp9
-dhd

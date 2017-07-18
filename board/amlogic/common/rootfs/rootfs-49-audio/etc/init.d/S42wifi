@@ -1,14 +1,50 @@
 #!/bin/sh
 
-NAME=wpa_supplicant
-DAEMON=/usr/sbin/$NAME
-PIDFILE=/var/run/$NAME.pid
-POWERCTL=/usr/bin/wifi_power
+NAME1=wpa_supplicant
+DAEMON1=/usr/sbin/$NAME1
+PIDFILE1=/var/run/$NAME1.pid
 
+NAME2=hostapd
+DAEMON2=/usr/sbin/$NAME2
+PIDFILE2=/var/run/$NAME2.pid
+
+NAME3=dnsmasq
+DAEMON3=/usr/sbin/$NAME3
+PIDFILE3=/var/run/$NAME3.pid
+
+NAME4=dhcpcd
+DAEMON4=/usr/sbin/$NAME4
+PIDFILE4=/var/run/${NAME4}-wlan0.pid
+
+ssid=amlogic-audio
+password=12345678
+
+echo 0 > /etc/hostapd_temp.conf
+echo "interface=wlan0
+driver=nl80211
+ctrl_interface=/var/run/hostapd
+ssid=${ssid}
+channel=6
+ieee80211n=1
+hw_mode=g
+ignore_broadcast_ssid=0"  > /etc/hostapd_temp.conf
+
+echo "
+wpa=3
+wpa_passphrase=${password}
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=CCMP
+rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
+
+wifi_mode="/etc/wifi/wifi_station"
+MULTI_WIFI=/usr/bin/multi_wifi_load_driver
+
+if [ -f $wifi_mode ];then
 case "$1" in
     start)
-		echo "Starting supplicant..."
-		start-stop-daemon -S -m -p $PIDFILE -b -x $DAEMON -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
+		echo "start wifi station mode load driver and setup......"
+		$MULTI_WIFI station 1
+		start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
 		sleep 2
 		ifconfig wlan0 &> /dev/null
 
@@ -32,9 +68,10 @@ case "$1" in
         ;;
     stop)
         echo -n "Stopping supplicant..."
-        start-stop-daemon -K -o -p $PIDFILE
+        start-stop-daemon -K -o -p $PIDFILE1
         sleep 2
-        rm -f $PIDFILE
+        rm -f $PIDFILE1
+	$MULTI_WIFI station 0
         $POWERCTL 0
         ;;
     restart|reload)
@@ -44,6 +81,34 @@ case "$1" in
         echo "Usage: $0 {start|stop|restart}"
         exit 1
 esac
-
+else
+case "$1" in
+    start)
+	echo "start wifi ap mode load driver and set up ......"
+	$MULTI_WIFI ap 1
+	start-stop-daemon -S -b -m -p $PIDFILE2  -x $DAEMON2 -- /etc/hostapd_temp.conf
+	sleep 2
+	ifconfig wlan0 192.168.2.1
+	start-stop-daemon -S -m -p $PIDFILE3 -b -x $DAEMON3  -- -iwlan0  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
+	touch $wifi_mode
+        ;;
+    stop)
+        echo -n "Stopping hostap..."
+        start-stop-daemon -K -o -p $PIDFILE2
+        sleep 2
+        start-stop-daemon -K -o -p $PIDFILE3
+        rm -f $PIDFILE2
+        rm -f $PIDFILE3
+	$MULTI_WIFI ap 0
+        $POWERCTL 0
+        ;;
+    restart|reload)
+        start-stop-daemon -K -s HUP -n hostapd
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+fi
 exit $?
 
