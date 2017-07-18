@@ -25,7 +25,8 @@ GST1_PLUGINS_BASE_CONF_OPTS = \
 	--disable-vorbistest \
 	--disable-gio_unix_2_0 \
 	--disable-freetypetest \
-	--disable-valgrind
+	--disable-valgrind \
+	LIBS="-lconfig"
 
 # Options which require currently unpackaged libraries
 GST1_PLUGINS_BASE_CONF_OPTS += \
