@@ -34,7 +34,7 @@ GST1_PLUGINS_BASE_CONF_OPTS += \
 	--disable-libvisual \
 	--disable-iso-codes
 
-GST1_PLUGINS_BASE_DEPENDENCIES = gstreamer1
+GST1_PLUGINS_BASE_DEPENDENCIES = gstreamer1 libconfig
 
 # These plugins are liste in the order from ./configure --help
 
