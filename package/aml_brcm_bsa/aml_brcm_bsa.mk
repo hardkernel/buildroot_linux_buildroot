@@ -1,8 +1,8 @@
 ##############################################################
 
 AML_BRCM_BSA_VERSION = 0107_00.26.00
-AML_BRCM_BSA_SOURCE = bsa$(AML_BRCM_BSA_VERSION).tar.gz
-AML_BRCM_BSA_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
+AML_BRCM_BSA_SITE = $(TOPDIR)/../vendor/broadcom/brcm-bsa
+AML_BRCM_BSA_SITE_METHOD = local
 
 AML_BRCM_BSA_PATH = 3rdparty/embedded/bsa_examples/linux
 AML_BRCM_BSA_LIBBSA = libbsa
