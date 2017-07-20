@@ -17,6 +17,8 @@ SAMBA4_DEPENDENCIES = \
 	$(if $(BR2_PACKAGE_LIBCAP),libcap) \
 	$(if $(BR2_PACKAGE_READLINE),readline)
 
+SAMBA4_SMB_CONF = $(TOPDIR)/package/samba4/smb.conf
+
 ifeq ($(BR2_PACKAGE_ACL),y)
 SAMBA4_CONF_OPTS += --with-acl-support
 SAMBA4_DEPENDENCIES += acl
@@ -115,6 +117,7 @@ endef
 
 define SAMBA4_INSTALL_TARGET_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR=$(TARGET_DIR) install
+	$(INSTALL) -D -m 644  $(SAMBA4_SMB_CONF)  $(TARGET_DIR)/etc/samba/
 endef
 
 ifeq ($(BR2_PACKAGE_SAMBA4_AD_DC),)
