@@ -404,6 +404,7 @@ endif # BR2_TARGET_UBOOT_ENVIMAGE
 config BR2_TARGET_UBOOT_AMLOGIC
     bool "amlogic uboot"
     depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_CODESOURCERY
+    depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_GCC_LINARO_ARM_NONE
     depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_ARC
     select BR2_PACKAGE_HOST_AML_IMG_PACKER_NEW
     help
@@ -453,6 +454,7 @@ config BR2_TARGET_UBOOT_WITH_SECURE_OS
 
 source "package/aml_uboot_customer/Config.in"
 source "package/aml_uboot_toolchain-codesourcery/Config.in"
+source "package/aml_uboot_toolchain-gcc-linaro-arm-none/Config.in"
 source "package/aml_uboot_toolchain-gcc-linaro-aarch64/Config.in"
 source "package/aml_uboot_toolchain-arc/Config.in"
 endif # BR2_TARGET_UBOOT

@@ -137,7 +137,7 @@ UBOOT_ARCH = $(KERNEL_ARCH)
 endif
 
 ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y)
-UBOOT_DEPENDENCIES += aml_uboot_toolchain-codesourcery aml_uboot_toolchain-gcc-linaro-aarch64 aml_uboot_toolchain-arc
+UBOOT_DEPENDENCIES += aml_uboot_toolchain-gcc-linaro-arm-none aml_uboot_toolchain-codesourcery aml_uboot_toolchain-gcc-linaro-aarch64 aml_uboot_toolchain-arc
 endif
 
 ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y) 
@@ -235,7 +235,7 @@ endif # BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY
 
 ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_AMLOGIC)),y)
 define UBOOT_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
 		$(MAKE) -j4 -C $(@D) $(UBOOT_MAKE_TARGET)
 endef
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
