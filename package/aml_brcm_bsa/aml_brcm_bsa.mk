@@ -19,6 +19,24 @@ else
 AML_BRCM_BSA_BUILD_TYPE = arm
 endif
 
+##if qt5 configured, we can use bsa qt app####
+ifeq ($(BR2_PACKAGE_QT5),y)
+BSA_QT_APP = $(@D)/$(AML_BRCM_BSA_PATH)/qt_app
+
+define AML_BRCM_BSA_CONFIGURE_CMDS
+	(cd $(BSA_QT_APP); $(TARGET_MAKE_ENV) $(QT5_QMAKE) PREFIX=/usr BSA_QT_ARCH=$(AML_BRCM_BSA_BUILD_TYPE))
+endef
+
+define AML_BRCM_BSA_BUILD_CMDS_QT
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(BSA_QT_APP)
+endef
+
+define AML_BRCM_BSA_INSTALL_TARGET_CMDS_QT
+	$(TARGET_MAKE_ENV) $(MAKE) -C $(BSA_QT_APP) install INSTALL_ROOT=$(TARGET_DIR)
+endef
+
+endif
+
 define AML_BRCM_BSA_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/$(AML_BRCM_BSA_PATH)/$(AML_BRCM_BSA_LIBBSA)/build \
 		CPU=$(AML_BRCM_BSA_BUILD_TYPE) ARMGCC=$(TARGET_CC)
@@ -26,6 +44,10 @@ define AML_BRCM_BSA_BUILD_CMDS
 		$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/$(AML_BRCM_BSA_PATH)/$$ff/build \
 			CPU=$(AML_BRCM_BSA_BUILD_TYPE) ARMGCC=$(TARGET_CC) BSASHAREDLIB=TRUE; \
 	done
+
+	$(AML_BRCM_BSA_BUILD_CMDS_QT)
+	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(@D)/3rdparty/embedded/brcm/linux/bthid ARCH=$(KERNEL_ARCH) \
+		CROSS_COMPILE=$(TARGET_KERNEL_CROSS) modules
 
 endef
 
@@ -37,6 +59,15 @@ define AML_BRCM_BSA_INSTALL_TARGET_CMDS
 	for ff in $(AML_BRCM_BSA_APP); do \
 		$(INSTALL) -D -m 755 $(@D)/$(AML_BRCM_BSA_PATH)/$${ff}/build/$(AML_BRCM_BSA_BUILD_TYPE)/$${ff} $(TARGET_DIR)/usr/bin/${ff}; \
 	done
+
+	$(AML_BRCM_BSA_INSTALL_TARGET_CMDS_QT)
+	$(INSTALL) -D -m 755 $(@D)/3rdparty/embedded/brcm/linux/bthid/bthid.ko $(TARGET_DIR)/usr/lib
+	mkdir -p $(TARGET_DIR)/etc/bsa
+	mkdir -p $(TARGET_DIR)/etc/bsa/config
+	$(INSTALL) -D -m 755 $(@D)/test_files/av/44k8bpsStereo.wav $(TARGET_DIR)/etc/bsa
+	$(INSTALL) -D -m 755 $(@D)/test_files/dg/tx_test_file.txt $(TARGET_DIR)/etc/bsa
+
 endef
+
 
 $(eval $(generic-package))
