@@ -19,8 +19,11 @@ else
 AML_BRCM_BSA_BUILD_TYPE = arm
 endif
 
+AML_BRCM_BSA_DEPENDENCIES = linux
+
 ##if qt5 configured, we can use bsa qt app####
 ifeq ($(BR2_PACKAGE_QT5),y)
+AML_BRCM_BSA_DEPENDENCIES += qt5base
 BSA_QT_APP = $(@D)/$(AML_BRCM_BSA_PATH)/qt_app
 
 define AML_BRCM_BSA_CONFIGURE_CMDS
