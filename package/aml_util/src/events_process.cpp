@@ -19,23 +19,31 @@
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <sys/syscall.h>
 #include "events.h"
 #include "events_process.h"
 
 #define WAIT_KEY_TIMEOUT_SEC    120
 #define nullptr NULL
 #define KEY_EVENT_TIME_INTERVAL 20
+#define WIFI_STATION_PATH "/etc/wifi/wifi_station"
 
 EventsProcess::KeyMapItem_t g_default_keymap[] = {
-        { "select", KEY_POWER, {KEY_POWER,KEY_ENTER, KEY_BACK, -1, -1, -1} },
+        { "power", KEY_POWER, {KEY_POWER,KEY_ENTER, KEY_BACK, -1, -1, -1} },
         { "down", KEY_VOLUMEDOWN, {KEY_VOLUMEDOWN, KEY_DOWN,KEY_PAGEDOWN, -1, -1, -1} },
         { "up", KEY_VOLUMEUP, {KEY_VOLUMEUP, KEY_UP, KEY_PAGEUP, -1, -1, -1} },
     };
 
 EventsProcess:: CtrlInfo_t g_ctrlinfo[] = {
-        { "select", KEY_ENTER },
+        { "power", KEY_POWER },
         { "down", KEY_DOWN },
         { "up", KEY_UP },
+        { "VolumeUp", KEY_VOLUMEUP },
+        { "VolumeDown", KEY_VOLUMEDOWN },
+        { "WifiConfig", KEY_MENU },
+        { "left", KEY_LEFT },
+        { "right", KEY_RIGHT },
+        { "enter", KEY_ENTER },
     };
 
 EventsProcess::EventsProcess()
@@ -195,7 +203,7 @@ int EventsProcess::getKey(char *key) {
     if (key == NULL) return -1;
 
     unsigned int i;
-    for (i = 0; i < NUM_CTRLINFO; i++) {
+    for (i = 0; i < sizeof(g_ctrlinfo); i++) {
         CtrlInfo_t *info = &g_ctrlinfo[i];
         if (strcmp(info->type, key) == 0) {
             return info->value;
@@ -397,8 +405,24 @@ EventsProcess::KeyAction EventsProcess::CheckKey(int key, bool is_long_press) {
     return ENQUEUE;
 }
 
-void EventsProcess::KeyLongPress(int) {
+void EventsProcess::KeyLongPress(int key_code) {
 	printf("bebond timer generate %s\n",__func__);
 	key_long_press = false;
+	if (key_code == KEY_MENU) {
+		printf("KeyLongPress: KEY_MENU\n");
+		int fd = open(WIFI_STATION_PATH, O_RDWR | O_CLOEXEC);
+		if (fd == -1) {
+			fprintf(stderr, "no found %s", WIFI_STATION_PATH);
+			return;
+		}
+		close(fd);
+		unlink(WIFI_STATION_PATH);
+		char wifi_stop[50];
+		sprintf(wifi_stop, "sh /etc/init.d/S42wifi stop");
+		system(wifi_stop);
+		char wifi_start[50];
+		sprintf(wifi_start, "sh /etc/init.d/S42wifi start");
+		system(wifi_start);
+	}
 }
 

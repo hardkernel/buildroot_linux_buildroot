@@ -15,16 +15,16 @@
 #include <sys/time.h>
 // Abstract class for controlling the user interface during recovery.
 class EventsProcess {
-  public:
+public:
     struct KeyMapItem_t {
-        const char* type;
-        int value;
-        int key[6];
+	const char *type;
+	int value;
+	int key[6];
     };
 
     struct CtrlInfo_t {
-        const char *type;
-        int value;
+	const char *type;
+	int value;
     };
 
     EventsProcess();
@@ -32,27 +32,27 @@ class EventsProcess {
     virtual ~EventsProcess() { }
 
     // Initialize the object; called before anything else.
-    virtual void Init();
+    virtual void Init(void);
     // --- key handling ---
 
     // Wait for a key and return it.  May return -1 after timeout.
-    virtual int WaitKey();
+    virtual int WaitKey(void);
 
     virtual bool IsKeyPressed(int key);
-    virtual bool IsLongPress();
+    virtual bool IsLongPress(void);
 
     // Returns true if you have the volume up/down and power trio typical
     // of phones and tablets, false otherwise.
-    virtual bool HasThreeButtons();
+    virtual bool HasThreeButtons(void);
 
     // Erase any queued-up keys.
-    virtual void FlushKeys();
+    virtual void FlushKeys(void);
 
     // Called on each key press, even while operations are in progress.
     // Return value indicates whether an immediate operation should be
     // triggered (toggling the display, rebooting the device), or if
     // the key should be enqueued for use by the main thread.
-    enum KeyAction { ENQUEUE, TOGGLE, REBOOT, IGNORE , LONGPRESS};
+    enum KeyAction { ENQUEUE, TOGGLE, REBOOT, IGNORE, LONGPRESS};
     virtual KeyAction CheckKey(int key, bool is_long_press);
 
     // Called when a key is held down long enough to have been a
@@ -87,33 +87,30 @@ private:
     bool has_down_key;
 
     struct key_timer_t {
-        EventsProcess* ep;
-        int key_code;
-        int count;
+	EventsProcess *ep;
+	int key_code;
+	int count;
     };
 
     int num_keys;
-    KeyMapItem_t* keys_map;
+    KeyMapItem_t *keys_map;
 
 
     #define NUM_DEFAULT_KEY_MAP 3
-
-
-    #define NUM_CTRLINFO 3
 
     pthread_t input_thread_;
 
     void OnKeyDetected(int key_code);
 
-    static int InputCallback(int fd, uint32_t epevents, void* data);
+    static int InputCallback(int fd, uint32_t epevents, void *data);
     int OnInputEvent(int fd, uint32_t epevents);
     void ProcessKey(int key_code, int updown);
 
 
-    static void* time_key_helper(void* cookie);
+    static void *time_key_helper(void *cookie);
     void time_key(int key_code, int count);
     int getKey(char *key);
-    void load_key_map();
+    void load_key_map(void);
     int getMapKey(int key);
 };
 
