@@ -87,11 +87,6 @@ endif
 ifeq ($(BR2_PACKAGE_AML_CUSTOMER),y)
 	LINUX_DEPENDENCIES += aml_customer
 endif
-ifeq ($(BR2_PACKAGE_GPU),y)
-ifneq ($(BR2_PACKAGE_GPU_STANDALONE),y)
-	LINUX_DEPENDENCIES += gpu
-endif
-endif
 ifeq ($(BR2_PACKAGE_AML_NAND),y)
 ifneq ($(BR2_PACKAGE_AML_NAND_STANDALONE),y)
 	LINUX_DEPENDENCIES += aml_nand
