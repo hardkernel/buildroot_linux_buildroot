@@ -533,3 +533,7 @@ BR2_PACKAGE_BOA=y
 #Web ui wifi config
 #
 BR2_PACKAGE_WEB_UI_WIFI=y
+
+# spotify
+#
+BR2_PACKAGE_LIBRESPOT=y

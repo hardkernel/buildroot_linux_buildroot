@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LIBRESPOT
+	bool "librespot"
+	help 
+	     spotify connector call librespot
