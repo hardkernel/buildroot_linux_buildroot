@@ -524,3 +524,12 @@ BR2_PACKAGE_VALGRIND_DHAT=y
 # BR2_PACKAGE_VALGRIND_LACKEY is not set
 # BR2_PACKAGE_VALGRIND_NULGRIND is not set
 
+#
+#Boa web server
+#
+BR2_PACKAGE_BOA=y
+
+#
+#Web ui wifi config
+#
+BR2_PACKAGE_WEB_UI_WIFI=y
