@@ -416,10 +416,24 @@ void EventsProcess::KeyLongPress(int key_code) {
 			return;
 		}
 		close(fd);
-		unlink(WIFI_STATION_PATH);
+
+		char wifi_supplicant[50];
+		sprintf(wifi_supplicant, "rm /etc/wpa_supplicant.conf");
+		system(wifi_supplicant);
+
+		char wifi_conf[80];
+		sprintf(wifi_conf, "cp /etc/wpa_supplicant.conf-orig /etc/wpa_supplicant.conf");
+		system(wifi_conf);
+		system("sync");
+
 		char wifi_stop[50];
 		sprintf(wifi_stop, "sh /etc/init.d/S42wifi stop");
 		system(wifi_stop);
+
+		char rm_station[50];
+		sprintf(rm_station, "rm /etc/wifi/wifi_station");
+		system(rm_station);
+
 		char wifi_start[50];
 		sprintf(wifi_start, "sh /etc/init.d/S42wifi start");
 		system(wifi_start);
