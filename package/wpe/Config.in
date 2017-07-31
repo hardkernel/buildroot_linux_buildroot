@@ -148,6 +148,13 @@ config BR2_PACKAGE_WPE_USE_FUSION_API
 	help
 	  Use Fusion IPC API in the Media Player.
 
+config BR2_PACKAGE_WPE_USE_AMLOGIC_PLUGINS
+	bool "Amlogic Plugins"
+	depends on BR2_PACKAGE_GST_AML_PLUGINS1
+	default y if BR2_PACKAGE_GST_AML_PLUGINS1
+	help
+	  Use Amlogic Plugins in the Media Player.
+
 choice
 	bool "Punch hole"
 	default BR2_PACKAGE_WPE_USE_PUNCH_HOLE_GSTREAMER if BR2_PACKAGE_GSTREAMER1 && !BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_GL
