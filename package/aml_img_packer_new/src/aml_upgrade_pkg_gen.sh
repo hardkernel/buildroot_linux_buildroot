@@ -36,7 +36,7 @@ aml_secureboot_sign_kernel_m8b(){
 	${PRODUCT_AML_SECUREBOOT_SIGNTOOL}  \
 		${BINARIES_DIR}/aml-rsa-key.k2a \
 		${PRODUCT_AML_IMG_PACK_DIR}/boot.img \
-		${PRODUCT_AML_IMG_PACK_DIR}/boot.encrypt.img \
+		${PRODUCT_AML_IMG_PACK_DIR}/boot.img.encrypt \
 		${BINARIES_DIR}/aml-aes-key.aes
 	echo ----- Made aml secure-boot singed kernel img: boot.img.encrypt --------
 }
@@ -108,7 +108,7 @@ fi
 
 ####Step 4: pack secureboot burning image
 aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
-
+burnPkgenc=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.img
 #########Support compiling out encrypted zip/aml_upgrade_package.img directly
 #PRODCUT_AML_BOOTLOADER_PATH=./output/build/uboot-custom
 PRODUCT_AML_SECUREBOOT_USERKEY=${BINARIES_DIR}/aml-user-key.sig
@@ -129,7 +129,8 @@ if [ ${platform} != "meson8b" ];then
 	fi
 fi
 #rename efuse patten name for windows USB_BURNING_TOOL
-mv ${aml_bootloader}.encrypt.efuse SECURE_BOOT_SET
+mv ${aml_bootloader}.aml.efuse ${PRODUCT_AML_IMG_PACK_DIR}/SECURE_BOOT_SET
+
 
 aml_kernel=${PRODUCT_OUTPUT_DIR}/boot.img
 if [ ${platform} = "meson8b" ];then
@@ -155,10 +156,11 @@ if [ ${platform} != "meson8b" ];then
 	fi
 fi
 
-echo "${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg} "
-${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg}
+echo "${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkgenc} "
+${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkgenc}
 if [ $? -ne 0 ]; then
     echo fail to generate burning image;
-    rm ${burnPkg}
+    rm ${burnPkgenc}
 fi
+
 exit $?
