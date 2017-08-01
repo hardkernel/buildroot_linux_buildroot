@@ -1,4 +1,5 @@
 config BR2_PACKAGE_LIBRESPOT
 	bool "librespot"
-	help 
+	select BR2_PACKAGE_ALSA_LIB
+	help
 	     spotify connector call librespot
