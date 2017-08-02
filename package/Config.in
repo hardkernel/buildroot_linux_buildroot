@@ -486,6 +486,7 @@ endmenu
 	source "package/mtk7601/Config.in"
 	source "package/mtk7603/Config.in"
 	source "package/rtl8821au/Config.in"
+	source "package/mrvl_wifibt/Config.in"
 	source "package/sane-backends/Config.in"
 	source "package/sdparm/Config.in"
 	source "package/setserial/Config.in"
