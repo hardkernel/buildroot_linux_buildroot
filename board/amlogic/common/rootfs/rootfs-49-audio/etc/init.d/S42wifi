@@ -1,4 +1,8 @@
 #!/bin/sh
+killall hostapd
+killall wpa_supplicant
+killall dnsmasq
+killall dhcpcd
 
 NAME1=wpa_supplicant
 DAEMON1=/usr/sbin/$NAME1
@@ -16,7 +20,15 @@ NAME4=dhcpcd
 DAEMON4=/usr/sbin/$NAME4
 PIDFILE4=/var/run/${NAME4}-wlan0.pid
 
-ssid=amlogic-audio
+ap_name_file=/etc/wifi/ap_name
+if [ -f $ap_name_file ];then
+    ap_name=`cat /etc/wifi/ap_name`
+else
+    < /dev/urandom tr -dc A-Za-z | head -c 8 | cat > /etc/wifi/ap_name
+    ap_name=`cat /etc/wifi/ap_name`
+fi
+
+ssid=amlogic-audio-$ap_name
 password=12345678
 
 echo 0 > /etc/hostapd_temp.conf
@@ -33,7 +45,7 @@ echo "
 wpa=3
 wpa_passphrase=${password}
 wpa_key_mgmt=WPA-PSK
-wpa_pairwise=CCMP
+wpa_pairwise=TKIP CCMP
 rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
 
 wifi_mode="/etc/wifi/wifi_station"
@@ -86,10 +98,12 @@ case "$1" in
     start)
 	echo "start wifi ap mode load driver and set up ......"
 	$MULTI_WIFI ap 1
-	start-stop-daemon -S -b -m -p $PIDFILE2  -x $DAEMON2 -- /etc/hostapd_temp.conf
+    start-stop-daemon -S  -m -p $PIDFILE2  -x $DAEMON2 -- /etc/hostapd_temp.conf -B -P /var/run/hostapd.pid
 	sleep 2
+	echo "going to set wlan0 ip"
+    hostapd_cli status
 	ifconfig wlan0 192.168.2.1
-	start-stop-daemon -S -m -p $PIDFILE3 -b -x $DAEMON3  -- -iwlan0  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
+	start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan0  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
 	touch $wifi_mode
         ;;
     stop)
@@ -108,6 +122,7 @@ case "$1" in
     *)
         echo "Usage: $0 {start|stop|restart}"
         exit 1
+        ;;
 esac
 fi
 exit $?
