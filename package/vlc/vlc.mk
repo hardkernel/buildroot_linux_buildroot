@@ -61,7 +61,6 @@ VLC_CONF_OPTS += \
 	--disable-mfx \
 	--disable-vdpau \
 	--disable-addonmanagermodules \
-	--enable-run-as-root \
 	--disable-atmo \
 	--disable-gles2 \
 	--disable-gles1 \
@@ -71,8 +70,96 @@ VLC_CONF_OPTS += \
 	--disable-fribidi \
 	--disable-fontconfig \
 	--disable-aa \
-	--disable-nls \
+	--disable-nls
+ifeq ($(BR2_VLC_FOR_AUDIO),y)
+VLC_CONF_OPTS += \
+	--disable-ipv6  \
+	--enable-run-as-root \
+	--disable-bonjour \
+	--disable-directfb \
+	--disable-avcodec \
+	--disable-swscale \
+	--disable-png \
+	--disable-qt \
+	--disable-libgcrypt \
+	--disable-lua
 
+# Building static and shared doesn't work, so force static off.
+ifeq ($(BR2_STATIC_LIBS),)
+VLC_CONF_OPTS += --disable-static
+endif
+
+ifeq ($(BR2_PACKAGE_ALSA_LIB),y)
+VLC_CONF_OPTS += --enable-alsa
+VLC_DEPENDENCIES += alsa-lib
+else
+VLC_CONF_OPTS += --disable-alsa
+endif
+
+ifeq ($(BR2_PACKAGE_DBUS),y)
+VLC_CONF_OPTS += --enable-dbus
+VLC_DEPENDENCIES += dbus
+else
+VLC_CONF_OPTS += --disable-dbus
+endif
+
+ifeq ($(BR2_PACKAGE_SDL_X11),y)
+VLC_CONF_OPTS += --enable-sdl
+VLC_DEPENDENCIES += sdl
+else
+VLC_CONF_OPTS += --disable-sdl
+endif
+
+ifeq ($(BR2_PACKAGE_LIBXCB),y)
+VLC_CONF_OPTS += --enable-xcb
+VLC_DEPENDENCIES += libxcb
+else
+VLC_CONF_OPTS += --disable-xcb
+endif
+
+ifeq ($(BR2_PACKAGE_FLAC),y)
+VLC_CONF_OPTS += --enable-flac
+VLC_DEPENDENCIES += flac
+else
+VLC_CONF_OPTS += --disable-flac
+endif
+
+ifeq ($(BR2_PACKAGE_LIBCDDB),y)
+VLC_CONF_OPTS += --enable-libcddb
+VLC_DEPENDENCIES += libcddb
+else
+VLC_CONF_OPTS += --disable-libcddb
+endif
+
+ifeq ($(BR2_PACKAGE_LIBMAD),y)
+VLC_CONF_OPTS += --enable-mad
+VLC_DEPENDENCIES += libmad
+else
+VLC_CONF_OPTS += --disable-mad
+endif
+
+ifeq ($(BR2_PACKAGE_LIBVORBIS),y)
+VLC_CONF_OPTS += --enable-vorbis
+VLC_DEPENDENCIES += libvorbis
+else
+VLC_CONF_OPTS += --disable-vorbis
+endif
+
+ifeq ($(BR2_PACKAGE_TAGLIB),y)
+VLC_CONF_OPTS += --enable-taglib
+VLC_DEPENDENCIES += taglib
+else
+VLC_CONF_OPTS += --disable-taglib
+endif
+
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+VLC_DEPENDENCIES += zlib
+endif
+
+else
+#
+#VLC_USED_FOR_NORMAL
+#
 # Uses __atomic_fetch_add_4
 ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
 VLC_CONF_ENV += LIBS="-latomic"
@@ -435,6 +522,8 @@ endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 VLC_DEPENDENCIES += zlib
+endif
+
 endif
 
 $(eval $(autotools-package))

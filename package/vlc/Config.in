@@ -1,5 +1,6 @@
 if BR2_PACKAGE_VLC
 comment "vlc is known not to work in all configurations"
+comment "But vlc can uesd for audio player by enable BR2_VLC_FOR_AUDIO"
 comment "If you can fix it, please inform buildroot@buildroot.org"
 endif
 
@@ -23,6 +24,9 @@ config BR2_PACKAGE_VLC
 	  Audio CD, VCD, and various streaming protocols.
 
 	  http://www.videolan.org/vlc/
+
+config BR2_VLC_FOR_AUDIO
+	bool "enable vlc for audio"
 
 config BR2_PACKAGE_VLC_OPENCV_BACKEND
 	bool
