@@ -179,6 +179,12 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/config.txt $(TARGET_DIR)/etc/wifi/4356/config.txt
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.hcd $(TARGET_DIR)/etc/wifi/4356/
 
+	mkdir -p $(TARGET_DIR)/etc/wifi/4356p
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/*.bin $(TARGET_DIR)/etc/wifi/4356p/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/nvram*.txt $(TARGET_DIR)/etc/wifi/4356p/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/config.txt $(TARGET_DIR)/etc/wifi/4356p/config.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/*.hcd $(TARGET_DIR)/etc/wifi/4356p/
+
 	mkdir -p $(TARGET_DIR)/etc/wifi/4358
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4358/*.bin $(TARGET_DIR)/etc/wifi/4358/
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4358/nvram*.txt $(TARGET_DIR)/etc/wifi/4358/nvram.txt
@@ -285,6 +291,12 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/nvram*.txt $(TARGET_DIR)/etc/wifi/4356/nvram.txt
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/config.txt $(TARGET_DIR)/etc/wifi/4356/config.txt
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.hcd $(TARGET_DIR)/etc/wifi/4356/
+
+	mkdir -p $(TARGET_DIR)/etc/wifi/4356p
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/*.bin $(TARGET_DIR)/etc/wifi/4356p/
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/nvram*.txt $(TARGET_DIR)/etc/wifi/4356p/nvram.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/config.txt $(TARGET_DIR)/etc/wifi/4356p/config.txt
+	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/*.hcd $(TARGET_DIR)/etc/wifi/4356p/
 
 	mkdir -p $(TARGET_DIR)/etc/wifi/4358
 	$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4358/*.bin $(TARGET_DIR)/etc/wifi/4358/

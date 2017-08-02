@@ -33,6 +33,12 @@ config BR2_PACKAGE_BRCMAP6XXX_SDIO_VERSION
 	help
 		brcmap6xxx sdio build version
 
+config BR2_PACKAGE_BRCMAP6XXX_PCI_VERSION
+	string "brcmap6xxx pci build version"
+	depends on BR2_PACKAGE_BRCMAP6XXX_LOCAL
+	help
+		brcmap6xxx pci build version
+
 config BR2_PACKAGE_BRCMAP6XXX_USB_VERSION
 	string "brcmap6xxx usb build version"
 	depends on BR2_PACKAGE_BRCMAP6XXX_LOCAL
