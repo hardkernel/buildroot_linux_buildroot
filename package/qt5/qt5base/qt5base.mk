@@ -246,6 +246,8 @@ define QT5BASE_CONFIGURE_CMDS
 		./configure \
 		-v \
 		-prefix /usr \
+		-I$(@D)/include \
+		-L$(@D)/lib \
 		-hostprefix $(HOST_DIR)/usr \
 		-headerdir /usr/include/qt5 \
 		-sysroot $(STAGING_DIR) \
