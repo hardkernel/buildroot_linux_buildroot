@@ -29,7 +29,7 @@ endef
 
 define QT5DECLARATIVE_BUILD_CMDS
 	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D) \
-		sub-src-all sub-tools-all
+		sub-src-all sub-tools-all sub-examples-all
 endef
 
 define QT5DECLARATIVE_INSTALL_STAGING_CMDS
