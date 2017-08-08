@@ -57,6 +57,16 @@ secureboot=$2
 PRODUCT_AML_IMG_PACK_TOOL=${TOOL_DIR}/aml_image_v2_packer_new
 PRODUCT_AML_IMG_SIMG_TOOL=${TOOL_DIR}/img2simg
 PRODUCT_AML_IMG_PACK_DIR=${BINARIES_DIR}
+PRODUCT_LOGO_IMG_PACK_TOOL=${TOOL_DIR}/res_packer
+PRODUCT_LOGO_IMG_PACK_DIR=${BINARIES_DIR}/logo_img_files
+PRODUCT_LOGO_IMG_PACK=${BINARIES_DIR}/logo.img
+
+echo "${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}"
+${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}
+if [ $? -ne 0 ]; then
+    echo fail to generate logo image;
+    rm ${PRODUCT_LOGO_IMG_PACK}
+fi
 
 ####Step 1: rename dtb to dtb.img
 #change gxb_p200.db to dtb.img
