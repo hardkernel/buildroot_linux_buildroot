@@ -549,8 +549,16 @@ BR2_PACKAGE_BOA=y
 #Web ui wifi config
 #
 BR2_PACKAGE_WEB_UI_WIFI=y
-
+#
 # spotify
 #
 BR2_PACKAGE_LIBRESPOT=y
-
+#
+#nghttp2
+#
+BR2_PACKAGE_NGHTTP2=y
+BR2_PACKAGE_MBEDTLS=y
+#
+#portaudio
+#
+BR2_PACKAGE_PORTAUDIO=y

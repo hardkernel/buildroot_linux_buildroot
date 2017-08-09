@@ -30,6 +30,20 @@ endif
 
 LIBCURL_CONFIG_SCRIPTS = curl-config
 
+ifeq ($(BR2_PACKAGE_NGHTTP2),y)
+LIBCURL_DEPENDENCIES += nghttp2
+LIBCURL_CONF_OPTS += --with-nghttp2
+endif
+
+ifeq ($(BR2_PACKAGE_MBEDTLS),y)
+LIBCURL_DEPENDENCIES += mbedtls
+LIBCURL_CONF_OPTS += --with-mbedtls=$(STAGING_DIR)/usr \
+					 --without-ssl \
+					 --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt
+else
+LIBCURL_CONF_OPTS += --without-mbedtls
+endif
+
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 LIBCURL_DEPENDENCIES += openssl
 LIBCURL_CONF_ENV += ac_cv_lib_crypto_CRYPTO_lock=yes
@@ -38,8 +52,8 @@ LIBCURL_CONF_ENV += ac_cv_lib_crypto_CRYPTO_lock=yes
 # Fix it by setting LD_LIBRARY_PATH to something sensible so those libs
 # are found first.
 LIBCURL_CONF_ENV += LD_LIBRARY_PATH=$(if $(LD_LIBRARY_PATH),$(LD_LIBRARY_PATH):)/lib:/usr/lib
-LIBCURL_CONF_OPTS += --with-ssl=$(STAGING_DIR)/usr \
-	--with-ca-path=/etc/ssl/certs
+#LIBCURL_CONF_OPTS += --with-ssl=$(STAGING_DIR)/usr \
+#	--with-ca-path=/etc/ssl/certs
 else ifeq ($(BR2_PACKAGE_GNUTLS),y)
 LIBCURL_CONF_OPTS += --with-gnutls=$(STAGING_DIR)/usr
 LIBCURL_DEPENDENCIES += gnutls
@@ -47,12 +61,9 @@ else ifeq ($(BR2_PACKAGE_LIBNSS),y)
 LIBCURL_CONF_OPTS += --with-nss=$(STAGING_DIR)/usr
 LIBCURL_CONF_ENV += CPPFLAGS="$(TARGET_CPPFLAGS) `$(PKG_CONFIG_HOST_BINARY) nspr nss --cflags`"
 LIBCURL_DEPENDENCIES += libnss
-else ifeq ($(BR2_PACKAGE_MBEDTLS),y)
-LIBCURL_CONF_OPTS += --with-mbedtls=$(STAGING_DIR)/usr
-LIBCURL_DEPENDENCIES += mbedtls
 else
 LIBCURL_CONF_OPTS += --without-ssl --without-gnutls \
-	--without-polarssl --without-nss --without-mbedtls
+	--without-polarssl --without-nss
 endif
 
 ifeq ($(BR2_PACKAGE_C_ARES),y)
@@ -80,6 +91,6 @@ define LIBCURL_TARGET_CLEANUP
 	rm -rf $(TARGET_DIR)/usr/bin/curl
 endef
 LIBCURL_POST_INSTALL_TARGET_HOOKS += LIBCURL_TARGET_CLEANUP
-endif
 
+endif
 $(eval $(autotools-package))
