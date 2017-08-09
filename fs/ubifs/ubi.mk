@@ -29,4 +29,22 @@ define ROOTFS_UBI_CMD
 	rm $(BUILD_DIR)/ubinize.cfg
 endef
 
+
+DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
+UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
+ifeq ($(BR2_TARGET_USBTOOL_UBI_AMLOGIC),y)
+rootfs-usb-image-pack-ubi:
+	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
+	BINARIES_DIR=$(BINARIES_DIR) \
+	TOOL_DIR=$(HOST_DIR)/usr/bin \
+	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
+	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+ROOTFS_UBI_POST_TARGETS += rootfs-usb-image-pack-ubi
+endif #BR2_TARGET_USBTOOL_UBI_AMLOGIC
+
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
+SD_BOOT = $(BINARIES_DIR)/u-boot.bin.sd.bin
+else
+SD_BOOT = $(BINARIES_DIR)/u-boot.bin
+endif
 $(eval $(call ROOTFS_TARGET,ubi))
