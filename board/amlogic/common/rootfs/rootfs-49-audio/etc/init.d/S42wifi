@@ -64,13 +64,17 @@ case "$1" in
 			cnt=1
 			while [ $cnt -lt 5 ]; do
 				status=`wpa_cli status`
-				status=${status##*wpa_state=} 
-				status=$(echo $status |awk '{print $1}') 
+				status=${status##*wpa_state=}
+				status=$(echo $status |awk '{print $1}')
 				if [ "$status" = "COMPLETED" ];then
 					dhcpcd wlan0 &
+					touch $wifi_mode
 					break
 				elif [ "$status" = "DISCONNECTED" ];then
-					break;
+					$MULTI_WIFI station 0
+					rm $wifi_mode
+					/etc/init.d/S42wifi start
+					break
 				else
 					cnt=$((cnt + 1))
 					sleep 1
