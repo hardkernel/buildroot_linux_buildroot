@@ -11,7 +11,7 @@ AML_BRCM_BSA_APP = app_manager app_3d app_ag app_av app_avk app_ble \
 	app_ble_htp app_ble_pm app_ble_rscc app_ble_tvselect app_ble_wifi \
 	app_cce app_dg app_fm app_ftc app_fts app_hd app_headless \
 	app_hh app_hl app_hs app_nsa app_opc app_ops app_pan \
-	app_pbc app_pbs app_sac app_sc app_switch app_tm
+	app_pbc app_pbs app_sac app_sc app_switch app_tm app_socket
 
 ifeq ($(BR2_aarch64),y)
 AML_BRCM_BSA_BUILD_TYPE = arm64
@@ -69,6 +69,7 @@ define AML_BRCM_BSA_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/bsa/config
 	$(INSTALL) -D -m 755 $(@D)/test_files/av/44k8bpsStereo.wav $(TARGET_DIR)/etc/bsa
 	$(INSTALL) -D -m 755 $(@D)/test_files/dg/tx_test_file.txt $(TARGET_DIR)/etc/bsa
+	$(INSTALL) -D -m 755 package/aml_brcm_bsa/S44bluetooth $(TARGET_DIR)/etc/init.d
 
 endef
 
