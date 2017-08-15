@@ -2099,32 +2099,6 @@ index e9b570a..bb4ed6e 100644
      bool event(QEvent *event) Q_DECL_OVERRIDE;
 
      QFbWindow *windowForId(WId wid) const;
-diff --git a/src/plugins/platforms/directfb/qdirectfbintegration.cpp b/src/plugins/platforms/directfb/qdirectfbintegration.cpp
-index cdf340d..23e3a3a 100644
---- a/src/plugins/platforms/directfb/qdirectfbintegration.cpp
-+++ b/src/plugins/platforms/directfb/qdirectfbintegration.cpp
-@@ -168,4 +168,9 @@ QPlatformNativeInterface *QDirectFbIntegration::nativeInterface() const
-     return const_cast<QDirectFbIntegration *>(this);
-}
-
-+unsigned long QDirectFbIntegration::get_phy_info(unsigned long mem)
-+{
-+
-+}
-+
- QT_END_NAMESPACE
-diff --git a/src/plugins/platforms/directfb/qdirectfbintegration.h b/src/plugins/platforms/directfb/qdirectfbintegration.h
-index e6704c9..b3996a0 100644
---- a/src/plugins/platforms/directfb/qdirectfbintegration.h
-+++ b/src/plugins/platforms/directfb/qdirectfbintegration.h
-@@ -71,6 +71,7 @@ public:
-     QPlatformServices *services() const;
-     QPlatformInputContext *inputContext() const { return m_inputContext; }
-     QPlatformNativeInterface *nativeInterface() const;
-+    unsigned long get_phy_info(unsigned long mem);
-
- protected:
-     virtual void initializeDirectFB();
 diff --git a/src/plugins/platforms/linuxfb/qlinuxfbintegration.cpp b/src/plugins/platforms/linuxfb/qlinuxfbintegration.cpp
 index c1c2355..7c1a394 100644
 --- a/src/plugins/platforms/linuxfb/qlinuxfbintegration.cpp
