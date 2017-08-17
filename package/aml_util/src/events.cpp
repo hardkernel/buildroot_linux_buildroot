@@ -67,7 +67,7 @@ int ev_init(ev_callback input_cb, void* data) {
         while ((de = readdir(dir))) {
             unsigned long ev_bits[BITS_TO_LONGS(EV_MAX)];
 
-            fprintf(stderr,"/dev/input/%s\n", de->d_name);
+            //fprintf(stderr,"/dev/input/%s\n", de->d_name);
             if (strncmp(de->d_name, "event", 5)) continue;
             int fd = openat(dirfd(dir), de->d_name, O_RDONLY);
             if (fd == -1) continue;
