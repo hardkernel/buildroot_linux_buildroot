@@ -263,7 +263,7 @@
          .type      = AVMEDIA_TYPE_VIDEO,
 --- /dev/null
 +++ b/src/third_party/ffmpeg/libavcodec/aml_codec.c
-@@ -0,0 +1,856 @@
+@@ -0,0 +1,857 @@
 +/*
 + * aml_codec.c
 + *
@@ -833,6 +833,7 @@
 +    }
 +    amsysfs_set_sysfs_int("/sys/class/tsync/enable", 1);
 +    amsysfs_set_sysfs_int("/sys/class/tsync/mode", 1);
++    amsysfs_set_sysfs_int("/sys/class/tsync/slowsync_enable", 1);
 +    return 0;
 +error3:
 +    codec_close(h->pcodec);
