@@ -265,6 +265,7 @@ BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_COMMON_OVERLAY="board/amlogic/common/rootfs/rootfs-314/"
 BR2_ROOTFS_OVERLAY="board/amlogic/mesongxl_p212_32/rootfs/"
 BR2_ROOTFS_UPGRADE_DIR="board/amlogic/common/upgrade/upgrade-gxb-gxl-gxm/"
+BR2_ROOTFS_UPGRADE_DIR_OVERLAY="board/amlogic/mesongxl_p212_kernel49/upgrade/"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE="amlogic-3.14-dev"
 BR2_LINUX_KERNEL_CUSTOM_LOCAL=y

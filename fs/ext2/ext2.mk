@@ -43,14 +43,26 @@ endif
 
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
+UPGRADE_DIR_OVERLAY := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR_OVERLAY))
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
+ifneq ($(UPGRADE_DIR_OVERLAY),)
+rootfs-usb-image-pack:
+	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
+	cp -rf $(UPGRADE_DIR_OVERLAY)/* $(BINARIES_DIR)
+	BINARIES_DIR=$(BINARIES_DIR) \
+	TOOL_DIR=$(HOST_DIR)/usr/bin \
+	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
+	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+else
 rootfs-usb-image-pack:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
 	BINARIES_DIR=$(BINARIES_DIR) \
 	TOOL_DIR=$(HOST_DIR)/usr/bin \
 	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
 	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+endif
+
 else #BR2_TARGET_UBOOT_AMLOGIC_2015
 rootfs-usb-image-pack:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)

@@ -481,6 +481,12 @@ config BR2_ROOTFS_UPGRADE_DIR
 	help
 	  amlogic upgrade configure directories"
 
+config BR2_ROOTFS_UPGRADE_DIR_OVERLAY
+         string "amlogic p231 upgrade configure directories"
+         default ""
+         help
+           amlogic p231 upgrade configure directories"
+
 config BR2_ROOTFS_OVERLAY
 	string "Root filesystem overlay directories"
 	default ""
