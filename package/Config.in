@@ -12,6 +12,7 @@ menu "amlogic"
 	source "package/aml_brcm_bsa/Config.in"
 	source "package/meson-mali/Config.in"
 	source "package/librespot/Config.in"
+	source "package/librespot-sync/Config.in"
 	source "package/nghttp2/Config.in"
 endmenu
 
