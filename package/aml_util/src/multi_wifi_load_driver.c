@@ -90,7 +90,21 @@ static const dongle_info dongle_registerd[] = {
 	},
 	"bcm6210",
 	0x0
-    },
+	},
+	{
+		"4354",
+		"dhd",
+		"dhd.ko",
+		BROADCOM_KO_PATH,
+		.wifi_module_arg = {
+			.arg_type       = MODULE_ARG_FIRMWARE,
+			.firmware_path  = "4354/fw_bcm4354a1_ag.bin",
+			.firmware_ap_path  = "4354/fw_bcm4354a1_ag_apsta.bin",
+			.nvram_path     = "4354/nvram.txt",
+		},
+		"bcm4354",
+		0x0
+	},
     {
 	"4335",
 	"dhd",
@@ -259,6 +273,7 @@ static int insmod(const char *filename, const char *options)
 	int rc = 0;
 #ifdef __NR_finit_module
 	int fd = open(filename, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+
 	fprintf(stderr, "[%s:%d]filename(%s) options(%s)\n", __func__, __LINE__, filename, options);
 	if (fd == -1) {
 		fprintf(stderr, "insmod: open(%s) failed\n", filename);
@@ -271,11 +286,12 @@ static int insmod(const char *filename, const char *options)
 		return rc;
 #endif
 	char wifi_insmod[200];
+
 	rc = sprintf(wifi_insmod, "insmod ");
-	rc += sprintf(wifi_insmod + rc,filename);
-	rc += sprintf(wifi_insmod + rc," ");
-	rc += sprintf(wifi_insmod + rc,options);
-	fprintf(stderr, "[%s:%d] wifi_insmod command:%s\n", __func__, __LINE__,wifi_insmod);
+	rc += sprintf(wifi_insmod + rc, filename);
+	rc += sprintf(wifi_insmod + rc, " ");
+	rc += sprintf(wifi_insmod + rc, options);
+	fprintf(stderr, "[%s:%d] wifi_insmod command:%s\n", __func__, __LINE__, wifi_insmod);
 
 	rc = system(wifi_insmod);
 
