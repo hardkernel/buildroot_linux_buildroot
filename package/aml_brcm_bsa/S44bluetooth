@@ -17,6 +17,9 @@ if [ "${HW_PLATFORM}" == "s400" ];then
     hcd_file="/etc/wifi/6255/BCM4345C0.hcd"
 elif [ "${HW_PLATFORM}" == "s420" ];then
     hcd_file="/etc/wifi/4356/bcm4356a2.hcd"
+else
+    echo "$0: not s400/s420, exit!"
+    exit 1
 fi
 echo "hcd_file = $hcd_file"
 
@@ -62,6 +65,7 @@ case "$1" in
         rm -f $PIDFILE2
         rm -f $PIDFILE3
         sleep 2
+        echo 0 > /sys/class/rfkill/rfkill0/state
         echo "
 
 
