@@ -1,8 +1,8 @@
 #!/bin/sh
-killall hostapd
-killall wpa_supplicant
-killall dnsmasq
-killall dhcpcd
+#killall hostapd
+#killall wpa_supplicant
+#killall dnsmasq
+#killall dhcpcd
 
 NAME1=wpa_supplicant
 DAEMON1=/usr/sbin/$NAME1
@@ -78,6 +78,10 @@ fi
 if [ -f $wifi_mode ];then
 case "$1" in
     start)
+        killall hostapd
+        killall wpa_supplicant
+        killall dnsmasq
+        killall dhcpcd
 		echo "start wifi station mode load driver and setup......"
 		$MULTI_WIFI station 1
 
@@ -99,6 +103,10 @@ case "$1" in
 		start_sta &
         ;;
     stop)
+        killall hostapd
+        killall wpa_supplicant
+        killall dnsmasq
+        killall dhcpcd
         dhd_priv iapsta_disable ifname wlan1
         echo -n "Stopping supplicant..."
         start-stop-daemon -K -o -p $PIDFILE1
@@ -109,7 +117,12 @@ case "$1" in
 	$MULTI_WIFI station 0
         $POWERCTL 0
         ;;
+    netready|netup|netdown|netchange) ;;
     restart|reload)
+        killall hostapd
+        killall wpa_supplicant
+        killall dnsmasq
+        killall dhcpcd
         start-stop-daemon -K -s HUP -n wpa_supplicant
         ;;
     *)
@@ -119,6 +132,10 @@ esac
 else
 case "$1" in
     start)
+        killall hostapd
+        killall wpa_supplicant
+        killall dnsmasq
+        killall dhcpcd
 	echo "start wifi ap mode load driver and set up ......"
 	$MULTI_WIFI ap 1
     start-stop-daemon -S  -m -p $PIDFILE2  -x $DAEMON2 -- /etc/hostapd_temp.conf -B -P /var/run/hostapd.pid
@@ -130,6 +147,10 @@ case "$1" in
 	touch $wifi_mode
         ;;
     stop)
+        killall hostapd
+        killall wpa_supplicant
+        killall dnsmasq
+        killall dhcpcd
         echo -n "Stopping hostap..."
         start-stop-daemon -K -o -p $PIDFILE2
         sleep 2
@@ -139,7 +160,12 @@ case "$1" in
 	$MULTI_WIFI ap 0
         $POWERCTL 0
         ;;
+    netready|netup|netdown|netchange) ;;
     restart|reload)
+        killall hostapd
+        killall wpa_supplicant
+        killall dnsmasq
+        killall dhcpcd
         start-stop-daemon -K -s HUP -n hostapd
         ;;
     *)

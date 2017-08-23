@@ -21,7 +21,7 @@ else
     echo "$0: not s400/s420, exit!"
     exit 1
 fi
-echo "hcd_file = $hcd_file"
+#echo "hcd_file = $hcd_file"
 
 case "$1" in
     start)
@@ -54,6 +54,7 @@ case "$1" in
 |-----bluetooth music player is ready for connections------|"
 
         ;;
+    netready|netup|netdown|netchange) ;;
     stop)
         echo -n "Stopping broadcom bluetooth server & app"
         app_socket avk 99

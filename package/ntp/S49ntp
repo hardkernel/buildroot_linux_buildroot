@@ -38,6 +38,12 @@ case "$1" in
 	start-stop-daemon -K -q -n $NAME -s 1
 	echo "done."
   ;;
+  netready)
+  $0 stop
+  sleep 1
+  $0 start
+  ;;
+  netup|netdown|netchange) ;;
   restart) echo "Restarting $DESC: $NAME"
 	$0 stop
 	sleep 1

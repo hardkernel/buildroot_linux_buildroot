@@ -17,6 +17,7 @@ case "$1" in
 	start-stop-daemon -K -q -p $PIDFILE && echo "OK" || echo "Failed" 
 	rm -f $PIDFILE 
 	;; 
+  netready|netup|netdown|netchange) ;;
   restart|reload) 
 	$0 stop 
 	$0 start 

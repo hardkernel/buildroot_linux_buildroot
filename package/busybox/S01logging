@@ -32,6 +32,14 @@ case "$1" in
 	stop
 	start
 	;;
+  netready)
+  ;;
+  netup)
+  ;;
+  netdown)
+  ;;
+  netchange)
+  ;;
   *)
 	echo "Usage: $0 {start|stop|restart}"
 	exit 1
