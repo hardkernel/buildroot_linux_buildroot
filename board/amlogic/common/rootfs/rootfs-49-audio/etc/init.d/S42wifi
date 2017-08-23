@@ -51,6 +51,30 @@ rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
 wifi_mode="/etc/wifi/wifi_station"
 MULTI_WIFI=/usr/bin/multi_wifi_load_driver
 
+function start_sta(){
+if [ $? -eq 0 ]; then
+	cnt=1
+	while [ $cnt -lt 20 ]; do
+		status=`wpa_cli status`
+		status=${status##*wpa_state=}
+		status=$(echo $status |awk '{print $1}')
+		if [ "$status" = "COMPLETED" ];then
+			dhcpcd wlan0 &
+			touch $wifi_mode
+			break
+		elif [ "$status" = "DISCONNECTED" ];then
+			$MULTI_WIFI station 0
+			rm $wifi_mode
+			/etc/init.d/S42wifi start
+			break
+		else
+			cnt=$((cnt + 1))
+			sleep 1
+		fi
+	done
+fi
+}
+
 if [ -f $wifi_mode ];then
 case "$1" in
     start)
@@ -60,27 +84,7 @@ case "$1" in
 		sleep 2
 		ifconfig wlan0 &> /dev/null
 
-		if [ $? -eq 0 ]; then
-			cnt=1
-			while [ $cnt -lt 5 ]; do
-				status=`wpa_cli status`
-				status=${status##*wpa_state=}
-				status=$(echo $status |awk '{print $1}')
-				if [ "$status" = "COMPLETED" ];then
-					dhcpcd wlan0 &
-					touch $wifi_mode
-					break
-				elif [ "$status" = "DISCONNECTED" ];then
-					$MULTI_WIFI station 0
-					rm $wifi_mode
-					/etc/init.d/S42wifi start
-					break
-				else
-					cnt=$((cnt + 1))
-					sleep 1
-				fi
-			done
-		fi
+		start_sta &
         ;;
     stop)
         echo -n "Stopping supplicant..."
