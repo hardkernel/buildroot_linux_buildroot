@@ -2,6 +2,7 @@
 
 wifiModeFlag="/etc/wifi/wifi_station"
 powerStateFile="/sys/power/state"
+powerResumeFlag="/etc/adckey/powerState"
 
 wifiChangeToApMode()
 {
@@ -19,7 +20,12 @@ wifiChangeToApMode()
 
 powerStateChange()
 {
-    echo "mem" > $powerStateFile
+    if [ -f $powerResumeFlag ];then
+        rm $powerResumeFlag
+    else
+        echo "mem" > $powerStateFile
+        touch $powerResumeFlag
+    fi
 }
 
 volumeUpAction()

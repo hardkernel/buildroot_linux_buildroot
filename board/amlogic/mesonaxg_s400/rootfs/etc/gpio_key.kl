@@ -1,9 +1,9 @@
 # This is map table for buildroot, use this define the key map for buildroot system
 
 # type                  key
-power                   106
+up                      106
 down                    105
-up                      139
+WifiConfig              139
 VolumeUp                115
 VolumeDown              114
-WifiConfig              116
+power                   116
