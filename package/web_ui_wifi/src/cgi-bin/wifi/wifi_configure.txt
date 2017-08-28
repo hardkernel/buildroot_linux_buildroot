@@ -1,7 +1,0 @@
-driver=dhd
-mode=station
-onoff_test=0
-retry=5
-debug=1
-ssid
-password

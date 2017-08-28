@@ -43,26 +43,26 @@ PIDFILE4=/var/run/${NAME4}-wlan0.pid
 function main() {
 
 ###########show usage first#####################
-usage
+usage > /dev/null
 ###########initialize ssid passwd etc###########
-initial_configure $1 $2 $3 $4 $5
+initial_configure $1 $2 $3 $4 $5 > /dev/null
 
 #########stop wifi first#################
-stop_wifi
+stop_wifi > /dev/null
 
 ########if want to disable wifi,should exit here#
 if [ "$1" = "stop" ];then
-echo "wifi function stopped!"
-end_script
+echo "wifi function stopped!" > /dev/null
+end_script > /dev/null
 fi
 
 if [ $onoff_test -eq 1 ]; then
 ##############wifi on/off loop begin#############
-	wifi_onoff_loop
+	wifi_onoff_loop > /dev/null
 else
 ########start station or ap #####################
-	start_wifi
-    end_script
+	start_wifi > /dev/null
+    end_script > /dev/null
 fi
 }
 
@@ -437,6 +437,11 @@ ifconfig wlan0 0.0.0.0
 if [ $debug -eq 1 ];then
 	start-stop-daemon -S -m -p $PIDFILE1 -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf -d -B -P $PIDFILE1
 else
+	dhd_priv iapsta_init mode apsta
+	dhd_priv iapsta_config ifname wlan1 ssid $ssid chan 6 amode open emode none
+	dhd_priv iapsta_enable ifname wlan1
+	ifconfig wlan1 192.168.2.1
+	start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
 	start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
 fi
 check_in_loop 10 check_wpa
