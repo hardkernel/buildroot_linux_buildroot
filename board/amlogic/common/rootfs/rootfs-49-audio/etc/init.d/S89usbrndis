@@ -21,6 +21,11 @@ usb_rndis_init()
 	cd /
 }
 
+usb_net_ipconfig()
+{
+	ifconfig usb0 192.168.5.1 up
+}
+
 case "$1" in
   start)
       	sleep 6
@@ -31,6 +36,7 @@ case "$1" in
         	if [ ! -d ${usb_dir} ]
         	then
             	usb_rndis_init
+				usb_net_ipconfig
         	fi
     	fi
 		;;
