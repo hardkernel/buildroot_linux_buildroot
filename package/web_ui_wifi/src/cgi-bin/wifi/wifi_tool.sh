@@ -437,8 +437,10 @@ ifconfig wlan0 0.0.0.0
 if [ $debug -eq 1 ];then
 	start-stop-daemon -S -m -p $PIDFILE1 -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf -d -B -P $PIDFILE1
 else
+	ap_ssid_num=`cat /etc/wifi/ap_name`
+	ap_ssid=amlogic_audio_$ap_ssid_num
 	dhd_priv iapsta_init mode apsta
-	dhd_priv iapsta_config ifname wlan1 ssid $ssid chan 6 amode open emode none
+	dhd_priv iapsta_config ifname wlan1 ssid $ap_ssid chan 6 amode open emode none
 	dhd_priv iapsta_enable ifname wlan1
 	ifconfig wlan1 192.168.2.1
 	start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
