@@ -23,9 +23,8 @@ else
 fi
 #echo "hcd_file = $hcd_file"
 
-case "$1" in
-    start)
-
+Blue_start()
+{
     echo 0 > /sys/class/rfkill/rfkill0/state
     sleep 1
     echo 1 > /sys/class/rfkill/rfkill0/state
@@ -52,26 +51,34 @@ case "$1" in
 
 
 |-----bluetooth music player is ready for connections------|"
+}
 
-        ;;
-    netready|netup|netdown|netchange) ;;
-    stop)
-        echo -n "Stopping broadcom bluetooth server & app"
-        app_socket avk 99
-        app_socket manager 99
-        sleep 1
-        start-stop-daemon -K -o -p $PIDFILE1
-        sleep 2
-        rm -f $PIDFILE1
-        rm -f $PIDFILE2
-        rm -f $PIDFILE3
-        sleep 2
-        echo 0 > /sys/class/rfkill/rfkill0/state
-        echo "
+Blue_stop()
+{	
+    echo -n "Stopping broadcom bluetooth server & app"
+    app_socket avk 99
+    app_socket manager 99
+    sleep 1
+    start-stop-daemon -K -o -p $PIDFILE1
+    sleep 2
+    rm -f $PIDFILE1
+    rm -f $PIDFILE2
+    rm -f $PIDFILE3
+    sleep 2
+    echo 0 > /sys/class/rfkill/rfkill0/state
+    echo "
 
 
 |-----bluetooth music player is shutdown-----|"
+}
 
+case "$1" in
+    start)
+		Blue_start &
+		;;
+    netready|netup|netdown|netchange) ;;
+    stop)
+		Blue_stop
         ;;
     *)
         echo "Usage: $0 {start|stop}"
