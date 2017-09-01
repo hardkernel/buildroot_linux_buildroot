@@ -13,9 +13,31 @@ config BR2_PACKAGE_MESON_MALI_MODEL
 config BR2_PACKAGE_MESON_MALI_VERSION
 	string "mali opengl version"
 
-config BR2_PACKAGE_MESON_MALI_WAYLAND_EGL
-	bool "amlogic mali wayland egl"
-	select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+choice
+        bool "choose a mali egl"
+        default BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL if !BR2_PACKAGE_WESTON_DRM
+        default BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL if BR2_PACKAGE_WESTON_DRM
+        help
+                choose wayland_fbdev or wayland_drm, or fbdev
+
+config BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL
+        bool "wayland with fbdev backend"
+        select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+        help
+                support wayland api for app, backend is fbdev
+
+config BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL
+        bool "wayland with drm backend"
+        select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+        help
+                support wayland api for app, backend is drm
+
+config BR2_PACKAGE_MESON_MALI_FBDEV_EGL
+        bool "fbdev"
+        help
+                support fbdev for app to control
+
+endchoice
 
 config BR2_PACKAGE_PROVIDES_LIBEGL
 	default "meson-mali" if BR2_PACKAGE_MESON_MALI
