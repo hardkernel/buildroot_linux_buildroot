@@ -13,7 +13,7 @@ menu "amlogic"
 	source "package/meson-mali/Config.in"
 	source "package/librespot/Config.in"
 	source "package/librespot-sync/Config.in"
-	
+	source "package/avs-sdk/Config.in"
 endmenu
 
 menu "Audio and video applications"
