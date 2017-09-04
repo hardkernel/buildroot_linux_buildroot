@@ -15,8 +15,9 @@ config BR2_PACKAGE_MESON_MALI_VERSION
 
 choice
         bool "choose a mali egl"
-        default BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL if !BR2_PACKAGE_WESTON_DRM
         default BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL if BR2_PACKAGE_WESTON_DRM
+        default BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL if BR2_PACKAGE_WESTON_FBDEV && !BR2_PACKAGE_WESTON_DRM
+        default BR2_PACKAGE_MESON_MALI_FBDEV_EGL if !BR2_PACKAGE_WESTON
         help
                 choose wayland_fbdev or wayland_drm, or fbdev
 
