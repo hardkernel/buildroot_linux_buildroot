@@ -46,13 +46,9 @@ else
 MALI_LIB_DIR = $(MALI_LIB_LOC)
 endif
 
-ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL),y)
-	MESON_MALI_LIBS = libEGL*,libGLE*,libwayland-egl.so,libgbm.so
-else
-	MESON_MALI_LIBS = libEGL*,libGLE*,libwayland-egl.so
-endif
+MESON_MALI_LIBS = libEGL*,libGLE*,libwayland-egl.so
 
-define MESON_MALI_INSTALL_STAGING_CMDS
+define BASE_INSTALL_STAGING
 	cp -arf $(MESON_MALI_DIR)/include/EGL $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/GLES $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/GLES2 $(STAGING_DIR)/usr/include/
@@ -64,12 +60,38 @@ define MESON_MALI_INSTALL_STAGING_CMDS
 	cp -arf $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(STAGING_DIR)/usr/lib/pkgconfig/
 endef
 
-define MESON_MALI_INSTALL_TARGET_CMDS
+ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL),y)
+define WAYLAND_DRM_INSTALL_STAGING
+	cp -arf $(MESON_MALI_DIR)/include/$(EGL_PLATFORM_HEADER)/gbm/gbm.h $(STAGING_DIR)/usr/include/
+	cp -arf $(MESON_MALI_DIR)/lib/libgbm.so $(STAGING_DIR)/usr/lib/
+	cp -arf $(MESON_MALI_DIR)/lib/pkgconfig/gbm/*.pc $(STAGING_DIR)/usr/lib/pkgconfig/
+endef
+endif
+
+define MESON_MALI_INSTALL_STAGING_CMDS
+	$(BASE_INSTALL_STAGING)
+	$(WAYLAND_DRM_INSTALL_STAGING)
+endef
+
+
+define BASE_INSTALL_TARGET
 	cp -df $(MESON_MALI_DIR)/lib/{$(MESON_MALI_LIBS)} $(TARGET_DIR)/usr/lib
 	install -m 755 $(MESON_MALI_DIR)/lib/$(MALI_LIB_DIR)/*.so* $(TARGET_DIR)/usr/lib
 	mkdir -p $(TARGET_DIR)/usr/lib/pkgconfig
 	install -m 644 $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
 endef
+
+ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL),y)
+define WAYLAND_DRM_INSTALL_TARGET
+	install -m 644 $(MESON_MALI_DIR)/lib/pkgconfig/gbm/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
+endef
+endif
+
+define MESON_MALI_INSTALL_TARGET_CMDS
+	$(BASE_INSTALL_TARGET)
+	$(WAYLAND_DRM_INSTALL_TARGET)
+endef
+
 
 $(eval $(generic-package))
 
