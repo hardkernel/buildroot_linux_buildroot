@@ -42,19 +42,28 @@ Blue_start()
     start-stop-daemon -S  -m -p $PIDFILE3 -x $DAEMON3 -- -s &
     sleep 1
 
-
-    echo "#########act as a bluetooth music player#########"
-    app_socket avk 2
+    echo "|-----enter a2dp sink mode-----|"
+    app_socket avk 2 | grep "fail" > /dev/null
+    if [ $? -eq 0 ];then
+        echo
+        echo "|---bsa service start fail!---|"
+        app_socket manager 99
+        start-stop-daemon -K -o -p $PIDFILE1
+        sleep 2
+        rm -f $PIDFILE1
+        rm -f $PIDFILE2
+        rm -f $PIDFILE3
+    else
+        echo
+        echo
+        echo "|-----bluetooth music player is ready for connections------|"
+    fi
     cd - > /dev/null
-    sleep 2
-    echo "
 
-
-|-----bluetooth music player is ready for connections------|"
 }
 
 Blue_stop()
-{	
+{
     echo -n "Stopping broadcom bluetooth server & app"
     app_socket avk 99
     app_socket manager 99
@@ -74,11 +83,11 @@ Blue_stop()
 
 case "$1" in
     start)
-		Blue_start &
-		;;
+        Blue_start &
+        ;;
     netready|netup|netdown|netchange) ;;
     stop)
-		Blue_stop
+        Blue_stop
         ;;
     *)
         echo "Usage: $0 {start|stop}"

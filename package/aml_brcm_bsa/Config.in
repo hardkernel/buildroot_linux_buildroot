@@ -3,3 +3,8 @@ config BR2_PACKAGE_AML_BRCM_BSA
     default y
     help
 	broadcom bsa server and app
+
+config BR2_AML_BRCM_BSA_MEM_REDUCTION
+    bool "broadcom bsa mem reduction configure"
+    help
+    broadcom bsa mem reduction configure
