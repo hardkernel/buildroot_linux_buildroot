@@ -1,5 +1,6 @@
 config BR2_PACKAGE_LIBGMIME
 	bool "libgmime"
+	select BR2_PACKAGE_LIBGPG_ERROR
 	select BR2_PACKAGE_LIBTOOL
 	help
 		GMime is a C/C++ library which may be used for the creation and parsing of

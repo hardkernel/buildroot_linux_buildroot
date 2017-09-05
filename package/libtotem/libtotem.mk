@@ -12,12 +12,13 @@ LIBTOTEM_INSTALL_STAGING = YES
 LIBTOTEM_LICENSE = LGPL V2.1
 LIBTOTEM_INSTALL_STAGING = YES
 LIBTOTEM_DEPENDENCIES = libglib2 \
+                        libtool \
                         glib-networking \
                         libsoup \
                         libxml2 \
                         libarchive \
                         libgcrypt
-
+LIBTOTEM_CONF_OPTS = --with-libgcrypt-prefix=$(STAGING_DIR)
 ifeq ($(BR2_PACKAGE_ISO_CXX),y)
 LIBTOTEM_DEPENDENCIES += iso-cxx
 LIBTOTEM_CONF_OPTS += --enable-iso-cxx
