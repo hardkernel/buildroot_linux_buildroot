@@ -83,6 +83,7 @@ endef
 
 ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL),y)
 define WAYLAND_DRM_INSTALL_TARGET
+        cp -df $(MESON_MALI_DIR)/lib/libgbm.so $(TARGET_DIR)/usr/lib
 	install -m 644 $(MESON_MALI_DIR)/lib/pkgconfig/gbm/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
 endef
 endif
