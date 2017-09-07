@@ -78,6 +78,16 @@ fi
 if [ -f $wifi_mode ];then
 case "$1" in
     start)
+	    skt_board=`cat /proc/device-tree/amlogic-dt-id`
+	    case ${skt_board} in
+			"axg_a113d_skt_v1")
+				exit 0
+				;;
+			"axg_a113x_skt_v1")
+				exit 0
+				;;
+	    esac
+
         killall hostapd
         killall wpa_supplicant
         killall dnsmasq
