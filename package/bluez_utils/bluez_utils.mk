@@ -68,7 +68,7 @@ ifeq ($(BR2_TOOLCHAIN_SUPPORTS_PIE),)
 BLUEZ_UTILS_CONF_OPTS += --disable-pie
 endif
 
-define BLUEZ_UTILS_INSTALL_TARGET_CMDS
+define BLUEZ_UTILS_INSTALL_INIT_SYSV
 	$(BLUEZ_UTILS_INSTALL_AGENT)
 	$(INSTALL) -D -m 755 package/bluez_utils/bluez_tool.sh $(TARGET_DIR)/usr/bin
 endef
