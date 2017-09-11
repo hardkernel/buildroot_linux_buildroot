@@ -563,3 +563,8 @@ BR2_PACKAGE_MBEDTLS=y
 #portaudio
 #
 BR2_PACKAGE_PORTAUDIO=y
+
+#
+#led ring
+#
+BR2_PACKAGE_LEDRING=y

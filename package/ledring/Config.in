@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LEDRING
+    bool "LED ring light"
+    help
+        led ring light.
