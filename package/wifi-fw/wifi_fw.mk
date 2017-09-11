@@ -338,7 +338,7 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/BT/*.hcd $(TARGET_DIR)/etc/wifi/62x2/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/62x2/; \
 		;; \
-	AP6355) \
+	AP6335) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/6335; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/*.bin $(TARGET_DIR)/etc/wifi/6335/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6335/nvram.txt $(TARGET_DIR)/etc/wifi/6335/nvram.txt; \
