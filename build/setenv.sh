@@ -4,7 +4,7 @@ LOCAL_DIR=$(pwd)
 BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
-DEFCONFIG_ARRAY=("mesonaxg_s400_32_release" "mesonaxg_s400_32_debug" "mesonaxg_s400_debug" "mesonaxg_s400_release" "mesonaxg_s420_32_debug" "mesonaxg_s420_32_release" "mesonaxg_s420_debug" "mesonaxg_s420_release" "mesonaxg_a113x_skt_32"  "mesonaxg_a113x_skt" "mesonaxg_a113d_skt_32" "mesonaxg_a113d_skt" "mesongxl_p400_32_kernel49" "mesongxl_p400_kernel49" "mesongxl_p401_32_kernel49" "mesongxl_p401_kernel49" "mesongxl_p212_32_kernel49" "mesongxl_p212_kernel49" "mesongxl_p230_32_kernel49" "mesongxl_p230_kernel49" "mesongxl_p231_32_kernel49" "mesongxl_p231_kernel49" "mesongxm_q200_32_kernel49" "mesongxm_q200_kernel49" "meson8b_m200_kernel49" "mesongxl_p400" "mesongxl_p400_32" "mesongxl_p401" "mesongxl_p401_32" "mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxl_p231" "mesongxl_p231_32" "mesongxl_p241" "mesongxl_p241_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200" "meson8b_m400")
+DEFCONFIG_ARRAY=("mesonaxg_s400_32_release" "mesonaxg_s400_32_debug" "mesonaxg_s400_debug" "mesonaxg_s400_release" "mesonaxg_s420_32_debug" "mesonaxg_s420_32_release" "mesonaxg_s420_debug" "mesonaxg_s420_release" "mesonaxg_a113x_skt_32"  "mesonaxg_a113x_skt" "mesonaxg_a113d_skt_32" "mesonaxg_a113d_skt" "mesongxl_p400_32_kernel49" "mesongxl_p400_kernel49" "mesongxl_p401_32_kernel49" "mesongxl_p401_kernel49" "mesongxl_p212_32_kernel49" "mesongxl_p212_kernel49" "mesongxl_p230_32_kernel49" "mesongxl_p230_kernel49" "mesongxl_p231_32_kernel49" "mesongxl_p231_kernel49" "mesongxl_p241_32_kernel49" "mesongxl_p241_kernel49" "mesongxm_q200_32_kernel49" "mesongxm_q200_kernel49" "meson8b_m200_kernel49" "mesongxl_p400" "mesongxl_p400_32" "mesongxl_p401" "mesongxl_p401_32" "mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxl_p231" "mesongxl_p231_32" "mesongxl_p241" "mesongxl_p241_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200" "meson8b_m400")
 
 DEFCONFIG_ARRAY_LEN=${#DEFCONFIG_ARRAY[@]}
 
@@ -59,13 +59,13 @@ function get_build_config() {
 	TARGET=$1
 	RESULT1="$(echo $TARGET | cut -d '_' -f 3)"
 	RESULT2="$(echo $TARGET | cut -d '_' -f 4)"
-	if [ $RESULT1 = "debug" ]; then
+	if [[ $RESULT1 = "debug" ]]; then
 		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [ $RESULT1 = "release" ]; then
+	elif [[ $RESULT1 = "release" ]]; then
 		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [ $RESULT2 = "debug" ]; then
+	elif [[ $RESULT2 = "debug" ]]; then
 		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [ $RESULT2 = "release" ]; then
+	elif [[ $RESULT2 = "release" ]]; then
 		echo "${DEFCONFIG_ARRAY[$index]}"
 	else
 		echo "${DEFCONFIG_ARRAY[$index]}_release"
