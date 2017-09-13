@@ -583,3 +583,10 @@ BR2_AVS_DSPC=y
 #led ring
 #
 BR2_PACKAGE_LEDRING=y
+
+#
+#swupdate
+#
+BR2_PACKAGE_SWUPDATE=y
+BR2_PACKAGE_SWUPDATE_CONFIG="package/swupdate/swupdate.config"
+BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE=y

@@ -4,8 +4,9 @@
 #
 ################################################################################
 
-SWUPDATE_VERSION = 2016.10
-SWUPDATE_SITE = $(call github,sbabic,swupdate,$(SWUPDATE_VERSION))
+SWUPDATE_VERSION = 2017.07
+SWUPDATE_SOURCE = ${SWUPDATE_VERSION}.tar.gz
+SWUPDATE_SITE = https://github.com/sbabic/swupdate/archive
 SWUPDATE_LICENSE = GPLv2+, MIT, Public Domain
 SWUPDATE_LICENSE_FILES = COPYING
 
