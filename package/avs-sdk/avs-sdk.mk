@@ -16,12 +16,15 @@ AVS_SDK_DEPENDENCIES = libgmime \
                        sqlite \
                        gstreamer1 \
                        gst1-plugins-base \
-                       pkgconf
+                       pkgconf \
+		       ledring
 AVS_SDK_CONF_OPTS = \
                     -DCMAKE_TOOLCHAIN_FILE=$(TOPDIR)/package/avs-sdk/CMakeLists.txt \
                     -DGSTREAMER_MEDIA_PLAYER=ON \
                     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-                    -DTOTEM_PLPARSER=ON
+                    -DTOTEM_PLPARSER=ON \
+		    -DLEDRING_LIB_PATH=$(STAGING_DIR)/usr/lib/libledring.so \
+		    -DLEDRING_INCLUDE_DIR=$(STAGING_DIR)/usr/include/ledClient.h
 
 AVS_OUT_DIR = $(@D)/../AVS_output
 ifeq ($(BR2_PACKAGE_LIBXML2),y)
@@ -90,7 +93,7 @@ endef
 
 define AVS_SDK_BUILD_CMDS
 	mkdir -p $(@D)/../AVS_output
-	(export LDFLAGS="-Wl,-rpath-link=$(STAGING_DIR)/lib -L$(STAGING_DIR)/lib" && cd $(@D)/../AVS_output && export PKG_CONFIG_PATH=$(STAGING_DIR)/usr/lib/pkgconfig:$$PKG_CONFIG_PATH && cmake $(AVS_SDK_CONF_OPTS) $(@D) && make)
+	(export LDFLAGS="-Wl,-rpath-link=$(STAGING_DIR)/lib -L$(STAGING_DIR)/lib -L$(STAGING_DIR)/usr/lib" && cd $(@D)/../AVS_output && export PKG_CONFIG_PATH=$(STAGING_DIR)/usr/lib/pkgconfig:$$PKG_CONFIG_PATH && cmake $(AVS_SDK_CONF_OPTS) $(@D) && make)
 
 endef
 define AVS_SDK_INSTALL_TARGET_CMDS
