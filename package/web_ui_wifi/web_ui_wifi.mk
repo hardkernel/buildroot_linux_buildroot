@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEB_UI_WIFI_VERSION = 20170726
+WEB_UI_WIFI_VERSION = 20170915
 WEB_UI_WIFI_SITE_METHOD = local
 WEB_UI_WIFI_SITE = ${TOPDIR}/package/web_ui_wifi/src
 
