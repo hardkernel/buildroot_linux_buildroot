@@ -1,0 +1,25 @@
+#!/bin/sh
+
+CONFIG=/etc/AlexaClientSDKConfig.json
+PROCESS=/usr/bin/SampleApp
+
+case "$1" in
+    start|stop|restart) ;;
+    netready)
+    /etc/init.d/S49ntp stop
+    /etc/init.d/S49ntp start
+    sleep 2
+    if [ -f $CONFIG ];then
+        cd /usr/bin/
+	./SampleApp $CONFIG NONE back &
+	cd /
+    else
+        echo "avs start fail: not found config file $CONFIG!!!"
+    fi
+    ;;
+    netup|netdown|netchange) ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|netready|netup|netdown|netchange}"
+    exit 1
+    ;;
+esac

@@ -127,6 +127,7 @@ define AVS_SDK_INSTALL_TARGET_CMDS
 	cp $(@D)/Media/*.mp3 $(TARGET_DIR)/usr/share/avs/
 	cp $(@D)/Media/*.awb $(TARGET_DIR)/usr/bin/
 	cp $(@D)/Media/ca-certificates.crt $(TARGET_DIR)/etc/ssl/certs
+        $(INSTALL) -D -m 0755 package/avs-sdk/S90avs $(TARGET_DIR)/etc/init.d/
 endef
 
 define AVS_SDK_CLEAN_CMDS

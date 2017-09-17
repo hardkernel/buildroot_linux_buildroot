@@ -1,0 +1,4 @@
+# This is map table for buildroot, use this define the key map for buildroot system
+
+# type                  key
+mute                      106
