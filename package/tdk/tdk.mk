@@ -16,11 +16,11 @@ TDK_DEPENDENCIES = linux
 
 ifeq ($(BR2_aarch64), y)
 define XTEST
-	$(TARGET_CONFIGURE_OPTS) $(MAKE1) -C $(@D)/demos/optee_test tee_xtest64
+	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-  -C $(@D)/demos/optee_test tee_xtest
 endef
 else
 define XTEST
-	$(TARGET_CONFIGURE_OPTS) $(MAKE1) -C $(@D)/demos/optee_test tee_xtest32
+	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-  -C $(@D)/demos/optee_test tee_xtest
 endef
 endif
 define TDK_BUILD_CMDS
