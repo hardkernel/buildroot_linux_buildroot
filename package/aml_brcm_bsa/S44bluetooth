@@ -12,6 +12,10 @@ NAME3=app_avk
 DAEMON3=/usr/bin/$NAME3
 PIDFILE3=/var/run/$NAME3.pid
 
+NAME4=app_hs
+DAEMON4=/usr/bin/$NAME4
+PIDFILE4=/var/run/$NAME4.pid
+
 HW_PLATFORM=$(cat /proc/device-tree/amlogic-dt-id | awk -F "_" '{print $2}')
 if [ "${HW_PLATFORM}" == "s400" ];then
     hcd_file="/etc/wifi/6255/BCM4345C0.hcd"
@@ -42,7 +46,11 @@ Blue_start()
     start-stop-daemon -S  -m -p $PIDFILE3 -x $DAEMON3 -- -s &
     sleep 1
 
-    echo "|-----enter a2dp sink mode-----|"
+    echo "start broadcom bluetooth app_hs"
+    start-stop-daemon -S  -m -p $PIDFILE4 -x $DAEMON4 -- -s > /tmp/app_hs.log &
+    sleep 1
+
+    echo "|-----enter a2dp sink & hf mode-----|"
     app_socket avk 2 | grep "fail" > /dev/null
     if [ $? -eq 0 ];then
         echo
@@ -53,10 +61,11 @@ Blue_start()
         rm -f $PIDFILE1
         rm -f $PIDFILE2
         rm -f $PIDFILE3
+        rm -f $PIDFILE4
     else
         echo
         echo
-        echo "|-----bluetooth music player is ready for connections------|"
+        echo "|-----bluetooth speaker is ready for connections------|"
     fi
     cd - > /dev/null
 
@@ -65,6 +74,7 @@ Blue_start()
 Blue_stop()
 {
     echo -n "Stopping broadcom bluetooth server & app"
+    app_socket hs 99
     app_socket avk 99
     app_socket manager 99
     sleep 1
@@ -73,6 +83,7 @@ Blue_stop()
     rm -f $PIDFILE1
     rm -f $PIDFILE2
     rm -f $PIDFILE3
+    rm -f $PIDFILE4
     sleep 2
     echo 0 > /sys/class/rfkill/rfkill0/state
     echo "
