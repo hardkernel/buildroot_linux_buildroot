@@ -12,6 +12,10 @@ LIBRESPOT_STAGING = YES
 LIBRESPOT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
 LIBRESPOT_DEPENDENCIES = alsa-lib
 SYSROOT_CONFIG = $(@D)/../../host/usr/bin/gcc-sysroot
+LIBRESPOT_MAKE_ENV = \
+                     CC="$(TARGET_CC)" \
+                     CFLAGS="$(TARGET_CFLAGS)" \
+                     $(TARGET_MAKE_ENV)
 
 ifeq ($(BR2_aarch64),y)
 RUST_CC = aarch64-unknown-linux-gnu
@@ -29,7 +33,7 @@ define LIBRESPOT_INSTALL_TARGET_CMDS
 	cp $(@D)/.cargo ~/ -rf
 	$(@D)/.cargo/bin/rustup default nightly
 	$(@D)/.cargo/bin/rustup target add $(RUST_CC)
-	$(@D)/.cargo/bin/cargo build --no-default-features --features "alsa-backend" --target $(RUST_CC)  --release --manifest-path $(@D)/Cargo.toml
+	($(LIBRESPOT_MAKE_ENV) $(@D)/.cargo/bin/cargo build --no-default-features --features "alsa-backend" --target $(RUST_CC)  --release --manifest-path $(@D)/Cargo.toml)
 	${INSTALL} -D -m 0755 ${@D}/target/$(RUST_CC)/release/librespot  ${TARGET_DIR}/usr/bin/librespot
 	#rm ~/.cargo -rf
 endef
