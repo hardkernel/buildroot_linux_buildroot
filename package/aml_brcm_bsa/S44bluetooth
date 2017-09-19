@@ -92,9 +92,24 @@ Blue_stop()
 |-----bluetooth music player is shutdown-----|"
 }
 
+skt_handle()
+{
+		skt_board=`cat /proc/device-tree/amlogic-dt-id`
+		case ${skt_board} in
+			"axg_a113d_skt_v1")
+				exit 0
+				;;
+			"axg_a113x_skt_v1")
+				exit 0
+				;;
+		esac
+}
+
 case "$1" in
     start)
-        Blue_start &
+	skt_handle
+
+	Blue_start &
         ;;
     netready|netup|netdown|netchange) ;;
     stop)
