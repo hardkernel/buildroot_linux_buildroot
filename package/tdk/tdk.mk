@@ -15,19 +15,24 @@ TDK_INSTALL_STAGING = YES
 TDK_DEPENDENCIES = linux
 
 ifeq ($(BR2_aarch64), y)
-define XTEST
-	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-  -C $(@D)/demos/optee_test tee_xtest
-endef
+_ARCH = arm64
+_CROSS_COMPILE = aarch64-linux-gnu-
 else
-define XTEST
-	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-  -C $(@D)/demos/optee_test tee_xtest
-endef
+_ARCH = arm
+_CROSS_COMPILE = arm-linux-gnueabihf-
 endif
+
+define XTEST
+	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=$(_ARCH) CROSS_COMPILE=$(_CROSS_COMPILE) \
+					-C $(@D)/demos/optee_test tee_xtest
+endef
+
+
 define TDK_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(@D)/linuxdriver ARCH=$(KERNEL_ARCH) \
 		CROSS_COMPILE=$(TARGET_KERNEL_CROSS) modules
 	$(XTEST)
-	$(TARGET_CONFIGURE_OPTS) $(MAKE1) -C $(@D)/demos/hello_world
+	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=$(_ARCH) CROSS_COMPILE=$(_CROSS_COMPILE) -C $(@D)/demos/hello_world
 endef
 
 ifeq ($(BR2_aarch64), y)
