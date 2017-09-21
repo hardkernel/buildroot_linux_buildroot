@@ -50,8 +50,11 @@ case "$1" in
 		    usb_adbd_init
 		    echo "usb abdd start..."
 	            sleep 2
-                    echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
-                    usb_net_ipconfig
+                echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
+                usb_net_ipconfig
+		echo "------------------------------------"	
+		echo "usb rndis & adb start: OK!"
+		echo "------------------------------------"	
 		fi
 	#fi
 		;;
