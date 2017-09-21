@@ -50,7 +50,7 @@
       </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
-            <button type="button" class="btn btn-primary" onclick="set_wifi_by_modal_input()">connect</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="set_wifi_by_modal_input()">connect</button>
       </div>
     </div>
   </div><!-- /.modal-content -->
@@ -63,6 +63,11 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/bootstrap.min.js"></script>
   <script src="js/main.js"></script>
+  <script>
+	window.onload = function(){
+		get_wifi_list();
+	}
+  </script>
 
 </body>
 </html>

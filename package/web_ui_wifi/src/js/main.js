@@ -23,9 +23,7 @@ function handleCommand(command_xmlhttp, callback)
       if(command_xmlhttp.status == 200){
     	if(callback == null)
     		return;
-
 	callback(command_xmlhttp);
-
      }
   }
 };
@@ -38,7 +36,6 @@ function handleCommand(command_xmlhttp, callback)
     }
 
     var url="cgi-bin/wifi/wifi.cgi?cmd=" + encodeURIComponent(command);
-
     command_xmlhttp.open("GET", url ,true);
     command_xmlhttp.setRequestHeader("If-Modified-Since","0");
     command_xmlhttp.setRequestHeader("Cache-Control","no-cache");
@@ -121,10 +118,6 @@ function set_wifi_by_modal_input()
     set_wifi(input_ssid,input_pwd);
 };
 
-window.onload = function(){
-	get_wifi_list();
-};
-
 $('#refresh_img').click(function(){
 	get_wifi_list();
 });
@@ -136,5 +129,59 @@ function check_input_is_ok(input_text)
         return false;
     else
         return true;
+};
+
+function set_spotify(){
+	var spotify_username = document.getElementById("modal_spotify_username").value;
+	var spotify_pwd = document.getElementById("modal_spotify_pwd").value;
+	var spotify_dname = document.getElementById("modal_spotify_dname").value;
+
+	send_commond("set_spotify&username="+spotify_username+"&"+"spotify_pwd="+spotify_pwd+"&"+"spotify_dname="+spotify_dname);
+	var showUserId = '<h3 style="color:green" align="center">Logging...</h3>';
+	$('#userinfo').html(showUserId);
+	setTimeout("check_spotify()",3000);
+};
+
+function TurnOffSpotify(){
+	console.log("I will turn off spotify");
+	send_commond("kill_spotify");
+	var showStopping = '<h3 style="color:red" align="center">stopping...</h3>';
+	$('#userinfo').html(showStopping);
+	setTimeout("check_spotify()",3000);
+};
+
+function check_spotify(){
+	send_commond("check_spotify",handle_check);
+};
+
+function handle_check(command_xmlhttp){
+	console.log("hahahahahah");
+	var response_check_date = command_xmlhttp.responseText;
+	console.log(response_check_date);
+	if(response_check_date == "")
+		return;
+	console.log(response_check_date.length);
+	if(response_check_date.length > 7){
+		console.log("gogogo!!!");
+		send_commond("get_spo_info",handle_get_info);
+	}
+	else{
+		console.log("cannot use!");
+		var htmlNodes_spo_info = '<h3 style="color:red" align="center">Stopped</h3>';
+		$('#userinfo').html(htmlNodes_spo_info);
+	}
+};
+
+function handle_get_info(){
+	var response_spo_info = command_xmlhttp.responseText;
+	if(response_spo_info == "")
+		return;
+	var spo_info = eval("("+response_spo_info+")");
+	console.log(spo_info);
+	var old_uname = spo_info[0].infos;
+	var old_dname = spo_info[2].infos;
+
+	var htmlNodes_spo_info = '<h3 style="color:green" align="center">user: '+old_uname+' device: '+old_dname+'</h3>';
+	$('#userinfo').html(htmlNodes_spo_info);
 };
 
