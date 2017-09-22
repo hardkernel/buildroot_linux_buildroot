@@ -28,10 +28,28 @@ restart() {
 	start
 }
 
+guest_add()
+{
+    adduser guest -D
+    passwd guest -d 12345678
+}
+
+guest_handle()
+{
+    cat /etc/shadow | grep guest
+    if [ $? -eq 0 ]
+    then
+        exit 0
+    else
+        guest_add
+    fi
+}
+
 case "$1" in
   start)
 	start
-	;;
+    guest_handle
+    ;;
   stop)
 	stop
 	;;
