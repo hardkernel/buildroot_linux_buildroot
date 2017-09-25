@@ -69,6 +69,8 @@ define TDK_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/linuxdriver/optee.ko $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/kernel/drivers/trustzone/
 	echo kernel/drivers/trustzone/optee_armtz.ko: kernel/drivers/trustzone/optee.ko >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 	echo kernel/drivers/trustzone/optee.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
+
+	$(INSTALL) -D -m 0755 $(@D)/demos/hello_world/out/ca/tee_helloworld $(TARGET_DIR)/usr/bin
 endef
 
 $(eval $(generic-package))
