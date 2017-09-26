@@ -63,14 +63,13 @@ function set_wifi_list_to_select(command_xmlhttp)
 	if(response_date == "")
 		return;
 	obj_Data = eval("("+response_date+")");
-	console.log(obj_Data);
 	var htmlNodes = '';
 
 	for(var i = 0; i < obj_Data.length; i++){
 		htmlNodes += '<a class="list-group-item" id="wifi_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].ssid + '</a>';
 	}
 	htmlNodes += '</ul>';
-	console.log(htmlNodes);
+
 	$('#testtext').append(htmlNodes);
 
 	var j;
@@ -122,7 +121,6 @@ $('#refresh_img').click(function(){
 	get_wifi_list();
 });
 
-
 function check_input_is_ok(input_text)
 {
     if (input_text=="")
@@ -143,7 +141,6 @@ function set_spotify(){
 };
 
 function TurnOffSpotify(){
-	console.log("I will turn off spotify");
 	send_commond("kill_spotify");
 	var showStopping = '<h3 style="color:red" align="center">stopping...</h3>';
 	$('#userinfo').html(showStopping);
@@ -155,18 +152,16 @@ function check_spotify(){
 };
 
 function handle_check(command_xmlhttp){
-	console.log("hahahahahah");
+
 	var response_check_date = command_xmlhttp.responseText;
-	console.log(response_check_date);
+
 	if(response_check_date == "")
 		return;
-	console.log(response_check_date.length);
+
 	if(response_check_date.length > 7){
-		console.log("gogogo!!!");
 		send_commond("get_spo_info",handle_get_info);
 	}
 	else{
-		console.log("cannot use!");
 		var htmlNodes_spo_info = '<h3 style="color:red" align="center">Stopped</h3>';
 		$('#userinfo').html(htmlNodes_spo_info);
 	}
@@ -185,3 +180,35 @@ function handle_get_info(){
 	$('#userinfo').html(htmlNodes_spo_info);
 };
 
+function system(){
+
+	var swupdate_href = '<li><a href="http://'+window.location.host+':8080" class="list-group-item" role="button">Swupdate</a></li>';
+	$('#swupdate').html(swupdate_href);
+
+	send_commond("get_deviceinfo",show_device_info);
+};
+function show_device_info(){
+
+	var response_dev_info = command_xmlhttp.responseText;
+	if(response_dev_info == "")
+		return;
+	var dev_info = eval("("+response_dev_info+")");
+	var htmlNodes_dev_info = '';
+
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >KERNEL : ' + dev_info[0].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >ARCH : ' + dev_info[8].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >SSID : ' + dev_info[1].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >MODE : ' + dev_info[2].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >CIPHER : ' + dev_info[3].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >KEYMGMT : ' + dev_info[4].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >STATE : ' + dev_info[5].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >WIREIP : ' + dev_info[6].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center" >MAC; : ' + dev_info[7].info+'</a></li>'
+
+	$('#dev_info_show').append(htmlNodes_dev_info);
+	send_commond("runswupdate");
+};
+
+function stop_swupdate(){
+	send_commond("endswupdate");
+}
