@@ -6,10 +6,12 @@ PROCESS=/usr/bin/SampleApp
 case "$1" in
     start|stop|restart) ;;
     netready)
+    amixer cset numid=40,iface=MIXER,name='Loopback Enable' 1
     /etc/init.d/S49ntp stop
     /etc/init.d/S49ntp start
     sleep 2
     if [ -f $CONFIG ];then
+        #amixer cset numid=40,iface=MIXER,name='Loopback Enable' 1
         cd /usr/bin/
 	./SampleApp $CONFIG NONE back &
 	cd /
