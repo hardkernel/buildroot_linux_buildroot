@@ -24,7 +24,7 @@ endif
 
 define XTEST
 	$(TARGET_CONFIGURE_OPTS) $(MAKE1) ARCH=$(_ARCH) CROSS_COMPILE=$(_CROSS_COMPILE) \
-					-C $(@D)/demos/optee_test tee_xtest
+					-C $(@D)/demos/optee_test
 endef
 
 
@@ -71,6 +71,7 @@ define TDK_INSTALL_TARGET_CMDS
 	echo kernel/drivers/trustzone/optee.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 
 	$(INSTALL) -D -m 0755 $(@D)/demos/hello_world/out/ca/tee_helloworld $(TARGET_DIR)/usr/bin
+	$(INSTALL) -D -m 0755 $(@D)/demos/optee_test/out/xtest/tee_xtest $(TARGET_DIR)/usr/bin
 endef
 
 $(eval $(generic-package))
