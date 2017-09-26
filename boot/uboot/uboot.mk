@@ -165,7 +165,7 @@ SECUROS_IMAGE_DIR = "gx"
 
 ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "axg")
 SECUROS_IMAGE_DIR = "axg"
-else ifeq($(BR2_TARGET_UBOOT_PLATFORM), "txlx")
+else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "txlx")
 SECUROS_IMAGE_DIR = "txlx"
 else
 SECUROS_IMAGE_DIR = "gx"
