@@ -48,7 +48,6 @@ wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP CCMP
 rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
 
-wifi_mode="/etc/wifi/wifi_station"
 MULTI_WIFI=/usr/bin/multi_wifi_load_driver
 
 function start_sta(){
@@ -60,12 +59,6 @@ if [ $? -eq 0 ]; then
 		status=$(echo $status |awk '{print $1}')
 		if [ "$status" = "COMPLETED" ];then
 			dhcpcd wlan0 &
-			touch $wifi_mode
-			break
-		elif [ "$status" = "DISCONNECTED" ];then
-			$MULTI_WIFI station 0
-			rm $wifi_mode
-			/etc/init.d/S42wifi start
 			break
 		else
 			cnt=$((cnt + 1))
@@ -75,7 +68,6 @@ if [ $? -eq 0 ]; then
 fi
 }
 
-if [ -f $wifi_mode ];then
 case "$1" in
     start)
 	    skt_board=`cat /proc/device-tree/amlogic-dt-id`
@@ -139,60 +131,6 @@ case "$1" in
         echo "Usage: $0 {start|stop|restart}"
         exit 1
 esac
-else
-case "$1" in
-    start)
-	    skt_board=`cat /proc/device-tree/amlogic-dt-id`
-	    case ${skt_board} in
-			"axg_a113d_skt_v1")
-				exit 0
-				;;
-			"axg_a113x_skt_v1")
-				exit 0
-				;;
-	    esac
 
-        killall hostapd
-        killall wpa_supplicant
-        killall dnsmasq
-        killall dhcpcd
-	echo "start wifi ap mode load driver and set up ......"
-	$MULTI_WIFI ap 1
-    start-stop-daemon -S  -m -p $PIDFILE2  -x $DAEMON2 -- /etc/hostapd_temp.conf -B -P /var/run/hostapd.pid
-	sleep 2
-	echo "going to set wlan0 ip"
-    hostapd_cli status
-	ifconfig wlan0 192.168.2.1
-	start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan0  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
-	touch $wifi_mode
-        ;;
-    stop)
-        killall hostapd
-        killall wpa_supplicant
-        killall dnsmasq
-        killall dhcpcd
-        echo -n "Stopping hostap..."
-        start-stop-daemon -K -o -p $PIDFILE2
-        sleep 2
-        start-stop-daemon -K -o -p $PIDFILE3
-        rm -f $PIDFILE2
-        rm -f $PIDFILE3
-	$MULTI_WIFI ap 0
-        $POWERCTL 0
-        ;;
-    netready|netup|netdown|netchange) ;;
-    restart|reload)
-        killall hostapd
-        killall wpa_supplicant
-        killall dnsmasq
-        killall dhcpcd
-        start-stop-daemon -K -s HUP -n hostapd
-        ;;
-    *)
-        echo "Usage: $0 {start|stop|restart}"
-        exit 1
-        ;;
-esac
-fi
 exit $?
 
