@@ -60,25 +60,29 @@ function set_wifi(ssid,pwd)
 function set_wifi_list_to_select(command_xmlhttp)
 {
 	var response_date = command_xmlhttp.responseText;
-	if(response_date == "")
-		return;
+
 	obj_Data = eval("("+response_date+")");
-	var htmlNodes = '';
-
-	for(var i = 0; i < obj_Data.length; i++){
-		htmlNodes += '<a class="list-group-item" id="wifi_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].ssid + '</a>';
+	if(obj_Data.length == 0){
+		get_wifi_list();
 	}
-	htmlNodes += '</ul>';
+	else{
+        var htmlNodes = '';
 
-	$('#testtext').append(htmlNodes);
+        for(var i = 0; i < obj_Data.length; i++){
+            htmlNodes += '<a class="list-group-item" id="wifi_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].ssid + '</a>';
+        }
+        htmlNodes += '</ul>';
 
-	var j;
-	var index = 1;
-	var wifi_select = document.getElementById("ssid");
-	for(j = 0; j < obj_Data.length; j++){
-		var wifi = new Object;
-		wifi.ssid = obj_Data.aplist[j].ssid;
-		wifi_select.Option.add(wifi.id);
+        $('#testtext').html(htmlNodes);
+
+        var j;
+        var index = 1;
+        var wifi_select = document.getElementById("ssid");
+        for(j = 0; j < obj_Data.length; j++){
+            var wifi = new Object;
+            wifi.ssid = obj_Data.aplist[j].ssid;
+            wifi_select.Option.add(wifi.id);
+        }
 	}
 };
 
