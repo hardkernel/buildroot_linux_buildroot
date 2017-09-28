@@ -4,17 +4,10 @@ NAME1=bsa_server
 DAEMON1=/usr/bin/$NAME1
 PIDFILE1=/var/run/$NAME1.pid
 
-NAME2=app_manager
+NAME2=app_musicBox
 DAEMON2=/usr/bin/$NAME2
 PIDFILE2=/var/run/$NAME2.pid
 
-NAME3=app_avk
-DAEMON3=/usr/bin/$NAME3
-PIDFILE3=/var/run/$NAME3.pid
-
-NAME4=app_hs
-DAEMON4=/usr/bin/$NAME4
-PIDFILE4=/var/run/$NAME4.pid
 
 HW_PLATFORM=$(cat /proc/device-tree/amlogic-dt-id | awk -F "_" '{print $2}')
 if [ "${HW_PLATFORM}" == "s400" ];then
@@ -27,6 +20,16 @@ else
 fi
 #echo "hcd_file = $hcd_file"
 
+function set_btname()
+{
+    name_file=/etc/wifi/ap_name
+    if [ -f $ap_name_file ];then
+        bt_name=`cat /etc/wifi/ap_name`
+    fi
+    echo "bt_name=MusicBox-$bt_name" > /etc/bsa/config/bt_configure.txt
+
+}
+
 Blue_start()
 {
     echo 0 > /sys/class/rfkill/rfkill0/state
@@ -34,39 +37,21 @@ Blue_start()
     echo 1 > /sys/class/rfkill/rfkill0/state
     sleep 1
 
+    set_btname
+
     cd /etc/bsa/config
     echo "start broadcom bluetooth server bsa_sever"
     start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -all=0 -b /etc/bsa/config/btsnoop.log -p $hcd_file -d /dev/ttyS1 &
     sleep 2
 
-    echo "start broadcom bluetooth app_manager"
-    start-stop-daemon -S  -m -p $PIDFILE2 -x $DAEMON2 -- -s &
+    echo "start broadcom bluetooth app_musicBox"
+    start-stop-daemon -S  -m -p $PIDFILE2 -x $DAEMON2 &
 
-    echo "start broadcom bluetooth app_avk"
-    start-stop-daemon -S  -m -p $PIDFILE3 -x $DAEMON3 -- -s &
     sleep 1
 
-    echo "start broadcom bluetooth app_hs"
-    start-stop-daemon -S  -m -p $PIDFILE4 -x $DAEMON4 -- -s > /tmp/app_hs.log &
-    sleep 1
+    echo
+    echo "|-----bluetooth speaker is ready for connections------|"
 
-    echo "|-----enter a2dp sink & hf mode-----|"
-    app_socket avk 2 | grep "fail" > /dev/null
-    if [ $? -eq 0 ];then
-        echo
-        echo "|---bsa service start fail!---|"
-        app_socket manager 99
-        start-stop-daemon -K -o -p $PIDFILE1
-        sleep 2
-        rm -f $PIDFILE1
-        rm -f $PIDFILE2
-        rm -f $PIDFILE3
-        rm -f $PIDFILE4
-    else
-        echo
-        echo
-        echo "|-----bluetooth speaker is ready for connections------|"
-    fi
     cd - > /dev/null
 
 }
@@ -74,22 +59,15 @@ Blue_start()
 Blue_stop()
 {
     echo -n "Stopping broadcom bluetooth server & app"
-    app_socket hs 99
-    app_socket avk 99
-    app_socket manager 99
+    start-stop-daemon -K -o -p $PIDFILE2
     sleep 1
     start-stop-daemon -K -o -p $PIDFILE1
     sleep 2
     rm -f $PIDFILE1
     rm -f $PIDFILE2
-    rm -f $PIDFILE3
-    rm -f $PIDFILE4
-    sleep 2
     echo 0 > /sys/class/rfkill/rfkill0/state
-    echo "
-
-
-|-----bluetooth music player is shutdown-----|"
+    echo
+    echo "|-----bluetooth music player is shutdown-----|"
 }
 
 skt_handle()

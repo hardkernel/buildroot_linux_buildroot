@@ -10,7 +10,7 @@ AML_BRCM_BSA_LIBBSA = libbsa
 ###if mem reductin configured, only support few profils
 ifeq ($(BR2_AML_BRCM_BSA_MEM_REDUCTION),y)
 AML_BRCM_BSA_APP = app_manager app_ag app_avk app_hs app_av \
-	app_switch app_tm app_socket
+	app_switch app_tm app_socket app_musicBox
 	TARGET_CONFIGURE_OPTS += CONFIG_MEM_REDUCTION=y
 define AML_BRCM_BSA_INSTALL_SERVER_SO_TARGET_CMDS
 	$(INSTALL) -D -m 755 $(@D)/server/$(AML_BRCM_BSA_BUILD_TYPE)_mem_reduce/bsa_server \
@@ -24,7 +24,7 @@ AML_BRCM_BSA_APP = app_manager app_3d app_ag app_av app_avk app_ble \
 	app_ble_htp app_ble_pm app_ble_rscc app_ble_tvselect app_ble_wifi \
 	app_cce app_dg app_fm app_ftc app_fts app_hd app_headless \
 	app_hh app_hl app_hs app_nsa app_opc app_ops app_pan \
-	app_pbc app_pbs app_sac app_sc app_switch app_tm app_socket
+	app_pbc app_pbs app_sac app_sc app_switch app_tm app_socket app_musicBox
 
 ##if qt5 configured, we can use bsa qt app####
 ifeq ($(BR2_PACKAGE_QT5),y)
