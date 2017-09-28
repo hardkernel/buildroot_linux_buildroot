@@ -37,7 +37,8 @@ ROOTFS_DEVICE_TABLES = $(call qstrip,$(BR2_ROOTFS_DEVICE_TABLE) \
 	$(BR2_ROOTFS_STATIC_DEVICE_TABLE))
 USERS_TABLE = $(BUILD_DIR)/_users_table.txt
 ROOTFS_USERS_TABLES = $(call qstrip,$(BR2_ROOTFS_USERS_TABLES))
-
+BLACKLIST_TABLE_TAR=$(BINARIES_DIR)/blacklist.txt
+BLACKLIST_TABLE_SRC=$(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 # Since this function will be called from within an $(eval ...)
 # all variable references except the arguments must be $$-quoted.
 define ROOTFS_TARGET_INTERNAL
@@ -69,6 +70,32 @@ ROOTFS_$(2)_DEPENDENCIES += host-xz
 ROOTFS_$(2)_COMPRESS_EXT = .xz
 ROOTFS_$(2)_COMPRESS_CMD = xz -9 -C crc32 -c
 endif
+
+define BLACKLIST_ENABLE
+    if [[ "$$(TARGET_OUTPUT_DIR)" =~ "s420" ]] || \
+        [[ "$$(TARGET_OUTPUT_DIR)" =~ "s400" ]]  \
+        && [[ "$$(TARGET_OUTPUT_DIR)" =~ "_release" ]]; then \
+        rm -rf $$(BLACKLIST_TABLE_TAR); \
+	if [ ! -f "$$(BLACKLIST_TABLE_TAR)" ]; then (\
+	cp -rf $$(TOPDIR)/$$(BLACKLIST_TABLE_SRC)../blacklist.txt \
+	$$(BLACKLIST_TABLE_TAR); \
+	); \
+	fi; \
+	for i in `cat $$(BLACKLIST_TABLE_TAR) | sed '/^#.*\|^$$$$/d'`; do \
+	if [ -f $$(TARGET_DIR)$$$$i ];then \
+	rm -rf $$(TARGET_DIR)$$$$i ; \
+	[ $$$$? = 0 ] && echo "remove blacklist [$$(TARGET_DIR)$$$$i] ...OK!" \
+	|| echo "remove blacklist $$(TARGET_DIR)$$$$i FAIL!!!"; \
+	else \
+	echo "target blacklist [$$(TARGET_DIR)$$$$i] has removed!" ;\
+	fi \
+	done; \
+    else \
+        echo "this filesystem is debug version or other platform; no need blacklist!"; \
+    fi
+endef
+
+ROOTFS_$(2)_PRE_GEN_HOOKS += BLACKLIST_ENABLE
 
 $$(BINARIES_DIR)/rootfs.$(1): target-finalize $$(ROOTFS_$(2)_DEPENDENCIES)
 	@$$(call MESSAGE,"Generating root filesystem image rootfs.$(1)")
