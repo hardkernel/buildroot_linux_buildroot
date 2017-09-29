@@ -103,7 +103,13 @@ if [ ${update_sparse_img} -eq 1 ]; then
     fi
 fi
 ####Step 3: pack none-secureboot burning image
-aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+then
+	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+else
+	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+fi
+
 burnPkg=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.img
 if [ "${secureboot}" != "y" ]; then
     echo "generate noraml burning package"
@@ -117,7 +123,12 @@ if [ "${secureboot}" != "y" ]; then
 fi
 
 ####Step 4: pack secureboot burning image
-aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
+if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+then
+	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
+else
+	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
+fi
 burnPkgenc=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.img
 #########Support compiling out encrypted zip/aml_upgrade_package.img directly
 #PRODCUT_AML_BOOTLOADER_PATH=./output/build/uboot-custom
