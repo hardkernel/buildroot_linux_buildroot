@@ -134,7 +134,7 @@ function search_ap() {
 
 function connect_ap() {
 	echo "|-------connecting target AP---------|"
-	id=`wpa_cli list_network | grep Tenda_1234 | awk -F " " '{print $1}'`
+	id=`wpa_cli list_network | grep ${ssid} | awk -F " " '{print $1}'`
 	if [ -n "$id" ];then
 		echo "delete same network"
 		wpa_cli remove_network $id
