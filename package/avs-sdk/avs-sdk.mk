@@ -115,6 +115,11 @@ define AVS_SDK_INSTALL_TARGET_CMDS
 	cp $(AVS_OUT_DIR)/AVSCommon/libAVSCommon.so  $(TARGET_DIR)/usr/lib
 	cp $(AVS_OUT_DIR)/CapabilityAgents/AudioPlayer/src/libAudioPlayer.so   $(TARGET_DIR)/usr/lib
 	cp $(AVS_OUT_DIR)/ApplicationUtilities/DefaultClient/src/libDefaultClient.so   $(TARGET_DIR)/usr/lib
+	cp $(AVS_OUT_DIR)/CertifiedSender/src/libCertifiedSender.so $(TARGET_DIR)/usr/lib
+	cp $(AVS_OUT_DIR)/CapabilityAgents/PlaybackController/src/libPlaybackController.so $(TARGET_DIR)/usr/lib
+	cp $(AVS_OUT_DIR)/Storage/SQLiteStorage/src/libSQLiteStorage.so $(TARGET_DIR)/usr/lib
+	cp $(AVS_OUT_DIR)/CapabilityAgents/Settings/src/libSettings.so $(TARGET_DIR)/usr/lib
+	cp $(AVS_OUT_DIR)/CapabilityAgents/System/src/libAVSSystem.so $(TARGET_DIR)/usr/lib
 
 	cp $(AVS_OUT_DIR)/Integration/test/AlertsIntegrationTest $(TARGET_DIR)/usr/bin
 	cp $(AVS_OUT_DIR)/Integration/test/AlexaCommunicationsLibraryTest  $(TARGET_DIR)/usr/bin
@@ -122,6 +127,7 @@ define AVS_SDK_INSTALL_TARGET_CMDS
 	cp $(AVS_OUT_DIR)/Integration/test/AlexaAuthorizationDelegateTest  $(TARGET_DIR)/usr/bin
 	cp $(AVS_OUT_DIR)/Integration/test/AlexaDirectiveSequencerLibraryTest  $(TARGET_DIR)/usr/bin
 	cp $(AVS_OUT_DIR)/SampleApp/src/SampleApp   $(TARGET_DIR)/usr/bin
+
 	mkdir -p $(TARGET_DIR)/usr/share/avs/
 	cp $(@D)/Media/*.raw $(TARGET_DIR)/usr/bin/
 	cp $(@D)/Media/*.mp3 $(TARGET_DIR)/usr/share/avs/
