@@ -1,0 +1,43 @@
+#!/bin/sh
+
+#get data ubi number
+data_mtd_number=$(cat /proc/mtd | grep  -E "data" | awk -F : '{print $1}' | grep -o '[0-9]\+')
+
+
+if [ ${data_mtd_number} = ""]; then
+    echo "can not get data mtd number, swupdate failed"
+else
+    ubiattach /dev/ubi_ctrl -m ${data_mtd_number}
+	mount -t ubifs /dev/ubi0_0 /mnt
+	if [ -f "/mnt/software.swu" ]; then
+		echo "find software.swu in data, now start update......"
+	    swupdate -l 6 -k /etc/swupdate-public.pem -i /mnt/software.swu
+        if [ $? != 0 ]; then
+            echo "swupdate software.swu from data failed!"
+        else
+            echo "swupdate software.swu from data sucess!"
+            sync
+            sleep 2
+            reboot
+            echo "swupdate reboot now!"
+        fi
+    else
+	    #wait for usb device
+		echo "can not find software.swu in data, now find usb device......"
+		sleep 5
+		if [ -f "/media/software.swu" ]; then
+			swupdate -l 6 -k /etc/swupdate-public.pem -i /media/software.swu
+			if [ $? != 0 ]; then
+				echo "swupdate software.swu from usb failed!"
+			else
+				echo "swupdate software.swu from usb sucess!"
+				sync
+				sleep 2
+				reboot
+				echo "swupdate reboot now!"
+			fi
+		else
+			echo "no software.swu found in usb device"
+		fi
+	fi
+fi

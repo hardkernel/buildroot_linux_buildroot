@@ -1,0 +1,45 @@
+software =
+{
+	version = "1.0.1";
+	hardware-compatibility: [ "1.0" ];
+	partitions: (
+		{
+			name = "rootfs";
+			size = 293695488;
+			device = "mtd5";
+		}
+	);
+	images: (
+		{
+			filename = "rootfs.ubifs";
+			volume = "rootfs";
+		},
+		{
+			filename = "boot.img";
+			device = "/dev/mtd4";
+			type = "flash";
+		},
+		{
+			filename = "u-boot.bin.usb.bl2";
+			device = "/dev/mtd0";
+			type = "flash";
+		},
+		{
+			filename = "u-boot.bin.usb.tpl";
+			device = "/dev/mtd1";
+			type = "flash";
+		}
+	);
+	scripts: (
+		{
+			filename = "update.sh";
+			type = "shellscript";
+		}
+	);
+	uboot: (
+		{
+			name = "upgrade_step";
+			value = "1";
+		}
+	);
+}

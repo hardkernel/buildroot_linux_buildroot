@@ -1,0 +1,275 @@
+--- swupdate-2017.07/bootloader/none.c	2017-07-26 23:29:02.000000000 +0800
++++ swupdate-2017.07/bootloader/none.c	2017-10-19 11:36:20.235382600 +0800
+@@ -19,24 +19,75 @@
+  */
+ 
+ #include <unistd.h>
++#include <stdio.h>
++#include <string.h>
+ #include "bootloader.h"
++//#include "ubootenv.h"
++
++int bootloader_env_init()
++{
++	bootenv_init();
++	return 0;
++}
++
+ int bootloader_env_set(const char __attribute__ ((__unused__)) *name,
+ 			const char __attribute__ ((__unused__)) *value)
+ {
++	bootenv_update(name, value);
+ 	return 0;
+ }
+ 
+ int bootloader_env_unset(const char __attribute__ ((__unused__)) *name)
+ {
++	bootenv_update(name, "");
+ 	return 0;
+ }
+ 
+ char *bootloader_env_get(const char __attribute__ ((__unused__)) *name)
+ {
+-	return NULL;
++    return bootenv_get(name);
++	//return NULL;
+ }
+ 
+ int bootloader_apply_list(const char __attribute__ ((__unused__)) *filename)
+ {
+-	return 0;
++	FILE *fp = NULL;
++	int ret = 0;
++	char *line = NULL, *key = NULL, *value = NULL;
++	size_t len = 0;
++	/* open script generated during sw-description parsing */
++	fp = fopen(filename, "rb");
++	if (!fp) {
++		printf("Failed to open filename: %s\n", filename);
++		ret = -1;
++		goto cleanup;
++	}
++
++	/* load  varname-value pairs from script into grubenv dictlist */
++	/* Note that variables with no value assigned are skipped now.
++	 * We should consider whether we want to replicate U-Boot behavior
++	 * (unset if no value given). GRUB env tool distinguishes unsetting
++	 * (removing) variable from environment and setting variable to an
++	 * empty string (NULL) as two actions. We should think about if if it
++	 * turns oout to be desired
++	 */
++	while ((getline(&line, &len, fp)) != -1) {
++		key = strtok(line, " \t\n");
++		value = strtok(NULL, " \t\n");
++		if (value != NULL && key != NULL) {
++			ret = bootloader_env_set( key, value);
++			if (ret) {
++				printf("Adding pair [%s] = %s into dictionary"
++					"list failed\n", key, value);
++				goto cleanup;
++			}
++		}
++	}
++
++cleanup:
++	if (fp) fclose(fp);
++	/* free(null) should not harm anything */
++	free(line);
++
++	return ret;
+ }
+--- swupdate-2017.07/core/swupdate.c	2017-07-26 23:29:02.000000000 +0800
++++ swupdate-2017.07/core/swupdate.c	2017-10-19 16:43:29.526554324 +0800
+@@ -105,6 +105,7 @@
+ 	{"webserver", required_argument, NULL, 'w'},
+ #endif
+ 	{"check", no_argument, NULL, 'c'},
++	{"recovery", no_argument, NULL, 'r'},
+ 	{"postupdate", required_argument, NULL, 'p'},
+ 	{NULL, 0, NULL, 0}
+ };
+@@ -512,7 +513,7 @@
+ #endif
+ 	memset(main_options, 0, sizeof(main_options));
+ 	memset(image_url, 0, sizeof(image_url));
+-	strcpy(main_options, "vhi:e:l:Lcf:p:");
++	strcpy(main_options, "vhi:e:l:Lcrf:p:");
+ #ifdef CONFIG_MTD
+ 	strcat(main_options, "b:");
+ #endif
+@@ -669,6 +670,9 @@
+ 		case 'c':
+ 			opt_c = 1;
+ 			break;
++		case 'r':
++			swcfg.recovery_flag = 1;
++			break;
+ 		case 'p':
+ 			strncpy(swcfg.globals.postupdatecmd, optarg,
+ 				sizeof(swcfg.globals.postupdatecmd));
+@@ -791,6 +795,8 @@
+ 	if(!get_hw_revision(&swcfg.hw))
+ 		printf("Running on %s Revision %s\n", swcfg.hw.boardname, swcfg.hw.revision);
+ 
++	bootloader_env_init();
++
+ 	print_registered_handlers();
+ 	if (swcfg.globals.syslog_enabled) {
+ 		if (syslog_init()) {
+--- swupdate-2017.07/corelib/stream_interface.c	2017-07-26 23:29:02.000000000 +0800
++++ swupdate-2017.07/corelib/stream_interface.c	2017-10-19 16:45:11.453204473 +0800
+@@ -83,6 +83,50 @@
+ 
+ static struct installer inst;
+ 
++
++static int extract_file_to_data(int fd, const char *fname, unsigned long *poffs)
++{
++	char output_file[MAX_IMAGE_FNAME];
++	struct filehdr fdh;
++	int fdout;
++	uint32_t checksum;
++
++	if (extract_cpio_header(fd, &fdh, poffs)) {
++		return -1;
++	}
++	if (strcmp(fdh.filename, fname)) {
++		TRACE("description file name not the first of the list: %s instead of %s",
++			fdh.filename,
++			fname);
++		return -1;
++	}
++	if (snprintf(output_file, sizeof(output_file), "%s%s", "/data/",
++		     fdh.filename) >= (int)sizeof(output_file)) {
++		ERROR("Path too long: %s%s", "/data/", fdh.filename);
++		return -1;
++	}
++	TRACE("Found file:\n\tfilename %s\n\tsize %u", fdh.filename, (unsigned int)fdh.size);
++
++	fdout = openfileoutput(output_file);
++	if (fdout < 0)
++		return -1;
++
++	if (copyfile(fd, &fdout, fdh.size, poffs, 0, 0, 0, &checksum, NULL, 0, NULL) < 0) {
++		close(fdout);
++		return -1;
++	}
++	if (checksum != (uint32_t)fdh.chksum) {
++		close(fdout);
++		ERROR("Checksum WRONG ! Computed 0x%ux, it should be 0x%ux\n",
++			(unsigned int)checksum, (unsigned int)fdh.chksum);
++			return -1;
++	}
++	close(fdout);
++
++	return 0;
++}
++
++
+ static int extract_file_to_tmp(int fd, const char *fname, unsigned long *poffs)
+ {
+ 	char output_file[MAX_IMAGE_FNAME];
+@@ -321,43 +365,61 @@
+ 		mtd_cleanup();
+ 		scan_mtd_devices();
+ #endif
+-		/*
+-		 * extract the meta data and relevant parts
+-		 * (flash images) from the install image
+-		 */
+-		ret = extract_files(inst.fd, software);
+-		close(inst.fd);
+-
+-		/* do carry out the installation (flash programming) */
+-		if (ret == 0) {
+-			TRACE("Valid image found: copying to FLASH");
+-
+-			/*
+-			 * If an image is loaded, the install
+-			 * must be successful. Set we have
+-			 * initiated an update
+-			 */
+-			bootloader_env_set("recovery_status", "in_progress");
+-
+-			notify(RUN, RECOVERY_NO_ERROR, "Installation in progress");
+-			ret = install_images(software, 0, 0);
+-			if (ret != 0) {
+-				bootloader_env_set("recovery_status", "failed");
+-				notify(FAILURE, RECOVERY_ERROR, "Installation failed !");
++		if (software->recovery_flag == 1) {
++			unsigned long offset = 0;
++			ret = extract_file_to_data(inst.fd, "software.swu", &offset);
++			if (ret == 0) {
++				close(inst.fd);
++				inst.last_install = SUCCESS;
++				bootloader_env_set("upgrade_step", "3");
++				notify(SUCCESS, RECOVERY_NO_ERROR, "SWUPDATE download successful !, reboot...");
++				umount("/data");
++				system("reboot");
++				sleep(5);
++			} else {
++				close(inst.fd);
+ 				inst.last_install = FAILURE;
++				notify(FAILURE, RECOVERY_ERROR, "Image download error. Not installing ...");
++			}
++		} else {
++			/*
++		 	* extract the meta data and relevant parts
++		 	* (flash images) from the install image
++		 	*/
++			ret = extract_files(inst.fd, software);
++			close(inst.fd);
++
++			/* do carry out the installation (flash programming) */
++			if (ret == 0) {
++				TRACE("Valid image found: copying to FLASH");
+ 
+-			} else {
+ 				/*
+-				 * Clear the recovery variable to indicate to bootloader
+-				 * that it is not required to start recovery again
++				 * If an image is loaded, the install
++				 * must be successful. Set we have
++				 * initiated an update
+ 				 */
+-				bootloader_env_unset("recovery_status");
+-				notify(SUCCESS, RECOVERY_NO_ERROR, "SWUPDATE successful !");
+-				inst.last_install = SUCCESS;
++				bootloader_env_set("recovery_status", "in_progress");
++
++				notify(RUN, RECOVERY_NO_ERROR, "Installation in progress");
++				ret = install_images(software, 0, 0);
++				if (ret != 0) {
++					bootloader_env_set("recovery_status", "failed");
++					notify(FAILURE, RECOVERY_ERROR, "Installation failed !");
++					inst.last_install = FAILURE;
++
++				} else {
++					/*
++					 * Clear the recovery variable to indicate to bootloader
++					 * that it is not required to start recovery again
++					 */
++					bootloader_env_unset("recovery_status");
++					notify(SUCCESS, RECOVERY_NO_ERROR, "SWUPDATE successful !");
++					inst.last_install = SUCCESS;
++				}
++			} else {
++				inst.last_install = FAILURE;
++				notify(FAILURE, RECOVERY_ERROR, "Image invalid or corrupted. Not installing ...");
+ 			}
+-		} else {
+-			inst.last_install = FAILURE;
+-			notify(FAILURE, RECOVERY_ERROR, "Image invalid or corrupted. Not installing ...");
+ 		}
+ 
+ 		swupdate_progress_end(inst.last_install);
+--- swupdate-2017.07/include/swupdate.h	2017-07-26 23:29:02.000000000 +0800
++++ swupdate-2017.07/include/swupdate.h	2017-10-19 11:46:14.158824900 +0800
+@@ -136,6 +136,7 @@
+ 	struct proclist extprocs;
+ 	void *dgst;	/* Structure for signed images */
+ 	struct swupdate_global_cfg globals;
++	int recovery_flag;
+ 	const char *embscript;
+ };
+ 

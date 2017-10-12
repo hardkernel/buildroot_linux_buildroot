@@ -26,6 +26,7 @@ endef
 
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
+RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 UPGRADE_DIR_OVERLAY := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR_OVERLAY))
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
 ifneq ($(UPGRADE_DIR_OVERLAY),)
@@ -36,6 +37,10 @@ rootfs-usb-image-pack-ubifs:
 	TOOL_DIR=$(HOST_DIR)/usr/bin \
 	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
 	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
+	$(HOST_DIR)/usr/bin/ota_package_create.sh
 else
 rootfs-usb-image-pack-ubifs:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
@@ -43,6 +48,10 @@ rootfs-usb-image-pack-ubifs:
 	TOOL_DIR=$(HOST_DIR)/usr/bin \
 	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
 	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
+	$(HOST_DIR)/usr/bin/ota_package_create.sh
 endif
 ROOTFS_UBIFS_POST_TARGETS += rootfs-usb-image-pack-ubifs
 endif #BR2_TARGET_USBTOOL_AMLOGIC

@@ -1,0 +1,15 @@
+./lib/libdl.so.2
+./lib/libdl-2.23.so
+./etc/init.d/S01swupdate
+./etc/swupdate-public.pem
+./etc/hotplug
+./etc/hotplug/insert.sh
+./etc/hotplug/remove.sh
+./etc/hwrevision
+./etc/sw-versions
+./usr/lib/libconfig.so.9.2.0
+./usr/lib/libconfig.so.9
+./usr/lib/libz.so.1
+./usr/lib/libz.so.1.2.11
+./usr/lib/libcrypto.so.1.0.0
+./usr/bin/swupdate

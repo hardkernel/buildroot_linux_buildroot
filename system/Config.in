@@ -481,6 +481,12 @@ config BR2_ROOTFS_UPGRADE_DIR
 	help
 	  amlogic upgrade configure directories"
 
+config BR2_RECOVERY_OTA_DIR
+	string "amlogic recovery configure directories"
+	default ""
+	help
+	  amlogic recovery configure directories"
+
 config BR2_ROOTFS_UPGRADE_DIR_OVERLAY
          string "amlogic p231 upgrade configure directories"
          default ""
