@@ -274,7 +274,6 @@
 ./usr/sbin/ubiformat
 ./usr/sbin/ubinfo
 ./usr/sbin/ubimkvol
-./usr/sbin/ubirmvol
 ./lib64
 ./proc
 ./dev

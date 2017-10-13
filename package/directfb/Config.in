@@ -116,7 +116,7 @@ config BR2_PACKAGE_DIRECTFB_SERIALMOUSE
 config BR2_PACKAGE_DIRECTFB_TSLIB
 	bool "enable touchscreen support"
 	depends on !BR2_STATIC_LIBS # tslib
-	default y
+	default n
 	select BR2_PACKAGE_TSLIB
 
 comment "touchscreen support needs a toolchain w/ dynamic library"

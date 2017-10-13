@@ -294,11 +294,12 @@ define QT5BASE_INSTALL_TARGET_FONTS
 endef
 endif
 
+# modified qt examples build and no install
 define QT5BASE_INSTALL_TARGET_EXAMPLES
-	if [ -d $(STAGING_DIR)/usr/lib/qt/examples/ ] ; then \
-		mkdir -p $(TARGET_DIR)/usr/lib/qt/examples ; \
-		cp -dpfr $(STAGING_DIR)/usr/lib/qt/examples/* $(TARGET_DIR)/usr/lib/qt/examples ; \
-	fi
+#	if [ -d $(STAGING_DIR)/usr/lib/qt/examples/ ] ; then \
+#		mkdir -p $(TARGET_DIR)/usr/lib/qt/examples ; \
+#		cp -dpfr $(STAGING_DIR)/usr/lib/qt/examples/* $(TARGET_DIR)/usr/lib/qt/examples ; \
+#	fi
 endef
 
 ifeq ($(BR2_STATIC_LIBS),y)
