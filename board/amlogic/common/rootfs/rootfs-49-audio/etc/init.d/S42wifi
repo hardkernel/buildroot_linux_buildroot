@@ -32,7 +32,7 @@ ssid=amlogic-audio-$ap_name
 password=12345678
 
 echo 0 > /etc/hostapd_temp.conf
-echo "interface=wlan0
+echo "interface=wlan1
 driver=nl80211
 ctrl_interface=/var/run/hostapd
 ssid=${ssid}
@@ -93,9 +93,8 @@ case "$1" in
 		start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
 		sleep 1
 		if [ $? -eq 0 ]; then
-			dhd_priv iapsta_init mode apsta
-			dhd_priv iapsta_config ifname wlan1 ssid $ssid chan 6 amode wpa2psk emode aes key 12345678
-			dhd_priv iapsta_enable ifname wlan1
+			iw wlan0 interface add wlan1 type managed
+			hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
 			ifconfig wlan1 192.168.2.1
 			start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
 		fi
@@ -109,7 +108,6 @@ case "$1" in
         killall wpa_supplicant
         killall dnsmasq
         killall dhcpcd
-        dhd_priv iapsta_disable ifname wlan1
         echo -n "Stopping supplicant..."
         start-stop-daemon -K -o -p $PIDFILE1
         start-stop-daemon -K -o -p $PIDFILE3

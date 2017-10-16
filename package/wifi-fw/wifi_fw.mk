@@ -396,6 +396,7 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/qcom/config/ath10k/QCA9888/hw2.0/*.bin $(TARGET_DIR)/lib/firmware/ath10k/QCA9888/hw2.0/; \
 		;; \
 esac;
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin
 endef
 
 
