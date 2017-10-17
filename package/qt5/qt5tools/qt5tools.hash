@@ -3,3 +3,6 @@ sha256 db2bb4318786257a47172c377d9c456d5d5ec760d5d69240a4693dc87989e1b7 qttools-
 
 # Hash from: http://download.qt.io/official_releases/qt/5.8/5.8.0/submodules/qttools-opensource-src-5.8.0.tar.xz
 sha256 95ec8e76d393b6ba26ffff5041fce41946d2bf3aec1402c6533e24d9fc269d83  qttools-opensource-src-5.8.0.tar.xz
+
+# Hash from: http://download.qt.io/official_releases/qt/5.9/5.9.2/submodules/qttools-opensource-src-5.9.2.tar.xz
+sha256 2bb996118b68e9939c185a593837e5a41bb3667bf5d4d5134fac02598bd2d81a  qttools-opensource-src-5.9.2.tar.xz

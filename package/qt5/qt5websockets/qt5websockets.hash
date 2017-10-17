@@ -3,3 +3,6 @@ sha256 3cd9d4bbff8e6be5e252f00fc9ecb9ac2d8a193020288c7d1e82583daeb5ba35 qtwebsoc
 
 # Hash from: http://download.qt.io/official_releases/qt/5.8/5.8.0/submodules/qtwebsockets-opensource-src-5.8.0.tar.xz
 sha256 aa110af297d0d3239f346c3ee0cd43621adf463eb62a04941bbfe3fcccb845f5  qtwebsockets-opensource-src-5.8.0.tar.xz
+
+# Hash from: http://download.qt.io/official_releases/qt/5.9/5.9.2/submodules/qtwebsockets-opensource-src-5.9.2.tar.xz
+sha256 afddc1bd915ea47ccbec968a7af02e2a5405c717830e4671924fe35b55e81674  qtwebsockets-opensource-src-5.9.2.tar.xz

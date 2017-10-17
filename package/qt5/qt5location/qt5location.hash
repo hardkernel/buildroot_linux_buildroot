@@ -3,3 +3,6 @@ sha256 7a8995206ed0220f943a33c037527a1a8243d5386f5ca77bf88152675c28d23a qtlocati
 
 # Hash from: http://download.qt.io/official_releases/qt/5.8/5.8.0/submodules/qtlocation-opensource-src-5.8.0.tar.xz
 sha256 48a1e39ed989f0133aeacaa379e9c3958ec9b08c043626bba503619891d21abb  qtlocation-opensource-src-5.8.0.tar.xz
+
+# Hash from: http://download.qt.io/official_releases/qt/5.9/5.9.2/submodules/qtlocation-opensource-src-5.9.2.tar.xz
+sha256 c81a42e44ebd4e9c33f7195e86af3deab9fde72ef0ad8dcb04acee250d356b0c  qtlocation-opensource-src-5.9.2.tar.xz

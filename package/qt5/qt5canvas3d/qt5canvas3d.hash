@@ -3,3 +3,6 @@ sha256 d7584d006b03f99692ccabce922e755a6f12bb1ed1fbc99c2b84842b9e0aa0ad qtcanvas
 
 # Hash from: http://download.qt.io/official_releases/qt/5.8/5.8.0/submodules/qtcanvas3d-opensource-src-5.8.0.tar.xz
 sha256 5446f790f526f582df7790e1e1442357f61aac9c23ea9b00d4a791c9d78ccaa3  qtcanvas3d-opensource-src-5.8.0.tar.xz
+
+# Hash from: http://download.qt.io/official_releases/qt/5.9/5.9.2/submodules/qtcanvas3d-opensource-src-5.9.2.tar.xz
+sha256 84a8d66c2c35b67af84376037cac71fe77a105df09ffef7906a9cb1aeafb3eea  qtcanvas3d-opensource-src-5.9.2.tar.xz

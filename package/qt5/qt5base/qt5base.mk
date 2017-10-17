@@ -38,7 +38,7 @@ QT5BASE_CONFIGURE_OPTS += \
 	-no-cups \
 	-no-iconv \
 	-system-zlib \
-	-system-pcre \
+	-qt-pcre \
 	-no-pch \
 	-shared
 

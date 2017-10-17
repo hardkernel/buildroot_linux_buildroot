@@ -6,3 +6,7 @@ md5    ba631ebfd580b26fa6935d3ff72f8d37                                 qtwaylan
 
 # Hash from: http://download.qt.io/official_releases/qt/5.8/5.8.0/submodules/qtwayland-opensource-src-5.8.0.tar.xz.mirrorlist
 md5    0a40bd721bd5e1630601beab660c6ea9                                 qtwayland-opensource-src-5.8.0.tar.xz
+
+
+# Hash from: http://download.qt.io/official_releases/qt/5.9/5.9.2/submodules/qtwayland-opensource-src-5.9.2.tar.xz.mirrorlist
+md5    8d7fa59a40e90ea334a63288b3543ce8                                 qtwayland-opensource-src-5.9.2.tar.xz
