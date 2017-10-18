@@ -103,9 +103,14 @@ if [ ${update_sparse_img} -eq 1 ]; then
     fi
 fi
 ####Step 3: pack none-secureboot burning image
-if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+if [ ${BR2_TARGET_BOARD_PLATFORM} = "mesonaxg"  ]
 then
-	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+    if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+    then
+	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+	else
+	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+	fi
 else
 	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
 fi
@@ -123,9 +128,14 @@ if [ "${secureboot}" != "y" ]; then
 fi
 
 ####Step 4: pack secureboot burning image
-if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+if [ ${BR2_TARGET_BOARD_PLATFORM} = "mesonaxg"  ]
 then
-	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
+    if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+    then
+	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
+    else
+	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
+    fi
 else
 	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
 fi
