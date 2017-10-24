@@ -193,6 +193,7 @@ function system(){
 };
 function show_device_info(){
 
+	send_commond("runswupdate");
 	var response_dev_info = command_xmlhttp.responseText;
 	if(response_dev_info == "")
 		return;
@@ -210,7 +211,6 @@ function show_device_info(){
 	htmlNodes_dev_info += '<li class="list-group-item" align="center" >MAC; : ' + dev_info[7].info+'</a></li>'
 
 	$('#dev_info_show').append(htmlNodes_dev_info);
-	send_commond("runswupdate");
 };
 
 function stop_swupdate(){
