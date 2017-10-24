@@ -6,8 +6,18 @@ chmod 0700 /run/wayland
 
 export XDG_RUNTIME_DIR=/run/wayland/
 
-NAME=weston
-START_PARAMTERS="--config=/etc/aml-weston.ini --backend=fbdev-backend.so --tty=1 --device=/dev/fb0 --idle-time=0 --log=/tmp/weston.log"
+MESON_EGL=fbdev
+if [ -f /etc/meson_egl.conf ];then
+    MESON_EGL=`cat /etc/meson_egl.conf`
+fi
+if [ $MESON_EGL == "wayland_drm" ];then
+    NAME=openvt
+    START_PARAMTERS="-vf -c 4 -- /usr/bin/weston-launch --tty=4 -- --config=/etc/aml-weston.ini --log=/tmp/weston.log"
+else
+    NAME=weston
+    START_PARAMTERS="--config=/etc/aml-weston.ini --backend=fbdev-backend.so --tty=1 --device=/dev/fb0 --idle-time=0 --log=/tmp/weston.log"
+fi
+
 DAEMON=/usr/bin/$NAME
 PIDFILE=/var/run/$NAME.pid
 
@@ -18,6 +28,9 @@ case "$1" in
          ;;
      stop)
          echo -n "Stopping weston..."
+         if [ $MESON_EGL == "wayland_drm" ];then
+             killall weston-launch
+         fi
          start-stop-daemon -K -o -p $PIDFILE
          rm -f $PIDFILE
          ;;

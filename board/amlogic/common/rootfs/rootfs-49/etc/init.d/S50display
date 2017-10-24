@@ -4,6 +4,21 @@ HPD_STATE=/sys/class/amhdmitx/amhdmitx0/hpd_state
 DISP_CAP=/sys/class/amhdmitx/amhdmitx0/disp_cap
 DISP_MODE=/sys/class/display/mode
 
+MESON_EGL=fbdev
+if [ -f /etc/meson_egl.conf ];then
+    MESON_EGL=`cat /etc/meson_egl.conf`
+fi
+
+if [ $MESON_EGL == "wayland_fbdev" ];then
+    echo "meson egl: wayland_fbdev"
+elif [ $MESON_EGL == "wayland_drm" ];then
+    echo "meson egl: wayland_drm"
+    echo "drm will configure display modesetting, S50display exit now!!"
+    exit 0
+else
+    echo "meson egl: fbdev"
+fi
+
 case "$1" in
     *)
         hdmi=`cat $HPD_STATE`

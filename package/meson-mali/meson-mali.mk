@@ -12,6 +12,8 @@ MESON_MALI_LIBS =
 
 EGL_PLATFORM_HEADER =
 
+MESON_EGL_CONF = $(TARGET_DIR)/etc/meson_egl.conf
+
 ifneq ($(BR2_PACKAGE_MESON_MALI_VERSION),"")
 MESON_MALI_VERSION = $(call qstrip,$(BR2_PACKAGE_MESON_MALI_VERSION))
 else
@@ -79,18 +81,34 @@ define BASE_INSTALL_TARGET
 	install -m 755 $(MESON_MALI_DIR)/lib/$(MALI_LIB_DIR)/*.so* $(TARGET_DIR)/usr/lib
 	mkdir -p $(TARGET_DIR)/usr/lib/pkgconfig
 	install -m 644 $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
+	touch $(TARGET_DIR)/etc/meson_egl.conf
 endef
 
 ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL),y)
 define WAYLAND_DRM_INSTALL_TARGET
-        cp -df $(MESON_MALI_DIR)/lib/libgbm.so $(TARGET_DIR)/usr/lib
+	cp -df $(MESON_MALI_DIR)/lib/libgbm.so $(TARGET_DIR)/usr/lib
 	install -m 644 $(MESON_MALI_DIR)/lib/pkgconfig/gbm/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
+	echo wayland_drm > $(MESON_EGL_CONF)
+endef
+endif
+
+ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL),y)
+define WAYLAND_FBDEV_INSTALL_TARGET
+        echo wayland_fbdev > $(MESON_EGL_CONF)
+endef
+endif
+
+ifeq ($(BR2_PACKAGE_MESON_MALI_FBDEV_EGL),y)
+define FBDEV_INSTALL_TARGET
+        echo fbdev > $(MESON_EGL_CONF)
 endef
 endif
 
 define MESON_MALI_INSTALL_TARGET_CMDS
 	$(BASE_INSTALL_TARGET)
 	$(WAYLAND_DRM_INSTALL_TARGET)
+        $(WAYLAND_FBDEV_INSTALL_TARGET)
+        $(FBDEV_INSTALL_TARGET)
 endef
 
 
