@@ -38,7 +38,7 @@ fi
 
 ubiformat /dev/mtd${data_mtd_number}
 ubiattach /dev/ubi_ctrl -m ${data_mtd_number}
-ubimkvol /dev/ubi1 -s 120MiB -N data
+ubimkvol /dev/ubi1 -s 160MiB -N data
 mount -t ubifs /dev/ubi1_0 /data	
 }
 
