@@ -30,6 +30,7 @@ ROOTFS_CPIO_PRE_GEN_HOOKS += ROOTFS_CPIO_ADD_INIT
 RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(BR2_TARGET_ROOTFS_INITRAMFS_LIST),"")
 ifeq ($(BR2_PACKAGE_SWUPDATE),y)
+ifneq ($(RECOVERY_OTA_DIR),)
 define ROOTFS_CPIO_CMD
 	cd $(TARGET_DIR) && cat $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
 	cd -
@@ -40,6 +41,7 @@ define ROOTFS_CPIO_CMD
 	cat $(RECOVERY_OTA_DIR)/../swu/ramfslist-recovery-need >> $(HOST_DIR)/usr/bin/ramfslist-recovery
 	cd $(TARGET_DIR)_r && cat $(HOST_DIR)/usr/bin/ramfslist-recovery | cpio --quiet -o -H newc > $(BINARIES_DIR)/recovery.cpio
 endef
+endif
 else
 define ROOTFS_CPIO_CMD
 	cd $(TARGET_DIR) && cat $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
