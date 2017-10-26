@@ -48,7 +48,7 @@ index 86606f7..1db05f2 100644
 +  config_file_real_path = realpath(CONFIG_FILE, NULL);
 +  if(config_file_real_path != NULL) {
 +     if (config_read_file(&cfg, config_file_real_path)) {
-+		if (!config_lookup_string(&cfg, "dlna-sound-card.hw", (const char**)&gst_soundcard_device))
++		if (!config_lookup_string(&cfg, "gst-sound-card.hw", (const char**)&gst_soundcard_device))
 +			gst_soundcard_device=DEFAULT_DEVICE;
 +	 }
 +  }
