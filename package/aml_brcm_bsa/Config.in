@@ -8,3 +8,9 @@ config BR2_AML_BRCM_BSA_MEM_REDUCTION
     bool "broadcom bsa mem reduction configure"
     help
     broadcom bsa mem reduction configure
+
+config BR2_AML_BT_DSPC
+    bool "bluetooth audio capture use libdspc"
+    default y
+    help
+	bluetooth audio capture use libdspc
