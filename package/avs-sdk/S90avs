@@ -4,11 +4,13 @@ CONFIG=/etc/AlexaClientSDKConfig.json
 PROCESS=/usr/bin/SampleApp
 
 case "$1" in
-    start|stop|restart) ;;
+    stop|restart) ;;
+    start)
     modprobe snd-aloop
     loopback_ctr=`amixer controls | grep "Loopback Enable"`
     amixer cset $loopback_ctr 1
     /usr/bin/speaker_process &
+    ;;
     netready)
     /etc/init.d/S49ntp stop
     /etc/init.d/S49ntp start
