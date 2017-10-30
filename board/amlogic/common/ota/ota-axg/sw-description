@@ -15,6 +15,10 @@ software =
 			volume = "rootfs";
 		},
 		{
+			filename = "dtb.img";
+			device = "/dev/dtb";
+		},
+		{
 			filename = "boot.img";
 			device = "/dev/mtd4";
 			type = "flash";
