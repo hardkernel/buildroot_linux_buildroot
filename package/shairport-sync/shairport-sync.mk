@@ -31,6 +31,12 @@ else
 SHAIRPORT_SYNC_CONF_OPTS += --with-tinysvcmdns
 endif
 
+ifeq ($(BR2_aarch64),y)
+SHAIRPORT_SYNC_CONFIG_ARCH = shairport-sync-64.conf
+else
+SHAIRPORT_SYNC_CONFIG_ARCH = shairport-sync-32.conf
+endif
+
 # OpenSSL or PolarSSL
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 SHAIRPORT_SYNC_DEPENDENCIES += openssl
@@ -48,7 +54,7 @@ endif
 define SHAIRPORT_SYNC_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/shairport-sync \
 		$(TARGET_DIR)/usr/bin/shairport-sync
-	$(INSTALL) -D -m 0644 package/shairport-sync/shairport-sync.conf \
+	$(INSTALL) -D -m 0644 package/shairport-sync/$(SHAIRPORT_SYNC_CONFIG_ARCH) \
 		$(TARGET_DIR)/etc/shairport-sync.conf
 endef
 
