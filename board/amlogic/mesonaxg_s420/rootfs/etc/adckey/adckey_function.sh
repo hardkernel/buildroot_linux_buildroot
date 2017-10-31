@@ -20,12 +20,7 @@ wifiChangeToApMode()
 
 powerStateChange()
 {
-   if [ -f $powerResumeFlag ];then
-       rm $powerResumeFlag
-   else
        echo "mem" > $powerStateFile
-       touch $powerResumeFlag
-   fi
 }
 
 volumeUpAction()
