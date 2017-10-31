@@ -11,6 +11,6 @@ config BR2_AML_BRCM_BSA_MEM_REDUCTION
 
 config BR2_AML_BT_DSPC
     bool "bluetooth audio capture use libdspc"
-    default y
+    default n
     help
 	bluetooth audio capture use libdspc
