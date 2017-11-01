@@ -37,7 +37,11 @@ else
 GSTTREAMER1_SOUNDCARD_CONFIG_ARCH = gst-soundcard-32.conf
 endif
 
-define GSTREAMER1_INSTALL_TARGET_CMDS
+define GSTREAMER1_INSTALL_TARGET_FIXUP
  ${INSTALL} -D -m 0755  $(TOPDIR)/package/gstreamer1/gstreamer1/$(GSTTREAMER1_SOUNDCARD_CONFIG_ARCH)  ${TARGET_DIR}/etc/gst-soundcard.conf
 endef
+
+GSTREAMER1_POST_INSTALL_TARGET_HOOKS += GSTREAMER1_INSTALL_TARGET_FIXUP
+
+
 $(eval $(autotools-package))
