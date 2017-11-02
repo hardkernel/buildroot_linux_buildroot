@@ -4,6 +4,12 @@ config BR2_PACKAGE_MEDIA_MODULES
 	help
 	  media drivers
 
+config BR2_PACKAGE_MEDIA_MODLUES_VERSION
+	string "media modules version"
+	depends on BR2_PACKAGE_MEDIA_MODULES
+	help
+		match with kernel 4.9
+
 config BR2_PACKAGE_MEDIA_MODLUES_GIT_VERSION
 	string "media branch"
 	depends on BR2_PACKAGE_MEDIA_MODULES
