@@ -51,9 +51,9 @@ RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(RECOVERY_OTA_DIR),)
 rootfs-ota-swu-pack-ubifs:
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
-	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand $(BINARIES_DIR)/sw-description
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
-	$(HOST_DIR)/usr/bin/ota_package_create.sh
+	$(HOST_DIR)/usr/bin/ota_package_create.sh nand
 ROOTFS_UBIFS_POST_TARGETS += rootfs-ota-swu-pack-ubifs
 endif
 

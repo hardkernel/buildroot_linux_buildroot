@@ -71,6 +71,16 @@ endif #BR2_TARGET_UBOOT_AMLOGIC_2015
 ROOTFS_EXT2_POST_TARGETS += rootfs-usb-image-pack
 endif #BR2_TARGET_USBTOOL_AMLOGIC
 
+RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
+ifneq ($(RECOVERY_OTA_DIR),)
+rootfs-ota-swu-pack-ext4fs:
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-emmc $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
+	$(HOST_DIR)/usr/bin/ota_package_create.sh emmc
+ROOTFS_EXT2_POST_TARGETS += rootfs-ota-swu-pack-ext4fs
+endif
+
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
 SD_BOOT = $(BINARIES_DIR)/u-boot.bin.sd.bin
 else
