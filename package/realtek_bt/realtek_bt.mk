@@ -52,10 +52,7 @@ define REALTEK_BT_INSTALL_TARGET_CMDS
 
     #install firmware
 	mkdir -p $(TARGET_DIR)/lib/firmware/rtlbt
-	$(INSTALL) -D -m 0644 $(@D)/fw/rtl8723d_config $(TARGET_DIR)/lib/firmware/rtlbt
-	$(INSTALL) -D -m 0644 $(@D)/fw/rtl8723d_fw $(TARGET_DIR)/lib/firmware/rtlbt
-	$(INSTALL) -D -m 0644 $(@D)/fw/rtl8723du_config $(TARGET_DIR)/lib/firmware/rtlbt
-	$(INSTALL) -D -m 0644 $(@D)/fw/rtl8723du_fw $(TARGET_DIR)/lib/firmware/rtlbt
+	$(INSTALL) -D -m 0644 $(@D)/fw/* $(TARGET_DIR)/lib/firmware/rtlbt
 
 endef
 

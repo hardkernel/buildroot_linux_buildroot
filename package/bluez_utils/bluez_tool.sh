@@ -33,12 +33,23 @@ Blue_start()
 		hciattach -s 115200 /dev/ttyS1 any
 	fi
 	sleep 1
-	hciconfig hci0
-	if [ $? -eq 1 ];then
-		echo
-		echo "hci0 not show up, bluez start fail!!"
-		exit 1
+	local cnt=10
+	while [ $cnt -gt 0 ]; do
+		hciconfig hci0 2> /dev/null
+		if [ $? -eq 1 ];then
+			echo "checking hci0 ......."
+			sleep 1
+			cnt=$((cnt - 1))
+		else
+			break
+		fi
+	done
+
+	if [ $cnt -eq 0 ];then
+		echo "hcio shows up fail!!!"
+		exit 0
 	fi
+
 	hciconfig hci0 up
 	hciconfig hci0 piscan
 
