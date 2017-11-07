@@ -7,8 +7,11 @@ case "$1" in
     stop|restart) ;;
     start)
     modprobe snd-aloop
-    loopback_ctr=`amixer controls | grep "Loopback Enable"`
-    amixer cset $loopback_ctr 1
+
+    amixer_ctr=`amixer controls | grep "Loopback Enable"`
+    loop_id=${amixer_ctr%%,*}
+    amixer cset $loop_id 1
+
     /usr/bin/speaker_process &
     ;;
     netready)
