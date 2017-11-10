@@ -41,7 +41,7 @@ Blue_start()
 
     cd /etc/bsa/config
     echo "start broadcom bluetooth server bsa_sever"
-    start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -all=0 -b /etc/bsa/config/btsnoop.log -p $hcd_file -d /dev/ttyS1 &
+    start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -all=0 -b /etc/bsa/config/btsnoop.log -p $hcd_file -d /dev/ttyS1 &
     sleep 2
 
     echo "start broadcom bluetooth app_musicBox"
