@@ -62,6 +62,12 @@ PRODUCT_LOGO_IMG_PACK=${BINARIES_DIR}/logo.img
 IMAGE_UBIFS=${BINARIES_DIR}/rootfs.ubifs
 IMAGE_UBI=${BINARIES_DIR}/rootfs.ubi
 
+echo "${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}"
+${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}
+if [ $? -ne 0 ]; then
+    echo fail to generate logo image;
+    rm ${PRODUCT_LOGO_IMG_PACK}
+fi
 ####Step 1: rename dtb to dtb.img
 #change gxb_p200.db to dtb.img
 #Note: if you using more than one dtb, using 'vendor/amlogic/tools/dtbTool' to pack all your dtbs into the dtb.img
@@ -74,12 +80,6 @@ if [ -f ${IMAGE_UBIFS} ]; then
 	echo -e "\n !!!!!! use ubifs \n"
 	update_sparse_img=0
 else
-	echo "${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}"
-	${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}
-	if [ $? -ne 0 ]; then
-    	echo fail to generate logo image;
-    	rm ${PRODUCT_LOGO_IMG_PACK}
-	fi
 
 	ext4img=${PRODUCT_AML_IMG_PACK_DIR}/rootfs.ext2
 	sparseimg=${ext4img}.img2simg
