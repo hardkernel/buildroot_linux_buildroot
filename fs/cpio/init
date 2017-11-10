@@ -16,7 +16,7 @@ get_opt() {
 
 #get system ubi number
 system_mtd_number=$(cat /proc/mtd | grep  -E "system" | awk -F : '{print $1}' | grep -o '[0-9]\+')
-if [ ${system_mtd_number} = ""]; then
+if [ -z "${system_mtd_number}" ]; then
 system_mtd_number=$(cat /proc/mtd | grep  -E "upgrade" | awk -F : '{print $1}' | grep -o '[0-9]\+')
 fi
 
