@@ -1,6 +1,5 @@
 #!/bin/sh
 
-. ${BINARIES_DIR}/../.config
 
 #only one input param, output signed bootloader and efuse patten
 #param1 is not signed u-boot.bin
@@ -60,13 +59,8 @@ PRODUCT_AML_IMG_PACK_DIR=${BINARIES_DIR}
 PRODUCT_LOGO_IMG_PACK_TOOL=${TOOL_DIR}/res_packer
 PRODUCT_LOGO_IMG_PACK_DIR=${BINARIES_DIR}/logo_img_files
 PRODUCT_LOGO_IMG_PACK=${BINARIES_DIR}/logo.img
-
-echo "${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}"
-${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}
-if [ $? -ne 0 ]; then
-    echo fail to generate logo image;
-    rm ${PRODUCT_LOGO_IMG_PACK}
-fi
+IMAGE_UBIFS=${BINARIES_DIR}/rootfs.ubifs
+IMAGE_UBI=${BINARIES_DIR}/rootfs.ubi
 
 ####Step 1: rename dtb to dtb.img
 #change gxb_p200.db to dtb.img
@@ -74,12 +68,19 @@ fi
 #echo "move your dtbs to add dtb.img"
 #ln -sf `ls ${PRODUCT_AML_IMG_PACK_DIR}/*.dtb` ${PRODUCT_AML_IMG_PACK_DIR}/dtb.img
 
-####Step 2: compress 1g 
+####Step 2: compress 1g
 echo PRODUCT_AML_IMG_PACK_DIR:${PRODUCT_AML_IMG_PACK_DIR}
-if [ ${BR2_PACKAGE_MTD_MKFSUBIFS} = "y" ]; then 
+if [ -f ${IMAGE_UBIFS} ]; then
 	echo -e "\n !!!!!! use ubifs \n"
 	update_sparse_img=0
 else
+	echo "${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}"
+	${PRODUCT_LOGO_IMG_PACK_TOOL} -r ${PRODUCT_LOGO_IMG_PACK_DIR} ${PRODUCT_LOGO_IMG_PACK}
+	if [ $? -ne 0 ]; then
+    	echo fail to generate logo image;
+    	rm ${PRODUCT_LOGO_IMG_PACK}
+	fi
+
 	ext4img=${PRODUCT_AML_IMG_PACK_DIR}/rootfs.ext2
 	sparseimg=${ext4img}.img2simg
 	update_sparse_img=0
@@ -94,22 +95,29 @@ else
            fi
        fi
 fi
-if [ ${update_sparse_img} -eq 1 ]; then 
+if [ ${update_sparse_img} -eq 1 ]; then
     echo "compress 1g ext4 image to compressed sparse format"
     ${PRODUCT_AML_IMG_SIMG_TOOL} ${ext4img} ${sparseimg}
-    if [ ! -f ${sparseimg} ]; then 
+    if [ ! -f ${sparseimg} ]; then
         echo "fail to compress ext4 img to sparse format"
         exit 1
     fi
 fi
-####Step 3: pack none-secureboot burning image
-if [ ${BR2_TARGET_BOARD_PLATFORM} = "mesonaxg"  ]
+#####axg platform jugd#####
+PLATFORM_TARGET=""
+ls ${BINARIES_DIR}/axg*
+if [ $? -eq 0 ]
 then
-    if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+	PLATFORM_TARGET=mesonaxg
+fi
+####Step 3: pack none-secureboot burning image
+if [ ${PLATFORM_TARGET} = "mesonaxg"  ]
+then
+    if [ -f ${IMAGE_UBIFS} ]
     then
-	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
-	else
 	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+	else
+	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
 	fi
 else
 	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
@@ -119,22 +127,23 @@ burnPkg=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.img
 if [ "${secureboot}" != "y" ]; then
     echo "generate noraml burning package"
     echo "${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg} "
-    ${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg} 
-    if [ $? -ne 0 ]; then 
-        echo fail to generate burning image;  
+    ${PRODUCT_AML_IMG_PACK_TOOL} -r ${aml_upgrade_package_conf} ${PRODUCT_AML_IMG_PACK_DIR} ${burnPkg}
+    if [ $? -ne 0 ]; then
+        echo fail to generate burning image;
         rm ${burnPkg}
     fi
     exit $?
 fi
 
 ####Step 4: pack secureboot burning image
-if [ ${BR2_TARGET_BOARD_PLATFORM} = "mesonaxg"  ]
+
+if [ ${PLATFORM_TARGET} = "mesonaxg"  ]
 then
-    if [ ${BR2_TARGET_ROOTFS_EXT2_4} = "y" ]
+    if [ -f ${IMAGE_UBIFS} ]
     then
-	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
-    else
 	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
+    else
+	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
     fi
 else
 	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
