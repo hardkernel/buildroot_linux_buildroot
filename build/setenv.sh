@@ -16,13 +16,13 @@ done
 
 function choose_info()
 {
-	echo 
+	echo
 	echo "You're building on Linux"
 	echo "Lunch menu...pick a combo:"
 	i=0
 	while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
 	do
-		if [ $i -lt 8 ]; then
+		if [ $i -lt 10 ]; then
 			echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}"
 		else
 			echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}_release"
@@ -102,7 +102,7 @@ function choose_type()
 	local DEFAULT_NUM DEFAULT_VALUE
 	DEFAULT_NUM=5
 	DEFAULT_VALUE="mesongxl_p212_release"
-	
+
 	export TARGET_BUILD_TYPE=
 	local ANSWER
 	while [ -z $TARGET_BUILD_TYPE ]
@@ -119,7 +119,7 @@ function choose_type()
 			ANSWER="$DEFAULT_NUM"
 		fi
 
-		if [ -n "`echo $ANSWER | sed -n '/^[0-9][0-9]*$/p'`" ]; then	
+		if [ -n "`echo $ANSWER | sed -n '/^[0-9][0-9]*$/p'`" ]; then
 			if [ $ANSWER -le $DEFCONFIG_ARRAY_LEN ] && [ $ANSWER -gt 0 ]; then
 				index=$((${ANSWER}-1))
 				TARGET_BUILD_CONFIG=`get_build_config ${DEFCONFIG_ARRAY[$index]}`
@@ -159,7 +159,7 @@ function lunch()
 	if [ -n "$TARGET_BUILD_CONFIG" ]; then
 		cd buildroot
 		echo "==========================================="
-		echo  
+		echo
 		echo "#TARGET_BOARD=${TARGET_BOARD_TYPE}"
 		echo "#BUILD_TYPE=${TARGET_BUILD_TYPE}"
 		echo "#OUTPUT_DIR=output/$TARGET_DIR_NAME"
