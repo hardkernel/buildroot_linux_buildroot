@@ -51,7 +51,18 @@ aml_secureboot_sign_bin(){
 }
 
 platform=$1
-secureboot=$2
+
+
+if [ $# ne 3 ]; then
+    secureboot=$2
+    absystem=$3
+else
+    if [ "$2" != "y" ]; then
+	    absystem=$2
+	else
+	    secureboot=$2
+	fi
+fi
 
 PRODUCT_AML_IMG_PACK_TOOL=${TOOL_DIR}/aml_image_v2_packer_new
 PRODUCT_AML_IMG_SIMG_TOOL=${TOOL_DIR}/img2simg
@@ -115,9 +126,17 @@ if [ ${PLATFORM_TARGET} = "mesonaxg"  ]
 then
     if [ -f ${IMAGE_UBIFS} ]
     then
-	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+	    if [ "${absystem}" != "absystem" ]; then
+	        aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+		else
+		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_ab.conf
+		fi
 	else
-	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+	    if [ "${absystem}" != "absystem" ]; then
+	        aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+		else
+		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_ab.conf
+		fi
 	fi
 else
 	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf

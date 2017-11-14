@@ -15,14 +15,18 @@ get_opt() {
 
 
 #get system ubi number
+system_a_mtd_number=$(cat /proc/mtd | grep  -E "system_a" | awk -F : '{print $1}' | grep -o '[0-9]\+')
+system_b_mtd_number=$(cat /proc/mtd | grep  -E "system_b" | awk -F : '{print $1}' | grep -o '[0-9]\+')
 system_mtd_number=$(cat /proc/mtd | grep  -E "system" | awk -F : '{print $1}' | grep -o '[0-9]\+')
 if [ -z "${system_mtd_number}" ]; then
 system_mtd_number=$(cat /proc/mtd | grep  -E "upgrade" | awk -F : '{print $1}' | grep -o '[0-9]\+')
 fi
 
 #Defaults
+slot_suffix="_a"
 init="/sbin/init"
 root="/dev/cardblksd1"
+root_ab="/dev/cardblksd1"
 firmware=""
 rootfstype=
 system_partition_name="system"
@@ -40,6 +44,9 @@ for i in $(cat /proc/cmdline); do
             ;;
         init\=*)
             init=$(get_opt $i)
+            ;;
+        slot_suffix\=*)
+            slot_suffix=$(get_opt $i)
             ;;
 	system_partition_name\=*)
             system_partition_name=$(get_opt $i)
@@ -92,6 +99,24 @@ do
     sleep 1
     i=$((i+1))
 done
+
+if [ "$i" -eq 11 ]; then
+    if [ "${rootfstype}" = "ubifs" ]; then
+        echo "try to mount system a/b!"
+        if [ ${slot_suffix} = "_a" ]; then
+            system_mtd_number=${system_a_mtd_number}
+        else
+            system_mtd_number=${system_b_mtd_number}
+        fi
+    else
+        echo "try to mount system a/b!"
+        root_ab=${root}${slot_suffix}
+        if [ -b "${root_ab}" ]; then
+            echo "${root_ab} is ready now."
+            root=${root_ab}
+        fi
+    fi
+fi
 
 if [ "${rootfstype}" = "ubifs" ]; then
     echo "#[ubiattach /dev/ubi_ctrl -m ${system_mtd_number}]"

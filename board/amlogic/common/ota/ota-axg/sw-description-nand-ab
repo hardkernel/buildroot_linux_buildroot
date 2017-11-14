@@ -5,7 +5,7 @@ software =
 	partitions: (
 		{
 			name = "rootfs";
-			size = 157286400;
+			size = 125829120;
 			device = "mtd6";
 		}
 	);
@@ -20,7 +20,7 @@ software =
 		},
 		{
 			filename = "boot.img";
-			device = "/dev/mtd5";
+			device = "/dev/mtd4";
 			type = "flash";
 		},
 		{

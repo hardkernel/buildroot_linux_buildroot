@@ -15,12 +15,17 @@ fi
 
 if [ -f "/mnt/software.swu" ]; then
     echo "find software.swu in data, now start update......"
-    swupdate -l 6 -k /etc/swupdate-public.pem -i /mnt/software.swu
+    if [ -f "/proc/inand" ]; then
+        swupdate -l 6 -k /etc/swupdate-public.pem -i /mnt/software.swu
+    else
+        swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -i /mnt/software.swu
+    fi
     if [ $? != 0 ]; then
         echo "swupdate software.swu from data failed!"
         umount /mnt
     else
         echo "swupdate software.swu from data sucess!"
+        rm /mnt/software.swu
         umount /mnt
         sync
         sleep 2
@@ -32,7 +37,11 @@ else
 	echo "can not find software.swu in data, now find usb device......"
 	sleep 5
 	if [ -f "/media/software.swu" ]; then
-		swupdate -l 6 -k /etc/swupdate-public.pem -i /media/software.swu
+		if [ -f "/proc/inand" ]; then
+			swupdate -l 6 -k /etc/swupdate-public.pem -i /media/software.swu
+		else
+			swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -i /media/software.swu
+		fi
 		if [ $? != 0 ]; then
 			echo "swupdate software.swu from usb failed!"
 			umount /media
@@ -46,6 +55,8 @@ else
 		fi
 	else
 		echo "no software.swu found in usb device"
+		#execute swupdate for clear misc, no need into recovery after reboot
+		swupdate
 		umount /media
 	fi
 fi

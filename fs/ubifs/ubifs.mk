@@ -35,14 +35,14 @@ rootfs-usb-image-pack-ubifs:
 	BINARIES_DIR=$(BINARIES_DIR) \
 	TOOL_DIR=$(HOST_DIR)/usr/bin \
 	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
-	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION) $(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)
 else
 rootfs-usb-image-pack-ubifs:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
 	BINARIES_DIR=$(BINARIES_DIR) \
 	TOOL_DIR=$(HOST_DIR)/usr/bin \
 	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
-	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION)
+	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION) $(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)
 endif
 ROOTFS_UBIFS_POST_TARGETS += rootfs-usb-image-pack-ubifs
 endif #BR2_TARGET_USBTOOL_AMLOGIC
@@ -51,7 +51,11 @@ RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(RECOVERY_OTA_DIR),)
 rootfs-ota-swu-pack-ubifs:
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
+ifeq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand-ab $(BINARIES_DIR)/sw-description
+else
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand $(BINARIES_DIR)/sw-description
+endif
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
 	$(HOST_DIR)/usr/bin/ota_package_create.sh nand
 ROOTFS_UBIFS_POST_TARGETS += rootfs-ota-swu-pack-ubifs

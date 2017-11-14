@@ -61,3 +61,6 @@ endif
 comment "swupdate needs a toolchain w/ threads"
 	depends on BR2_USE_MMU
 	depends on !BR2_TOOLCHAIN_HAS_THREADS
+
+config BR2_PACKAGE_SWUPDATE_AB_SUPPORT
+    string "use a/b system"

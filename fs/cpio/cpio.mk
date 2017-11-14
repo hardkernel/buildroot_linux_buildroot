@@ -30,6 +30,7 @@ ROOTFS_CPIO_PRE_GEN_HOOKS += ROOTFS_CPIO_ADD_INIT
 RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(BR2_TARGET_ROOTFS_INITRAMFS_LIST),"")
 ifeq ($(BR2_PACKAGE_SWUPDATE),y)
+ifneq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
 ifneq ($(RECOVERY_OTA_DIR),)
 define ROOTFS_CPIO_CMD
 	cd $(TARGET_DIR) && cat $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
@@ -40,6 +41,11 @@ define ROOTFS_CPIO_CMD
 	cp $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) $(HOST_DIR)/usr/bin/ramfslist-recovery
 	cat $(RECOVERY_OTA_DIR)/../swu/ramfslist-recovery-need >> $(HOST_DIR)/usr/bin/ramfslist-recovery
 	cd $(TARGET_DIR)_recovery && cat $(HOST_DIR)/usr/bin/ramfslist-recovery | cpio --quiet -o -H newc > $(BINARIES_DIR)/recovery.cpio
+endef
+endif
+else
+define ROOTFS_CPIO_CMD
+	cd $(TARGET_DIR) && cat $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
 endef
 endif
 else
@@ -68,8 +74,10 @@ mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset 0x1080000 --cmdline "$(KERNEL_BOOTARGS)" --ramdisk $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/$(KERNEL_DTBS) --output $(BINARIES_DIR)/boot.img
 	ln -sf $(BINARIES_DIR)/$(KERNEL_DTBS) $(BINARIES_DIR)/dtb.img
 ifeq ($(BR2_PACKAGE_SWUPDATE),y)
+ifneq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
 	gzip -9 -c $(BINARIES_DIR)/recovery.cpio > $(BINARIES_DIR)/recovery.cpio.gz
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset 0x1080000 --cmdline "$(KERNEL_BOOTARGS)" --ramdisk  $(BINARIES_DIR)/recovery.cpio.gz --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/recovery.img
+endif
 endif
 else
 mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
@@ -77,8 +85,10 @@ mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	linux/dtbTool -o $(BINARIES_DIR)/dtb.img -p $(LINUX_DIR)/scripts/dtc/ $(BINARIES_DIR)/
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset 0x1080000 --cmdline "$(KERNEL_BOOTARGS)" --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/boot.img
 ifeq ($(BR2_PACKAGE_SWUPDATE),y)
+ifneq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
 	gzip -9 -c $(BINARIES_DIR)/recovery.cpio > $(BINARIES_DIR)/recovery.cpio.gz
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset 0x1080000 --cmdline "$(KERNEL_BOOTARGS)" --ramdisk  $(BINARIES_DIR)/recovery.cpio.gz --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/recovery.img
+endif
 endif
 endif
 else
