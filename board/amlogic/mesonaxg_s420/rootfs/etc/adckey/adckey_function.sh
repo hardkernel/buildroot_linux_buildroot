@@ -1,21 +1,11 @@
 #!/bin/sh
 
-wifiModeFlag="/etc/wifi/wifi_station"
 powerStateFile="/sys/power/state"
 powerResumeFlag="/etc/adckey/powerState"
 
-wifiChangeToApMode()
+wifiSmartConfig()
 {
-    if [ ! -f $wifiModeFlag ];then
-        echo "no found file : $wifiModeFlag"
-    else
-        rm /etc/wpa_supplicant.conf
-        cp /etc/wpa_supplicant.conf-orig /etc/wpa_supplicant.conf
-        sync
-        sh /etc/init.d/S42wifi stop
-        rm $wifiModeFlag
-        sh /etc/init.d/S42wifi start
-    fi
+	brcm_smartconfig.sh
 }
 
 powerStateChange()
@@ -51,7 +41,7 @@ volumeDownAction()
 }
 
 case $1 in
-    "longpressWifiConfig") wifiChangeToApMode ;;
+    "longpressWifiConfig") wifiSmartConfig ;;
     "power") powerStateChange ;;
     "VolumeUp") volumeUpAction ;;
     "VolumeDown") volumeDownAction ;;

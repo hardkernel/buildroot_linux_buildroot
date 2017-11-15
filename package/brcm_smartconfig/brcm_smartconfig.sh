@@ -3,11 +3,15 @@ ssid=" "
 password=" "
 encrypt="psk"
 log_file="/tmp/brcm_smartconfig.txt"
-debug=1
 
 NAME1=wpa_supplicant
 DAEMON1=/usr/sbin/$NAME1
 PIDFILE1=/var/run/$NAME1.pid
+
+NAME3=dnsmasq
+DAEMON3=/usr/sbin/$NAME3
+PIDFILE3=/var/run/$NAME3.pid
+
 MULTI_WIFI=/usr/bin/multi_wifi_load_driver
 
 alias check_wlan="ifconfig wlan0 2> /dev/null"
@@ -96,17 +100,22 @@ function start_smartconfig() {
 	echo "|------ssid=$ssid password=$password-----------------|"
 }
 
+function start_wlan1() {
+	iw wlan0 interface add wlan1 type managed
+	hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
+	ifconfig wlan1 192.168.2.1
+	start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
+}
+
 function start_wpa() {
 	ps | grep -v grep | grep wpa_supplicant
 	if [ $? -eq 0 ];then
+		start_wlan1
 		return
 	fi
 	echo "|---starting wpa_supplicant---|"
-	if [ $debug -eq 1 ];then
-		start-stop-daemon -S -m -p $PIDFILE1  -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf -d > /tmp/wpa_supplicant.log &
-	else
-		start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
-	fi
+	start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
+	start_wlan1
 	check_in_loop 15 check_wpa
 }
 
@@ -187,6 +196,7 @@ function main() {
 	echo
 	echo "|-------broadcom smartconfig start---------|"
 	killall hostapd
+	killall dnsmasq
 	load_driver
 	start_smartconfig
 	start_wpa
