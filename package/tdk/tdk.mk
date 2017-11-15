@@ -12,7 +12,7 @@ TDK_SITE = $(TOPDIR)/../vendor/amlogic/tdk
 TDK_SITE_METHOD = local
 endif
 TDK_INSTALL_STAGING = YES
-TDK_DEPENDENCIES = linux
+TDK_DEPENDENCIES = linux host-python-pycrypto
 
 ifeq ($(BR2_aarch64), y)
 _ARCH = arm64
@@ -108,6 +108,7 @@ ifeq ($(BR2_aarch64), y)
 define TDK_INSTALL_STAGING_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/ca_export_arm64/include/*.h $(STAGING_DIR)/usr/include
 	$(INSTALL) -D -m 0644 $(@D)/ca_export_arm64/lib/* $(STAGING_DIR)/usr/lib/
+	cp -rf $(@D)/ta_export $(STAGING_DIR)/usr/share/
 endef
 define TDK_INSTALL_LIBS
 	$(INSTALL) -D -m 0644 $(@D)/ca_export_arm64/lib/*.so $(TARGET_DIR)/usr/lib/
@@ -118,6 +119,7 @@ else
 define TDK_INSTALL_STAGING_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/ca_export_arm/include/*.h $(STAGING_DIR)/usr/include
 	$(INSTALL) -D -m 0644 $(@D)/ca_export_arm/lib/* $(STAGING_DIR)/usr/lib/
+	cp -rf $(@D)/ta_export $(STAGING_DIR)/usr/share/
 endef
 define TDK_INSTALL_LIBS
 	$(INSTALL) -D -m 0644 $(@D)/ca_export_arm/lib/*.so $(TARGET_DIR)/usr/lib/
