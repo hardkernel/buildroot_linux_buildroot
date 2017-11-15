@@ -2,9 +2,7 @@
 ps -fe | grep librespot | grep -v grep > /dev/null
 if [ $? -eq 0 ]
 then
-echo "I am OK" > spotify_state.txt
-#echo haha
+echo "I am OK" > ./spotify/spotify_state.txt
 else
-echo no > spotify_state.txt
-#echo wuwu
+echo no > ./spotify/spotify_state.txt
 fi

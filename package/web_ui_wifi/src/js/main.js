@@ -1,61 +1,71 @@
+/**************************************************************
+ * Function	:main.js for amlogic web_ui
+ * Date		:2017-10-12
+ * Auther	:haibing.an
+ * Note		:None
+ **************************************************************/
+
+/***************************************************
+ *HTML url handle
+ * ************************************************/
 var obj_Data;
-
-
 function HTMLEnCode(str)
 {
-     var    s    =    "";
-     if (str.length    ==    0)    return    "";
-     s = str.replace(/&/g, "&gt;");
-     s = s.replace(/</g, "&lt;");
-     s = s.replace(/>/g, "&gt;");
-     s = s.replace(/ /g, "&nbsp;");
-     s = s.replace(/\'/g, "'");
-     s = s.replace(/\"/g, "&quot;");
-     s = s.replace(/\n/g, "<br>");
-     return    s;
-};
-
+	var    s    =    "";
+	if (str.length    ==    0)    return    "";
+	s = str.replace(/&/g, "&gt;");
+	s = s.replace(/</g, "&lt;");
+	s = s.replace(/>/g, "&gt;");
+	s = s.replace(/ /g, "&nbsp;");
+	s = s.replace(/\'/g, "'");
+	s = s.replace(/\"/g, "&quot;");
+	s = s.replace(/\n/g, "<br>");
+	return    s;
+}
 
 function handleCommand(command_xmlhttp, callback)
 {
-  if(command_xmlhttp.readyState==4)
-    {
-      if(command_xmlhttp.status == 200){
-    	if(callback == null)
-    		return;
-	callback(command_xmlhttp);
-     }
-  }
-};
+	if(command_xmlhttp.readyState==4)
+	{
+		if(command_xmlhttp.status == 200){
+			if(callback == null)
+				return;
+			callback(command_xmlhttp);
+		}
+	}
+}
 
- function send_commond(command, callback)
- {
-    command_xmlhttp = GetXmlHttpObject();               //create req obj
-    command_xmlhttp.onreadystatechange = function () {        //get data from web action
-        handleCommand(command_xmlhttp, callback);
-    }
+function send_commond(command, callback)
+{
+	command_xmlhttp = GetXmlHttpObject();               //create req obj
+	command_xmlhttp.onreadystatechange = function () {        //get data from web action
+		handleCommand(command_xmlhttp, callback);
+	}
 
-    var url="cgi-bin/wifi/wifi.cgi?cmd=" + encodeURIComponent(command);
-    command_xmlhttp.open("GET", url ,true);
-    command_xmlhttp.setRequestHeader("If-Modified-Since","0");
-    command_xmlhttp.setRequestHeader("Cache-Control","no-cache");
-    command_xmlhttp.setRequestHeader("CONTENT-TYPE","text/plain");
-    command_xmlhttp.send(null);
-    //command_xmlhttp.send("cmd="+command);
- };
+	command_xmlhttp.open("POST", "cgi-bin/main.cgi" ,true);
+	command_xmlhttp.setRequestHeader("If-Modified-Since","0");
+	command_xmlhttp.setRequestHeader("Cache-Control","no-cache");
+	command_xmlhttp.setRequestHeader("CONTENT-TYPE","application/x-www-form-urlencoded");
+	command_xmlhttp.send(command);
+}
+//--------------HTML yrl handle end---------------//
 
+
+/*************************************************
+ * WI-FI handle
+ ************************************************/
 function get_wifi_list()
- {
- 	var wifi_list = null;
- 	var wifi_json = send_commond("get_wifi_list", set_wifi_list_to_select);
- };
+{
+	var wifi_list = null;
+	var wifi_json = send_commond("get_wifi_list", set_wifi_list_to_select);
+}
 
 function set_wifi(ssid,pwd)
 {
 	var wifi_ssid = ssid;
 	var wifi_pwd = pwd;
 	var wifi_json = send_commond("set_wifi&ssid="+wifi_ssid+"&"+"pwd="+wifi_pwd);
-};
+}
 
 function set_wifi_list_to_select(command_xmlhttp)
 {
@@ -66,73 +76,182 @@ function set_wifi_list_to_select(command_xmlhttp)
 		get_wifi_list();
 	}
 	else{
-        var htmlNodes = '';
+		var htmlNodes = '';
 
-        for(var i = 0; i < obj_Data.length; i++){
-            htmlNodes += '<a class="list-group-item" id="wifi_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].ssid + '</a>';
-        }
-        htmlNodes += '</ul>';
+		for(var i = 0; i < obj_Data.length; i++){
+			htmlNodes += '<a class="list-group-item" id="wifi_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].ssid + '</a>';
+		}
+		htmlNodes += '</ul>';
 
-        $('#testtext').html(htmlNodes);
+		$('#testtext').html(htmlNodes);
 
-        var j;
-        var index = 1;
-        var wifi_select = document.getElementById("ssid");
-        for(j = 0; j < obj_Data.length; j++){
-            var wifi = new Object;
-            wifi.ssid = obj_Data.aplist[j].ssid;
-            wifi_select.Option.add(wifi.id);
-        }
+		var j;
+		var index = 1;
+		var wifi_select = document.getElementById("ssid");
+		for(j = 0; j < obj_Data.length; j++){
+			var wifi = new Object;
+			wifi.ssid = obj_Data.aplist[j].ssid;
+			wifi_select.Option.add(wifi.id);
+		}
 	}
-};
+}
 
 function set_wifi_by_input()
 {
-    var input_ssid = document.getElementById("selfModal_ssid").value;
-    var input_pwd = document.getElementById("selfModal_pwd").value;
-    set_wifi(input_ssid,input_pwd);
+	var input_ssid = document.getElementById("selfModal_ssid").value;
+	var input_pwd = document.getElementById("selfModal_pwd").value;
+	set_wifi(input_ssid,input_pwd);
 }
 
+function set_wifi_by_modal_input()
+{
+	setTimeout(function(){$("#mymodal").modal("hide")},2000);
+	var input_ssid = document.getElementById("modal_ssid").value;
+	var input_pwd = document.getElementById("modal_pwd").value;
 
-$('ul').on('click','a',function(){
+	set_wifi(input_ssid,input_pwd);
+}
+
+function check_input_is_ok(input_text)
+{
+	if (input_text=="")
+		return false;
+	else
+		return true;
+}
+
+$('#testtext').on('click','a',function(){
 	var inner_ssid = this.innerText;
 	var my_ssid = document.getElementById("modal_ssid");
 	var my_pwd = document.getElementById("modal_pwd");
 	my_pwd.value = "";
 	my_ssid.value = inner_ssid;
 });
+//---------------WI-FI handle end---------------//
 
 
-function set_wifi_by_modal_input()
+/**********************************************
+ *RECORD handle
+ *********************************************/
+function get_record_list()
 {
-    setTimeout(function(){$("#mymodal").modal("hide")},2000);
-    var input_ssid = document.getElementById("modal_ssid").value;
-    var input_pwd = document.getElementById("modal_pwd").value;
-    // if (check_input_is_ok(input_ssid))
-    //     window.setTimeout(function(){
-    // $('#alertTest').modal({
-    //     backdrop:true,
-    //     keyboard:true,
-    //     show:true
-    //     });
-    // return false;
-    // },2000);
-    // else
-    set_wifi(input_ssid,input_pwd);
-};
+	send_commond("get_record_list", handle_record_list);
+}
 
-$('#refresh_img').click(function(){
-	get_wifi_list();
+function get_record_dl_list() {
+	send_commond("get_record_dl_list", handle_record_dl_list);
+}
+
+function handle_record_list(command_xmlhttp)
+{
+	var response_record_date = command_xmlhttp.responseText;
+
+	var obj_record_Data = eval("("+response_record_date+")");
+	if(obj_record_Data.length == 0){
+		get_record_list();
+	}
+	else{
+		var html_record_Nodes = '';
+
+		for(var i = 0; i < obj_record_Data.length; i++){
+			html_record_Nodes += '<a class="list-group-item" id="record_' + i + '"' + ' role="button" data-toggle="modal" data-target="#recordModal">' + obj_record_Data[i].filename + '</a>';
+		}
+		html_record_Nodes += '</ul>';
+
+		$('#recordtext').html(html_record_Nodes);
+
+		var j;
+		var index = 1;
+		var record_select = document.getElementById("filename");
+		for(j = 0; j < obj_record_Data.length; j++){
+			var record = new Object;
+			record.filename = obj_record_Data.recordlist[j].filename;
+			record_select.Option.add(record.id);
+		}
+	}
+}
+
+function handle_record_dl_list() {
+	var response_record_dl_date = command_xmlhttp.responseText;
+
+	var obj_record_dl_Data = eval("("+response_record_dl_date+")");
+	if(obj_record_dl_Data.length == 0){
+		get_record_dl_list();
+	}
+	else{
+		var html_record_dl_Nodes = '';
+
+		for(var i = 0; i < obj_record_dl_Data.length; i++){
+			html_record_dl_Nodes += '<a class="list-group-item" download="" href="record/' + obj_record_dl_Data[i].filename + '"' + '>' + obj_record_dl_Data[i].filename + '</a>';
+		}
+		html_record_dl_Nodes += '</ul>';
+
+		$('#record_dl_text').html(html_record_dl_Nodes);
+	}
+}
+
+function start_record() {
+
+	var input_filename = document.getElementById("modal_filename").value;
+	var channal = $('#select-ch option:selected').val();
+	var rate = $('#select-rate option:selected').val();
+	var bits = $('#select-bits option:selected').val();
+	console.log(channal);
+	console.log(rate);
+	console.log(bits);
+	send_commond("start_record&filename="+input_filename+"&ch="+channal+"&rate="+rate+"&bits="+bits);
+	//get_record_list();
+}
+
+function done_record() {
+	send_commond("done_record");
+	get_record_list();
+}
+
+function delete_record() {
+	var input_filename = document.getElementById("modal_filename").value;
+	send_commond("delete_record&filename="+input_filename);
+	get_record_list();
+}
+
+function play_record() {
+    var input_filename = document.getElementById("modal_filename").value;
+    send_commond("play_record&filename="+input_filename);
+}
+
+function play_local_record() {
+    var play_filename = document.getElementById("modal_filename").value;
+    var player_nodes = "";
+    player_nodes += '<audio id ="music" controls="controls" muted="muted"><source  src="record/'+play_filename+'"'+ '/>' + '</audio>';
+    $('#ol_player').html(player_nodes);
+    var music = document.getElementById('music');
+
+    var input_filename = document.getElementById("modal_filename").value;
+    send_commond("play_record&filename="+input_filename);
+}
+
+function play_online_record() {
+    var play_filename = document.getElementById("modal_filename").value;
+    var player_nodes = "";
+    var file_info_nodes = "";
+    file_info_nodes += play_filename;
+    player_nodes += '<audio id ="music" controls="controls"><source  src="record/'+play_filename+'"'+ '/>' + '</audio>';
+    $('#file_info').html(file_info_nodes);
+    $('#ol_player').html(player_nodes);
+    var music = document.getElementById('music');
+}
+
+$('#recordtext').on('click','a',function () {
+	var inner_filename = this.innerText;
+	var my_filename = document.getElementById("modal_filename");
+	my_filename.value = inner_filename;
 });
+//--------------RECORD handle end--------------//
 
-function check_input_is_ok(input_text)
-{
-    if (input_text=="")
-        return false;
-    else
-        return true;
-};
 
+/***********************************************
+ * Spotify handle
+ **********************************************/
 function set_spotify(){
 	var spotify_username = document.getElementById("modal_spotify_username").value;
 	var spotify_pwd = document.getElementById("modal_spotify_pwd").value;
@@ -142,18 +261,18 @@ function set_spotify(){
 	var showUserId = '<h3 style="color:green" align="center">Logging...</h3>';
 	$('#userinfo').html(showUserId);
 	setTimeout("check_spotify()",3000);
-};
+}
 
 function TurnOffSpotify(){
 	send_commond("kill_spotify");
 	var showStopping = '<h3 style="color:red" align="center">stopping...</h3>';
 	$('#userinfo').html(showStopping);
 	setTimeout("check_spotify()",3000);
-};
+}
 
 function check_spotify(){
 	send_commond("check_spotify",handle_check);
-};
+}
 
 function handle_check(command_xmlhttp){
 
@@ -169,7 +288,7 @@ function handle_check(command_xmlhttp){
 		var htmlNodes_spo_info = '<h3 style="color:red" align="center">Stopped</h3>';
 		$('#userinfo').html(htmlNodes_spo_info);
 	}
-};
+}
 
 function handle_get_info(){
 	var response_spo_info = command_xmlhttp.responseText;
@@ -182,15 +301,20 @@ function handle_get_info(){
 
 	var htmlNodes_spo_info = '<h3 style="color:green" align="center">user: '+old_uname+' device: '+old_dname+'</h3>';
 	$('#userinfo').html(htmlNodes_spo_info);
-};
+}
+//-------------Spotify handle end-------------//
 
+
+/**********************************************
+ * Swupdate handle
+ *********************************************/
 function system(){
-
 	var swupdate_href = '<li><a href="http://'+window.location.host+':8080" class="list-group-item" role="button">Swupdate</a></li>';
 	$('#swupdate').html(swupdate_href);
 
 	send_commond("get_deviceinfo",show_device_info);
-};
+}
+
 function show_device_info(){
 
 	send_commond("runswupdate");
@@ -200,19 +324,58 @@ function show_device_info(){
 	var dev_info = eval("("+response_dev_info+")");
 	var htmlNodes_dev_info = '';
 
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >KERNEL : ' + dev_info[0].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >ARCH : ' + dev_info[8].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >SSID : ' + dev_info[1].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >MODE : ' + dev_info[2].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >CIPHER : ' + dev_info[3].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >KEYMGMT : ' + dev_info[4].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >STATE : ' + dev_info[5].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >WIREIP : ' + dev_info[6].info+'</a></li>'
-	htmlNodes_dev_info += '<li class="list-group-item" align="center" >MAC; : ' + dev_info[7].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">KERNEL :' + dev_info[0].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">ARCH :' + dev_info[8].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">SSID :' + dev_info[1].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">MODE :' + dev_info[2].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">CIPHER :' + dev_info[3].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">KEYMGMT :' + dev_info[4].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">STATE :' + dev_info[5].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">WIREIP :' + dev_info[6].info+'</a></li>'
+	htmlNodes_dev_info += '<li class="list-group-item" align="center">MAC :' + dev_info[7].info+'</a></li>'
 
-	$('#dev_info_show').append(htmlNodes_dev_info);
-};
+	$('#dev_info_show').html(htmlNodes_dev_info);
+}
 
 function stop_swupdate(){
 	send_commond("endswupdate");
 }
+//-----------Swupdate handle end-----------//
+
+/** smartconfig handle*/
+/*
+function start_smartconf(){
+    console.log("fuck smartconf");
+    send_commond("run_smartconf");
+    setTimeout('get_wlan0_info()',10000);
+}
+
+function get_wlan0_info(){
+    console.log("fuck wlan0");
+    send_commond("get_wlan0_info",handle_wlan0_info);
+}
+
+function handle_wlan0_info(){
+    var response_wlan0_info = command_xmlhttp.responseText;
+    if(response_wlan0_info == "")
+        get_wlan0_info();
+    var wlan0_info = eval("("+response_wlan0_info+")");
+    var htmlNodes_wlan0_info = '';
+
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[0].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[1].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[2].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[3].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[4].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[5].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[6].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[8].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[9].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[10].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[11].info+'</a></li>'
+    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[12].info+'</a></li>'
+
+    $('#wlan0_info_show').append(htmlNodes_wlan0_info);
+}
+*/
+//---------smartconfig handle end---------//
