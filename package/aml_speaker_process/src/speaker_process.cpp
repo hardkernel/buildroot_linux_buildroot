@@ -146,7 +146,8 @@ void setup_DSP() {
 
 	const char* file = "/usr/bin/speaker_processing.awb";
 	// Only load a layout if asked.
-	error = pAwelib->LoadAwbFile(file);
+	uint32_t pos;
+	error = pAwelib->LoadAwbFile(file, &pos);
 	if (error < 0)
 	{
 		printf("[DSP] LoadAwbFile failed with %d\n", error);
