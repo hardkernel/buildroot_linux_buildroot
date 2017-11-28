@@ -386,6 +386,13 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6493/BT/*.hcd $(TARGET_DIR)/etc/wifi/AP6493/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/AP6493/; \
 		;; \
+	AP6398) \
+		mkdir -p $(TARGET_DIR)/etc/wifi/AP6398;\
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6398/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/AP6398/;\
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6398/Wi-Fi/nvram_ap6398s.txt $(TARGET_DIR)/etc/wifi/AP6398/nvram.txt;\
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6398/BT/*.hcd $(TARGET_DIR)/etc/wifi/AP6398/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/AP6398/; \
+		;; \
 	ath10k) \
 		mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/; \
 		mkdir -p $(TARGET_DIR)/lib/firmware/ath10k/QCA6174/; \

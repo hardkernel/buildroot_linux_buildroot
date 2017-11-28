@@ -92,6 +92,20 @@ static const dongle_info dongle_registerd[] = {
 	0x0
 	},
 	{
+	"4359",
+	"dhd",
+	"dhd.ko",
+	BROADCOM_KO_PATH,
+	.wifi_module_arg = {
+		.arg_type       = MODULE_ARG_FIRMWARE,
+		.firmware_path  = "AP6398/fw_bcm4359c0_ag.bin",
+		.firmware_ap_path  = "AP6398/fw_bcm4359c0_ag_apsta.bin",
+		.nvram_path     = "AP6398/nvram.txt",
+	},
+	"ap6398",
+	0x0
+	},
+	{
 		"4354",
 		"dhd",
 		"dhd.ko",

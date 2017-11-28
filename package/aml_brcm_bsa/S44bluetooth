@@ -11,9 +11,9 @@ PIDFILE2=/var/run/$NAME2.pid
 
 HW_PLATFORM=$(cat /proc/device-tree/amlogic-dt-id | awk -F "_" '{print $2}')
 if [ "${HW_PLATFORM}" == "s400" ];then
-    hcd_file="/etc/wifi/6255/BCM4345C0.hcd"
+	hcd_file="/etc/wifi/6255/BCM4345C0.hcd"
 elif [ "${HW_PLATFORM}" == "s420" ];then
-    hcd_file="/etc/wifi/4356/bcm4356a2.hcd"
+	hcd_file="/etc/wifi/4356/bcm4356a2.hcd"
 else
     echo "$0: not s400/s420, exit!"
     exit 1
