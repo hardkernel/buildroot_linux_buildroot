@@ -4,6 +4,15 @@ if [ -f /etc/init.d/rc.modules ]; then
         /etc/init.d/rc.modules
 fi
 
+#
+# launch dbus and set env
+#
+for i in `/usr/bin/dbus-launch | /bin/sed '/^#.*\|^$/d'`; do
+export $i
+done
+export QT_QPA_PLATFORM=linuxfb:fb=/dev/fb0
+export QT_QUICK_BACKEND=softwarecontex
+
 # Start all init scripts in /etc/init.d
 # executing them in numerical order.
 #

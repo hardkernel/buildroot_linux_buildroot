@@ -2,6 +2,7 @@
 
 CONFIG=/etc/AlexaClientSDKConfig.json
 PROCESS=/usr/bin/SampleApp
+DISPLAYCARD=/sbin/DisplayCardsD
 
 start_avs() {
     if [ -f $CONFIG ];then
@@ -22,6 +23,12 @@ modprobe snd-aloop
 amixer_ctr=`amixer controls | grep "Loopback Enable"` > /dev/null
 loop_id=${amixer_ctr%%,*}
 amixer cset $loop_id 1
+
+if [ -f $DISPLAYCARD ]; then
+    $DISPLAYCARD -r 270 &
+else
+    echo "displaycard start fail!"
+fi
 
 if [ -r /etc/last_date ]; then
     saved_date=$(cat /etc/last_date)

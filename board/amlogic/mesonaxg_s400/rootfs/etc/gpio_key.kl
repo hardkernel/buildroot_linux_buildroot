@@ -2,8 +2,8 @@
 
 # type                  key
 #up                      106    #this key used avs mute
-down                    105
+#down                    105    #this key used avs tap
 WifiConfig              139
-VolumeUp                115
-VolumeDown              114
+#VolumeUp                115    #this key used avs VolumeUp
+#VolumeDown              114    #this key used avs VolumeDown
 power                   116

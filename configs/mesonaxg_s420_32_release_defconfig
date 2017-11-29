@@ -609,3 +609,8 @@ BR2_PACKAGE_AML_SPEAKER_PROCESS=y
 #misc bootloader_message
 #
 BR2_PACKAGE_AML_BOOTLOADER_MESSAGE=y
+
+#
+# avs displaycard communication
+#
+BR2_PACKAGE_DISPLAYCARD_AML_IMP=y
