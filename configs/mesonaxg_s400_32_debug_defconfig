@@ -620,3 +620,8 @@ BR2_PACKAGE_AML_SPEAKER_PROCESS=y
 #misc bootloader_message
 #
 BR2_PACKAGE_AML_BOOTLOADER_MESSAGE=y
+
+#
+# helloworld demo
+#
+BR2_PACKAGE_HELLOWORLD=y
