@@ -1,19 +1,18 @@
 #!/bin/sh
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
+WIFI_FILE=./wifi/select.txt
+
 function main() {
-	initial_configure $1 $2
+	initial_configure
 	start_wifi
 }
 
 function initial_configure() {
-    echo "reading from input...."
-	if [ $1 ]; then
-	    ssid=$1
-	fi
-	if [ $2 ]; then
-	    password=$2
-	fi
+	ssid=`sed -n "1p" $WIFI_FILE`
+	password=`sed -n "2p" $WIFI_FILE`
+	echo "$ssid"
+	echo "$password"
 	echo "user set:ssid=$ssid, key=$password, 4s to check your configure"
 	if [ "`echo $password |wc -L`" -lt "8" ];then
 		echo "waring: password lentgh is less than 8, it is not fit for WPA-PSK"
@@ -27,11 +26,11 @@ function start_wifi() {
 
 function start_sta() {
 	id=`wpa_cli add_network | grep -v "interface"`
-	wpa_cli set_network $id ssid \"${ssid}\"
+	wpa_cli set_network $id ssid \""${ssid}"\"
 	if [ "$password" = "NONE" ]; then
 		wpa_cli set_network $id key_mgmt NONE
 	else
-		wpa_cli set_network $id psk \"${password}\"
+		wpa_cli set_network $id psk \""${password}"\"
 	fi
 	wpa_cli select_network $id
 	wpa_cli enable_network $id
@@ -71,4 +70,4 @@ function ping_test() {
 	fi
 }
 
-main $1 $2
+main
