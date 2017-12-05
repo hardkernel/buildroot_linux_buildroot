@@ -8,6 +8,13 @@ MULTI_WIFI=/usr/bin/multi_wifi_load_driver
 
 case "$1" in
     start)
+	    board_name=`cat /proc/device-tree/amlogic-dt-id`
+	    case ${board_name} in
+			"gxl_p401_2g")
+				exit 0
+				;;
+	    esac
+
         echo "Starting supplicant..."
         mkdir -p -m 0644 /var/lib/wifi
         $POWERCTL 1
