@@ -77,7 +77,8 @@ AVS_SDK_CONF_OPTS += -DLEDRING_INCLUDE_DIR=$(STAGING_DIR)/usr/include/ledClient.
 endif
 
 define AVS_SDK_POST_INSTALL_TARGET
-cp $(TOPDIR)/package/avs-sdk/S90avs $(TARGET_DIR)/etc/init.d
+cp $(TOPDIR)/package/avs-sdk/S48avs $(TARGET_DIR)/etc/init.d
+cp $(TOPDIR)/package/avs-sdk/avs_moniter.sh $(TARGET_DIR)/etc/init.d
 mkdir -p $(TARGET_DIR)/var/www/cgi-bin
 cp $(TOPDIR)/package/avs-sdk/cgi-bin/* $(TARGET_DIR)/var/www/cgi-bin/
 endef
