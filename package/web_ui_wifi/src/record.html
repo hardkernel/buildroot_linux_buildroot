@@ -80,7 +80,7 @@
         <div class="modal-body" align="center">
             <div class="input-group" align="center">
                 <span class="input-group-addon" id="basic-addon1">File Name</span>
-                <input type="text" class="form-control" placeholder="please enter file name here" aria-describedby="basic-addon1" id="modal_filename">
+                <input type="text" onkeyup="value=value.replace(/\s/g,'')" class="form-control" placeholder="please enter file name here" aria-describedby="basic-addon1" id="modal_filename">
             </div>
       </div>
         <div class="modal-footer">
