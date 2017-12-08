@@ -81,13 +81,13 @@ skt_handle()
 				exit 0
 				;;
 		esac
+	Blue_start &
 }
 
 case "$1" in
     start)
-	skt_handle
+	skt_handle &
 
-	Blue_start &
         ;;
     netready|netup|netdown|netchange) ;;
     stop)

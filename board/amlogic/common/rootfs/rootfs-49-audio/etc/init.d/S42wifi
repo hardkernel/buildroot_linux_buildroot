@@ -68,40 +68,41 @@ if [ $? -eq 0 ]; then
 fi
 }
 
+function wifi_setup(){
+skt_board=`cat /proc/device-tree/amlogic-dt-id`
+case ${skt_board} in
+	"axg_a113d_skt_v1")
+		exit 0
+		;;
+	"axg_a113x_skt_v1")
+		exit 0
+		;;
+esac
+
+killall hostapd
+killall wpa_supplicant
+killall dnsmasq
+killall dhcpcd
+echo "start wifi station mode load driver and setup......"
+$MULTI_WIFI station 1
+
+DONE=`ifconfig wlan0 up > /dev/null`
+ifconfig wlan0 &> /dev/null
+DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
+if [ $? -eq 0 ]; then
+	iw wlan0 interface add wlan1 type managed
+	hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
+	ifconfig wlan1 192.168.2.1
+	DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
+fi
+ifconfig wlan0 &> /dev/null
+
+start_sta &
+}
+
 case "$1" in
     start)
-	    skt_board=`cat /proc/device-tree/amlogic-dt-id`
-	    case ${skt_board} in
-			"axg_a113d_skt_v1")
-				exit 0
-				;;
-			"axg_a113x_skt_v1")
-				exit 0
-				;;
-	    esac
-
-        killall hostapd
-        killall wpa_supplicant
-        killall dnsmasq
-        killall dhcpcd
-		echo "start wifi station mode load driver and setup......"
-		$MULTI_WIFI station 1
-
-		ifconfig wlan0 up > /dev/null
-		sleep 2
-		ifconfig wlan0 &> /dev/null
-		start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
-		sleep 1
-		if [ $? -eq 0 ]; then
-			iw wlan0 interface add wlan1 type managed
-			hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
-			ifconfig wlan1 192.168.2.1
-			start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100
-		fi
-		sleep 1
-		ifconfig wlan0 &> /dev/null
-
-		start_sta &
+		wifi_setup &
         ;;
     stop)
         killall hostapd
@@ -109,12 +110,11 @@ case "$1" in
         killall dnsmasq
         killall dhcpcd
         echo -n "Stopping supplicant..."
-        start-stop-daemon -K -o -p $PIDFILE1
-        start-stop-daemon -K -o -p $PIDFILE3
-        sleep 2
+        DONE=`start-stop-daemon -K -o -p $PIDFILE1`
+        DONE=`start-stop-daemon -K -o -p $PIDFILE3`
         rm -f $PIDFILE1
         rm -f $PIDFILE3
-	$MULTI_WIFI station 0
+		$MULTI_WIFI station 0
         $POWERCTL 0
         ;;
     netready|netup|netdown|netchange) ;;

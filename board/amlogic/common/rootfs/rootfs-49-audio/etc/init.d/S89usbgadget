@@ -36,8 +36,7 @@ usb_net_ipconfig()
 	ifconfig usb0 192.168.5.1 up
 }
 
-case "$1" in
-  start)
+function start_usbgadget(){
         #sleep 6
 	#cat /proc/device-tree/amlogic-dt-id  | grep "skt"
 	#if [ $? -eq 0 ]
@@ -52,11 +51,16 @@ case "$1" in
 	            sleep 2
                 echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
                 usb_net_ipconfig
-		echo "------------------------------------"	
+		echo "------------------------------------"
 		echo "usb rndis & adb start: OK!"
-		echo "------------------------------------"	
+		echo "------------------------------------"
 		fi
 	#fi
+}
+
+case "$1" in
+  start)
+	  start_usbgadget &
 		;;
   netready|netup|netdown|netchange) ;;
   *)
