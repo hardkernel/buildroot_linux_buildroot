@@ -58,6 +58,9 @@ function get_wifi_list()
 {
 	var wifi_list = null;
 	var wifi_json = send_commond("get_wifi_list", set_wifi_list_to_select);
+	loadNode = '<img id="loading" style="float:right" src="./images/loading.gif" />';
+	$('#loadpoint').html(loadNode);
+	setTimeout(function () { $('#loading').hide(); }, 3000);
 }
 
 function set_wifi(ssid,pwd)
