@@ -23,3 +23,4 @@ config BR2_AVS_DSPC
 
 config BR2_PACKAGE_DISPLAYCARD_AML_IMP
         bool "enable avs displaycard ."
+        default n
