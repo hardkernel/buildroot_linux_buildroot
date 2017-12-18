@@ -15,6 +15,7 @@ menu "amlogic"
 	source "package/librespot-sync/Config.in"
 	source "package/avs-sdk/Config.in"
 	source "package/helloworld/Config.in"
+	source "package/aml_usb_config/Config.in"
 endmenu
 
 menu "Audio and video applications"
