@@ -15,6 +15,6 @@ case $1 in
 	rm ../record/$FILENAME
 	;;
 	play)
-	aplay -D dmixer_avs_auto ../record/$FILENAME
+	aplay -D hw:0,2 ../record/$FILENAME
 	;;
 esac
