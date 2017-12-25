@@ -9,6 +9,7 @@ function main() {
 }
 
 function initial_configure() {
+	lightTest --num=6 --rgbflag=0 --speed=200 --time=0 --style=5
 	ssid=`sed -n "1p" $WIFI_FILE`
 	password=`sed -n "2p" $WIFI_FILE`
 	echo "$ssid"
@@ -60,13 +61,18 @@ function check_in_loop() {
 
 
 function ping_test() {
+	killall dhcpcd
 	router_ip=`dhcpcd -U $1 2> /dev/null | grep routers | awk -F "=" '{print $2}' | sed "s/'//g"`
 	echo "now going to ping router's ip: $router_ip for 5 seconds"
 	ping $router_ip -w 5
 	if [ $? -eq 1 ];then
+		lightTest --num=6 --rgbflag=0 --speed=230 --time=0 --style=1
 		echo "ping fail!! please check"
 	else
 		echo "ping successfully"
+		lightTest --num=6 --rgbflag=0 --speed=100 --time=2 --style=2
+		sleep 2
+		lightTest --num=6 --rgbflag=0 --speed=230 --time=0 --style=1
 	fi
 }
 

@@ -1,8 +1,8 @@
 /**************************************************************
  * Function	:main.js for amlogic web_ui
- * Date		:2017-10-12
+ * Date		:2017-12-26
  * Auther	:haibing.an
- * Note		:None
+ * @		:haibing.an@amlogic.com
  **************************************************************/
 
 /***************************************************
@@ -48,7 +48,7 @@ function send_commond(command, callback)
 	command_xmlhttp.setRequestHeader("CONTENT-TYPE","application/x-www-form-urlencoded");
 	command_xmlhttp.send(command);
 }
-//--------------HTML yrl handle end---------------//
+//--------------HTML url handle end---------------//
 
 
 /*************************************************
@@ -58,9 +58,13 @@ function get_wifi_list()
 {
 	var wifi_list = null;
 	var wifi_json = send_commond("get_wifi_list", set_wifi_list_to_select);
-	loadNode = '<img id="loading" style="float:right" src="./images/loading.gif" />';
-	$('#loadpoint').html(loadNode);
+	show_loading();
 	setTimeout(function () { $('#loading').hide(); }, 3000);
+}
+
+function show_loading(){
+	loadNode = '<img id="loading" src="./images/loading.gif" />';
+	$('#loadpoint').html(loadNode);
 }
 
 function set_wifi(ssid,pwd)
@@ -68,6 +72,14 @@ function set_wifi(ssid,pwd)
 	var wifi_ssid = ssid;
 	var wifi_pwd = pwd;
 	var wifi_json = send_commond("set_wifi&ssid="+wifi_ssid+"&"+"pwd="+wifi_pwd);
+	show_loading();
+
+	setTimeout("check_wifi_connected1()", 10000);
+    setTimeout("check_wifi_connected1()", 15000);
+    setTimeout("check_wifi_connected1()", 20000);
+    setTimeout("check_wifi_connected1()", 25000);
+    setTimeout("check_wifi_connected1()", 30000);
+    setTimeout(function () { $('#loading').hide(); }, 31000);
 }
 
 function set_wifi_list_to_select(command_xmlhttp)
@@ -93,10 +105,11 @@ function set_wifi_list_to_select(command_xmlhttp)
 		var wifi_select = document.getElementById("ssid");
 		for(j = 0; j < obj_Data.length; j++){
 			var wifi = new Object;
-			wifi.ssid = obj_Data.aplist[j].ssid;
-			wifi_select.Option.add(wifi.id);
+			wifi.ssid = obj_Data[j].ssid;
+			//wifi_select.Option.add(wifi.id);
 		}
 	}
+	check_wifi_connected();
 }
 
 function set_wifi_by_input()
@@ -113,6 +126,63 @@ function set_wifi_by_modal_input()
 	var input_pwd = document.getElementById("modal_pwd").value;
 
 	set_wifi(input_ssid,input_pwd);
+}
+
+//-------------------------------------------------------
+function check_wifi_connected1() {
+    show_loading();
+    send_commond("check_wifi_connected", handle_check_wifi1);
+}
+
+function handle_check_wifi1(command_xmlhttp)
+{
+    var response_check_wifi1 = command_xmlhttp.responseText;
+    var obj_check_wifi_Data1 = eval("("+response_check_wifi1+")");
+    var check_wifi_nc_Nodes1 = '<h3 style="color:red">No Connected</h3>';
+
+	if (obj_check_wifi_Data1.length > 7 && obj_check_wifi_Data1[8].info == "COMPLETED") {
+		var check_wifi_oc_Nodes1 = '<h3 style="color:green">' + obj_check_wifi_Data1[2].info + '</br>' + obj_check_wifi_Data1[9].info+ '</h3>';
+        $('#check_wifi').html(check_wifi_oc_Nodes1);
+        $('#loading').hide();
+        console.log("set DONE!");
+	}
+	if (obj_check_wifi_Data1[0].info == "SCANNING") {
+        $('#check_wifi').html(check_wifi_nc_Nodes1);
+	}
+    if (obj_check_wifi_Data1[0].info == "DISCONNECTED") {
+        $('#check_wifi').html(check_wifi_nc_Nodes1);
+        $('#loading').hide();
+        alert("Unknown error & stop");
+    }
+}
+
+//-----------------------------------------------
+
+function check_wifi_connected() {
+	show_loading();
+	setTimeout(function () { $('#loading').hide(); }, 2000);
+	send_commond("check_wifi_connected", handle_check_wifi);
+}
+
+function handle_check_wifi(command_xmlhttp)
+{
+	var response_check_wifi = command_xmlhttp.responseText;
+	var obj_check_wifi_Data = eval("("+response_check_wifi+")");
+	var check_wifi_Nodes = "";
+
+	if (obj_check_wifi_Data.length < 4){
+		//if (obj_check_wifi_Data[0].info == "SCANNING")
+		check_wifi_Nodes = '<h3 style="color:red">No Connected</h3>';
+	}else{
+		if (obj_check_wifi_Data[8].info == "COMPLETED")
+			check_wifi_Nodes = '<h3 style="color:green">' + obj_check_wifi_Data[2].info + '</br>' +  obj_check_wifi_Data[9].info + '</h3>';
+	}
+
+	$('#check_wifi').html(check_wifi_Nodes);
+}
+
+function goTop() {
+	$('html, body').animate({scrollTop:0}, 'fast');
 }
 
 function check_input_is_ok(input_text)
@@ -318,7 +388,7 @@ function system(){
 	send_commond("get_deviceinfo",show_device_info);
 }
 
-function show_device_info(){
+function show_device_info(command_xmlhttp){
 
 	send_commond("runswupdate");
 	var response_dev_info = command_xmlhttp.responseText;
@@ -344,41 +414,3 @@ function stop_swupdate(){
 	send_commond("endswupdate");
 }
 //-----------Swupdate handle end-----------//
-
-/** smartconfig handle*/
-/*
-function start_smartconf(){
-    console.log("fuck smartconf");
-    send_commond("run_smartconf");
-    setTimeout('get_wlan0_info()',10000);
-}
-
-function get_wlan0_info(){
-    console.log("fuck wlan0");
-    send_commond("get_wlan0_info",handle_wlan0_info);
-}
-
-function handle_wlan0_info(){
-    var response_wlan0_info = command_xmlhttp.responseText;
-    if(response_wlan0_info == "")
-        get_wlan0_info();
-    var wlan0_info = eval("("+response_wlan0_info+")");
-    var htmlNodes_wlan0_info = '';
-
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[0].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[1].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[2].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[3].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[4].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[5].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[6].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[8].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[9].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[10].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[11].info+'</a></li>'
-    htmlNodes_wlan0_info += '<li class="list-group-item" align="center">' + wlan0_info[12].info+'</a></li>'
-
-    $('#wlan0_info_show').append(htmlNodes_wlan0_info);
-}
-*/
-//---------smartconfig handle end---------//

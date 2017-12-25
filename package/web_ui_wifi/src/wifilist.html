@@ -13,19 +13,20 @@
 
 <nav class="navbar">
   <div class="container-fluid">
-    <div class="navbar-header">
+    <div style="float:left" class="navbar-header">
       <a class="navbar-brand" href="./index.html">
         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
       </a>
     </div>
-          <ul class="nav navbar-nav navbar-right">
+
+    <ul style="float:right" class="nav navbar-nav navbar-right">
         <li><a class="list-group-item" role="button" data-toggle="modal" data-target="#myModal">Setting Manually</a></li>
-      </ul>
+    </ul>
   </div>
+  <div id="check_wifi" align="center"></div>
 </nav>
 
-<div id="loadpoint">
-</div>
+  <div id="loadpoint" style="float:right" class="panel-heading"></div>
 <div class="panel panel-default">
 	<div id="gettext" class="panel-heading">WI-FI LIST
 		<img src="./images/refresh.png" onclick="get_wifi_list()"/>
@@ -51,8 +52,8 @@
             </div>
       </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="set_wifi_by_modal_input()">connect</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" >cancel</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="set_wifi_by_modal_input();goTop()">connect</button>
       </div>
     </div>
   </div><!-- /.modal-content -->
