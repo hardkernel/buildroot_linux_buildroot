@@ -21,32 +21,29 @@ DAEMON4=/usr/sbin/$NAME4
 PIDFILE4=/var/run/${NAME4}-wlan0.pid
 
 ap_name_file=/etc/wifi/ap_name
-if [ -f $ap_name_file ];then
+function hostapd_conf(){
+    if [ ! -f $ap_name_file ];then
+        cat /sys/class/net/wlan1/address | sed 's/\://g' > /etc/wifi/ap_name
+    fi
     ap_name=`cat /etc/wifi/ap_name`
-else
-    < /dev/urandom tr -dc A-Za-z | head -c 8 | cat > /etc/wifi/ap_name
-    ap_name=`cat /etc/wifi/ap_name`
-fi
+    ssid=amlogic-audio-$ap_name
+    password=12345678
 
-ssid=amlogic-audio-$ap_name
-password=12345678
-
-echo 0 > /etc/hostapd_temp.conf
-echo "interface=wlan1
-driver=nl80211
-ctrl_interface=/var/run/hostapd
-ssid=${ssid}
-channel=6
-ieee80211n=1
-hw_mode=g
-ignore_broadcast_ssid=0"  > /etc/hostapd_temp.conf
-
-echo "
-wpa=3
-wpa_passphrase=${password}
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP CCMP
-rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
+    echo 0 > /etc/hostapd_temp.conf
+    echo "interface=wlan1" > /etc/hostapd_temp.conf
+    echo "driver=nl80211" >> /etc/hostapd_temp.conf
+    echo "ctrl_interface=/var/run/hostapd" >> /etc/hostapd_temp.conf
+    echo "ssid=${ssid}" >> /etc/hostapd_temp.conf
+    echo "channel=6" >> /etc/hostapd_temp.conf
+    echo "ieee80211n=1" >> /etc/hostapd_temp.conf
+    echo "hw_mode=g" >> /etc/hostapd_temp.conf
+    echo "ignore_broadcast_ssid=0"  >> /etc/hostapd_temp.conf
+    echo "wpa=3" >> /etc/hostapd_temp.conf
+    echo "wpa_passphrase=${password}" >> /etc/hostapd_temp.conf
+    echo "wpa_key_mgmt=WPA-PSK" >> /etc/hostapd_temp.conf
+    echo "wpa_pairwise=TKIP CCMP" >> /etc/hostapd_temp.conf
+    echo "rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
+}
 
 MULTI_WIFI=/usr/bin/multi_wifi_load_driver
 
@@ -91,6 +88,7 @@ ifconfig wlan0 &> /dev/null
 DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
 if [ $? -eq 0 ]; then
 	iw wlan0 interface add wlan1 type managed
+        hostapd_conf
 	hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
 	ifconfig wlan1 192.168.2.1
 	DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
