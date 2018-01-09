@@ -2,3 +2,6 @@
 
 # type                  key
 mute                      106
+tap                       105
+VolumeUp                  115
+VolumeDown                114
