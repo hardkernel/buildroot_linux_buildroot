@@ -21,7 +21,6 @@ AML_BRCM_BSA_BUILD_TYPE = arm
 endif
 
 ####if mem reductin configured, only support few profiles########
-
 ifeq ($(BR2_AML_BRCM_BSA_MEM_REDUCTION),y)
 AML_BRCM_BSA_APP = app_manager app_ag app_avk app_hs app_av \
 	app_switch app_tm
@@ -37,10 +36,10 @@ endef
 else
 AML_BRCM_BSA_APP = app_manager app_3d app_ag app_av app_avk app_ble \
 	app_ble_ancs app_ble_blp app_ble_cscc app_ble_eddystone app_ble_hrc \
-	app_ble_htp app_ble_pm app_ble_rscc app_ble_tvselect app_ble_wifi \
+	app_ble_htp app_ble_pm app_ble_rscc app_ble_tvselect app_ble_wifi app_ble_wifi_setup\
 	app_cce app_dg app_fm app_ftc app_fts app_hd app_headless \
 	app_hh app_hl app_hs app_nsa app_opc app_ops app_pan \
-	app_pbc app_pbs app_sac app_sc app_switch app_tm app_socket
+	app_pbc app_pbs app_sac app_sc app_switch app_tm app_socket app_audio_source
 
 define AML_BRCM_BSA_INSTALL_SERVER_SO_TARGET_CMDS
 	$(INSTALL) -D -m 755 $(@D)/server/$(AML_BRCM_BSA_BUILD_TYPE)/bsa_server \
@@ -82,7 +81,6 @@ endif
 
 ########## amlogic app ##########################################
 AML_BRCM_MUSIC_BOX = app_musicBox
-
 ifeq ($(BR2_AML_BT_DSPC),y)
 define AML_BRCM_BSA_MUSICBOX_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/$(AML_BT_DSPC_PATH)/$(AML_BT_DSPC_LIBDSPC)/ \
@@ -119,8 +117,9 @@ define AML_BRCM_BSA_MUSICBOX_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 755 $(@D)/$(AML_BRCM_BSA_PATH)/$(AML_BRCM_MUSIC_BOX)/build/$(AML_BRCM_BSA_BUILD_TYPE)/$(AML_BRCM_MUSIC_BOX) $(TARGET_DIR)/usr/bin/$(AML_BRCM_MUSIC_BOX)
 endef
 
-
 endif
+AML_BRCM_AUDIO_SOURCE = app_audio_source
+
 ######## amlogic app end #######################################
 
 define AML_BRCM_BSA_APP_BUILD_CMDS

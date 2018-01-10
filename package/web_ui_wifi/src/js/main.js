@@ -35,14 +35,15 @@ function handleCommand(command_xmlhttp, callback)
 	}
 }
 
-function send_commond(command, callback)
+function send_commond(command, callback,cgi)
 {
+  var cgi = cgi || "cgi-bin/main.cgi";
 	command_xmlhttp = GetXmlHttpObject();               //create req obj
 	command_xmlhttp.onreadystatechange = function () {        //get data from web action
 		handleCommand(command_xmlhttp, callback);
 	}
 
-	command_xmlhttp.open("POST", "cgi-bin/main.cgi" ,true);
+	command_xmlhttp.open("POST",cgi,true);
 	command_xmlhttp.setRequestHeader("If-Modified-Since","0");
 	command_xmlhttp.setRequestHeader("Cache-Control","no-cache");
 	command_xmlhttp.setRequestHeader("CONTENT-TYPE","application/x-www-form-urlencoded");
@@ -50,6 +51,41 @@ function send_commond(command, callback)
 }
 //--------------HTML url handle end---------------//
 
+function get_bt_list()
+{
+	document.getElementById("load_div").style="";
+	$(":button").attr("disabled",true);
+	var wifi_json = send_commond("",bt_list_init,"cgi-bin/bt.cgi");
+}
+
+
+function bt_list_init(){
+	var response_bt_list = command_xmlhttp.responseText;
+	response_bt_list =response_bt_list.substring(response_bt_list.indexOf("{"),response_bt_list.lastIndexOf("}")) +"}";
+	
+	var response_bt_list_json = eval("(" + response_bt_list + ")");
+	var len = response_bt_list_json.bt_list.length;
+	var htmlStr="";
+	for(var i=0; i< len ;i++){
+		console.log(response_bt_list_json.bt_list[i].name);
+		htmlStr += '<button type="button" name=" '+ i +'" class="btn bt_item btn-default btn-lg btn-block">'+response_bt_list_json.bt_list[i].name +'</button>'
+	}
+	document.getElementById("load_div").style="display:none";
+	$(":button").attr("disabled",false);
+	$('#bt_btn').html(htmlStr);
+}
+
+$('#bt_btn').on('click', 'button', function(){
+	send_commond("", is_bt_ok, "cgi-bin/bt_con.cgi?index="+eval(this.name));
+})
+function is_bt_ok(){
+	var response_status = command_xmlhttp.responseText;
+	var stau = eval("(" + response_status +")");
+	if (stau.status=="ture")
+		alert("BT connecnt success");
+	else
+		alert("BT connecnt faile");
+}
 
 /*************************************************
  * WI-FI handle

@@ -19,6 +19,7 @@ menu "amlogic"
 	source "package/helloworld/Config.in"
 	source "package/aml_usb_config/Config.in"
 	source "../vendor/amlogic/system_control/Config.in"
+    source "package/bt_setup/Config.in"
 endmenu
 
 menu "Audio and video applications"
