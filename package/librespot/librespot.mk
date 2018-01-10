@@ -23,6 +23,11 @@ else
 RUST_CC = armv7-unknown-linux-gnueabihf
 endif
 
+ifeq ($(BR2_PACKAGE_PULSEAUDIO), y)
+LIBRESPOT_BACKEND = "pulseaudio-backend"
+else
+LIBRESPOT_BACKEND = "alsa-backend"
+endif
 define LIBRESPOT_INSTALL_TARGET_CMDS
 
 	echo -e '#!/bin/bash' > $(SYSROOT_CONFIG)
@@ -33,7 +38,7 @@ define LIBRESPOT_INSTALL_TARGET_CMDS
 	cp $(@D)/.cargo ~/ -rf
 	$(@D)/.cargo/bin/rustup default nightly
 	$(@D)/.cargo/bin/rustup target add $(RUST_CC)
-	($(LIBRESPOT_MAKE_ENV) $(@D)/.cargo/bin/cargo build --no-default-features --features "alsa-backend" --target $(RUST_CC)  --release --manifest-path $(@D)/Cargo.toml)
+	($(LIBRESPOT_MAKE_ENV) $(@D)/.cargo/bin/cargo build --no-default-features --features $(LIBRESPOT_BACKEND) --target $(RUST_CC)  --release --manifest-path $(@D)/Cargo.toml)
 	${INSTALL} -D -m 0755 ${@D}/target/$(RUST_CC)/release/librespot  ${TARGET_DIR}/usr/bin/librespot
 	#rm ~/.cargo -rf
 endef

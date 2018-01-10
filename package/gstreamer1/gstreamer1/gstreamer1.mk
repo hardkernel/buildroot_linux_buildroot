@@ -31,10 +31,14 @@ GSTREAMER1_DEPENDENCIES = \
 	libglib2 \
 	$(if $(BR2_PACKAGE_LIBUNWIND),libunwind)
 
+ifeq ($(BR2_PACKAGE_PULSEAUDIO), y)
+GSTTREAMER1_SOUNDCARD_CONFIG_ARCH = gst-soundcard.conf
+else
 ifeq ($(BR2_aarch64),y)
 GSTTREAMER1_SOUNDCARD_CONFIG_ARCH = gst-soundcard-64.conf
 else
 GSTTREAMER1_SOUNDCARD_CONFIG_ARCH = gst-soundcard-32.conf
+endif
 endif
 
 define GSTREAMER1_INSTALL_TARGET_FIXUP

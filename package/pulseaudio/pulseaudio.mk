@@ -36,6 +36,11 @@ PULSEAUDIO_DEPENDENCIES = \
 	$(if $(BR2_PACKAGE_FFTW),fftw) \
 	$(if $(BR2_PACKAGE_SYSTEMD),systemd)
 
+ifeq ($(BR2_PACKAGE_BT_SETUP), y)
+PULSEAUDIO_DEPENDENCIES += bt_setup
+PULSEAUDIO_PRE_CONFIGURE_HOOKS += PULSEAUDIO_PRE_CONFIGURE_FILES
+endif
+
 ifeq ($(BR2_PACKAGE_GDBM),y)
 PULSEAUDIO_CONF_OPTS += --with-database=gdbm
 PULSEAUDIO_DEPENDENCIES += gdbm
@@ -130,6 +135,16 @@ endif
 else
 PULSEAUDIO_CONF_OPTS += --disable-x11
 endif
+#PULSEAUDIO_CONF_OPTS += --disable-dbus
+
+define PULSEAUDIO_PRE_CONFIGURE_FILES
+	cp $(TOPDIR)/package/bt_setup/module/Makefile.am \
+		$(@D)/src/
+	cp $(TOPDIR)/package/bt_setup/module/module-bsa-sink.c \
+		$(@D)/src/modules
+	cp $(TOPDIR)/package/bt_setup/module/module-bsa-sink-symdef.h \
+		$(@D)/src
+endef
 
 define PULSEAUDIO_REMOVE_VALA
 	rm -rf $(TARGET_DIR)/usr/share/vala

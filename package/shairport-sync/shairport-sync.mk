@@ -31,12 +31,15 @@ else
 SHAIRPORT_SYNC_CONF_OPTS += --with-tinysvcmdns
 endif
 
+ifeq ($(BR2_PACKAGE_PULSEAUDIO), y)
+SHAIRPORT_SYNC_CONFIG_ARCH = shairport-sync-pulse.conf
+else
 ifeq ($(BR2_aarch64),y)
 SHAIRPORT_SYNC_CONFIG_ARCH = shairport-sync-64.conf
 else
 SHAIRPORT_SYNC_CONFIG_ARCH = shairport-sync-32.conf
 endif
-
+endif
 # OpenSSL or PolarSSL
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 SHAIRPORT_SYNC_DEPENDENCIES += openssl

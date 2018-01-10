@@ -7,8 +7,8 @@
 start() {
 	printf "Starting pulseaudio: "
 	umask 077
-	/usr/bin/pulseaudio --system --daemonize
-	echo "OK"
+	/usr/bin/pulseaudio  --exit-idle-time=-1 --daemonize 
+    echo "OK"
 }
 stop() {
 	printf "Stopping pulseaudio: "
