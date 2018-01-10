@@ -15,6 +15,10 @@ elif [ $MESON_EGL == "wayland_drm" ];then
     echo "meson egl: wayland_drm"
     echo "drm will configure display modesetting, S50display exit now!!"
     exit 0
+elif [ $MESON_EGL == "dummy" ];then
+    echo "meson egl: dummy"
+    echo "drm will configure display modesetting, S50display exit now!!"
+    exit 0
 else
     echo "meson egl: fbdev"
 fi

@@ -17,9 +17,10 @@ choice
         bool "choose a mali egl"
         default BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL if BR2_PACKAGE_WESTON_DRM
         default BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL if BR2_PACKAGE_WESTON_FBDEV && !BR2_PACKAGE_WESTON_DRM
-        default BR2_PACKAGE_MESON_MALI_FBDEV_EGL if !BR2_PACKAGE_WESTON
+        default BR2_PACKAGE_MESON_MALI_DUMMY_EGL if !BR2_PACKAGE_WESTON && BR2_PACKAGE_AML_MINIGBM
+        default BR2_PACKAGE_MESON_MALI_FBDEV_EGL if !BR2_PACKAGE_WESTON && !BR2_PACKAGE_AML_MINIGBM
         help
-                choose wayland_fbdev or wayland_drm, or fbdev
+                choose wayland_fbdev, wayland_drm, dummy or fbdev
 
 config BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL
         bool "wayland with fbdev backend"
@@ -32,6 +33,11 @@ config BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL
         select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
         help
                 support wayland api for app, backend is drm
+
+config BR2_PACKAGE_MESON_MALI_DUMMY_EGL
+        bool "dummy"
+        help
+                support dummy for chromeos to use
 
 config BR2_PACKAGE_MESON_MALI_FBDEV_EGL
         bool "fbdev"
