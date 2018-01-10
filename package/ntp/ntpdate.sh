@@ -20,7 +20,7 @@ fi
 if [ -x $NTPDATE_BIN ] ; then
     while true ; do
         echo -n "Getting initial time via ntp"
-        $NTPDATE_BIN -v $NTPDATE_OPTS $NTPSERVERS > /dev/null 2>&1
+        $NTPDATE_BIN -v -b -t 5 $NTPDATE_OPTS $NTPSERVERS > /dev/null 2>&1
         if [ $? = 0 ]; then
             echo "ntpdate OK"
             /bin/date +%Y-%m-%d > /etc/last_date
