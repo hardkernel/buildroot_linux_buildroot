@@ -9,7 +9,7 @@ function main() {
 }
 
 function initial_configure() {
-	lightTest --num=6 --rgbflag=0 --speed=200 --time=0 --style=5
+	lightTest --num=12 --times=0 --speed=150 --time=0 --style=1 --mute_led=1 --listen_led=1
 	ssid=`sed -n "1p" $WIFI_FILE`
 	password=`sed -n "2p" $WIFI_FILE`
 	echo "$ssid"
@@ -66,13 +66,13 @@ function ping_test() {
 	echo "now going to ping router's ip: $router_ip for 5 seconds"
 	ping $router_ip -w 5
 	if [ $? -eq 1 ];then
-		lightTest --num=6 --rgbflag=0 --speed=230 --time=0 --style=1
+		lightTest --num=12 --times=0 --speed=300 --time=0 --style=0 --mute_led=1 --listen_led=1
 		echo "ping fail!! please check"
 	else
 		echo "ping successfully"
-		lightTest --num=6 --rgbflag=0 --speed=100 --time=2 --style=2
+		lightTest --num=12 --times=0 --speed=150 --time=0 --style=30 --mute_led=1 --listen_led=1
 		sleep 2
-		lightTest --num=6 --rgbflag=0 --speed=230 --time=0 --style=1
+		lightTest --num=12 --times=0 --speed=300 --time=0 --style=0 --mute_led=1 --listen_led=1
 	fi
 }
 

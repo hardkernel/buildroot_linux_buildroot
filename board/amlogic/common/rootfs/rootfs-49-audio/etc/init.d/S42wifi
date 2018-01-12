@@ -22,9 +22,13 @@ PIDFILE4=/var/run/${NAME4}-wlan0.pid
 
 ap_name_file=/etc/wifi/ap_name
 function hostapd_conf(){
-    if [ ! -f $ap_name_file ];then
+    while true
+    do
         cat /sys/class/net/wlan1/address | sed 's/\://g' > /etc/wifi/ap_name
-    fi
+        if [ -f $ap_name_file ];then
+            break
+        fi
+    done
     ap_name=`cat /etc/wifi/ap_name`
     ssid=amlogic-audio-$ap_name
     password=12345678
@@ -87,11 +91,11 @@ DONE=`ifconfig wlan0 up > /dev/null`
 ifconfig wlan0 &> /dev/null
 DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
 if [ $? -eq 0 ]; then
-	iw wlan0 interface add wlan1 type managed
-        hostapd_conf
-	hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
-	ifconfig wlan1 192.168.2.1
-	DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
+    iw wlan0 interface add wlan1 type managed
+    hostapd_conf
+    hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
+    ifconfig wlan1 192.168.2.1
+    DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
 fi
 ifconfig wlan0 &> /dev/null
 
