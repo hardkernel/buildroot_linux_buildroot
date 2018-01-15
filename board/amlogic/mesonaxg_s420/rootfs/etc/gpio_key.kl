@@ -2,8 +2,8 @@
 
 # type                  key
 #up                      106    #this key uesd avs mute
-down                    105
+#down                    105
 WifiConfig              139
-VolumeUp                115
-VolumeDown              114
+#VolumeUp                115    #this key used avs VolumeUp
+#VolumeDown              114    #this key used avs VolumeDown
 power                   116
