@@ -23,9 +23,20 @@ fi
 function set_btname()
 {
     name_file=/etc/wifi/ap_name
-    if [ -f $ap_name_file ];then
-        bt_name=`cat /etc/wifi/ap_name`
-    fi
+    local cnt=1
+    bt_name="amlogic"
+    while [ $cnt -lt 5 ]
+    do
+        if [ -f $name_file ];then
+            bt_name=`cat /etc/wifi/ap_name`
+            if [ "$bt_name" != "" ];then
+                break
+            else
+                cnt=$((cnt + 1))
+                sleep 1
+            fi
+        fi
+    done
     echo "bt_name=MusicBox-$bt_name" > /etc/bsa/config/bt_configure.txt
 
 }
