@@ -16,8 +16,12 @@ endif
 
 
 define WEB_UI_WIFI_INSTALL_TARGET_CMDS
-	mkdir -p ${TARGET_DIR}/var/www
+	mkdir -p ${TARGET_DIR}/var/www/cgi-bin
 	cp $(@D)/Html/* ${TARGET_DIR}/var/www/
+	cp -rf $(@D)/css ${TARGET_DIR}/var/www/
+	cp -rf $(@D)/fonts ${TARGET_DIR}/var/www/
+	cp -rf $(@D)/images ${TARGET_DIR}/var/www/
+	cp -rf $(@D)/js ${TARGET_DIR}/var/www/
 	cp $(@D)/cgi-bin/${MAIN_CGI_BIN} ${TARGET_DIR}/var/www/cgi-bin/main.cgi
 	cp -rf $(@D)/cgi-bin/scripts/* ${TARGET_DIR}/var/www/cgi-bin/
 endef
