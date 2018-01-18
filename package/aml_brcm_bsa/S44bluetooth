@@ -8,7 +8,7 @@ NAME2=app_musicBox
 DAEMON2=/usr/bin/$NAME2
 PIDFILE2=/var/run/$NAME2.pid
 
-
+debug=$2
 HW_PLATFORM=$(cat /proc/device-tree/amlogic-dt-id | awk -F "_" '{print $2}')
 if [ "${HW_PLATFORM}" == "s400" ];then
 	hcd_file="/etc/wifi/6255/BCM4345C0.hcd"
@@ -37,7 +37,15 @@ function set_btname()
             fi
         fi
     done
-    echo "bt_name=MusicBox-$bt_name" > /etc/bsa/config/bt_configure.txt
+
+    configure_file="/etc/bsa/config/bt_configure.txt"
+    if [ -f $configure_file ];then
+        sed -i -e "/bt_name/abt_name=MusicBox-$bt_name" -e "/bt_name=/d" $configure_file
+    else
+        echo "create configure file"
+        echo "bt_name=MusicBox-$bt_name" > $configure_file
+        echo "debug=0" >> $configure_file
+    fi
 
 }
 
@@ -51,8 +59,14 @@ Blue_start()
     set_btname
 
     cd /etc/bsa/config
+    grep -Insr "debug=1" /etc/bsa/config/bt_configure.txt > /dev/null
+    if [ $? -eq 0 ]; then
+        echo "start broadcom bluetooth server bsa_sever in debug mode"
+        start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -b /etc/bsa/config/btsnoop.log -p $hcd_file -d /dev/ttyS1 > /etc/bsa/config/bsa_server.log &
+    else
     echo "start broadcom bluetooth server bsa_sever"
-    start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -all=0 -b /etc/bsa/config/btsnoop.log -p $hcd_file -d /dev/ttyS1 &
+        start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -all=0 -p $hcd_file -d /dev/ttyS1 &
+    fi
     sleep 2
 
     echo "start broadcom bluetooth app_musicBox"
@@ -78,7 +92,7 @@ Blue_stop()
     rm -f $PIDFILE2
     echo 0 > /sys/class/rfkill/rfkill0/state
     echo
-    echo "|-----bluetooth music player is shutdown-----|"
+    echo "|-----bluetooth speaker is shutdown------|"
 }
 
 skt_handle()
