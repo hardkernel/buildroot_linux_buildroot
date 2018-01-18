@@ -29,6 +29,7 @@ usb_adbd_init()
 	mount -t functionfs adb /dev/usb-ffs/adb
 	ln -s /sys/kernel/config/usb_gadget/amlogic/functions/ffs.adb /sys/kernel/config/usb_gadget/amlogic/configs/amlogic.1/ffs.adb
 	/usr/bin/adbd &
+	/usr/bin/usb_monitor &
 }
 
 usb_net_ipconfig()
