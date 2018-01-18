@@ -505,7 +505,7 @@ static int multi_wifi_load_driver(int type)
     if (!sdio_wifi_load_driver(type)) {
 	return 0;
     }
-
+	fprintf(stderr, "wait usb ok\n");
     do {
 	ret = usb_wifi_load_driver(type);
 	if (!ret)
@@ -515,7 +515,6 @@ static int multi_wifi_load_driver(int type)
 	else {
 	    wait_time++;
 	    usleep(50000);
-	    fprintf(stderr, "wait usb ok\n");
 	}
     } while (wait_time < 300);
 
