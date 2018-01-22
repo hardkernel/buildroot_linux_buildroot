@@ -76,6 +76,7 @@ ifneq ($(RECOVERY_OTA_DIR),)
 rootfs-ota-swu-pack-ext4fs:
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-emmc $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-emmc-increment $(BINARIES_DIR)/sw-description-emmc-increment
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
 	$(HOST_DIR)/usr/bin/ota_package_create.sh emmc
 ROOTFS_EXT2_POST_TARGETS += rootfs-ota-swu-pack-ext4fs

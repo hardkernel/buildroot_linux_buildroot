@@ -56,6 +56,7 @@ ifeq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand-ab $(BINARIES_DIR)/sw-description
 else
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand-increment $(BINARIES_DIR)/sw-description-nand-increment
 endif
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
 	$(HOST_DIR)/usr/bin/ota_package_create.sh nand
