@@ -70,7 +70,7 @@
 /usr/bin/avahi-resolve-host-name
 /usr/bin/avahi-set-host-name
 /usr/bin/dbus-cleanup-sockets
-/usr/bin/dbus-launch
+#/usr/bin/dbus-launch
 /usr/bin/dbus-monitor
 /usr/bin/dbus-run-session
 /usr/bin/dbus-send
