@@ -1,16 +1,7 @@
 #!/bin/sh
 
-NAME1=app_ble_wifi_setup
-DAEMON1=/usr/bin/$NAME1
-PIDFILE1=/var/run/$NAME1.pid
-
-NAME2=app_musicBox
-DAEMON2=/usr/bin/$NAME2
-PIDFILE2=/var/run/$NAME2.pid
-
 powerStateFile="/sys/power/state"
 powerResumeFlag="/etc/adckey/powerState"
-
 powerStateChange()
 {
         echo "mem" > $powerStateFile
@@ -59,8 +50,13 @@ ble_wifi_setup()
 	kill -9 $app1_id
 	local app2_id=`ps | grep "app_ble_wifi_setup" | awk '{print $1}'`
 	kill -9 $app2_id
+	if [ ! -f "/etc/bsa/config/wifi_status" ]; then
+		touch /etc/bsa/config/wifi_status
+		chmod 644 /etc/bsa/config/wifi_status
+	fi
+	echo 0 > /etc/bsa/config/wifi_status
 	cd /etc/bsa/config
-        app_ble_wifi_setup &
+	app_ble_wifi_setup &
 	app_musicBox  ble_mode &
 }
 

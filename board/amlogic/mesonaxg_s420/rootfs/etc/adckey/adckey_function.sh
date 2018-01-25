@@ -3,11 +3,6 @@
 powerStateFile="/sys/power/state"
 powerResumeFlag="/etc/adckey/powerState"
 
-wifiSmartConfig()
-{
-	brcm_smartconfig.sh
-}
-
 powerStateChange()
 {
        echo "mem" > $powerStateFile
@@ -40,11 +35,36 @@ volumeDownAction()
     fi
 }
 
+wifiSmartConfig()
+{
+	brcm_smartconfig.sh
+}
+
+ble_wifi_setup()
+{
+	echo "ble config for wifisetup"
+	rm /etc/bsa/config/wifi_tool.sh
+	ln /var/www/cgi-bin/wifi/wifi_tool.sh  /etc/bsa/config/wifi_tool.sh
+	local app1_id=`ps | grep "app_musicBox" | awk '{print $1}'`
+	kill -9 $app1_id
+	local app2_id=`ps | grep "app_ble_wifi_setup" | awk '{print $1}'`
+	kill -9 $app2_id
+	if [ ! -f "/etc/bsa/config/wifi_status" ]; then
+		touch /etc/bsa/config/wifi_status
+		chmod 644 /etc/bsa/config/wifi_status
+	fi
+	echo 0 > /etc/bsa/config/wifi_status
+	cd /etc/bsa/config
+	app_ble_wifi_setup &
+	app_musicBox  ble_mode &
+}
+
 case $1 in
-    "longpressWifiConfig") wifiSmartConfig ;;
     "power") powerStateChange ;;
     "VolumeUp") volumeUpAction ;;
     "VolumeDown") volumeDownAction ;;
+    "longpressWifiConfig") wifiSmartConfig ;;
+    "WifiConfig")  ble_wifi_setup ;;
     *) echo "no function to add this case: $1" ;;
 esac
 

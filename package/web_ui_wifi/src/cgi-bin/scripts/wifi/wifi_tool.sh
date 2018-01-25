@@ -1,79 +1,93 @@
 #!/bin/sh
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
+WIFI_FILE=/var/www/cgi-bin/wifi/select.txt
+ssid="default_amlogic"
+password="default_amlogic"
 
-WIFI_FILE=./wifi/select.txt
-
-function main() {
-	initial_configure
-	start_wifi
-}
-
-function initial_configure() {
-	lightTest --num=12 --times=0 --speed=150 --time=0 --style=1 --mute_led=1 --listen_led=1
+parse_paras()
+{
 	ssid=`sed -n "1p" $WIFI_FILE`
 	password=`sed -n "2p" $WIFI_FILE`
-	echo "$ssid"
-	echo "$password"
-	echo "user set:ssid=$ssid, key=$password, 4s to check your configure"
 	if [ "`echo $password |wc -L`" -lt "8" ];then
 		echo "waring: password lentgh is less than 8, it is not fit for WPA-PSK"
 	fi
 }
 
-function start_wifi() {
-	start_sta
-	ping_test wlan0
-}
-
-function start_sta() {
-	id=`wpa_cli add_network | grep -v "interface"`
-	wpa_cli set_network $id ssid \""${ssid}"\"
-	if [ "$password" = "NONE" ]; then
-		wpa_cli set_network $id key_mgmt NONE
-	else
-		wpa_cli set_network $id psk \""${password}"\"
-	fi
-	wpa_cli select_network $id
-	wpa_cli enable_network $id
-	wpa_cli save_config
-
-	check_in_loop 10
-	echo "start wpa_supplicant successfully!!"
-
-	dhcpcd wlan0
-}
-
-
-function check_in_loop() {
-	local cnt=1
-	while [ $cnt -lt $1 ]; do
-		echo "check_in_loop processing..."
-		wpa_cli status 2 | grep state=COMPLETED
-		if [ $? -eq 0 ];then
-			return
-		else
-			cnt=$((cnt + 1))
-        sleep 1
-        continue
-		fi
-	done
-}
-
-
-function ping_test() {
-	killall dhcpcd
-	router_ip=`dhcpcd -U $1 2> /dev/null | grep routers | awk -F "=" '{print $2}' | sed "s/'//g"`
-	echo "now going to ping router's ip: $router_ip for 5 seconds"
-	ping $router_ip -w 5
+ping_test()
+{
+	killall udhcpc
+        if [ $1 -eq 0 ];then
+                lightTest --num=12 --times=0 --speed=300 --time=0 --style=0 --mute_led=1 --listen_led=1
+                echo "ping fail!! ip is NULL"
+                if [ -f "/etc/bsa/config/wifi_status" ]; then
+                        echo 0 > /etc/bsa/config/wifi_status
+                fi
+		return 0
+        fi
+	echo "now going to ping router's ip: $1 for 5 seconds"
+	ping $1 -w 5
 	if [ $? -eq 1 ];then
 		lightTest --num=12 --times=0 --speed=300 --time=0 --style=0 --mute_led=1 --listen_led=1
 		echo "ping fail!! please check"
+		if [ -f "/etc/bsa/config/wifi_status" ]; then
+			echo 0 > /etc/bsa/config/wifi_status
+		fi
 	else
 		echo "ping successfully"
-		lightTest --num=12 --times=0 --speed=150 --time=0 --style=30 --mute_led=1 --listen_led=1
+		wpa_cli save_config
+		sync
+		lightTest --num=12 --times=0 --speed=150 --time=3 --style=30 --mute_led=1 --listen_led=1
+		if [ -f "/etc/bsa/config/wifi_status" ] ;then
+			echo 1 > /etc/bsa/config/wifi_status
+		fi
 		sleep 2
 		lightTest --num=12 --times=0 --speed=300 --time=0 --style=0 --mute_led=1 --listen_led=1
 	fi
 }
 
-main
+check_state()
+{
+	local cnt=1
+	while [ $cnt -lt $1 ]; do
+		echo "check_in_loop processing..."
+		ret=`wpa_cli status | grep "wpa_state"`
+		ret=${ret##*=}
+		if [ $ret == "COMPLETED" ]; then
+			return 1
+		else
+			cnt=$((cnt + 1))
+			sleep 1
+			continue
+		fi
+        done
+	return 0
+}
+
+wifi_setup()
+{
+	parse_paras
+	wpa_cli -iwlan0 remove_network 0
+	id=`wpa_cli add_network | grep -v "interface"`
+	echo "***************wifi setup paras***************"
+	echo "**  id=$id                                  **"
+	echo "**  ssid=$ssid                              **"
+	echo "**  password=$password                      **"
+	echo "**********************************************"
+	wpa_cli set_network $id ssid \"$ssid\"
+	if [ "$password" = "NONE" ]; then
+		wpa_cli set_network $id key_mgmt NONE
+	else
+		wpa_cli set_network $id psk \"$password\"
+	fi
+	wpa_cli enable_network $id
+	check_state 10
+	if [ $? -eq 0 ] ;then
+		echo "start wpa_supplicant fail!!"
+	else
+		echo "start wpa_supplicant successfully!!"
+		ip_addr=`udhcpc -q -n -s /usr/share/udhcpc/default.script -i wlan0 2> /dev/null | grep "adding dns*" | awk '{print $3}'`
+	fi
+	ping_test $ip_addr $id
+}
+
+wifi_setup
