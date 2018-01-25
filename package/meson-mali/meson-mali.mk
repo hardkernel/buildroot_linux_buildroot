@@ -1,10 +1,10 @@
 #############################################################
 #
-# meson_mali
+# meson-mali
 #
 #############################################################
-MESON_MALI_VERSION = 1.0
-MESON_MALI_SITE = $(TOPDIR)/package/meson-mali
+MESON_MALI_VERSION = 2.0
+MESON_MALI_SITE = $(TOPDIR)/../vendor/amlogic/meson_mali
 MESON_MALI_SITE_METHOD = local
 MESON_MALI_INSTALL_STAGING = YES
 MESON_MALI_PROVIDES = libegl libgles
@@ -29,18 +29,18 @@ endif
 
 ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_FBDEV_EGL),y)
 EGL_PLATFORM_HEADER = EGL_platform/platform_wayland
-MALI_LIB_LOC = $(API_VERSION)/$(MALI_VERSION)/wayland/fbdev
+MALI_LIB_LOC = $(MALI_VERSION)/$(API_VERSION)/wayland/fbdev
 MESON_MALI_DEPENDENCIES += wayland
 else ifeq ($(BR2_PACKAGE_MESON_MALI_WAYLAND_DRM_EGL),y)
 EGL_PLATFORM_HEADER = EGL_platform/platform_wayland
-MALI_LIB_LOC = $(API_VERSION)/$(MALI_VERSION)/wayland/drm
+MALI_LIB_LOC = $(MALI_VERSION)/$(API_VERSION)/wayland/drm
 MESON_MALI_DEPENDENCIES += wayland
 else ifeq ($(BR2_PACKAGE_MESON_MALI_DUMMY_EGL),y)
 EGL_PLATFORM_HEADER = EGL_platform/platform_dummy
-MALI_LIB_LOC = $(API_VERSION)/$(MALI_VERSION)/dummy
+MALI_LIB_LOC = $(MALI_VERSION)/$(API_VERSION)/dummy
 else
 EGL_PLATFORM_HEADER = EGL_platform/platform_fbdev
-MALI_LIB_LOC = $(API_VERSION)/$(MALI_VERSION)/fbdev
+MALI_LIB_LOC = $(MALI_VERSION)/$(API_VERSION)/fbdev
 endif
 
 ifeq ($(BR2_aarch64),y)
