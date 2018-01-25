@@ -14,12 +14,17 @@ AML_BRCM_BSA_LIBBSA = libbsa
 AML_BT_DSPC_PATH = 3rdparty/embedded/bsa_examples/linux
 AML_BT_DSPC_LIBDSPC = libdspc
 
+ifeq ($(BR2_PACKAGE_PULSEAUDIO), y)
+BT_AUDIO_CONF = alsa-bsa-pulse.conf
+else
 ifeq ($(BR2_aarch64),y)
 AML_BRCM_BSA_BUILD_TYPE = arm64
+BT_AUDIO_CONF = alsa-bsa-64.conf
 else
 AML_BRCM_BSA_BUILD_TYPE = arm
+BT_AUDIO_CONF = alsa-bsa-32.conf
 endif
-
+endif
 ####if mem reductin configured, only support few profiles########
 ifeq ($(BR2_AML_BRCM_BSA_MEM_REDUCTION),y)
 AML_BRCM_BSA_APP = app_manager app_ag app_avk app_hs app_av \
@@ -98,6 +103,7 @@ define AML_BRCM_BSA_MUSICBOX_INSTALL_TARGET_CMDS
 
 	$(INSTALL) -D -m 755 $(@D)/$(AML_BRCM_BSA_PATH)/$(AML_BRCM_MUSIC_BOX)/build/$(AML_BRCM_BSA_BUILD_TYPE)/$(AML_BRCM_MUSIC_BOX) $(TARGET_DIR)/usr/bin/$(AML_BRCM_MUSIC_BOX)
 
+	$(INSTALL) -D -m 755 package/aml_brcm_bsa/$(BT_AUDIO_CONF) $(TARGET_DIR)/etc/alsa_bsa.conf
 
 	$(INSTALL) -D -m 755 $(@D)/$(AML_BT_DSPC_PATH)/$(AML_BT_DSPC_LIBDSPC)/libdspc.so \
 		$(TARGET_DIR)/usr/lib/libdspc.so
