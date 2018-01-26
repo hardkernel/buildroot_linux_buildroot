@@ -13,10 +13,6 @@ AML_BRCM_BSA_LIBBSA = libbsa
 
 AML_BT_DSPC_PATH = 3rdparty/embedded/bsa_examples/linux
 AML_BT_DSPC_LIBDSPC = libdspc
-
-ifeq ($(BR2_PACKAGE_PULSEAUDIO), y)
-BT_AUDIO_CONF = alsa-bsa-pulse.conf
-else
 ifeq ($(BR2_aarch64),y)
 AML_BRCM_BSA_BUILD_TYPE = arm64
 BT_AUDIO_CONF = alsa-bsa-64.conf
@@ -24,6 +20,8 @@ else
 AML_BRCM_BSA_BUILD_TYPE = arm
 BT_AUDIO_CONF = alsa-bsa-32.conf
 endif
+ifeq ($(BR2_PACKAGE_PULSEAUDIO), y)
+BT_AUDIO_CONF = alsa-bsa-pulse.conf
 endif
 ####if mem reductin configured, only support few profiles########
 ifeq ($(BR2_AML_BRCM_BSA_MEM_REDUCTION),y)
