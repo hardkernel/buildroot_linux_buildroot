@@ -34,6 +34,7 @@ define AML_MINIGBM_INSTALL_TARGET_CMDS
 	cp -arf $(MINIGBM_OUT_DIR)/$(MINIGBM_FILENAME) $(TARGET_DIR)/usr/lib/
 	cd $(TARGET_DIR)/usr/lib/;ln -sf $(MINIGBM_FILENAME) libgbm.so
 	cd $(TARGET_DIR)/usr/lib/;ln -sf $(MINIGBM_FILENAME) libgbm.so.$(GBM_VERSION_MAJOR)
+	cd $(TARGET_DIR)/usr/lib/;ln -sf $(MINIGBM_FILENAME) libminigbm.so
 	$(INSTALL) -m 0644 $(AML_MINIGBM_DIR)/gbm.pc $(TARGET_DIR)/usr/lib/pkgconfig
 endef
 
