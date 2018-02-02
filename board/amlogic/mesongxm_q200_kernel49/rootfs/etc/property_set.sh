@@ -9,8 +9,6 @@ export media_arm_audio_decoder=ape,flac,dts,ac3,eac3,wma,wmapro,mp3,aac,aac_latm
 #third party lib modules to use
 export media_libplayer_modules=libcurl_mod.so,libdash_mod.so,libvhls_mod.so
 
-#P241 not support 4k
-export HDMI_4K_SUPPORT=false
 #Graphic enviroment
 #wayland
 export XDG_RUNTIME_DIR=/run/wayland/
