@@ -8,33 +8,23 @@ NAME2=app_musicBox
 DAEMON2=/usr/bin/$NAME2
 PIDFILE2=/var/run/$NAME2.pid
 
-debug=$2
-HW_PLATFORM=$(cat /proc/device-tree/amlogic-dt-id | awk -F "_" '{print $2}')
-if [ "${HW_PLATFORM}" == "s400" ];then
-	hcd_file="/etc/wifi/6255/BCM4345C0.hcd"
-elif [ "${HW_PLATFORM}" == "s420" ];then
-	hcd_file="/etc/wifi/4356/bcm4356a2.hcd"
-else
-    echo "$0: not s400/s420, exit!"
-    exit 1
-fi
-#echo "hcd_file = $hcd_file"
+fw_path="/etc/bluetooth"
 
 function set_btname()
 {
     name_file=/etc/wifi/ap_name
     local cnt=1
     bt_name="amlogic"
-    while [ $cnt -lt 5 ]
+    while [ $cnt -lt 10 ]
     do
         if [ -f $name_file ];then
             bt_name=`cat /etc/wifi/ap_name`
             if [ "$bt_name" != "" ];then
                 break
-            else
-                cnt=$((cnt + 1))
-                sleep 1
             fi
+        else
+            cnt=$((cnt + 1))
+            sleep 1
         fi
     done
 
@@ -62,10 +52,10 @@ Blue_start()
     grep -Insr "debug=1" /etc/bsa/config/bt_configure.txt > /dev/null
     if [ $? -eq 0 ]; then
         echo "start broadcom bluetooth server bsa_sever in debug mode"
-        start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -b /etc/bsa/config/btsnoop.log -p $hcd_file -d /dev/ttyS1 > /etc/bsa/config/bsa_server.log &
+        start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -b /etc/bsa/config/btsnoop.log -pp $fw_path -d /dev/ttyS1 > /etc/bsa/config/bsa_server.log &
     else
     echo "start broadcom bluetooth server bsa_sever"
-        start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -all=0 -p $hcd_file -d /dev/ttyS1 &
+        start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -r 13 -lpm -all=0 -pp $fw_path -d /dev/ttyS1 &
     fi
     sleep 2
 
