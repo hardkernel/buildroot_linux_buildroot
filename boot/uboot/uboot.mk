@@ -40,7 +40,7 @@ endif
 endif
 
 ifeq ($(BR2_TARGET_UBOOT_FORMAT_BIN),y)
-UBOOT_BINS += u-boot.bin
+UBOOT_BINS += build/u-boot.bin
 endif
 
 ifeq ($(BR2_TARGET_UBOOT_FORMAT_ELF),y)
@@ -120,6 +120,8 @@ endif
 
 ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_ODROID_C2)),y)
 	UBOOT_BINS := fip/u-boot.bin
+else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
+	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl build/u-boot.bin build/u-boot.bin.sd.bin
 else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
 	UBOOT_BINS := build/u-boot.bin
 else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
@@ -221,12 +223,15 @@ define UBOOT_CUSTOMER_TREE
 endef
 UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_CUSTOMER_TREE
 endif
+
 ifeq ($(BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY),y)
+ifneq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
 define UBOOT_CONFIGURE_CMDS
 	$(TARGET_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS)		\
 		$(UBOOT_BOARD_NAME)_config
 endef
+endif
 else ifeq ($(BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG),y)
 ifeq ($(BR2_TARGET_UBOOT_USE_DEFCONFIG),y)
 UBOOT_KCONFIG_DEFCONFIG = $(call qstrip,$(BR2_TARGET_UBOOT_BOARD_DEFCONFIG))_defconfig
@@ -244,11 +249,37 @@ define UBOOT_HELP_CMDS
 endef
 endif # BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY
 
-ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_AMLOGIC)),y)
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
 define UBOOT_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
-		$(MAKE) -j4 -C $(@D) $(UBOOT_MAKE_TARGET)
+		cd $(@D);./mk $(UBOOT_BOARD_NAME)
 endef
+define UBOOT_INSTALL_AMLOGIC_USB_TOOL
+	cp -dpf $(@D)/build/u-boot.bin $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.sd.bin $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.efuse $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.usb.bl2 $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.usb.tpl $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.usb.bl2 $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.usb.tpl $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.sd.bin $(BINARIES_DIR)/
+	$(INSTALL) -m 0755 $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))/aml_encrypt_$(BR2_TARGET_UBOOT_PLATFORM) $(HOST_DIR)/usr/bin
+endef
+endif
+
+ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_AMLOGIC)),y)
+ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_REPO)),y)
+define UBOOT_BUILD_CMDS
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
+		cd $(@D);./mk $(UBOOT_BOARD_NAME)
+endef
+else
+define UBOOT_BUILD_CMDS
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
+		$(MAKE) -j1 -C $(@D) $(UBOOT_MAKE_TARGET)
+endef
+endif
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
 define UBOOT_INSTALL_AMLOGIC_USB_TOOL
@@ -269,33 +300,11 @@ define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/u-boot-usb.bin.aml.encrypt $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.aml.encrypt $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.aml.efuse $(BINARIES_DIR)/
-	cp -dpf $(@D)/tools/secu_boot/aml_encrypt_m8b $(HOST_DIR)/usr/bin
 endef
 endif #BR2_TARGET_UBOOT_AMLOGIC_2015
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
 endif #BR2_TARGET_USBTOOL_AMLOGIC
 else
-ifeq ($(BR2_TARGET_UBOOT_ODROID_C2),y)
-define UBOOT_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) 	\
-		$(MAKE1) -C $(@D) $(UBOOT_MAKE_TARGET)
-endef
-else
-define UBOOT_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) 	\
-		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS) 		\
-		$(UBOOT_MAKE_TARGET)
-	$(if $(BR2_TARGET_UBOOT_FORMAT_SD),
-		$(@D)/tools/mxsboot sd $(@D)/u-boot.sb $(@D)/u-boot.sd)
-	$(if $(BR2_TARGET_UBOOT_FORMAT_NAND),
-		$(@D)/tools/mxsboot \
-			-w $(BR2_TARGET_UBOOT_FORMAT_NAND_PAGE_SIZE)	\
-			-o $(BR2_TARGET_UBOOT_FORMAT_NAND_OOB_SIZE)	\
-			-e $(BR2_TARGET_UBOOT_FORMAT_NAND_ERASE_SIZE)	\
-			nand $(@D)/u-boot.sb $(@D)/u-boot.nand)
-
-endef
-endif
 endif
 
 define UBOOT_BUILD_OMAP_IFT
@@ -348,28 +357,7 @@ UBOOT_POST_BUILD_HOOKS += UBOOT_BUILD_OMAP_IFT
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_OMAP_IFT_IMAGE
 endif
 
-ifeq ($(BR2_TARGET_UBOOT_ZYNQ_IMAGE),y)
-define UBOOT_GENERATE_ZYNQ_IMAGE
-	$(HOST_DIR)/usr/bin/python2 \
-		$(HOST_DIR)/usr/bin/zynq-boot-bin.py \
-		-u $(@D)/$(firstword $(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME))) \
-		-o $(BINARIES_DIR)/BOOT.BIN
-endef
-UBOOT_DEPENDENCIES += host-zynq-boot-bin
-UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_GENERATE_ZYNQ_IMAGE
-endif
 
-ifeq ($(BR2_TARGET_UBOOT_ALTERA_SOCFPGA_IMAGE_CRC),y)
-define UBOOT_CRC_ALTERA_SOCFPGA_IMAGE
-	$(foreach f,$(call qstrip,$(BR2_TARGET_UBOOT_SPL_NAME)), \
-		$(HOST_DIR)/usr/bin/mkpimage \
-			-o $(BINARIES_DIR)/$(notdir $(call qstrip,$(f))).crc \
-			$(@D)/$(call qstrip,$(f))
-	)
-endef
-UBOOT_DEPENDENCIES += host-mkpimage
-UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_CRC_ALTERA_SOCFPGA_IMAGE
-endif
 
 ifeq ($(BR2_TARGET_UBOOT_ENVIMAGE),y)
 ifeq ($(BR_BUILDING),y)
@@ -389,23 +377,7 @@ ifeq ($(BR2_TARGET_UBOOT)$(BR_BUILDING),yy)
 # Check U-Boot board name (for legacy) or the defconfig/custom config
 # file options (for kconfig)
 #
-ifeq ($(BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY),y)
-ifeq ($(UBOOT_BOARD_NAME),)
-$(error No U-Boot board name set. Check your BR2_TARGET_UBOOT_BOARDNAME setting)
-endif # UBOOT_BOARD_NAME
-else ifeq ($(BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG),y)
-ifeq ($(BR2_TARGET_UBOOT_USE_DEFCONFIG),y)
-ifeq ($(call qstrip,$(BR2_TARGET_UBOOT_BOARD_DEFCONFIG)),)
-$(error No board defconfig name specified, check your BR2_TARGET_UBOOT_DEFCONFIG setting)
-endif # qstrip BR2_TARGET_UBOOT_BOARD_DEFCONFIG
-endif # BR2_TARGET_UBOOT_USE_DEFCONFIG
-ifeq ($(BR2_TARGET_UBOOT_USE_CUSTOM_CONFIG),y)
-ifeq ($(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_CONFIG_FILE)),)
-$(error No board configuration file specified, check your BR2_TARGET_UBOOT_CUSTOM_CONFIG_FILE setting)
-endif # qstrip BR2_TARGET_UBOOT_CUSTOM_CONFIG_FILE
-endif # BR2_TARGET_UBOOT_USE_CUSTOM_CONFIG
-endif # BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY
-
+#
 #
 # Check custom version option
 #

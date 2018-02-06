@@ -418,6 +418,14 @@ config BR2_TARGET_UBOOT_AMLOGIC_2015
     help
         amlogic uboot 2015
 
+config BR2_TARGET_UBOOT_AMLOGIC_REPO
+    bool "amlogic uboot repo"
+    depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_CODESOURCERY
+    depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_GCC_LINARO_AARCH64
+    select BR2_PACKAGE_HOST_AML_IMG_PACKER_NEW
+    help
+        amlogic uboot repo version
+
 config BR2_TARGET_UBOOT_AMLOGIC_BOOTARGS
     string "amlogic uboot bootargs"
     depends on BR2_TARGET_UBOOT_AMLOGIC_2015 || BR2_TARGET_UBOOT_AMLOGIC
