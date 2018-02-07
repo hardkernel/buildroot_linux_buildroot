@@ -8,7 +8,7 @@ MESON_MALI_SITE = $(TOPDIR)/../vendor/amlogic/meson_mali
 MESON_MALI_SITE_METHOD = local
 MESON_MALI_INSTALL_STAGING = YES
 MESON_MALI_PROVIDES = libegl libgles
-MESON_MALI_LIBS =
+MESON_MALI_MODEL=$(call qstrip,$(BR2_PACKAGE_MESON_MALI_MODEL))
 
 EGL_PLATFORM_HEADER =
 
@@ -51,7 +51,30 @@ else
 MALI_LIB_DIR = $(MALI_LIB_LOC)
 endif
 
-MESON_MALI_LIBS = libEGL*,libGLE*,libwayland-egl.so
+#
+define UTGARD_CREATE_LINK_IN_DIR
+	cd $1; \
+	ln -sf libEGL.so.1 libEGL.so; \
+	ln -sf libEGL.so.1.4 libEGL.so.1; \
+	ln -sf libMali.so libEGL.so.1.4; \
+	ln -sf libMali.so libgbm.so; \
+	ln -sf libGLESv1_CM.so.1 libGLESv1_CM.so; \
+	ln -sf libGLESv1_CM.so.1.1 libGLESv1_CM.so.1; \
+	ln -sf libMali.so libGLESv1_CM.so.1.1; \
+	ln -sf libGLESv2.so.2 libGLESv2.so; \
+	ln -sf libGLESv2.so.2.0 libGLESv2.so.2; \
+	ln -sf libMali.so libGLESv2.so.2.0; \
+	ln -sf libMali.so libwayland-egl.so;
+endef
+
+define MESON_MALI_CREATE_LINK_IN_DIR
+$(Q) echo "MESON_MALI_MODEL is $(MESON_MALI_MODEL)"; \
+	case "$1" in \
+        m450)	$(call UTGARD_CREATE_LINK_IN_DIR,$2) ;; \
+        *)     echo "'$1' donot need create link" ;; \
+	esac; \
+	echo "case finished"
+endef
 
 define BASE_INSTALL_STAGING
 	cp -arf $(MESON_MALI_DIR)/include/EGL $(STAGING_DIR)/usr/include/
@@ -59,7 +82,7 @@ define BASE_INSTALL_STAGING
 	cp -arf $(MESON_MALI_DIR)/include/GLES2 $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/KHR $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/$(EGL_PLATFORM_HEADER)/*.h $(STAGING_DIR)/usr/include/EGL/
-	cp -arf $(MESON_MALI_DIR)/lib/{$(MESON_MALI_LIBS)} $(STAGING_DIR)/usr/lib/
+	$(call MESON_MALI_CREATE_LINK_IN_DIR,$(MESON_MALI_MODEL),$(STAGING_DIR)/usr/lib)
 	cp -arf $(MESON_MALI_DIR)/lib/$(MALI_LIB_DIR)/*.so* $(STAGING_DIR)/usr/lib/
 	mkdir -p $(STAGING_DIR)/usr/lib/pkgconfig/
 	cp -arf $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(STAGING_DIR)/usr/lib/pkgconfig/
@@ -80,7 +103,7 @@ endef
 
 
 define BASE_INSTALL_TARGET
-	cp -df $(MESON_MALI_DIR)/lib/{$(MESON_MALI_LIBS)} $(TARGET_DIR)/usr/lib
+	$(call MESON_MALI_CREATE_LINK_IN_DIR,$(MESON_MALI_MODEL), $(TARGET_DIR)/usr/lib)
 	install -m 755 $(MESON_MALI_DIR)/lib/$(MALI_LIB_DIR)/*.so* $(TARGET_DIR)/usr/lib
 	mkdir -p $(TARGET_DIR)/usr/lib/pkgconfig
 	install -m 644 $(MESON_MALI_DIR)/lib/pkgconfig/*.pc $(TARGET_DIR)/usr/lib/pkgconfig
@@ -123,5 +146,3 @@ endef
 
 
 $(eval $(generic-package))
-
-

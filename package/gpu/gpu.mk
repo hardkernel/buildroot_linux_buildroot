@@ -67,7 +67,7 @@ MALI_INSTALL_TARGETS_CMDS = \
 define GPU_BUILD_CMDS
 $(Q) echo "GPU_MODEL is $(GPU_MODEL)"; \
 	case "$(GPU_MODEL)" in \
-        mali450)	$(UTGARD_BUILD_CMD) ;; \
+        m450)		$(UTGARD_BUILD_CMD) ;; \
         t83x)		$(MIDGARD_BUILD_CMD) ;; \
         t82x)		$(MIDGARD_BUILD_CMD) ;;	\
         dvalin)		$(BIFROST_BUILD_CMD) ;; \
