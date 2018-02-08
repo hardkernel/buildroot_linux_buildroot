@@ -57,7 +57,7 @@ config BR2_PACKAGE_GPU_MALI_DMA_SHARED_BUFFER
 
 config BR2_PACKAGE_GPU_MODEL
 	string "amlogic gpu model"
-	default "m450"
+	default "mali450"
 	depends on BR2_PACKAGE_GPU
 	help
 	  the type of amlogic gpu
