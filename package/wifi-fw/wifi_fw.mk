@@ -286,7 +286,7 @@ $(Q) case "$(1)" in \
 		mkdir -p $(TARGET_DIR)/etc/wifi/4354; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/*.bin $(TARGET_DIR)/etc/wifi/4354/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/nvram*.txt $(TARGET_DIR)/etc/wifi/4354/nvram.txt; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/*.hcd $(TARGET_DIR)/etc/bluetooth/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4354/bcm4354a1.hcd $(TARGET_DIR)/etc/bluetooth/BCM4350.hcd; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/4354/; \
 		;; \
 	bcm4356) \
@@ -294,14 +294,14 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.bin $(TARGET_DIR)/etc/wifi/4356/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/nvram*.txt $(TARGET_DIR)/etc/wifi/4356/nvram.txt; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/config.txt $(TARGET_DIR)/etc/wifi/4356/config.txt; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/*.hcd $(TARGET_DIR)/etc/bluetooth/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356/bcm4356a2.hcd $(TARGET_DIR)/etc/bluetooth/BCM4354.hcd; \
 		;; \
 	bcm4356p) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/4356p; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/*.bin $(TARGET_DIR)/etc/wifi/4356p/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/nvram*.txt $(TARGET_DIR)/etc/wifi/4356p/nvram.txt; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/config.txt $(TARGET_DIR)/etc/wifi/4356p/config.txt; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/*.hcd $(TARGET_DIR)/etc/bluetooth/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/4356p/bcm4356a2.hcd $(TARGET_DIR)/etc/bluetooth/BCM4354.hcd; \
 		;; \
 	bcm4358) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/4358; \
