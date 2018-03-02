@@ -31,7 +31,7 @@ UTGARD_BUILD_CMD = \
 		$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/utgard KDIR=$(LINUX_DIR) \
 		ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS) \
 		GPU_DRV_VERSION=$(GPU_VERSION); \
-		cp $(@D)/utgard/$(GPU_VERSION)/mali.ko $(@D)/mali450.ko; \
+		cp $(@D)/utgard/$(GPU_VERSION)/mali.ko $(@D)/mali.ko; \
 	else \
 		$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(@D)/utgard/$(GPU_VERSION) ARCH=$(KERNEL_ARCH) \
                CROSS_COMPILE=$(TARGET_KERNEL_CROSS) CONFIG_MALI400=m CONFIG_MALI450=m \
