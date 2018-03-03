@@ -135,7 +135,7 @@ void setup_DSP() {
 	int error = 0;
 	// Create AWE.
 	pAwelib = AWELibraryFactory();
-	error = pAwelib->Create("spk", 1e9f, 1e7f);
+	error = pAwelib->CreateEx("spk", 1e9f, 1e7f, true);
 	if (error < 0)
 	{
 		printf("[DSP] Create AWE failed with %d\n", error);
