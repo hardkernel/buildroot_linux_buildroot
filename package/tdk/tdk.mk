@@ -22,7 +22,6 @@ _ARCH = arm
 _CROSS_COMPILE = arm-linux-gnueabihf-
 endif
 
-ifeq ($(BR2_TARGET_UBOOT_ENCRYPTION), y)
 SECUROS_IMAGE_DIR = "gx"
 
 TDK_SECUROS_TA_FILE =  e626662e-c0e2-485c-b8c8-09fbce6edf3d \
@@ -88,7 +87,6 @@ define TDK_TA_TO_TARGET
 $(INSTALL) -D -m 0755 $(@D)/target_ta_dir/* $(TARGET_DIR)/lib/teetz
 endef
 
-endif
 
 
 define XTEST
