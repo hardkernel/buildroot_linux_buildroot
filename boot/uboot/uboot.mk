@@ -121,7 +121,7 @@ endif
 ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_ODROID_C2)),y)
 	UBOOT_BINS := fip/u-boot.bin
 else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
-	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl build/u-boot.bin build/u-boot.bin.sd.bin
+	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl  build/u-boot.bin.sd.bin build/u-boot.bin.encrypt build/u-boot.bin.encrypt.efuse build/u-boot.bin.encrypt.sd.bin build/u-boot.bin.encrypt.usb.bl2 build/u-boot.bin.encrypt.usb.tpl
 else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
 	UBOOT_BINS := build/u-boot.bin
 else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)

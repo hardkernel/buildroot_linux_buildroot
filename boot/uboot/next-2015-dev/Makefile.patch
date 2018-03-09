@@ -1,7 +1,7 @@
-Index: uboot-2015-dev/Makefile
+Index: uboot-2015-dev/bl33/Makefile
 ===================================================================
---- uboot-2015-dev.orig/Makefile	2017-07-20 15:29:13.958496982 +0800
-+++ uboot-2015-dev/Makefile	2017-07-20 15:47:27.511958613 +0800
+--- uboot-2015-dev.orig/bl33/Makefile	2017-07-20 15:29:13.958496982 +0800
++++ uboot-2015-dev/bl33/Makefile	2017-07-20 15:47:27.511958613 +0800
 @@ -246,8 +246,8 @@
  CROSS_COMPILE ?=
  endif
