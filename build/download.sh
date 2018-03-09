@@ -1,12 +1,20 @@
-#!/bin/sh
-function ping_method()
+#!/bin/bash
+
+ping_method()
 {
+	#file check
+	if [ -e $1/$2 ]
+	then
+		exit 0
+	fi
+
+	# newwork check
 	ping openlinux2.amlogic.com -c 1
 	if [ $? -ne 0 ]
 	then
 		exit 0
 	fi
-	
+
 	ping_time=3
 	openlinux2_value=`ping openlinux2.amlogic.com -c ${ping_time} | grep "time=" | cut -d '=' -f 4 | cut -d ' ' -f 1`
 	openlinux_value=`ping openlinux.amlogic.com -c ${ping_time} | grep "time=" | cut -d '=' -f 4 | cut -d ' ' -f 1`
@@ -35,7 +43,7 @@ function ping_method()
 	exit 0
 }
 
-function timezone_method()
+timezone_method()
 {
 	time_zone=`date +%z`
 	if [ "${time_zone}" -ne "+0800" ]
