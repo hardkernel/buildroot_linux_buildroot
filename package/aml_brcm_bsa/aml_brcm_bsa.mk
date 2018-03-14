@@ -101,7 +101,6 @@ define AML_BRCM_BSA_MUSICBOX_INSTALL_TARGET_CMDS
 
 	$(INSTALL) -D -m 755 $(@D)/$(AML_BRCM_BSA_PATH)/$(AML_BRCM_MUSIC_BOX)/build/$(AML_BRCM_BSA_BUILD_TYPE)/$(AML_BRCM_MUSIC_BOX) $(TARGET_DIR)/usr/bin/$(AML_BRCM_MUSIC_BOX)
 
-	$(INSTALL) -D -m 755 package/aml_brcm_bsa/$(BT_AUDIO_CONF) $(TARGET_DIR)/etc/alsa_bsa.conf
 
 	$(INSTALL) -D -m 755 $(@D)/$(AML_BT_DSPC_PATH)/$(AML_BT_DSPC_LIBDSPC)/libdspc.so \
 		$(TARGET_DIR)/usr/lib/libdspc.so
@@ -121,7 +120,7 @@ define AML_BRCM_BSA_MUSICBOX_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 755 $(@D)/$(AML_BRCM_BSA_PATH)/$(AML_BRCM_MUSIC_BOX)/build/$(AML_BRCM_BSA_BUILD_TYPE)/$(AML_BRCM_MUSIC_BOX) $(TARGET_DIR)/usr/bin/$(AML_BRCM_MUSIC_BOX)
 endef
 
-endif
+endif #end BR2_AML_BT_DSPC
 AML_BRCM_AUDIO_SOURCE = app_audio_source
 
 ######## amlogic app end #######################################
@@ -160,7 +159,7 @@ define AML_BRCM_BSA_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 755 $(@D)/test_files/av/44k8bpsStereo.wav $(TARGET_DIR)/etc/bsa
 	$(INSTALL) -D -m 755 $(@D)/test_files/dg/tx_test_file.txt $(TARGET_DIR)/etc/bsa
 	$(INSTALL) -D -m 755 package/aml_brcm_bsa/S44bluetooth $(TARGET_DIR)/etc/init.d
-
+	$(INSTALL) -D -m 755 package/aml_brcm_bsa/$(BT_AUDIO_CONF) $(TARGET_DIR)/etc/alsa_bsa.conf
 endef
 
 
