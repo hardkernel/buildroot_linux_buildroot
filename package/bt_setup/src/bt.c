@@ -1,12 +1,25 @@
-/*******************************************************************************
- **
- ***Name:  bt.c
- **
- **Descripition:bt discovery cgi
- **
- **Copyright(c) Amlogic
- **
- ******************************************************************************/
+/*
+ * *
+ * * Copyright (C) 2017 Amlogic, Inc. All rights reserved.
+ * *
+ * * This program is free software; you can redistribute it and/or modify
+ * * it under the terms of the GNU General Public License as published by
+ * * the Free Software Foundation; either version 2 of the License, or
+ * * (at your option) any later version.
+ * *
+ * * This program is distributed in the hope that it will be useful, but WITHOUT
+ * * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * * more details.
+ * *
+ * * Auther：zhenhua.he
+ * *
+ * * Name: bt.c
+ * *
+ * * Describe: this file use for discovery bluetooth device
+ * */
+
+
 #include <stdio.h>
 /* for exit */
 #include <stdlib.h>
@@ -30,6 +43,7 @@
 
 int discovery = 1;
 
+/*discover callback*/
 void  disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data) {
     switch (event) {
         case BSA_DISC_CMPL_EVT:
@@ -41,6 +55,7 @@ void  disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data) {
    return;
 }
 
+/*bt management callback*/
 static BOOLEAN mgt_callback(tBSA_MGT_EVT event, tBSA_MGT_MSG *p_data) {
     switch (event) {
         case BSA_MGT_DISCONNECT_EVT:
@@ -51,6 +66,7 @@ static BOOLEAN mgt_callback(tBSA_MGT_EVT event, tBSA_MGT_MSG *p_data) {
     }
     return FALSE;
 }
+/*init a discovery request*/
 int bt_discover_init() {
     app_mgt_init();
     if (app_mgt_open("/etc/bsa/config/", mgt_callback) < 0) {
