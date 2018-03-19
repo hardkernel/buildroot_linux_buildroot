@@ -247,7 +247,6 @@
 ./usr/bin/mesg
 ./usr/bin/unlzma
 ./usr/bin/clear
-./usr/bin/pango-view
 ./usr/bin/microcom
 ./usr/bin/unix2dos
 ./usr/bin/seq

@@ -45,7 +45,7 @@ DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
 UPGRADE_DIR_OVERLAY := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR_OVERLAY))
 ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
-ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
+ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC_REPO)),y)
 ifneq ($(UPGRADE_DIR_OVERLAY),)
 rootfs-usb-image-pack:
 	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)

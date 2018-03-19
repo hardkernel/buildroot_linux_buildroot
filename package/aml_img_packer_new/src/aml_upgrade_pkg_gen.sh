@@ -114,32 +114,20 @@ if [ ${update_sparse_img} -eq 1 ]; then
         exit 1
     fi
 fi
-#####axg platform jugd#####
-PLATFORM_TARGET=""
-ls ${BINARIES_DIR}/axg*
-if [ $? -eq 0 ]
-then
-	PLATFORM_TARGET=mesonaxg
-fi
 ####Step 3: pack none-secureboot burning image
-if [ ${PLATFORM_TARGET} = "mesonaxg"  ]
+if [ -f ${IMAGE_UBIFS} ]
 then
-    if [ -f ${IMAGE_UBIFS} ]
-    then
-	    if [ "${absystem}" != "absystem" ]; then
+	if [ "${absystem}" != "absystem" ]; then
 	        aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
-		else
-		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_ab.conf
-		fi
 	else
-	    if [ "${absystem}" != "absystem" ]; then
-	        aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
-		else
-		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_ab.conf
-		fi
+		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_ab.conf
 	fi
 else
-	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+	 if [ "${absystem}" != "absystem" ]; then
+	        aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+	else
+		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_ab.conf
+	fi
 fi
 
 burnPkg=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.img
@@ -155,17 +143,11 @@ if [ "${secureboot}" != "y" ]; then
 fi
 
 ####Step 4: pack secureboot burning image
-
-if [ ${PLATFORM_TARGET} = "mesonaxg"  ]
+if [ -f ${IMAGE_UBIFS} ]
 then
-    if [ -f ${IMAGE_UBIFS} ]
-    then
-	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
-    else
-	    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
-    fi
-else
 	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.conf
+else
+	aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_enc.conf
 fi
 burnPkgenc=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_enc.img
 #########Support compiling out encrypted zip/aml_upgrade_package.img directly

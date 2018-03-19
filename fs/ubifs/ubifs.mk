@@ -27,25 +27,26 @@ endef
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
 UPGRADE_DIR_OVERLAY := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR_OVERLAY))
-ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
-ifneq ($(UPGRADE_DIR_OVERLAY),)
-rootfs-usb-image-pack-ubifs:
-	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
-	cp -rf $(UPGRADE_DIR_OVERLAY)/* $(BINARIES_DIR)
-	BINARIES_DIR=$(BINARIES_DIR) \
-	TOOL_DIR=$(HOST_DIR)/usr/bin \
-	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
-	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION) $(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)
-else
-rootfs-usb-image-pack-ubifs:
-	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
-	BINARIES_DIR=$(BINARIES_DIR) \
-	TOOL_DIR=$(HOST_DIR)/usr/bin \
-	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
-	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION) $(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)
-endif
-ROOTFS_UBIFS_POST_TARGETS += rootfs-usb-image-pack-ubifs
-endif #BR2_TARGET_USBTOOL_AMLOGIC
+
+#ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
+#ifneq ($(UPGRADE_DIR_OVERLAY),)
+#rootfs-usb-image-pack-ubifs:
+#	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
+#	cp -rf $(UPGRADE_DIR_OVERLAY)/* $(BINARIES_DIR)
+#	BINARIES_DIR=$(BINARIES_DIR) \
+#	TOOL_DIR=$(HOST_DIR)/usr/bin \
+#	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
+#	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION) $(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)
+#else
+#rootfs-usb-image-pack-ubifs:
+#	cp -rf $(UPGRADE_DIR)/* $(BINARIES_DIR)
+#	BINARIES_DIR=$(BINARIES_DIR) \
+#	TOOL_DIR=$(HOST_DIR)/usr/bin \
+#	$(HOST_DIR)/usr/bin/aml_upgrade_pkg_gen.sh \
+#	$(BR2_TARGET_UBOOT_PLATFORM) $(BR2_TARGET_UBOOT_ENCRYPTION) $(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)
+#endif
+#ROOTFS_UBIFS_POST_TARGETS += rootfs-usb-image-pack-ubifs
+#endif #BR2_TARGET_USBTOOL_AMLOGIC
 
 RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(RECOVERY_OTA_DIR),)
