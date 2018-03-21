@@ -1,6 +1,6 @@
 config BR2_PACKAGE_AML_BRCM_BSA
     bool "broadcom bsa server and app"
-    default y
+    default n
     help
 	broadcom bsa server and app
 

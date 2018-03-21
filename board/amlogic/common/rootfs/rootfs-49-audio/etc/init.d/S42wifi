@@ -20,11 +20,13 @@ NAME4=dhcpcd
 DAEMON4=/usr/sbin/$NAME4
 PIDFILE4=/var/run/${NAME4}-wlan0.pid
 
+RTK_FLAG_FILE=/etc/wifi/rtk_station_mode
+RTK_WIFI_FLAG="NONE"
 ap_name_file=/etc/wifi/ap_name
 function hostapd_conf(){
     while true
     do
-        cat /sys/class/net/wlan1/address | sed 's/\://g' > /etc/wifi/ap_name
+        cat /sys/class/net/$1/address | sed 's/\://g' > /etc/wifi/ap_name
         if [ -f $ap_name_file ];then
             break
         fi
@@ -34,7 +36,7 @@ function hostapd_conf(){
     password=12345678
 
     echo 0 > /etc/hostapd_temp.conf
-    echo "interface=wlan1" > /etc/hostapd_temp.conf
+    echo "interface=$1" > /etc/hostapd_temp.conf
     echo "driver=nl80211" >> /etc/hostapd_temp.conf
     echo "ctrl_interface=/var/run/hostapd" >> /etc/hostapd_temp.conf
     echo "ssid=${ssid}" >> /etc/hostapd_temp.conf
@@ -66,10 +68,20 @@ if [ $? -eq 0 ]; then
 			sleep 1
 		fi
 	done
+
+	if [[ "${RTK_WIFI_FLAG}" == "TRUE" ]]
+	then
+		if [ ${cnt} -eq 20 ]
+		then
+			rm ${RTK_FLAG_FILE}
+			sync
+		fi
+	fi
 fi
 }
 
-function wifi_setup(){
+function move_skt()
+{
 skt_board=`cat /proc/device-tree/amlogic-dt-id`
 case ${skt_board} in
 	"axg_a113d_skt_v1")
@@ -79,32 +91,108 @@ case ${skt_board} in
 		exit 0
 		;;
 esac
+}
 
+function init_wifi_env()
+{
 killall hostapd
 killall wpa_supplicant
 killall dnsmasq
 killall dhcpcd
-echo "start wifi station mode load driver and setup......"
-$MULTI_WIFI station 1
+}
 
+
+function hostapd_conf_pre()
+{
+    hostapd_conf $1
+    hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
+    ifconfig $1 192.168.2.1
+    DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -i$1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
+}
+
+function wifi_setup(){
 DONE=`ifconfig wlan0 up > /dev/null`
 ifconfig wlan0 &> /dev/null
-DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
+
 if [ $? -eq 0 ]; then
-    iw wlan0 interface add wlan1 type managed
-    hostapd_conf
-    hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
-    ifconfig wlan1 192.168.2.1
-    DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -iwlan1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
+	if [[ "$1" == "both" ]]
+	then
+		DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
+    	iw wlan0 interface add wlan1 type managed
+		hostapd_conf_pre wlan1
+	elif [[ "$1" == "station" ]]
+	then
+		DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
+	elif [[ "$1" == "ap" ]]
+	then
+		hostapd_conf_pre wlan0
+	fi
 fi
 ifconfig wlan0 &> /dev/null
 
-start_sta &
+if [[ "$1" == "both" || "$1" == "station" ]]
+then
+	start_sta
+fi
+}
+function rtk_wifi_ap()
+{
+	wifi_setup ap
+}
+
+
+function rtk_wifi_station()
+{
+	wifi_setup station
+		if [ ! -f ${RTK_FLAG_FILE} ]
+		then
+			init_wifi_env
+			rtk_wifi_ap
+		fi
+
+}
+
+function wifi_rtk()
+{
+	if [ -f ${RTK_FLAG_FILE} ]	
+	then
+		 rtk_wifi_station
+	else
+		rtk_wifi_ap
+	fi
+}
+
+function wifi_start()
+{
+move_skt
+
+init_wifi_env
+
+echo "start wifi station mode load driver and setup......"
+
+#if [[ "$1" == "both" || "$1" == "station" ]]
+#then
+$MULTI_WIFI station 1
+#else
+#$MULTI_WIFI ap 1
+#fi
+
+wifi_chip_id_vendor="/sys/bus/mmc/devices/sdio:0001/sdio:0001:1/vendor"
+wifi_chip_id=`cat ${wifi_chip_id_vendor}`
+case "${wifi_chip_id}" in
+	0x02d0)
+		wifi_setup both
+		;;
+	0x024c)
+		RTK_WIFI_FLAG="TRUE"
+		wifi_rtk
+		;;
+esac
 }
 
 case "$1" in
     start)
-		wifi_setup &
+		wifi_start &
         ;;
     stop)
         killall hostapd

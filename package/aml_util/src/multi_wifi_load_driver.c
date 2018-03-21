@@ -217,6 +217,19 @@ static const dongle_info dongle_registerd[] = {
 	0x0
     },
     {
+    "d723",
+    "8723ds",
+    "8723ds.ko",
+    REALTEK_KO_PATH,
+    .wifi_module_arg = {
+        .arg_type   = MODULE_ARG_IFNAME,
+        .ifname     = "wlan0",
+        .if2name    = "p2p0",
+    },
+    "rtl8723ds",
+    0x0
+    },
+    {
 	"b822",
 	"8822bs",
 	"8822bs.ko",

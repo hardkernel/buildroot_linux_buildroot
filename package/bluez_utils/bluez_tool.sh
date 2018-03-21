@@ -56,6 +56,7 @@ Blue_start()
 	start-stop-daemon -S  -m -p $PIDFILE1 -x $DAEMON1 -- -n &
 	sleep 1
 	agent 0000 &
+	hciconfig hci0 class 0x210404
 	echo "|-----bluez is ready----|"
 
 }

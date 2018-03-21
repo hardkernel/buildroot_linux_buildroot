@@ -11,6 +11,8 @@ REALTEK_BT_SITE_METHOD = local
 REALTEK_BT_MODULE_DIR = kernel/realtek/bt
 REALTEK_BT_MODULE_INSTALL_DIR = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/$(REALTEK_BT_MODULE_DIR)
 
+REALTEK_BT_SYSTEM_CONFIG_DIR = $(TOPDIR)/package/realtek_bt
+
 REALTEK_BT_DEPENDENCIES = linux
 
 ifeq ($(BR2_PACKAGE_REALTEK_UART_BT),y)
@@ -24,7 +26,6 @@ define REALTEK_UART_BT_INSTALL_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/uart_driver/hci_uart.ko $(REALTEK_BT_MODULE_INSTALL_DIR)/rtk_btuart.ko
 	$(INSTALL) -D -m 755 $(@D)/rtk_hciattach/rtk_hciattach $(TARGET_DIR)/usr/sbin/
 	echo $(REALTEK_BT_MODULE_DIR)/rtk_btuart.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
-
 endef
 endif
 
@@ -53,7 +54,7 @@ define REALTEK_BT_INSTALL_TARGET_CMDS
     #install firmware
 	mkdir -p $(TARGET_DIR)/lib/firmware/rtlbt
 	$(INSTALL) -D -m 0644 $(@D)/fw/* $(TARGET_DIR)/lib/firmware/rtlbt
-
+	$(INSTALL) -D -m 755 ${REALTEK_BT_SYSTEM_CONFIG_DIR}/S44bluetooth $(TARGET_DIR)/etc/init.d
 endef
 
 

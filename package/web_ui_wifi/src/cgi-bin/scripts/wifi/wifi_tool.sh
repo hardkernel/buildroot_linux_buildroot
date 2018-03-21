@@ -3,6 +3,162 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin
 WIFI_FILE=/var/www/cgi-bin/wifi/select.txt
 ssid="default_amlogic"
 password="default_amlogic"
+RTK_WIFI_FLAG="NONE"
+driver_list="8723ds"
+wifi_chip_id=""
+wifi_module_id=""
+wifi_driver_name=""
+MULTI_WIFI=/usr/bin/multi_wifi_load_driver
+RTK_FLAG_FILE=/etc/wifi/rtk_station_mode
+
+NAME1=wpa_supplicant
+DAEMON1=/usr/sbin/$NAME1
+PIDFILE1=/var/run/$NAME1.pid
+
+NAME2=hostapd
+DAEMON2=/usr/sbin/$NAME2
+PIDFILE2=/var/run/$NAME2.pid
+
+NAME3=dnsmasq
+DAEMON3=/usr/sbin/$NAME3
+PIDFILE3=/var/run/$NAME3.pid
+
+NAME4=dhcpcd
+DAEMON4=/usr/sbin/$NAME4
+PIDFILE4=/var/run/${NAME4}-wlan0.pid
+
+##################################################################################################
+rtk_support()
+{
+	wifi_chip_id_vendor="/sys/bus/mmc/devices/sdio:0001/sdio:0001:1/vendor"
+	wifi_chip_id=`cat ${wifi_chip_id_vendor}`
+	case "${wifi_chip_id}" in
+		0x024c)
+		RTK_WIFI_FLAG="TRUE"
+		;;
+	esac
+
+}
+
+#stop wifi
+function stop_wifi_app() {
+echo "Stopp prv wpa_supplicant first"
+start-stop-daemon -K -o -p $PIDFILE1 2> /dev/null
+sleep 1
+echo "Stopp prv hostapd first"
+start-stop-daemon -K -o -p $PIDFILE2 2> /dev/null
+sleep 1
+echo "Stopp prv dnsmasq first"
+start-stop-daemon -K -o -p $PIDFILE3 2> /dev/null
+sleep 1
+echo "Stopp prv dhcpcd first"
+start-stop-daemon -K -o -p $PIDFILE4 2> /dev/null
+sleep 1
+echo "delete prv br0"
+ifconfig | grep br0 > /dev/null
+if [ $? -eq 0 ];then
+	ifconfig br0 down > /dev/null
+	brctl delbr br0
+fi
+sleep 1
+}
+
+#uninstall rtk driver
+uninstall_rtk_driver()
+{
+	echo "removing driver if loaded"
+	local cnt=1
+	driver_num=`echo $driver_list | awk -F " " '{print NF+1}'`
+	while [ $cnt -lt $driver_num ]; do
+		loaded_driver=`echo $driver_list | awk -F " " '{print $'$cnt'}'`
+		lsmod | grep $loaded_driver
+		if [ $? -eq 0 ];then
+			echo "loaded_driver=$loaded_driver"
+			rmmod $loaded_driver
+		fi
+		cnt=$((cnt + 1))
+	done
+}
+
+hostapd_conf_pre()
+{
+    hostapd_conf $1
+    hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
+    ifconfig $1 192.168.2.1
+    DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -i$1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`
+}
+
+init_wifi_env()
+{
+killall hostapd
+killall wpa_supplicant
+killall dnsmasq
+killall dhcpcd
+}
+
+wifi_mode_setup(){
+DONE=`ifconfig wlan0 up > /dev/null`
+ifconfig wlan0 &> /dev/null
+if [ $? -eq 0 ]; then
+	if [[ "$1" == "both" ]]
+	then
+		DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
+    	iw wlan0 interface add wlan1 type managed
+		hostapd_conf_pre wlan1
+	elif [[ "$1" == "ap" ]]
+	then
+		hostapd_conf_pre wlan0
+	elif [[ "$1" == "station" ]]
+	then
+		DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
+	fi
+fi
+ifconfig wlan0 &> /dev/null
+
+if [[ "$1" == "both" || "$1" == "station" ]]
+then
+	check_state 8
+fi
+}
+
+rtk_start_station()
+{
+	init_wifi_env
+	#insmod wifi driver
+    ${MULTI_WIFI} station 1
+	wifi_mode_setup station
+}
+
+rtk_station_mode()
+{
+	# stop wifi
+	stop_wifi_app
+	#rmmod wifi driver
+	uninstall_rtk_driver
+	#start station mode
+	rtk_start_station
+}
+
+rtk_ap_mode()
+{
+	#uninstall rtk driver
+	uninstall_rtk_driver
+	#load driver
+	$MULTI_WIFI ap 1
+	#start ap mode
+	wifi_mode_setup ap
+}
+
+rtk_init()
+{
+	rtk_support
+	if [[ "${RTK_WIFI_FLAG}" == "TRUE" ]]
+	then
+		rtk_station_mode
+	fi
+	
+}
+##################################################################################################
 
 parse_paras()
 {
@@ -33,6 +189,11 @@ ping_test()
 			echo 0 > /etc/bsa/config/wifi_status
 		fi
 	else
+		echo "------------------------------------------------1"
+		if [[ "${RTK_WIFI_FLAG}" == "TRUE" ]]
+		then
+			touch ${RTK_FLAG_FILE}
+		fi
 		echo "ping successfully"
 		wpa_cli save_config
 		sync
@@ -59,12 +220,16 @@ check_state()
 			sleep 1
 			continue
 		fi
-        done
+    done
+
 	return 0
 }
 
+
+
 wifi_setup()
 {
+	rtk_init
 	parse_paras
 	wpa_cli -iwlan0 remove_network 0
 	id=`wpa_cli add_network | grep -v "interface"`
@@ -82,7 +247,15 @@ wifi_setup()
 	wpa_cli enable_network $id
 	check_state 10
 	if [ $? -eq 0 ] ;then
-		echo "start wpa_supplicant fail!!"
+		echo "connect fail!!"
+		if [[ "${RTK_WIFI_FLAG}" == "TRUE" ]]
+		then
+			killall wpa_supplicant
+			#killall hostapd
+			#killall dnsmasq
+			rm ${RTK_FLAG_FILE}
+			rtk_ap_mode
+		fi
 	else
 		echo "start wpa_supplicant successfully!!"
 		ip_addr=`udhcpc -q -n -s /usr/share/udhcpc/default.script -i wlan0 2> /dev/null | grep "adding dns*" | awk '{print $3}'`
