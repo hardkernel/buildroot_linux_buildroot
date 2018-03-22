@@ -24,24 +24,14 @@ else
 fi
 
 case "$1" in
-    *)
+    start)
         hdmi=`cat $HPD_STATE`
         if [ $hdmi -eq 1 ]; then
             mode=`awk -f /etc/display/get_hdmi_mode.awk $DISP_CAP`
             echo $mode > $DISP_MODE
         fi
-        case $mode in
-            720*)
-                fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
-                ;;
-            1080*)
-                fbset -fb /dev/fb0 -g 1920 1080 1920 2160 32
-                ;;
-            *)
-                echo 720p > $DISP_MODE
-                fbset -fb /dev/fb0 -g 1280 720 1280 1440 32
-                ;;
-        esac
+        fbset -fb /dev/fb0 -g 1920 1080 1920 2160 32
+        echo 0 0 1919 1079 > /sys/class/graphics/fb0/free_scale_axis
 esac
 
 exit $?

@@ -123,10 +123,22 @@ then
 		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_ab.conf
 	fi
 else
-	 if [ "${absystem}" != "absystem" ]; then
-	        aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+	if [ "${absystem}" != "absystem" ]; then
+		aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc.conf
+		if [ -f ${aml_upgrade_package_conf} ]; then
+			echo aml_upgrade_package_conf=${aml_upgrade_package_conf}
+		else
+			aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+			echo aml_upgrade_package_conf=${aml_upgrade_package_conf}
+		fi
 	else
-		    aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_ab.conf
+		aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package_emmc_ab.conf
+		if [ -f ${aml_upgrade_package_conf} ]; then
+			echo aml_upgrade_package_conf=${aml_upgrade_package_conf}
+		else
+			aml_upgrade_package_conf=${PRODUCT_AML_IMG_PACK_DIR}/aml_upgrade_package.conf
+			echo aml_upgrade_package_conf=${aml_upgrade_package_conf}
+		fi
 	fi
 fi
 

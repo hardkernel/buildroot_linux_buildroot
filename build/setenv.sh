@@ -22,10 +22,13 @@ function choose_info()
 	i=0
 	while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
 	do
-		if [ $i -lt 10 ]; then
+		if [[ ${DEFCONFIG_ARRAY[$i]} =~ "debug" ]]; then
+			echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}"
+		else if [[ ${DEFCONFIG_ARRAY[$i]} =~ "release" ]]; then
 			echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}"
 		else
 			echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}_release"
+		fi
 		fi
 		let i++
 	done
@@ -40,9 +43,22 @@ function get_index() {
 	i=0
 	while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
 	do
-		if [ $1 = "${DEFCONFIG_ARRAY[$i]}_release" ]; then
-			let i++
-			return ${i}
+		if [[ "${DEFCONFIG_ARRAY[$i]}" =~ "debug" ]]; then
+			if [ $1 = "${DEFCONFIG_ARRAY[$i]}" ]; then
+				let i++
+				return ${i}
+			fi
+		else if [[ "${DEFCONFIG_ARRAY[$i]}" =~ "release" ]]; then
+			if [ $1 = "${DEFCONFIG_ARRAY[$i]}" ]; then
+                                let i++
+                                return ${i}
+                        fi
+		else
+			if [ $1 = "${DEFCONFIG_ARRAY[$i]}_release" ]; then
+				let i++
+				return ${i}
+			fi
+		fi
 		fi
 		let i++
 	done
