@@ -59,6 +59,8 @@ FFMPEG_CONF_OPTS = \
 	--disable-symver \
 	--disable-doc
 
+#libplayer should compile first, so libplayer will link to its own inside ffmpeg
+FFMPEG_DEPENDENCIES += $(if $(BR2_PACKAGE_LIBPLAYER),libplayer)
 FFMPEG_DEPENDENCIES += $(if $(BR2_PACKAGE_LIBICONV),libiconv) host-pkgconf
 
 ifeq ($(BR2_PACKAGE_FFMPEG_GPL),y)
