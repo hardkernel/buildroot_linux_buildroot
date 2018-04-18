@@ -331,6 +331,13 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6255/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/6255/; \
 		;; \
+	AP6256) \
+		mkdir -p $(TARGET_DIR)/etc/wifi/6255; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6256/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/6255/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6256/Wi-Fi/*.txt $(TARGET_DIR)/etc/wifi/6255/nvram.txt; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6256/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/6255/; \
+		;; \
 	AP62x2) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/62x2; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/62x2/*.bin $(TARGET_DIR)/etc/wifi/62x2/; \
@@ -403,7 +410,7 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/qcom/config/ath10k/QCA9888/hw2.0/*.bin $(TARGET_DIR)/lib/firmware/ath10k/QCA9888/hw2.0/; \
 		;; \
 esac;
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin
+		$(INSTALL) -D -m 0755 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin
 endef
 
 
