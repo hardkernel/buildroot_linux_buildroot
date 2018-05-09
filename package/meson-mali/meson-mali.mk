@@ -57,6 +57,7 @@ define BASE_INSTALL_STAGING
 	cp -arf $(MESON_MALI_DIR)/include/EGL $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/GLES $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/GLES2 $(STAGING_DIR)/usr/include/
+	cp -arf $(MESON_MALI_DIR)/include/GLES3 $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/KHR $(STAGING_DIR)/usr/include/
 	cp -arf $(MESON_MALI_DIR)/include/$(EGL_PLATFORM_HEADER)/*.h $(STAGING_DIR)/usr/include/EGL/
 	cp -arf $(MESON_MALI_DIR)/lib/{$(MESON_MALI_LIBS)} $(STAGING_DIR)/usr/lib/
