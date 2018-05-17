@@ -4,13 +4,18 @@
 #
 ################################################################################
 
-BLUEZ5_UTILS_VERSION = 5.43
-BLUEZ5_UTILS_SOURCE = bluez-$(BLUEZ5_UTILS_VERSION).tar.xz
-BLUEZ5_UTILS_SITE = $(BR2_KERNEL_MIRROR)/linux/bluetooth
+BLUEZ5_UTILS_VERSION = 5.49
+#BLUEZ5_UTILS_SOURCE = bluez-$(BLUEZ5_UTILS_VERSION).tar.xz
+#BLUEZ5_UTILS_SITE = $(BR2_KERNEL_MIRROR)/linux/bluetooth
+BLUEZ5_UTILS_SITE = $(TOPDIR)/../vendor/amlogic/bluez/bluez5_utils
+BLUEZ5_UTILS_SITE_METHOD = local
 BLUEZ5_UTILS_INSTALL_STAGING = YES
 BLUEZ5_UTILS_DEPENDENCIES = dbus libglib2
 BLUEZ5_UTILS_LICENSE = GPLv2+, LGPLv2.1+
 BLUEZ5_UTILS_LICENSE_FILES = COPYING COPYING.LIB
+BLUEZ5_UTILS_AUTORECONF = YES
+BLUEZ5_UTILS_AUTORECONF_OPTS = --install
+
 
 BLUEZ5_UTILS_CONF_OPTS = 	\
 	--enable-tools 		\
@@ -75,6 +80,15 @@ BLUEZ5_UTILS_DEPENDENCIES += systemd
 else
 BLUEZ5_UTILS_CONF_OPTS += --disable-systemd
 endif
+
+define BLUEZ5_UTILS_INSTALL_AML_TOOLS
+	mkdir -p $(TARGET_DIR)/etc/bluetooth
+	$(INSTALL) -D -m 0755 $(@D)/client/default_agent $(TARGET_DIR)/usr/bin
+	$(INSTALL) -D -m 0755 package/bluez5_utils/bluez_tool.sh $(TARGET_DIR)/usr/bin
+	$(INSTALL) -D -m 0644 package/bluez5_utils/main.conf $(TARGET_DIR)/etc/bluetooth
+endef
+BLUEZ5_UTILS_POST_INSTALL_TARGET_HOOKS += BLUEZ5_UTILS_INSTALL_AML_TOOLS
+BLUEZ5_UTILS_CONF_OPTS += --enable-deprecated
 
 define BLUEZ5_UTILS_INSTALL_INIT_SYSTEMD
 	mkdir -p $(TARGET_DIR)/etc/systemd/system/bluetooth.target.wants
