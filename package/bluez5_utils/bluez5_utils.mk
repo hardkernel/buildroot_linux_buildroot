@@ -84,6 +84,7 @@ endif
 define BLUEZ5_UTILS_INSTALL_AML_TOOLS
 	mkdir -p $(TARGET_DIR)/etc/bluetooth
 	$(INSTALL) -D -m 0755 $(@D)/client/default_agent $(TARGET_DIR)/usr/bin
+	$(INSTALL) -D -m 0755 $(@D)/tools/btgatt-server $(TARGET_DIR)/usr/bin
 	$(INSTALL) -D -m 0755 package/bluez5_utils/bluez_tool.sh $(TARGET_DIR)/usr/bin
 	$(INSTALL) -D -m 0644 package/bluez5_utils/main.conf $(TARGET_DIR)/etc/bluetooth
 endef

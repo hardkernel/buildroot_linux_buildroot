@@ -39,6 +39,15 @@ A2DP_service()
 
 }
 
+BLE_service()
+{
+       echo "|--bluez ble service--|"
+       hciconfig hci0 up
+       hciconfig hci0 noscan
+       sleep 1
+       btgatt-server &
+}
+
 service_down()
 {
 	echo "|--stop bluez service--|"
@@ -54,7 +63,7 @@ service_down()
 Blue_start()
 {
 	echo 0 > /sys/class/rfkill/rfkill0/state
-	usleep 300000
+	usleep 500000
 	echo 1 > /sys/class/rfkill/rfkill0/state
 
 	echo
@@ -83,7 +92,11 @@ Blue_start()
 		exit 0
 	fi
 
-	A2DP_service
+	if [ $mode = "ble" ];then
+		BLE_service
+	else
+		A2DP_service
+	fi
 
 	echo "|-----bluez is ready----|"
 
