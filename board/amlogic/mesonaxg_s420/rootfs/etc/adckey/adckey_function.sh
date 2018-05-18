@@ -54,7 +54,7 @@ ble_wifi_setup()
 	hciconfig hci0 > /dev/null
 	if [ $? -eq 0 ];then
 		killall btgatt-server
-		bluez_tool.sh restart ble rtk
+		bluez_tool.sh reset ble rtk
 	else
 		bsa_ble_service
 	fi

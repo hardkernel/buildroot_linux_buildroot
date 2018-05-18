@@ -12,7 +12,36 @@ else
 	device="rtk"
 fi
 
+configure_file="/etc/bluetooth/main.conf"
 echo "|--bluez: device = $device mode = $mode--|"
+
+function set_btname()
+{
+	name_file=/etc/wifi/ap_name
+	local cnt=1
+	bt_name="amlogic"
+	while [ $cnt -lt 10 ]
+	do
+		if [ -f $name_file ];then
+			bt_name=`cat /etc/wifi/ap_name`
+			if [ "$bt_name" != "" ];then
+				break
+			fi
+		else
+			cnt=$((cnt + 1))
+			sleep 1
+		fi
+	done
+
+	if [ -f $configure_file ];then
+		sed -i -e "/Name/aName=MusicBox-$bt_name" -e "/Name/d" $configure_file
+	else
+		echo "create configure file"
+		echo "Name=MusicBox-$bt_name" > $configure_file
+		echo "debug=0"
+	fi
+
+}
 
 realtek_bt_init()
 {
@@ -26,12 +55,23 @@ A2DP_service()
 {
 	echo "|--bluez a2dp-sink/hfp-hf service--|"
 	hciconfig hci0 up
-	sleep 1
-	/usr/libexec/bluetooth/bluetoothd -n &
-	sleep 1
-	bluealsa -p a2dp-sink -p hfp-hf &
-	bluealsa-aplay --profile-a2dp 00:00:00:00:00:00 -d dmixer_avs_auto &
-	default_agent &
+
+	grep -Insr "debug=1" $configure_file > /dev/null
+	if [ $? -eq 0 ]; then
+
+	echo "|--bluez service in debug mode--|"
+		/usr/libexec/bluetooth/bluetoothd -n -d 2> /etc/bluetooth/bluetoothd.log &
+		sleep 1
+		bluealsa -p a2dp-sink -p hfp-hf 2> /etc/bluetooth/bluealsa.log &
+		bluealsa-aplay --profile-a2dp 00:00:00:00:00:00 -d dmixer_avs_auto 2> /etc/bluetooth/bluealsa-aplay.log &
+	else
+		/usr/libexec/bluetooth/bluetoothd -n -d 2> /dev/null &
+		sleep 1
+		bluealsa -p a2dp-sink -p hfp-hf 2> /dev/null &
+		bluealsa-aplay --profile-a2dp 00:00:00:00:00:00 -d dmixer_avs_auto 2> /dev/null &
+	fi
+	default_agent > /dev/null &
+
 	hciconfig hci0 piscan
 	hciconfig hci0 inqparms 18:1024
 	hciconfig hci0 pageparms 18:1024
@@ -41,11 +81,11 @@ A2DP_service()
 
 BLE_service()
 {
-       echo "|--bluez ble service--|"
-       hciconfig hci0 up
-       hciconfig hci0 noscan
-       sleep 1
-       btgatt-server &
+	echo "|--bluez ble service--|"
+	hciconfig hci0 up
+	hciconfig hci0 noscan
+	sleep 1
+	btgatt-server &
 }
 
 service_down()
@@ -60,6 +100,15 @@ service_down()
 
 }
 
+service_up()
+{
+	if [ $mode = "ble" ];then
+		BLE_service
+	else
+		A2DP_service
+	fi
+}
+
 Blue_start()
 {
 	echo 0 > /sys/class/rfkill/rfkill0/state
@@ -68,6 +117,8 @@ Blue_start()
 
 	echo
 	echo "|-----start bluez----|"
+	set_btname
+
 	if [ $device = "rtk" ];then
 		realtek_bt_init
 	else
@@ -92,11 +143,7 @@ Blue_start()
 		exit 0
 	fi
 
-	if [ $mode = "ble" ];then
-		BLE_service
-	else
-		A2DP_service
-	fi
+	service_up
 
 	echo "|-----bluez is ready----|"
 
