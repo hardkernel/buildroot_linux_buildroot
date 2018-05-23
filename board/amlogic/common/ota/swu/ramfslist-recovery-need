@@ -5,6 +5,7 @@
 ./etc/hotplug/remove.sh
 ./etc/hwrevision
 ./etc/sw-versions
+./etc/mdev.conf
 ./usr/lib/libconfig.so.9.2.0
 ./usr/lib/libconfig.so.9
 ./usr/lib/libz.so.1
