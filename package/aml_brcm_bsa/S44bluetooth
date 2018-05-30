@@ -4,7 +4,7 @@ NAME1=bsa_server
 DAEMON1=/usr/bin/$NAME1
 PIDFILE1=/var/run/$NAME1.pid
 
-NAME2=app_musicBox
+NAME2=aml_musicBox
 DAEMON2=/usr/bin/$NAME2
 PIDFILE2=/var/run/$NAME2.pid
 
@@ -59,7 +59,7 @@ Blue_start()
     fi
     sleep 2
 
-    echo "start broadcom bluetooth app_musicBox"
+    echo "start aml_musicBox"
     start-stop-daemon -S  -m -p $PIDFILE2 -x $DAEMON2 &
 
     sleep 1

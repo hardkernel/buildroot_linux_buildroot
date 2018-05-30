@@ -62,13 +62,13 @@ ble_wifi_setup()
 
 bsa_ble_service()
 {
-	local app1_id=`ps | grep "app_musicBox" | awk '{print $1}'`
+	local app1_id=`ps | grep "aml_musicBox" | awk '{print $1}'`
 	kill -9 $app1_id
-	local app2_id=`ps | grep "app_ble_wifi_setup" | awk '{print $1}'`
+	local app2_id=`ps | grep "aml_ble_wifi_setup" | awk '{print $1}'`
 	kill -9 $app2_id
 	cd /etc/bsa/config
-	app_ble_wifi_setup &
-	app_musicBox  ble_mode &
+	aml_ble_wifi_setup &
+	aml_musicBox  ble_mode &
 }
 
 case $1 in
