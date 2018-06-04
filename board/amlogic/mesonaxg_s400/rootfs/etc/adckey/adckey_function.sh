@@ -2,9 +2,36 @@
 
 powerStateFile="/sys/power/state"
 powerResumeFlag="/etc/adckey/powerState"
+wake_lockFile="/sys/power/wake_lock"
+
+wait_wake_lock()
+{
+    #check wake_lock begin
+    local cnt=10
+    while [ $cnt -gt 0 ]; do
+        lock=`cat $wake_lockFile`
+        if [ ! $lock ];then
+            break
+        fi
+        sleep 1;
+        cnt=$((cnt - 1))
+        echo "suspend waiting wake_lock to be released..."
+    done
+    if [ $cnt -eq 0 ];then
+        echo "wait suspend timeout, abort suspend"
+        echo "unreleased wake_lock: $lock"
+        exit 0
+    fi
+}
+
 powerStateChange()
 {
-        echo "mem" > $powerStateFile
+    #######suspend#######
+    aml_socket aml_musicBox_socket suspend
+    wait_wake_lock
+    echo "mem" > $powerStateFile
+    ######resume#########
+    aml_socket aml_musicBox_socket resume
 }
 
 volumeUpAction()
