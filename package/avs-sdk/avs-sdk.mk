@@ -21,6 +21,7 @@ AVS_SDK_CONF_OPTS = \
                     -DBUILD_OUT_OF_TREE=ON \
                     -DGSTREAMER_MEDIA_PLAYER=ON \
                     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+		    -DBUILD_TESTING=ON \
                     -DTOTEM_PLPARSER=ON
 
 ifeq ($(BR2_PACKAGE_LIBXML2),y)
