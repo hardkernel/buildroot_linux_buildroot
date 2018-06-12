@@ -190,6 +190,13 @@ endef
 UBOOT_POST_EXTRACT_HOOKS += UBOOT_COPY_OLD_LICENSE_FILE
 UBOOT_POST_RSYNC_HOOKS += UBOOT_COPY_OLD_LICENSE_FILE
 
+ifeq ($(BR2_TARGET_UBOOT_CUSTOM_LOCAL),y)
+define UBOOT_COPY_GIT_DIR
+        cp -rf $(UBOOT_SITE)/* $(@D)/
+endef
+UBOOT_PRE_PATCH_HOOKS += UBOOT_COPY_GIT_DIR
+endif
+
 # Analogous code exists in linux/linux.mk. Basically, the generic
 # package infrastructure handles downloading and applying remote
 # patches. Local patches are handled depending on whether they are
