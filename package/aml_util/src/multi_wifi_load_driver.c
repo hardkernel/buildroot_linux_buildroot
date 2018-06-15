@@ -42,6 +42,12 @@
 #define BROADCOM_FIRMWARE_PATH     DEFAULT_CONFIG_PATH
 #endif
 
+#ifdef MRVL_MODULES_PATH
+#define MRVL_KO_PATH     XSTR(MRVL_MODULES_PATH)
+#else
+#define MRVL_KO_PATH     DEFAULT_CONFIG_PATH
+#endif
+
 #define MODULE_ARG_FIRMWARE     0
 #define MODULE_ARG_IFNAME       1
 #define MODULE_ARG_STACFG       2
@@ -69,6 +75,10 @@ typedef struct load_info {
     const module_arg wifi_module_arg;
     const char *wifi_name;
     const int wifi_pid;
+
+    const char *wifi_module_name2;
+    const char *wifi_module_filename2;
+    const char *wifi_module_arg2;
 } dongle_info;
 
 #define TYPE_AP         0
@@ -241,9 +251,9 @@ static const dongle_info dongle_registerd[] = {
 	},
 	"rtl8822bs",
 	0x0
-    },
-    {
-	"",
+	},
+	{
+	"invalid",
 	"8822bu",
 	"8822bu.ko",
 	REALTEK_KO_PATH,
@@ -266,7 +276,35 @@ static const dongle_info dongle_registerd[] = {
 	},
 	"ssv6051",
 	0x0
-    }
+	},
+	{
+		"9145",
+		"mlan",
+		"mlan8977.ko",
+		MRVL_KO_PATH,
+		.wifi_module_arg = {
+			.arg_type   = 0xFF
+		},
+		"sd8977",
+		0x0,
+		"sd8xxx",
+		"sd8xxx_8977.ko",
+		"cal_data_cfg=none"
+	},
+	{
+		"9149",
+		"mlan",
+		"mlan8987.ko",
+		MRVL_KO_PATH,
+		.wifi_module_arg = {
+			.arg_type   = 0xFF
+		},
+		"sd8987",
+		0x0,
+		"sd8xxx",
+		"sd8xxx_8987.ko",
+		"cal_data_cfg=none"
+	}
 };
 
 static void get_module_arg(const module_arg *arg, char *str, int type)
@@ -501,6 +539,16 @@ static int sdio_wifi_load_driver(int type)
 	    fprintf(stderr, "[%s:%d]module_arg(%s)\n", __func__, __LINE__, module_arg);
 	    insmod(module_path, module_arg);
 
+		if (dongle_registerd[i].wifi_module_name2) {
+			memset(module_path, 0, sizeof(module_path));
+			memset(module_arg, 0, sizeof(module_arg));
+			memcpy(module_arg, dongle_registerd[i].wifi_module_arg2, strlen(dongle_registerd[i].wifi_module_arg2));
+			sprintf(module_path, "%s/%s", dongle_registerd[i].wifi_module_path, dongle_registerd[i].wifi_module_filename2);
+			fprintf(stderr, "[%s:%d]module_path2(%s)\n", __func__, __LINE__, module_path);
+			fprintf(stderr, "[%s:%d]module_arg2(%s)\n", __func__, __LINE__, module_arg);
+			insmod(module_path, module_arg);
+		}
+
 	return 0;
 	}
     }
@@ -579,6 +627,8 @@ static int wifi_off(void)
 
     usleep(200000); /* allow to finish interface down */
     rmmod(dongle_registerd[load_dongle_index].wifi_module_name);
+    if (dongle_registerd[load_dongle_index].wifi_module_name2)
+        rmmod(dongle_registerd[load_dongle_index].wifi_module_name2);
     usleep(500000);
     set_wifi_power(SDIO_POWER_DOWN);
 

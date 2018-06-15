@@ -28,18 +28,23 @@ ifneq ($(BR2_PACKAGE_RTK8188EU)$(BR2_PACKAGE_RTK8189ES)$(BR2_PACKAGE_RTK8189FTV)
 	RTK := TRUE
 endif
 
-ifeq ($(BCM)$(RTK),TRUETRUE)
-	FLAGS="$(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include -lusb-1.0 -DBROADCOM_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/broadcom/wifi -DBROADCOM_CONFIG_PATH=/etc/wifi -DREALTEK_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/realtek/wifi"
-else ifeq ($(BCM)$(RTK), TRUEFALSE)
-	FLAGS="$(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include -lusb-1.0 -DBROADCOM_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/broadcom/wifi -DBROADCOM_CONFIG_PATH=/etc/wifi"
-else ifeq ($(BCM)$(RTK), FALSETRUE)
-	FLAGS="$(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include -lusb-1.0 -DREALTEK_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/realtek/wifi"
-else
-	FLAGS="$(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include -lusb-1.0"
+AML_UTIL_PRIV_FLAGS = $(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include -lusb-1.0
+
+ifeq ($(BCM), TRUE)
+	AML_UTIL_PRIV_FLAGS += -DBROADCOM_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/broadcom/wifi -DBROADCOM_CONFIG_PATH=/etc/wifi
 endif
 
+ifeq ($(RTK), TRUE)
+	AML_UTIL_PRIV_FLAGS += -DREALTEK_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/realtek/wifi
+endif
+
+ifneq ($(BR2_PACKAGE_MRVL_WIFIBT),)
+	AML_UTIL_PRIV_FLAGS += -DMRVL_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/mrvl
+endif
+
+
 define AML_UTIL_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) $(MAKE) CFLAGS=$(FLAGS) -C $(@D) all
+	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D) CFLAGS="$(AML_UTIL_PRIV_FLAGS)" all
 endef
 
 define AML_UTIL_INSTALL_TARGET_CMDS

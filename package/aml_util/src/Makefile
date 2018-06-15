@@ -1,6 +1,8 @@
 UTILS = wifi_power multi_wifi_load_driver input_eventd usbpower usbtestpm usbtestpm_mx usbtestpm_mx_iddq usbpower_mx_iddq usb_monitor
 .PHONY: all install clean
+#CFLAGS += $(AML_UTIL_PRIV_FLAGS)
 
+$(info CFLAGS = $(CFLAGS))
 wifi_power: wifi_power.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
