@@ -71,6 +71,8 @@ $(Q) echo "GPU_MODEL is $(GPU_MODEL)"; \
         t83x)		$(MIDGARD_BUILD_CMD) ;; \
         t82x)		$(MIDGARD_BUILD_CMD) ;;	\
         dvalin)		$(BIFROST_BUILD_CMD) ;; \
+        gondul)		$(BIFROST_BUILD_CMD) ;; \
+        bifrost)	$(BIFROST_BUILD_CMD) ;; \
 	esac; \
 	echo "case finished"
 endef
