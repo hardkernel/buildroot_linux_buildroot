@@ -1,0 +1,21 @@
+From d749cc37f94c487143b4822e0314e7284cd6fd9a Mon Sep 17 00:00:00 2001
+From: Joy Cho <joy.cho@hardkernel.com>
+Date: Thu, 28 Jun 2018 16:50:44 +0900
+Subject: [PATCH] [Patch] uboot: fix toolchain path in Makefile
+
+Change-Id: I9197c233d4da234aca8581b4063c1e7b72c3c41d
+---
+
+diff --git a/Makefile b/Makefile
+index fe239a2..fb8c21b 100644
+--- a/bl33/Makefile
++++ b/bl33/Makefile
+@@ -246,7 +246,7 @@
+ CROSS_COMPILE ?=
+ endif
+ 
+-export CROSS_COMPILE=aarch64-none-elf-
++export CROSS_COMPILE=/opt/toolchains/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin/aarch64-none-elf-
+ 
+ KCONFIG_CONFIG	?= .config
+ export KCONFIG_CONFIG
