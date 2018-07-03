@@ -71,6 +71,7 @@ A2DP_service()
 		bluealsa-aplay --profile-a2dp 00:00:00:00:00:00 -d dmixer_avs_auto 2> /dev/null &
 	fi
 	default_agent > /dev/null &
+	hfp_ctl &
 
 	hciconfig hci0 piscan
 	hciconfig hci0 inqparms 18:1024
@@ -91,6 +92,7 @@ BLE_service()
 service_down()
 {
 	echo "|--stop bluez service--|"
+	killall hfp_ctl
 	killall default_agent
 	killall bluealsa-aplay
 	killall bluealsa
