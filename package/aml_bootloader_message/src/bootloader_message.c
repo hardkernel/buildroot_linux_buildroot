@@ -510,6 +510,79 @@ static int set_bootloader_message(struct bootloader_message *in) {
     }
 }
 
+int get_recovery_otapath(char *path) {
+    int ret = 0;
+    int len = 0;
+    struct bootloader_message info;
+
+    ret = get_bootloader_message(&info);
+    if (ret != 0) {
+        printf("get_bootloader_message failed!\n");
+        return -1;
+    }
+
+    len = strlen(info.recovery);
+    if ((len <= 0) || (len >= 256)) {
+        printf("get_bootloader_message url length is error!\n");
+        return -1;
+    }
+
+    if (strncmp(info.recovery, "http", 4)) {
+        printf("get_bootloader_message url format is error!\n");
+        return -1;
+    }
+
+    printf("get otapath :%s(%d)\n", info.recovery, strlen(info.recovery));
+    memcpy(path, info.recovery,strlen(info.recovery));
+
+    return 0;
+}
+
+int set_recovery_otapath(char *path) {
+    int ret = 0;
+    struct bootloader_message info;
+
+    ret = get_bootloader_message(&info);
+    if (ret != 0) {
+        printf("get_bootloader_message failed!\n");
+        return -1;
+    }
+
+    memcpy(info.command, CMD_RUN_RECOVERY, sizeof(CMD_RUN_RECOVERY));
+    memset(info.recovery, 0, RECOVERYBUF_SIZE);
+    memcpy(info.recovery, path, strlen(path));
+
+    ret = set_bootloader_message(&info);
+    if (ret != 0) {
+        printf("set_bootloader_message failed!\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+int clean_recovery_otapath() {
+    int ret = 0;
+    struct bootloader_message info;
+
+    ret = get_bootloader_message(&info);
+    if (ret != 0) {
+        printf("get_bootloader_message failed!\n");
+        return -1;
+    }
+
+    memset(info.command, 0, COMMANDBUF_SIZE);
+    memset(info.recovery, 0, RECOVERYBUF_SIZE);
+
+    ret = set_bootloader_message(&info);
+    if (ret != 0) {
+        printf("set_bootloader_message failed!\n");
+        return -1;
+    }
+
+    return 0;
+}
+
 int set_recovery() {
     int ret = 0;
     struct bootloader_message info;

@@ -58,6 +58,9 @@ int reboot_recovery();
 int clear_recovery();
 int get_active_slot(int *slot);
 int set_active_slot(int slot);
+int set_recovery_otapath(char *path);
+int get_recovery_otapath(char * path);
+int clean_recovery_otapath();
 int get_inactive_mtd(const char *partitionname);
 
 #endif

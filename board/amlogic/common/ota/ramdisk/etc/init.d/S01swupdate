@@ -32,6 +32,39 @@ if [ -f "/mnt/software.swu" ]; then
         reboot
         echo "swupdate reboot now!"
     fi
+elif [ -f "/mnt/swupdate/enable-network-ota" ]; then
+    source /mnt/swupdate/apply_info.sh /mnt
+    /mnt/swupdate/start_wifi.sh
+    for i in 'seq 1 30'
+    do
+        ping -c 1 $SWUPDATE_OTA_SERVER
+        if [ $? == 0 ]; then
+            NETWORK_READY=1
+            break;
+        fi
+    done
+    if [ -n $NETWORK_READY ]; then
+        if [ -f "/proc/inand" ]; then
+            swupdate -l 6 -k /etc/swupdate-public.pem -D
+        else
+            swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -D
+        fi
+        if [ $? == 0 ]; then
+            echo "swupdate software.swu from url sucess!"
+            rm -fr /mnt/swupdate
+            umount /mnt
+            sync
+            sleep 2
+            reboot
+            echo "swupdate reboot now!"
+        else
+            echo "swupdate software.swu from url failed!"
+        fi
+    else
+        echo "no software.swu found in usb device"
+        #execute swupdate for clear misc, no need into recovery after reboot
+        swupdate -h
+    fi
 else
 	#wait for usb device
 	echo "can not find software.swu in data, now find usb device......"
