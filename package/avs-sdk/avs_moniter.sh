@@ -24,6 +24,10 @@ amixer_ctr=`amixer controls | grep "Loopback Enable"` > /dev/null
 loop_id=${amixer_ctr%%,*}
 amixer cset $loop_id 1
 
+amixer_ctr=`amixer controls | grep "datain_datalb_total"` > /dev/null
+datalb_id=${amixer_ctr%%,*}
+amixer cset $datalb_id 16
+
 if [ -f $DISPLAYCARD ]; then
     $DISPLAYCARD -r 270 &
 else
