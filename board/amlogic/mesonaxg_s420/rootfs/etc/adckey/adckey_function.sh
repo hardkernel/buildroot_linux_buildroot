@@ -70,7 +70,7 @@ ble_wifi_setup()
 {
 	echo "ble config for wifisetup"
 	rm /etc/bsa/config/wifi_tool.sh
-	ln /var/www/cgi-bin/wifi/wifi_tool.sh  /etc/bsa/config/wifi_tool.sh
+	ln -s /var/www/cgi-bin/wifi/wifi_tool.sh  /etc/bsa/config/wifi_tool.sh
 	if [ ! -f "/etc/bsa/config/wifi_status" ]; then
 		touch /etc/bsa/config/wifi_status
 		chmod 644 /etc/bsa/config/wifi_status
