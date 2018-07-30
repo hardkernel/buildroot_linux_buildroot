@@ -533,7 +533,7 @@ config BR2_TARGET_UBOOT_AMLOGIC_REPO
 
 config BR2_TARGET_UBOOT_AMLOGIC_BOOTARGS
     string "amlogic uboot bootargs"
-    depends on BR2_TARGET_UBOOT_AMLOGIC_REPO
+    depends on BR2_TARGET_UBOOT_AMLOGIC_REPO || BR2_TARGET_UBOOT_ODROID
     default "root=/dev/system rootfstype=ext4 init=/sbin/init"
     help
 	amlogic uboot bootargs when mkbootimg
