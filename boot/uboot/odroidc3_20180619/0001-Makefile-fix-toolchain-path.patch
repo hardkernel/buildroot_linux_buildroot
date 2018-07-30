@@ -8,8 +8,8 @@ Change-Id: I9197c233d4da234aca8581b4063c1e7b72c3c41d
 
 diff --git a/Makefile b/Makefile
 index fe239a2..fb8c21b 100644
---- a/bl33/Makefile
-+++ b/bl33/Makefile
+--- a/Makefile
++++ b/Makefile
 @@ -246,7 +246,7 @@
  CROSS_COMPILE ?=
  endif

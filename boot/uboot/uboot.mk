@@ -113,6 +113,10 @@ UBOOT_MAKE_TARGET += u-boot.sb
 UBOOT_DEPENDENCIES += host-elftosb host-openssl
 endif
 
+ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
+UBOOT_MAKE_TARGET += bootimage
+endif
+
 ifeq ($(BR2_TARGET_UBOOT_FORMAT_CUSTOM),y)
 UBOOT_BINS += $(call qstrip,$(BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME))
 else ifeq ($(BR2_TARGET_UBOOT_WITH_SECURE_OS),y)
@@ -353,6 +357,13 @@ define UBOOT_BUILD_CMDS
 			nand $(@D)/u-boot.sb $(@D)/u-boot.nand)
 endef
 endif
+
+ifeq ($(filter y, $(BR2_TARGET_UBOOT_ODROID_C3)$(BR2_TARGET_UBOOT_ODROID_N2)),y)
+define UBOOT_BUILD_CMDS
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
+		$(MAKE) -j1 -C $(@D) $(UBOOT_MAKE_TARGET)
+endef
+endif #BR2_TARGET_UBOOT_ODROID_C3
 
 define UBOOT_BUILD_OMAP_IFT
 	$(HOST_DIR)/bin/gpsign -f $(@D)/u-boot.bin \

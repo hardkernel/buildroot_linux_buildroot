@@ -545,6 +545,26 @@ config BR2_TARGET_UBOOT_PLATFORM
 config BR2_TARGET_UBOOT_ENCRYPTION
     bool "secure boot"
 
+config BR2_TARGET_UBOOT_ODROID
+    bool "odroidc1 uboot"
+    help
+        odroidc1 uboot
+
+config BR2_TARGET_UBOOT_ODROID_C2
+    bool "odroidc2 uboot"
+    help
+        odroidc2 uboot
+
+config BR2_TARGET_UBOOT_ODROID_C3
+    bool "odroidc3 uboot"
+    help
+        odroidc3 uboot
+
+config BR2_TARGET_UBOOT_ODROID_N2
+    bool "odroidc2 uboot"
+    help
+        odroidc2 uboot
+
 config BR2_TARGET_USBTOOL_AMLOGIC
     bool "amlogic usb tool"
     help
