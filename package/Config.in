@@ -24,6 +24,7 @@ menu "amlogic"
 endmenu
 
 menu "Audio and video applications"
+	source "package/arm_isp/Config.in"
 	source "package/media_modules/Config.in"
 	source "../multimedia/Config.in"
 	source "../vendor/amlogic/external/platinum/Config.in"
