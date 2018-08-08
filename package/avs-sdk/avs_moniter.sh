@@ -6,6 +6,7 @@ DISPLAYCARD=/sbin/DisplayCardsD
 
 start_avs() {
     if [ -f $CONFIG ];then
+        mkdir -p /data/share/avs/
         cd /usr/bin/
         ./SampleApp $CONFIG NONE back &
         cd -
