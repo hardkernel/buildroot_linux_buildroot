@@ -53,7 +53,7 @@ aml_secureboot_sign_bin(){
 platform=$1
 
 
-if [ $# ne 3 ]; then
+if [ $# -ne 3 ]; then
     secureboot=$2
     absystem=$3
 else
