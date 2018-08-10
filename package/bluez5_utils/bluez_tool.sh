@@ -63,11 +63,13 @@ A2DP_service()
 		/usr/libexec/bluetooth/bluetoothd -n -d 2> /etc/bluetooth/bluetoothd.log &
 		sleep 1
 		bluealsa -p a2dp-sink -p hfp-hf 2> /etc/bluetooth/bluealsa.log &
+		usleep 200000
 		bluealsa-aplay --profile-a2dp 00:00:00:00:00:00 -d dmixer_avs_auto 2> /etc/bluetooth/bluealsa-aplay.log &
 	else
-		/usr/libexec/bluetooth/bluetoothd -n -d 2> /dev/null &
+		/usr/libexec/bluetooth/bluetoothd -n &
 		sleep 1
 		bluealsa -p a2dp-sink -p hfp-hf 2> /dev/null &
+		usleep 200000
 		bluealsa-aplay --profile-a2dp 00:00:00:00:00:00 -d dmixer_avs_auto 2> /dev/null &
 	fi
 	default_agent > /dev/null &
