@@ -591,6 +591,11 @@ BR2_AVS_DSPC=y
 BR2_PACKAGE_AML_BRCM_BSA=y
 
 #
+#DuerOS for amlogoc public platform
+#
+#BR2_PACKAGE_DUEROS=y
+
+#
 #led ring
 #
 BR2_PACKAGE_LEDRING=y

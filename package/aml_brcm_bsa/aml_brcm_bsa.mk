@@ -13,6 +13,11 @@ AML_BRCM_BSA_LIBBSA = libbsa
 
 AML_BT_DSPC_PATH = 3rdparty/embedded/bsa_examples/linux
 AML_BT_DSPC_LIBDSPC = libdspc
+
+ifeq ($(BR2_PACKAGE_DUEROS),y)
+TARGET_CONFIGURE_OPTS += DUEROS_SDK=y
+endif
+
 ifeq ($(BR2_aarch64),y)
 AML_BRCM_BSA_BUILD_TYPE = arm64
 BT_AUDIO_CONF = alsa-bsa-64.conf
