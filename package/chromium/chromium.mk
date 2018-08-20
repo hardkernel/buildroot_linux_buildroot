@@ -10,42 +10,64 @@ endif
 
 ifeq ($(BR2_PACKAGE_CHROMIUM_COMPILE_ALL),y)
 
-CHROMIUM_VERSION = 53.0.2785.143
+CHROMIUM_VERSION = 69.0.3497.81
 
 #CHROMIUM_LICENSE = GPLv3+
 #CHROMIUM_LICENSE_FILES = COPYING
-CHROMIUM_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango libplayer
+CHROMIUM_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango libplayer browser_toolchain_depot_tools
 
-CHROMIUM_SOURCE = chromium-$(CHROMIUM_VERSION).tar.gz
-# This URL will not work directly, it is assumed the chromium tarball is already placed in buildroot/dl
+CHROMIUM_SOURCE = chromium-$(CHROMIUM_VERSION).tar.xz
 CHROMIUM_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
 
-ifeq ($(BR2_aarch64), y)
+ifeq ($(BR2_PACKAGE_CHROMIUM_ENABLE_WIDEVINE), y)
+CHROMIUM_ENABLE_WIDEVINE=true
+else
+CHROMIUM_ENABLE_WIDEVINE=false
+endif
 
-CHROMIUM_FLAGS = 'disable_fatal_linker_warnings=1 v8_use_external_startup_data=0 use_allocator=none angle_use_commit_id=0 disable_nacl=1 use_kerberos=0 use_cups=0 use_gnome_keyring=0 linux_link_gnome_keyring=0 linux_link_kerberos=0 v8_use_snapshot="true" use_system_bzip=1 host_clang=0 clang=0 use_sysroot=1 component=static_library linux_use_bundled_gold=0 linux_use_bundled_binutils=0 linux_use_gold_flags=0 use_ozone=1 ozone_auto_platforms=1 ozone_platform_wayland=1 ozone_platform_gbm=0 use_xkbcommon=1 ffmpeg_branding=Chrome media_use_libvpx=0 proprietary_codecs=1 enable_hevc_demuxing=1 enable_ac3_eac3_audio_demuxing=1 remove_webcore_debug_symbols=1 target_os=linux target_arch=arm64 arm_float_abi=hard target_sysroot=$(STAGING_DIR)'
+CHROMIUM_FLAGS = v8_use_external_startup_data=false enable_nacl=false use_kerberos=false use_cups=false use_gnome_keyring=false v8_use_snapshot=true use_system_zlib=true is_clang=false use_sysroot=true use_xkbcommon=true ffmpeg_branding="Chrome" media_use_libvpx=false proprietary_codecs=true enable_hevc_demuxing=true enable_ac3_eac3_audio_demuxing=true remove_webcore_debug_symbols=true target_os="linux" target_sysroot="$(STAGING_DIR)" symbol_level=1 remove_webcore_debug_symbols=true is_debug=false enable_linux_installer=false enable_widevine=$(CHROMIUM_ENABLE_WIDEVINE) use_ozone=true ozone_auto_platforms=false ozone_platform="wayland" ozone_platform_wayland=true ozone_platform_x11=false use_system_libdrm=true use_system_libwayland=true treat_warnings_as_errors=false
+
+ifeq ($(BR2_aarch64), y)
+CHROMIUM_DEPENDENCIES += browser_toolchain_gcc-linaro-aarch64
+CHROMIUM_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_AARCH64_INSTALL_DIR)/bin
+CHROMIUM_FLAGS += target_cpu="arm64"
 
 else
-
-CHROMIUM_FLAGS = 'disable_fatal_linker_warnings=1 v8_use_external_startup_data=0 use_allocator=none angle_use_commit_id=0 disable_nacl=1 use_kerberos=0 use_cups=0 use_gnome_keyring=0 linux_link_gnome_keyring=0 linux_link_kerberos=0 v8_use_snapshot="true" use_system_bzip=1 host_clang=0 clang=0 use_sysroot=1 component=static_library linux_use_bundled_gold=0 linux_use_bundled_binutils=0 linux_use_gold_flags=0 use_ozone=1 ozone_auto_platforms=1 ozone_platform_wayland=1 ozone_platform_gbm=0 use_xkbcommon=1 ffmpeg_branding=Chrome media_use_libvpx=0 proprietary_codecs=1 enable_hevc_demuxing=1 enable_ac3_eac3_audio_demuxing=1 remove_webcore_debug_symbols=1 target_os=linux target_arch=arm arm_float_abi=hard target_sysroot=$(STAGING_DIR)'
+CHROMIUM_DEPENDENCIES += browser_toolchain_gcc-linaro-armeabihf
+CHROMIUM_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_ARMEABIHF_INSTALL_DIR)/bin
+CHROMIUM_FLAGS += target_cpu="arm"
 
 endif
 
-CHROMIUM_MODE = Release
+ifeq ($(BR2_PACKAGE_CHROMIUM_ENABLE_CCACHE), y)
+ifneq ($(BR2_PACKAGE_CHROMIUM_CCACHE_BIN_PATH), "")
+CHROMIUM_FLAGS += cc_wrapper=$(BR2_PACKAGE_CHROMIUM_CCACHE_BIN_PATH)
+endif
+endif
+
+
+CHROMIUM_DEPOT_TOOL_DIR = $(BROWSER_DEPOT_TOOL_PATH)
+CHROMIUM_OUT_DIR = $(CHROMIUM_DIR)/src/out/chrome
 
 define CHROMIUM_BUILD_CMDS
-    export PATH=$(HOST_DIR)/usr/bin:$(CHROMIUM_DIR)/depot_tools:$(PATH);cd $(CHROMIUM_DIR)/src;export GYP_CROSSCOMPILE=1;export GYP_DEFINES=$(CHROMIUM_FLAGS);./build/gyp_chromium;ninja -C out/$(CHROMIUM_MODE) -j16 chrome
+	export PATH=$(CHROMIUM_TOOLCHAIN_DIR):$(CHROMIUM_DEPOT_TOOL_DIR):$(PATH); \
+	cd $(CHROMIUM_DIR)/src && \
+	gn gen $(CHROMIUM_OUT_DIR) --args='$(CHROMIUM_FLAGS)' && \
+	ninja -C $(CHROMIUM_OUT_DIR) chrome
 endef
 
 define CHROMIUM_INSTALL_STAGING_CMDS
 endef
 
+CHROMIUM_INSTALL_DIR=$(TARGET_DIR)/usr/bin/chromium-browser
 define CHROMIUM_INSTALL_TARGET_CMDS
-	mkdir -p $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(CHROMIUM_DIR)/src/out/$(CHROMIUM_MODE)/chrome            $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(CHROMIUM_DIR)/src/out/$(CHROMIUM_MODE)/*.pak             $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(CHROMIUM_DIR)/src/out/$(CHROMIUM_MODE)/resources         $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(CHROMIUM_DIR)/src/out/$(CHROMIUM_MODE)/locales           $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(CHROMIUM_DIR)/src/out/$(CHROMIUM_MODE)/icudtl.dat        $(TARGET_DIR)/usr/bin/chromium-browser
+	mkdir -p $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_OUT_DIR)/chrome            $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_OUT_DIR)/*.pak             $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_OUT_DIR)/*.so              $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_OUT_DIR)/resources         $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_OUT_DIR)/locales           $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_OUT_DIR)/icudtl.dat        $(CHROMIUM_INSTALL_DIR)
 endef
 
 ifeq ($(BR2_PACKAGE_LAUNCHER_USE_CHROME), y)

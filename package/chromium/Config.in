@@ -10,6 +10,9 @@ config BR2_PACKAGE_CHROMIUM
 	select BR2_PACKAGE_LIBNSS
 	select BR2_PACKAGE_PANGO
 	select BR2_PACKAGE_LIBPLAYER
+	select BR2_PACKAGE_WAYLAND
+	select BR2_PACKAGE_WAYLAND_PROTOCOLS
+	select BR2_PACKAGE_CA_CERTIFICATES
 
 	help
 	  chromium browser
@@ -31,10 +34,30 @@ choice
 
 config BR2_PACKAGE_CHROMIUM_COMPILE_ALL
 	bool "recompile the total chromium"
+    select BR2_PACKAGE_BROWSER_TOOLCHAIN_DEPOT_TOOLS
+    select BR2_PACKAGE_BROWSER_TOOLCHAIN_GCC_LINARO_AARCH64 if BR2_aarch64
+    select BR2_PACKAGE_BROWSER_TOOLCHAIN_GCC_LINARO_ARMEABIHF if BR2_arm
 
 config BR2_PACKAGE_CHROMIUM_PREBUILT
 	bool "Use prebuilt chromium bin"
 
 endchoice
+
+config BR2_PACKAGE_CHROMIUM_ENABLE_WIDEVINE
+    depends on BR2_PACKAGE_CHROMIUM_COMPILE_ALL
+    bool "enable widevine"
+    default n
+
+menuconfig BR2_PACKAGE_CHROMIUM_ENABLE_CCACHE
+    depends on BR2_PACKAGE_CHROMIUM_COMPILE_ALL
+    bool "enable ccache for chromium compilation"
+
+if BR2_PACKAGE_CHROMIUM_ENABLE_CCACHE
+config BR2_PACKAGE_CHROMIUM_CCACHE_BIN_PATH
+    string "ccache binary path"
+    default "ccache"
+    help
+        set the ccache binary path
+endif
 
 endif

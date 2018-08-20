@@ -5,7 +5,7 @@
 #############################################################
 ifeq ($(BR2_PACKAGE_CHROMIUM_PREBUILT),y)
 
-CHROMIUM_PREBUILT_VERSION = 53.0.2785.143
+CHROMIUM_PREBUILT_VERSION = 69.0.3497.81
 
 CHROMIUM_PREBUILT_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango libplayer
 
@@ -14,18 +14,22 @@ CHROMIUM_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/chromium
 CHROMIUM_PREBUILT_SITE_METHOD = local
 
 ifeq ($(BR2_aarch64),y)
-CHROMIUM_PREBUILT_DIRECTORY = vendor/amlogic/chromium/chromium-$(CHROMIUM_PREBUILT_VERSION)/arm64
+CHROMIUM_PREBUILT_DIRECTORY = $(CHROMIUM_PREBUILT_SITE)/chromium-$(CHROMIUM_PREBUILT_VERSION)/arm64
 else
-CHROMIUM_PREBUILT_DIRECTORY = vendor/amlogic/chromium/chromium-$(CHROMIUM_PREBUILT_VERSION)/arm
+CHROMIUM_PREBUILT_DIRECTORY = $(CHROMIUM_PREBUILT_SITE)/chromium-$(CHROMIUM_PREBUILT_VERSION)/arm
 endif
 
+CHROMIUM_INSTALL_DIR=$(TARGET_DIR)/usr/bin/chromium-browser
+CHROMIUM_PREBUILT_COMMON_DIRECTORY = $(CHROMIUM_PREBUILT_DIRECTORY)/../common
+
 define CHROMIUM_PREBUILT_INSTALL_TARGET_CMDS
-	mkdir -p $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(TOPDIR)/../$(CHROMIUM_PREBUILT_DIRECTORY)/chrome            $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(TOPDIR)/../$(CHROMIUM_PREBUILT_DIRECTORY)/*.pak             $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(TOPDIR)/../$(CHROMIUM_PREBUILT_DIRECTORY)/resources         $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(TOPDIR)/../$(CHROMIUM_PREBUILT_DIRECTORY)/locales           $(TARGET_DIR)/usr/bin/chromium-browser
-	cp -a $(TOPDIR)/../$(CHROMIUM_PREBUILT_DIRECTORY)/icudtl.dat        $(TARGET_DIR)/usr/bin/chromium-browser
+	mkdir -p $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_PREBUILT_DIRECTORY)/chrome            $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_PREBUILT_DIRECTORY)/*.so              $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_PREBUILT_COMMON_DIRECTORY)/*.pak   	      $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_PREBUILT_COMMON_DIRECTORY)/resources         $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_PREBUILT_COMMON_DIRECTORY)/locales           $(CHROMIUM_INSTALL_DIR)
+	cp -a $(CHROMIUM_PREBUILT_COMMON_DIRECTORY)/icudtl.dat        $(CHROMIUM_INSTALL_DIR)
 endef
 
 ifeq ($(BR2_PACKAGE_LAUNCHER_USE_CHROME), y)
