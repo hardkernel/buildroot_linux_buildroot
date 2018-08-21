@@ -7,11 +7,12 @@ LOCAL_DIR=$(pwd)
 BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
+<<<<<<< HEAD
 DEFCONFIG_ARRAY=(
     "==========In Maintaining======================"
 
-    "odroidn2_s922d_release"
-    "odroidc3_s905d2_32_release"
+    "odroidc3"
+    "odroidn2"
 
     "mesonc1_ae400_a64_release"
     "mesonc1_ae400_a64_neu_release"
