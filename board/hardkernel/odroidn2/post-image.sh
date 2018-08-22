@@ -1,11 +1,14 @@
 #!/bin/sh
 
 BOARD_DIR="$(dirname $0)"
+COMMON_DIR=${BOARD_DIR}/../common
+
 GENIMAGE_CFG="${BOARD_DIR}/genimage.cfg"
 GENIMAGE_TMP="${BUILD_DIR}/genimage.tmp"
 
 rm -rf "${GENIMAGE_TMP}"
 
+cp ${COMMON_DIR}/logo.bmp.gz ${BINARIES_DIR}/
 cp ${BOARD_DIR}/boot.cmd ${BINARIES_DIR}/
 
 echo "ODROIDN2-UBOOT-CONFIG" > ${BINARIES_DIR}/boot.ini
