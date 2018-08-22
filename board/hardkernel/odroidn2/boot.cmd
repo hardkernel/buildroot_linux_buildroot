@@ -11,8 +11,8 @@ setenv ramdisk_addr_r "0x3080000"
 
 setenv fdtfile "s922d_odroidn2.dtb"
 
-fatload mmc ${devno}:1 ${kernel_addr_load} Image.gz \
+fatload mmc ${devno}:1 ${kernel_addr_load} Image.gz
 && unzip ${kernel_addr_load} ${kernel_addr_r}
-&& fatload mmc ${devno}:1 ${fdt_addr_r} ${fdtfile} \
-&& if test -e mmc ${devno} initrd.gz; then fatload mmc ${devno}:1 ${ramdisk_addr_r} initrd.gz; else setenv ramdisk_addr_r "-"; fi;
+&& fatload mmc ${devno}:1 ${fdt_addr_r} ${fdtfile}
+&& if test -e mmc ${devno} initrd.gz; then fatload mmc ${devno}:1 ${ramdisk_addr_r} initrd.gz; else setenv ramdisk_addr_r "-"; fi
 && booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
