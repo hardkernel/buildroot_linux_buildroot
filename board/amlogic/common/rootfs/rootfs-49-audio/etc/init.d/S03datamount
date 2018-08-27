@@ -2,6 +2,7 @@
 
 data_ubi_handle()
 {
+    mount | grep 'data' && echo "Already mounted" && exit 0
     #get current platform
     platform=`cat /proc/device-tree/compatible`
     case ${platform} in
@@ -44,6 +45,7 @@ data_ubi_handle()
 
 data_ext4_handle()
 {
+    mount | grep 'data' && echo "Already mounted" && exit 0
     #mount dir create
     if [ ! -d "/data"  ]
     then
