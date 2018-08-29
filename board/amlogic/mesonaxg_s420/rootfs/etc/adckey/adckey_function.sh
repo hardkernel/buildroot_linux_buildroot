@@ -26,9 +26,14 @@ wait_wake_lock()
 
 powerStateChange()
 {
+    if [ -f $powerResumeFlag ];then
+        rm $powerResumeFlag
+        return 0;
+    fi
     #######suspend#######
     aml_socket aml_musicBox_socket suspend
     wait_wake_lock
+    touch $powerResumeFlag
     echo "mem" > $powerStateFile
     ######resume#########
     aml_socket aml_musicBox_socket resume
