@@ -22,6 +22,7 @@ menu "amlogic"
 	source "package/aml_usb_config/Config.in"
 	source "../vendor/amlogic/system_control/Config.in"
     source "package/bt_setup/Config.in"
+	source "package/assistant-sdk/Config.in"
 endmenu
 
 menu "Audio and video applications"
