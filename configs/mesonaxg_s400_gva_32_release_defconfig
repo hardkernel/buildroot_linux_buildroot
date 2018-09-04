@@ -672,3 +672,5 @@ BR2_PACKAGE_ADB_RNDIS=y
 #
 ##assistant sdk
 BR2_PACKAGE_ASSISTANT_SDK=y
+#assistant sdk support
+BR2_PACKAGE_MPG123=y
