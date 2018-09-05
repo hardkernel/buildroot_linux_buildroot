@@ -44,10 +44,9 @@ function hostapd_conf(){
     echo "ieee80211n=1" >> /etc/hostapd_temp.conf
     echo "hw_mode=g" >> /etc/hostapd_temp.conf
     echo "ignore_broadcast_ssid=0"  >> /etc/hostapd_temp.conf
-    echo "wpa=3" >> /etc/hostapd_temp.conf
+    echo "wpa=2" >> /etc/hostapd_temp.conf
     echo "wpa_passphrase=${password}" >> /etc/hostapd_temp.conf
     echo "wpa_key_mgmt=WPA-PSK" >> /etc/hostapd_temp.conf
-    echo "wpa_pairwise=TKIP CCMP" >> /etc/hostapd_temp.conf
     echo "rsn_pairwise=CCMP" >> /etc/hostapd_temp.conf
 }
 

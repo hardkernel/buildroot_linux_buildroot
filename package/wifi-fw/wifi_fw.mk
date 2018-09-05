@@ -314,7 +314,15 @@ $(Q) case "$(1)" in \
 		mkdir -p $(TARGET_DIR)/etc/wifi/6212; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/*.bin $(TARGET_DIR)/etc/wifi/6212/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/nvram.txt $(TARGET_DIR)/etc/wifi/6212/nvram.txt; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/BT/bcm43438a0.hcd $(TARGET_DIR)/etc/bluetooth/bcm43430a0.hcd; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/6212/BT/bcm43438a1.hcd $(TARGET_DIR)/etc/bluetooth/bcm43430a1.hcd; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/6212/; \
+		;; \
+	AP6236) \
+		mkdir -p $(TARGET_DIR)/etc/wifi/6212; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/6212/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/*.txt $(TARGET_DIR)/etc/wifi/6212/nvram.txt; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/bcm43430b.hcd; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/6212/; \
 		;; \
 	AP6234) \
