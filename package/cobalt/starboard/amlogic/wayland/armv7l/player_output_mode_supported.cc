@@ -31,7 +31,7 @@ bool SbPlayerOutputModeSupported(SbPlayerOutputMode output_mode,
                                  SbMediaVideoCodec codec,
                                  SbDrmSystem drm_system) {
   if (kSbPlayerOutputModePunchOut == output_mode)
-    return false;
+    return true;
   return starboard::shared::starboard::player::filter::VideoDecoder::
       OutputModeSupported(output_mode, codec, drm_system);
 }

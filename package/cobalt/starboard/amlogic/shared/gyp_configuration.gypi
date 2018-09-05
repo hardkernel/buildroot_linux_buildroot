@@ -27,6 +27,9 @@
       '-ldl',
       '-lpthread',
       '-lrt',
+      '-lamcodec',
+      '-lamavutils',
+      '-lamadec',
     ],
 
     'compiler_flags': [

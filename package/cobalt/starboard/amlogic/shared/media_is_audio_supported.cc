@@ -17,13 +17,12 @@
 #include "starboard/configuration.h"
 #include "starboard/media.h"
 
-SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
-                                       int frame_width,
-                                       int frame_height,
-                                       int64_t bitrate,
-                                       int fps) {
-  return (video_codec == kSbMediaVideoCodecH264 ||
-          video_codec == kSbMediaVideoCodecVp9) &&
-         frame_width <= 3840 && frame_height <= 2160 &&
-         bitrate <= SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND && fps <= 60;
+SB_EXPORT bool SbMediaIsAudioSupported(SbMediaAudioCodec audio_codec,
+                                       int64_t bitrate) {
+  if (audio_codec != kSbMediaAudioCodecAac &&
+      audio_codec != kSbMediaAudioCodecOpus) {
+    return false;
+  }
+  if (audio_codec == kSbMediaAudioCodecOpus) return false;
+  return bitrate <= SB_MEDIA_MAX_AUDIO_BITRATE_IN_BITS_PER_SECOND;
 }
