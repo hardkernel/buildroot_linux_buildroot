@@ -417,6 +417,13 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/qcom/config/ath10k/QCA6174/hw3.0/*.bin $(TARGET_DIR)/lib/firmware/ath10k/QCA6174/hw3.0/; \
 		$(INSTALL) -D -m 0644 $(@D)/qcom/config/ath10k/QCA9888/hw2.0/*.bin $(TARGET_DIR)/lib/firmware/ath10k/QCA9888/hw2.0/; \
 		;; \
+	cyw43438) \
+		mkdir -p $(TARGET_DIR)/etc/wifi/cyw43438;\
+		mkdir -p $(TARGET_DIR)/etc/bluetooth/cyw43438;\
+		$(INSTALL) -D -m 0644 $(@D)/cypress/config/cyw43438/Wi-Fi/cyw43438-7.46.58.15.bin $(TARGET_DIR)/etc/wifi/cyw43438/;\
+		$(INSTALL) -D -m 0644 $(@D)/cypress/config/cyw43438/Wi-Fi/NB197SM.nvram_20180419_AZ.txt $(TARGET_DIR)/etc/wifi/cyw43438/;\
+		$(INSTALL) -D -m 0644 $(@D)/cypress/config/cyw43438/BT/BCM4343A1_001.002.009.0077.0352.hcd $(TARGET_DIR)/etc/bluetooth/cyw43438/; \
+		;; \
 esac;
 		$(INSTALL) -D -m 0755 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin
 endef

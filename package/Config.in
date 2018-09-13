@@ -10,6 +10,7 @@ menu "amlogic"
 	source "package/aml_thermal/Config.in"
 	source "package/amlogic_test/Config.in"
 	source "package/aml_brcm_bsa/Config.in"
+	source "package/aml_cypress_bsa/Config.in"
 	source "package/meson-mali/Config.in"
 	source "package/aml_minigbm/Config.in"
 	source "package/aml_minigbmtest/Config.in"
@@ -538,6 +539,7 @@ endmenu
 	source "package/wf111/Config.in"
 	source "package/wipe/Config.in"
 	source "package/xorriso/Config.in"
+	source "package/cypress_wifi/Config.in"
 endmenu
 
 menu "Interpreter languages and scripting"
