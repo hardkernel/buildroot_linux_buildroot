@@ -85,6 +85,8 @@ else
 mkbootimg: $(BINARIES_DIR)/$(LINUX_IMAGE_NAME) $(BINARIES_DIR)/$(ROOTFS_CPIO)
 	@$(call MESSAGE,"Generating boot image")
 	linux/dtbTool -o $(BINARIES_DIR)/dtb.img -p $(LINUX_DIR)/scripts/dtc/ $(BINARIES_DIR)/
+	gzip $(BINARIES_DIR)/dtb.img
+	mv $(BINARIES_DIR)/dtb.img.gz $(BINARIES_DIR)/dtb.img
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset 0x1080000 --cmdline "$(KERNEL_BOOTARGS)" --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/boot.img
 ifeq ($(BR2_PACKAGE_SWUPDATE),y)
 ifneq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
