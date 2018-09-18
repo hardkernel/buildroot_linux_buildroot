@@ -21,7 +21,12 @@ SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
                                        int frame_width,
                                        int frame_height,
                                        int64_t bitrate,
-                                       int fps) {
+                                       int fps,
+                                       bool decode_to_texture_required) {
+  if (decode_to_texture_required) {
+    // There is no Creator CI20 360 video implementation.
+    return false;
+  }
   return (video_codec == kSbMediaVideoCodecH264 ||
           video_codec == kSbMediaVideoCodecVp9) &&
          frame_width <= 3840 && frame_height <= 2160 &&
