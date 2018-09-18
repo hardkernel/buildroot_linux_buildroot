@@ -27,6 +27,16 @@ define COBALT_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(COBALT_PREBUILT_DIRECTORY)/../content        $(COBALT_INSTALL_DIR)
 endef
 
+ifeq ($(BR2_PACKAGE_LAUNCHER_USE_COBALT), y)
+define COBALT_PREBUILT_INSTALL_INIT_SYSV
+	rm -rf $(TARGET_DIR)/etc/init.d/S90*
+	$(INSTALL) -D -m 755 package/cobalt/S90cobalt \
+		$(TARGET_DIR)/etc/init.d/S90cobalt
+	cp -af package/cobalt/launcher \
+		$(TARGET_DIR)/var/www/
+endef
+endif
+
 $(eval $(generic-package))
 
 endif

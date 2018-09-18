@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# cobalt
+#
+
+# solve problem of initial no sound output
+source /etc/property_set.sh
+
+COBALT_LAUNCHER_PID_FILE=/tmp/cobalt-luncher.pid
+COBALT_HOMEKEY_PID_FILE=/tmp/cobalt-homekey.pid
+
+start() {
+  printf "Starting cobalt: "
+  export XDG_RUNTIME_DIR=/run/wayland/
+  (
+  while true; do
+    /usr/bin/cobalt/cobalt --web_file_path=/var/www --url=file:///launcher/launcher.html
+  done
+  ) &
+  echo $! > $COBALT_LAUNCHER_PID_FILE
+
+  if [ -f $COBALT_HOMEKEY_PID_FILE ] ;then
+    if kill -0 $(cat $COBALT_HOMEKEY_PID_FILE); then
+      echo "homekey listener already running"
+      exit 0
+    fi
+  fi
+  # homekey listener
+  (
+  while true; do
+    if xxd -l 24 /dev/input/event0 | grep -q '0100 6600 0100 0000'; then
+      restart&
+    fi
+  done
+  ) &
+  echo $! > $COBALT_HOMEKEY_PID_FILE
+}
+
+stop() {
+  printf "Stopping cobalt: "
+  kill $(cat $COBALT_LAUNCHER_PID_FILE)
+  killall cobalt
+  echo "OK"
+}
+restart() {
+  stop
+  start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    restart
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
+
