@@ -10,6 +10,7 @@ config BR2_PACKAGE_AVS_SDK
 	select BR2_PACKAGE_GST1_PLUGINS_BASE
 	select BR2_PACKAGE_PKGCONF
 	select BR2_PACKAGE_LEDRING
+	select BR2_PACKAGE_DBUS
 	help
 		The Alexa Voice Service (AVS) enables developers to integrate Alexa directly
 	   	into their products, bringing the

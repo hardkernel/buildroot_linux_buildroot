@@ -15,7 +15,8 @@ AVS_SDK_DEPENDENCIES = libgmime \
                        openssl \
                        sqlite \
                        gstreamer1 \
-                       gst1-plugins-base
+                       gst1-plugins-base \
+                       dbus
 
 AVS_SDK_CONF_OPTS = \
                     -DBUILD_OUT_OF_TREE=ON \
