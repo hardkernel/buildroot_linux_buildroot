@@ -313,6 +313,7 @@ comment "Graphic libraries"
 
 comment "Other GUIs"
         source "package/aml_launcher/Config.in"
+	source "package/aml_browser_toolchains/Config.in"
 	source "package/chromium/Config.in"
 	source "package/qt/Config.in"
 	source "package/mali_examples/Config.in"
