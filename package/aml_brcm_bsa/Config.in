@@ -1,5 +1,6 @@
 config BR2_PACKAGE_AML_BRCM_BSA
     bool "broadcom bsa server and app"
+    select BR2_PACKAGE_FDK_AAC
     default n
     help
 	broadcom bsa server and app
