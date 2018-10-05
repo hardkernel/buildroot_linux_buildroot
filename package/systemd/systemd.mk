@@ -19,29 +19,45 @@ SYSTEMD_DEPENDENCIES = \
 
 SYSTEMD_PROVIDES = udev
 
+ifeq ($(BR2_TARGET_PETITBOOT),n)
 SYSTEMD_CONF_OPTS += \
-	-Drootlibdir='/usr/lib' \
-	-Dblkid=true \
-	-Dman=false \
-	-Dima=false \
-	-Defi=false \
-	-Dgnu-efi=false \
-	-Dldconfig=false \
-	-Ddefault-dnssec=no \
-	-Dtests=false \
-	-Dsplit-bin=true \
-	-Dsplit-usr=false \
-	-Dsystem-uid-max=999 \
-	-Dsystem-gid-max=999 \
-	-Dtelinit-path=$(TARGET_DIR)/sbin/telinit \
-	-Dkmod-path=/usr/bin/kmod \
-	-Dkexec-path=/usr/sbin/kexec \
-	-Dsulogin-path=/usr/sbin/sulogin \
-	-Dmount-path=/usr/bin/mount \
-	-Dumount-path=/usr/bin/umount \
-	-Dnobody-group=nogroup \
-	-Didn=true \
-	-Dnss-systemd=true
+	--with-rootprefix= \
+	--enable-blkid \
+	--enable-static=no \
+	--disable-manpages \
+	--disable-pam \
+	--disable-ima \
+	--disable-libcryptsetup \
+	--disable-efi \
+	--disable-gnuefi \
+	--disable-ldconfig \
+	--disable-tests \
+	--disable-coverage \
+	--with-default-dnssec=no \
+	--without-python
+else
+SYSTEMD_CONF_OPTS += \
+	--prefix=/usr \
+	--enable-blkid \
+	--disable-seccomp \
+	--disable-libcurl \
+	--disable-pam \
+	--disable-kmod \
+	--disable-manpages \
+	--enable-static=no
+endif
+
+SYSTEMD_CFLAGS = $(TARGET_CFLAGS) -fno-lto
+
+# Override path to kmod, used in kmod-static-nodes.service
+SYSTEMD_CONF_ENV = \
+	CFLAGS="$(SYSTEMD_CFLAGS)" \
+	ac_cv_path_KMOD=/usr/bin/kmod
+
+define SYSTEMD_RUN_INTLTOOLIZE
+	cd $(@D) && $(HOST_DIR)/usr/bin/intltoolize --force --automake
+endef
+SYSTEMD_PRE_CONFIGURE_HOOKS += SYSTEMD_RUN_INTLTOOLIZE
 
 ifeq ($(BR2_PACKAGE_ACL),y)
 SYSTEMD_DEPENDENCIES += acl
