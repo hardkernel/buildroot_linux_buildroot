@@ -1,0 +1,31 @@
+#!/bin/sh
+
+/usr/bin/busybox --install -s
+
+CURRENT_TIMESTAMP=$(date '+%s')
+if [ "$CURRENT_TIMESTAMP" -lt `date '+%s'` ]; then
+        date -s "@`date '+%s'`"
+fi
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs none /dev
+
+echo 0 > /proc/sys/kernel/printk
+clear
+
+/usr/lib/systemd/systemd-udevd &
+/usr/bin/udevadm hwdb --update
+/usr/bin/udevadm trigger
+
+/usr/sbin/pb-discover &
+/usr/sbin/petitboot-nc
+
+if [ -e /etc/pb-lockdown ]; then
+        echo "Failed to launch petitboot, rebooting!"
+        echo 1 > /proc/sys/kernel/sysrq
+        echo b > /proc/sysrq-trigger
+else
+        echo "Failed to launch petitboot, dropping to a shell"
+        exec sh
+fi
