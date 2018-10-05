@@ -1,0 +1,28 @@
+image boot.vfat {
+	vfat {
+		files = {
+			"boot.ini",
+			"uImage",
+			"s922d_odroidn2.dtb",
+			"rootfs.cpio.uboot"
+		}
+	}
+	size = 7M
+}
+
+image sdcard.img {
+	hdimage {
+		disk-signature = 0x484b4252
+	}
+
+	partition vfat {
+		partition-type = 0xC
+		image = "boot.vfat"
+		offset = 3284992
+	}
+
+	partition rootfs {
+		partition-type = 0x83
+		image = "rootfs.ext4"
+	}
+}
