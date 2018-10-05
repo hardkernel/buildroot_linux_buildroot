@@ -192,6 +192,13 @@ config BR2_LINUX_KERNEL_DEFCONFIG
 	  trailing _defconfig.  The defconfig is located in
 	  arch/<arch>/configs in the kernel tree.
 
+config BR2_LINUX_KERNEL_DEFCONFIG_NOFIXUP
+	bool "No fixup on defconfig file by Buildroot"
+	depends on BR2_LINUX_KERNEL_USE_DEFCONFIG
+	help
+	  This option will not fix up the default configuration
+	  by the macro BR2_LINUX_KERNEL_DEFCONFIG_FIXUP.
+
 config BR2_TARGET_BOARD_PLATFORM
         string "platform name"
         help

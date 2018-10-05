@@ -401,6 +401,7 @@ else
 	ROOTFS_CPIO = rootfs.cpio
 endif
 
+ifneq ($(BR2_LINUX_KERNEL_DEFCONFIG_NOFIXUP),y)
 define LINUX_KCONFIG_FIXUP_CMDS
         $(if $(BR2_PACKAGE_AML_CUSTOMER),
                 ln -sf $(AML_CUSTOMER_DIR) $(LINUX_DIR)/customer)
@@ -527,6 +528,7 @@ define LINUX_KCONFIG_FIXUP_CMDS
 		$(call KCONFIG_ENABLE_OPT,CONFIG_LOGO,$(@D)/.config)
 		$(call KCONFIG_ENABLE_OPT,CONFIG_LOGO_LINUX_CLUT224,$(@D)/.config))
 endef
+endif
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
 # Starting with 4.17, the generated dtc parser code is no longer
