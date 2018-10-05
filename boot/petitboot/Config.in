@@ -1,0 +1,7 @@
+config BR2_TARGET_PETITBOOT
+	bool "petitboot"
+	select BR2_PACKAGE_LVM2
+	select BR2_PACKAGE_LVM2_STANDARD_INSTALL
+	help
+
+           https://github.com/open-power/petitboot.git

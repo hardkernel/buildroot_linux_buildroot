@@ -25,6 +25,7 @@ ifeq ($(BR2_PACKAGE_BUSYBOX),y)
 SYSTEMD_DEPENDENCIES += busybox
 endif
 
+ifeq ($(BR2_TARGET_PETITBOOT),n)
 SYSTEMD_CONF_OPTS += \
 	--with-rootprefix= \
 	--enable-blkid \
@@ -40,6 +41,17 @@ SYSTEMD_CONF_OPTS += \
 	--disable-coverage \
 	--with-default-dnssec=no \
 	--without-python
+else
+SYSTEMD_CONF_OPTS += \
+	--prefix=/usr \
+	--enable-blkid \
+	--disable-seccomp \
+	--disable-libcurl \
+	--disable-pam \
+	--disable-kmod \
+	--disable-manpages \
+	--enable-static=no
+endif
 
 SYSTEMD_CFLAGS = $(TARGET_CFLAGS) -fno-lto
 
