@@ -8,7 +8,7 @@ ifneq ($(BR2_PACKAGE_TDK_GIT_REPO_URL),"")
 TDK_SITE = $(call qstrip,$(BR2_PACKAGE_TDK_GIT_REPO_URL))
 TDK_SITE_METHOD = git
 else
-TDK_SITE = $(TOPDIR)/../tdk
+TDK_SITE = $(TOPDIR)/../vendor/amlogic/tdk
 TDK_SITE_METHOD = local
 endif
 TDK_INSTALL_STAGING = YES
