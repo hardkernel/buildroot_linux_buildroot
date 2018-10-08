@@ -39,8 +39,8 @@ define COBALT_BUILD_CMDS
 	export PATH=$(COBALT_TOOLCHAIN_DIR):$(COBALT_DEPOT_TOOL_DIR):$(PATH); \
 	cd $(COBALT_DIR)/src; \
 	cobalt/build/gyp_cobalt -C $(COBALT_MODE) $(COBALT_REL); \
-	ninja -v -C $(COBALT_OUT_DIR) cobalt; \
-	if [ -e third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then ninja -v -C $(COBALT_OUT_DIR) widevine_cmd_cobalt; fi
+	ninja -C $(COBALT_OUT_DIR) cobalt &&  \
+	if [ -e third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then ninja -C $(COBALT_OUT_DIR) widevine_cmd_cobalt; fi
 endef
 
 define COBALT_INSTALL_STAGING_CMDS
