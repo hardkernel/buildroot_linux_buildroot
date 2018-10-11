@@ -10,7 +10,8 @@ start() {
         export GOOGLE_DEFAULT_CLIENT_ID="no"
         export GOOGLE_DEFAULT_CLIENT_SECRET="no"
         export XDG_RUNTIME_DIR=/run/wayland/
-        /usr/bin/chromium-browser/chrome --no-sandbox --user-data-dir=/tmp/chrome --start-fullscreen file:///var/www/amlogic.html &
+        export $(dbus-launch)
+        /usr/bin/chromium-browser/chrome --no-sandbox --in-process-gpu --disable-es3-gl-context --user-data-dir=/tmp/chrome --kiosk --app=file:///var/www/amlogic.html &
 	echo "OK"
 }
 stop() {
