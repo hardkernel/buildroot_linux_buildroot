@@ -58,7 +58,7 @@ public:
     AVSetPlaybackRate(playback_rate);
   }
   void Seek(SbTime seek_to_time) override { AVSeek(seek_to_time); }
-  SbTime GetCurrentMediaTime(bool *is_playing, bool *is_eos_played) override {
+  SbTime GetCurrentMediaTime(bool *is_playing, bool *is_eos_played, bool* is_underflow) override {
     return AVGetCurrentMediaTime(is_playing, is_eos_played);
   }
 

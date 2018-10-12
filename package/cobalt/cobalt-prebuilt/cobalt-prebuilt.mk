@@ -5,7 +5,7 @@
 #############################################################
 ifeq ($(BR2_PACKAGE_COBALT_PREBUILT),y)
 
-COBALT_PREBUILT_VERSION = 19.lts.1.183273
+COBALT_PREBUILT_VERSION = 19.lts.1.186281
 
 COBALT_PREBUILT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer
 
