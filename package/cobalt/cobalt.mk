@@ -39,7 +39,8 @@ define COBALT_BUILD_CMDS
 	export PATH=$(COBALT_TOOLCHAIN_DIR):$(COBALT_DEPOT_TOOL_DIR):$(PATH); \
 	cd $(COBALT_DIR)/src; \
 	cobalt/build/gyp_cobalt -C $(COBALT_MODE) $(COBALT_REL); \
-	ninja -C $(COBALT_OUT_DIR) cobalt
+	ninja -v -C $(COBALT_OUT_DIR) cobalt; \
+	if [ -e third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then ninja -v -C $(COBALT_OUT_DIR) widevine_cmd_cobalt; fi
 endef
 
 define COBALT_INSTALL_STAGING_CMDS
@@ -51,6 +52,9 @@ define COBALT_INSTALL_TARGET_CMDS
 	mkdir -p $(COBALT_INSTALL_DIR)
 	cp -a $(COBALT_OUT_DIR)/cobalt            $(COBALT_INSTALL_DIR)
 	cp -a $(COBALT_OUT_DIR)/content           $(COBALT_INSTALL_DIR)
+	if [ -e $(COBALT_DIR)/src/third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then \
+	   cp -a $(COBALT_OUT_DIR)/lib/libwidevine_cmd_cobalt.so $(TARGET_DIR)/usr/lib; \
+	fi
 endef
 
 ifeq ($(BR2_PACKAGE_LAUNCHER_USE_COBALT), y)

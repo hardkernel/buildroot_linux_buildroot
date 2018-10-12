@@ -17,7 +17,7 @@
   ],
   'variables': {
     'variables': {
-      'has_cdm%': '<!(test -e <(DEPTH)/third_party/ce_cdm/cdm/include/cdm.h && echo 1 || echo 0)',
+      'has_cdm%': '<!(test -e <(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h && echo 1 || echo 0)',
     },
     # This has_cdm gets exported to gyp files that include this one.
     'has_cdm%': '<(has_cdm)',
@@ -342,12 +342,13 @@
       }],
       ['has_cdm==1', {
         'starboard_platform_dependencies': [
-          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine3.gyp:oemcrypto',
-          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine3.gyp:widevine_ce_cdm_static',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine3.gyp:widevine_cmd_cobalt_none',
+#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine3.gyp:oemcrypto',
+#          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/cdm/cdm.gyp:widevine_ce_cdm_static',
         ],
         'starboard_platform_sources': [
-          '<(DEPTH)/third_party/starboard/amlogic/shared/media_is_output_protected.cc',
-          '<(DEPTH)/third_party/starboard/amlogic/shared/oemcrypto_engine_device_properties_linux.cc',
+          '<(DEPTH)/starboard/linux/shared/media_is_output_protected.cc',
+#          '<(DEPTH)/starboard/linux/shared/oemcrypto_engine_device_properties_linux.cc',
 
           '<(DEPTH)/starboard/shared/starboard/drm/drm_close_session.cc',
           '<(DEPTH)/starboard/shared/starboard/drm/drm_destroy_system.cc',
@@ -355,16 +356,17 @@
           '<(DEPTH)/starboard/shared/starboard/drm/drm_system_internal.h',
           '<(DEPTH)/starboard/shared/starboard/drm/drm_update_session.cc',
 
-          '<(DEPTH)/starboard/shared/widevine/drm_create_system.cc',
-          '<(DEPTH)/starboard/shared/widevine/drm_is_server_certificate_updatable.cc',
-          '<(DEPTH)/starboard/shared/widevine/drm_system_widevine3.cc',
-          '<(DEPTH)/starboard/shared/widevine/drm_system_widevine3.h',
-          '<(DEPTH)/starboard/shared/widevine/drm_update_server_certificate.cc',
-          '<(DEPTH)/starboard/shared/widevine/media_is_supported.cc',
-          '<(DEPTH)/starboard/shared/widevine/widevine_storage.cc',
-          '<(DEPTH)/starboard/shared/widevine/widevine_storage.h',
-          '<(DEPTH)/starboard/shared/widevine/widevine_timer.cc',
-          '<(DEPTH)/starboard/shared/widevine/widevine_timer.h',
+#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_create_system_dl.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/media_is_supported.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_create_system.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_system_widevine.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_system_widevine.h',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_storage.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_storage.h',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_timer.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_timer.h',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_is_server_certificate_updatable.cc',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_update_server_certificate.cc',
         ],
       }, {
         'starboard_platform_sources': [
