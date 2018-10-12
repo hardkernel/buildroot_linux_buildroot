@@ -93,6 +93,7 @@ public:
   void WriteEndOfStream() { AVWriteEndOfStream(); }
   void SetVolume(double volume) { AVSetVolume(volume); }
   bool IsEndOfStreamWritten() const { return AVIsEndOfStreamWritten(); }
+  bool WriteOpusSample(uint8_t * buf, int dsize, bool *written);
 };
 
 class AmlVideoRenderer: public AmlAVCodec {

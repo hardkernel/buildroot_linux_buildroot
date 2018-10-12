@@ -23,6 +23,6 @@ SB_EXPORT bool SbMediaIsAudioSupported(SbMediaAudioCodec audio_codec,
       audio_codec != kSbMediaAudioCodecOpus) {
     return false;
   }
-  if (audio_codec == kSbMediaAudioCodecOpus) return false;
+//  if (audio_codec == kSbMediaAudioCodecOpus) return false;
   return bitrate <= SB_MEDIA_MAX_AUDIO_BITRATE_IN_BITS_PER_SECOND;
 }

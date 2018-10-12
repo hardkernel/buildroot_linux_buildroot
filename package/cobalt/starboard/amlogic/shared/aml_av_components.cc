@@ -40,7 +40,7 @@ bool AmlAVCodec::AVInitCodec() {
   } else if (codec_param->stream_type == STREAM_TYPE_ES_AUDIO) {
     name = "audio: ";
     isvideo = false;
-    CLOG(WARNING) << "init video cocec " << codec_param->audio_type;
+    CLOG(WARNING) << "init audio cocec " << codec_param->audio_type;
     amsysfs_set_sysfs_int("/sys/class/tsync/enable", 1);
     amsysfs_set_sysfs_int("/sys/class/tsync/mode", 1);
     amsysfs_set_sysfs_int("/sys/class/tsync/slowsync_enable", 0);
@@ -214,7 +214,6 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
       CLOG(ERROR) << "prerolled ";
       Schedule(prerolled_cb_);
     }
-    frame_data.resize(0);
   }
   return success;
 }
@@ -286,11 +285,48 @@ int AmlAVCodec::AVGetDroppedFrames() const {
 AmlAudioRenderer::AmlAudioRenderer(SbMediaAudioCodec audio_codec,
                                    SbMediaAudioHeader audio_header,
                                    SbDrmSystem drm_system) {
-  codec_param->audio_type = AFORMAT_AAC;
+  CLOG(ERROR) << "audio format_tag:" << audio_header.format_tag
+              << " number_of_channels:" << audio_header.number_of_channels
+              << " samples_per_second:" << audio_header.samples_per_second
+              << " average_bytes_per_second:" << audio_header.average_bytes_per_second
+              << " block_alignment:" << audio_header.block_alignment
+              << " bits_per_sample:" << audio_header.bits_per_sample
+              << " audio_specific_config_size:"
+              << audio_header.audio_specific_config_size;
+  if (audio_codec == kSbMediaAudioCodecAac) {
+    codec_param->audio_type = AFORMAT_AAC;
+  } else if (audio_codec == kSbMediaAudioCodecOpus) {
+    codec_param->audio_type = AFORMAT_OPUS;
+    //codec_param->audio_info.valid = 1;
+    //codec_param->audio_info.sample_rate = audio_header.samples_per_second;
+    //codec_param->audio_info.channels = audio_header.number_of_channels;
+    //codec_param->audio_info.codec_id = 0x4f505553;  // OPUS
+    codec_param->audio_channels = audio_header.number_of_channels;
+    codec_param->audio_samplerate = audio_header.samples_per_second;
+    feed_data_func = std::bind(&AmlAudioRenderer::WriteOpusSample, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+  } else {
+    CLOG(ERROR) << "can't support audio codecs other than AAC and Opus";
+    codec_param->audio_type = AFORMAT_AAC;
+  }
+  codec_param->audio_info.sample_rate = audio_header.samples_per_second;
+  codec_param->audio_info.channels = audio_header.number_of_channels;
+  //codec_param->audio_info.bitrate = audio_header.samples_per_second * audio_header.bits_per_sample;
+  //codec_param->audio_info.block_align = audio_header.block_alignment;
+  codec_param->audio_info.extradata_size = audio_header.audio_specific_config_size;
+  SbMemoryCopy(codec_param->audio_info.extradata, audio_header.audio_specific_config, audio_header.audio_specific_config_size);
   codec_param->stream_type = STREAM_TYPE_ES_AUDIO;
   codec_param->has_audio = 1;
   codec_param->has_video = 1;
   AVInitCodec();
+}
+
+bool AmlAudioRenderer::WriteOpusSample(uint8_t * buf, int dsize, bool *written)
+{
+  frame_data.resize(2+dsize);
+  frame_data[0] = dsize & 0xff;
+  frame_data[1] = (dsize >> 8)&0xff;
+  SbMemoryCopy(&frame_data[2], buf, dsize);
+  return WriteCodec(&frame_data[0], frame_data.size(), written);
 }
 
 AmlVideoRenderer::AmlVideoRenderer(SbMediaVideoCodec video_codec,
