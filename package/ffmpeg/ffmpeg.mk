@@ -166,6 +166,7 @@ FFMPEG_CONF_OPTS += --disable-alsa
 endif
 ifeq ($(BR2_PACKAGE_PULSEAUDIO),y)
 FFMPEG_CONF_OPTS += --enable-libpulse
+FFMPEG_DEPENDENCIES += pulseaudio
 endif
 else
 FFMPEG_CONF_OPTS += --disable-indevs
