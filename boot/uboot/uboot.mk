@@ -173,8 +173,14 @@ else
 SECUROS_IMAGE_DIR = "gx"
 endif
 
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
+	BL32_DEST_DIR=$(@D)/bl32/bin/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))
+else
+	BL32_DEST_DIR=$(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))
+endif
+
 define UBOOT_TDK_BINARY
-	cp -f $(TDK_DIR)/secureos/$(call qstrip,$(SECUROS_IMAGE_DIR))/bl32.img $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))
+	mkdir -p $(BL32_DEST_DIR) && cp -f $(TDK_DIR)/secureos/$(call qstrip,$(SECUROS_IMAGE_DIR))/bl32.img $(BL32_DEST_DIR)
 endef
 
 UBOOT_PRE_CONFIGURE_HOOKS += UBOOT_TDK_BINARY
