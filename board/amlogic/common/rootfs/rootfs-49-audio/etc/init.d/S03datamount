@@ -52,7 +52,7 @@ data_ubi_handle()
 
 data_ext4_handle()
 {
-    mount | grep 'data' && echo "Already mounted" && exit 0
+    mount | grep '/data type ext4' && echo "Already mounted" && exit 0
     #mount dir create
     if [ ! -d "/data"  ]
     then
