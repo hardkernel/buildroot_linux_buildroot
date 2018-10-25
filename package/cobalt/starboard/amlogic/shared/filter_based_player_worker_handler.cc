@@ -261,6 +261,7 @@ bool FilterBasedPlayerWorkerHandler::WriteSample(
     if (video_renderer_->IsEndOfStreamWritten()) {
       SB_LOG(WARNING) << "Try to write video sample after EOS is reached";
     } else {
+#if 0
       if (input_buffer->drm_info()) {
         if (!SbDrmSystemIsValid(drm_system_)) {
           return false;
@@ -276,6 +277,7 @@ bool FilterBasedPlayerWorkerHandler::WriteSample(
           return false;
         }
       }
+#endif
       if (media_time_provider_impl_) {
         media_time_provider_impl_->UpdateVideoDuration(
             input_buffer->timestamp());

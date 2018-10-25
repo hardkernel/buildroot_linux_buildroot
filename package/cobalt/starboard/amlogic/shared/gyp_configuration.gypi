@@ -94,7 +94,7 @@
     ],
     'target_conditions': [
       # widevine protobuf
-      ['_target_name in ["protobuf_lite","widevine_cdm_core","widevine_ce_cdm_static","oemcrypto","device_files", "license_protocol", "metrics_proto"]', {
+      ['_target_name in ["protobuf_lite_cdm","widevine_cdm_core","widevine_ce_cdm_static","oemcrypto_ref","device_files", "license_protocol", "metrics_proto"]', {
         'cflags': [
           '-fPIC',
           '-fvisibility=hidden',

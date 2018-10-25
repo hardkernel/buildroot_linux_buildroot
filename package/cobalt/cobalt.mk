@@ -22,10 +22,12 @@ ifeq ($(BR2_aarch64), y)
 COBALT_DEPENDENCIES += browser_toolchain_gcc-linaro-aarch64
 COBALT_REL = amlogic-wayland-arm64
 COBALT_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_AARCH64_INSTALL_DIR)/bin
+COBALT_OEMCRYPTO_LIBS = $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/wv14/arm64
 else
 COBALT_DEPENDENCIES += browser_toolchain_gcc-linaro-armeabihf
 COBALT_REL = amlogic-wayland-armv7l
 COBALT_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_ARMEABIHF_INSTALL_DIR)/bin
+COBALT_OEMCRYPTO_LIBS = $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/wv14/arm
 endif
 
 COBALT_MODE = qa
@@ -39,8 +41,12 @@ define COBALT_BUILD_CMDS
 	export PATH=$(COBALT_TOOLCHAIN_DIR):$(COBALT_DEPOT_TOOL_DIR):$(PATH); \
 	cd $(COBALT_DIR)/src; \
 	cobalt/build/gyp_cobalt -C $(COBALT_MODE) $(COBALT_REL); \
-	ninja -C $(COBALT_OUT_DIR) cobalt &&  \
-	if [ -e third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then ninja -C $(COBALT_OUT_DIR) widevine_cmd_cobalt; fi
+	ninja -C $(COBALT_OUT_DIR) cobalt && \
+	if [ -e $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then \
+		cp $(COBALT_OEMCRYPTO_LIBS)/*.so $(STAGING_DIR)/usr/lib/; \
+		ninja -C $(COBALT_OUT_DIR) widevine_ce_cdm_shared; \
+		ninja -C $(COBALT_OUT_DIR) widevine_cdm_cobalt; \
+	fi
 endef
 
 define COBALT_INSTALL_STAGING_CMDS
@@ -53,7 +59,9 @@ define COBALT_INSTALL_TARGET_CMDS
 	cp -a $(COBALT_OUT_DIR)/cobalt            $(COBALT_INSTALL_DIR)
 	cp -a $(COBALT_OUT_DIR)/content           $(COBALT_INSTALL_DIR)
 	if [ -e $(COBALT_DIR)/src/third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then \
-	   cp -a $(COBALT_OUT_DIR)/lib/libwidevine_cmd_cobalt.so $(TARGET_DIR)/usr/lib; \
+	   cp -a $(COBALT_OUT_DIR)/lib/libwidevine_cdm_cobalt.so $(TARGET_DIR)/usr/lib; \
+	   cp $(COBALT_OEMCRYPTO_LIBS)/*.so $(TARGET_DIR)/usr/lib/; \
+	   cp $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/wv14/*.ta $(TARGET_DIR)/lib/teetz/; \
 	fi
 endef
 

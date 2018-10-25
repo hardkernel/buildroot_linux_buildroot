@@ -342,7 +342,7 @@
       }],
       ['has_cdm==1', {
         'starboard_platform_dependencies': [
-          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine3.gyp:widevine_cmd_cobalt_none',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine3.gyp:widevine_cdm_cobalt_none',
 #          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine3.gyp:oemcrypto',
 #          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/cdm/cdm.gyp:widevine_ce_cdm_static',
         ],

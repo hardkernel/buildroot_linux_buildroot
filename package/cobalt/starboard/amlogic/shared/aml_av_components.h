@@ -62,6 +62,13 @@ public:
     return AVGetCurrentMediaTime(is_playing, is_eos_played);
   }
 
+#if defined(COBALT_WIDEVINE_OPTEE)
+  uint8_t * GetSecMem(int size) { return sec_drm_mem; }
+  bool IsTvpMode() { return (codec_param && codec_param->drmmode); }
+  void CopyClearBufferToSecure(InputBuffer *input_buffer);
+  bool IsSampleInSecureBuffer(InputBuffer *input_buffer);
+#endif
+
 protected:
   void AVCheckDecoderEos();
   std::string name;
@@ -69,6 +76,7 @@ protected:
   ErrorCB error_cb_;
   PrerolledCB prerolled_cb_;
   EndedCB ended_cb_;
+  SbDrmSystem drm_system_;
   std::function<void()> func_check_eos;
   std::function<bool(uint8_t *, int, bool*)> feed_data_func;
   std::vector<uint8_t> frame_data;
@@ -76,8 +84,19 @@ protected:
                  // data in buffer
   unsigned int last_read_point;
   SbTime rp_freeze_time;
+  SbTime pts_sb;
   bool isvideo;
   bool prerolled;
+  FILE * dump_fp;
+
+#if defined(COBALT_WIDEVINE_OPTEE)
+  SbTime last_pts_in_secure;
+  static uint8_t * sec_drm_mem;
+  static uint8_t * sec_drm_mem_virt;
+  static int sec_drm_mem_off;   // sec_drm_mem % PAGE_SIZE
+  static int sec_mem_size;
+  static int sec_mem_pos;
+#endif
 };
 
 class AmlAudioRenderer : public AmlAVCodec {
@@ -121,11 +140,15 @@ public:
   SbDecodeTarget GetCurrentDecodeTarget();
 
   bool WriteVP9Sample(uint8_t * buf, int dsize, bool *written);
+#if defined(COBALT_WIDEVINE_OPTEE)
+  bool WriteVP9SampleTvp(uint8_t * buf, int dsize, bool *written);
+#endif
   int bound_x;
   int bound_y;
   int bound_w;
   int bound_h;
 };
+
 
 } // namespace filter
 } // namespace player
