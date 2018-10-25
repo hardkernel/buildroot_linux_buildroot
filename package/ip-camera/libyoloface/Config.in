@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LIBYOLOFACE
+	bool "amlogic face detection"
+	help
+	  face detection library

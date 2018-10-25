@@ -55,11 +55,19 @@ define ARM_ISP_CLEAN_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/isp_module/subdev/lens clean
 endef
 
+ifeq ($(BR2_aarch64), y)
+ARM_ISP_SERVER_BIN = $(@D)/lib/lib64/iv009_isp_64.elf
+else
+ARM_ISP_SERVER_BIN = $(@D)/lib/lib32/iv009_isp_32.elf
+endif
+
 define ARM_ISP_INSTALL_TARGET_CMDS
         $(call copy-arm-isp,$(@D),\
                 $(shell echo $(ARM_ISP_INSTALL_DIR)),\
                 $(shell echo $(ARM_ISP_DEP)),\
                 $(ARM_ISP_MODULE_DIR))
+		$(INSTALL) -D -m 0755 $(ARM_ISP_SERVER_BIN) $(TARGET_DIR)/usr/bin/iv009_isp
+		$(INSTALL) -D -m 0755 package/arm_isp/S30isp $(TARGET_DIR)/etc/init.d/
 endef
 endif
 

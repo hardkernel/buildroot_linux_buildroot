@@ -1,0 +1,29 @@
+diff --git a/start_scripts/S90onvif_srvd b/start_scripts/S90onvif_srvd
+index d57beb9..7c19871 100755
+--- a/start_scripts/S90onvif_srvd
++++ b/start_scripts/S90onvif_srvd
+@@ -1,19 +1,20 @@
+ #! /bin/sh
+ 
+-DAEMON=onvif_srvd_debug
+-DAEMON_PATH=.
+-PID_FILE=$DAEMON.pid
++DAEMON=onvif_srvd
++DAEMON_PATH=/usr/bin
++PID_FILE=/tmp/$DAEMON.pid
+ 
+ DAEMON_ARGS="--pid_file $PID_FILE"
+ 
+ 
+ # ONVIF Device Service param (more details see help)
+ DAEMON_ARGS="$DAEMON_ARGS --ifs eth0"
++DAEMON_ARGS="$DAEMON_ARGS --manufacturer amlogic --firmware_ver 1.0 --serial_num 10101010"
+ DAEMON_ARGS="$DAEMON_ARGS --scope onvif://www.onvif.org/name/TestDev"
+ DAEMON_ARGS="$DAEMON_ARGS --scope onvif://www.onvif.org/location/Unknow"
+ DAEMON_ARGS="$DAEMON_ARGS --scope onvif://www.onvif.org/Profile/Streaming"
+ DAEMON_ARGS="$DAEMON_ARGS --scope onvif://www.onvif.org/Profile/S"
+-DAEMON_ARGS="$DAEMON_ARGS --name RTSP --width 800 --height 600 --url rtsp://%s:554/unicast --type JPEG"
++DAEMON_ARGS="$DAEMON_ARGS --name RTSP --width 800 --height 600 --url rtsp://%s:554/live.sdp --type H264"
+ 
+ 
+ 
