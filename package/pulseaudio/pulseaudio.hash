@@ -1,3 +1,2 @@
-# From http://freedesktop.org/software/pulseaudio/releases/pulseaudio-9.0.tar.xz.{md5,sha1}
-md5 da7162541b3a9bc20576dbd0d7d1489a  pulseaudio-9.0.tar.xz
-sha1 d9a9d7cb667ed95ee1de4b6544d5c7444c5a0064  pulseaudio-9.0.tar.xz
+# From http://freedesktop.org/software/pulseaudio/releases/pulseaudio-12.2.tar.xz.{sha256}
+sha256 809668ffc296043779c984f53461c2b3987a45b7a25eb2f0a1d11d9f23ba4055  pulseaudio-12.2.tar.xz
