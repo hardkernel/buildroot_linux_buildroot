@@ -35,6 +35,14 @@ if [ "$PS1" ]; then
     export DMALLOC_OPTIONS=debug=0x34f47d83,inter=100,log=logfile
     export DISPLAY=:0
 
+    export XDG_CONFIG_HOME=/var
+    if [ -f "/tmp/dbus/dbus-addr" ]; then
+        export $(cat /tmp/dbus/dbus-addr)
+    fi
+    if [ -f "/tmp/dbus/dbus-pid" ]; then
+        export $(cat /tmp/dbus/dbus-pid)
+    fi
+
     ### Some aliases
     alias ps2='ps facux '
     alias ps1='ps faxo "%U %t %p %a" '
