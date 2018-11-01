@@ -3,6 +3,7 @@ menu "Target packages"
 	source "package/busybox/Config.in"
 	source "package/skeleton/Config.in"
 	source "package/test_tools/Config.in"
+	source "package/slt/Config.in"
 
 menu "amlogic"
 	source "package/aml_customer/Config.in"
