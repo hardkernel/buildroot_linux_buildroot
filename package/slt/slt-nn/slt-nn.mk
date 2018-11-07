@@ -7,7 +7,7 @@ SLT_NN_SITE_METHOD = local
 SLT_NN_DEPENDENCIES = npu
 
 define SLT_NN_BUILD_CMDS
-    cd $(@D);mkdir -p obj;$(MAKE)
+    cd $(@D);mkdir -p obj;$(MAKE) CC=$(TARGET_CC)
 endef
 
 define SLT_NN_INSTALL_TARGET_CMDS
@@ -20,7 +20,7 @@ define SLT_NN_INSTALL_TARGET_CMDS
 endef
 
 define SLT_NN_INSTALL_CLEAN_CMDS
-    $(MAKE) CC=$(TARGET_CXX) -C $(@D) clean
+    $(MAKE) CC=$(TARGET_CC) -C $(@D) clean
 endef
 
 $(eval $(generic-package))
