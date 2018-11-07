@@ -21,6 +21,7 @@
     'target_os': 'linux',
     'arm_version%': 7,
     'sysroot%': '/',
+    'enable_map_to_mesh': 1,
 
     'platform_libraries': [
       '-lasound',
@@ -30,6 +31,7 @@
       '-lamcodec',
       '-lamavutils',
       '-lamadec',
+      '-lamvdec',
     ],
 
     'compiler_flags': [

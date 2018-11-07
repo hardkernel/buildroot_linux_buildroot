@@ -25,10 +25,12 @@ SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
                                        int64_t bitrate,
                                        int fps,
                                        bool decode_to_texture_required) {
+#if 0
   if (decode_to_texture_required) {
     // There is no Creator CI20 360 video implementation.
     return false;
   }
+#endif
   if (video_codec == kSbMediaVideoCodecVp9) {
     static int vp9_supported = -1;
     if (vp9_supported == -1) {
