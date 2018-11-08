@@ -18,6 +18,8 @@ clear
 /usr/bin/udevadm hwdb --update
 /usr/bin/udevadm trigger
 
+mkdir -p /var/log/petitboot
+
 /usr/sbin/pb-discover &
 /usr/sbin/petitboot-nc
 
