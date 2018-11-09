@@ -27,6 +27,7 @@ menu "amlogic"
     source "package/bt_setup/Config.in"
 	source "package/assistant-sdk/Config.in"
 	source "package/mdnsresponder/Config.in"
+	source "package/audioservice/Config.in"
 endmenu
 
 menu "Audio and video applications"
