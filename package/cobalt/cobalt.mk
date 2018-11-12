@@ -7,6 +7,7 @@ ifeq ($(BR2_PACKAGE_COBALT_PREBUILT),y)
 include package/cobalt/cobalt-prebuilt/cobalt-prebuilt.mk
 endif
 
+
 ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL),y)
 
 COBALT_VERSION = 19.lts.1.186281
@@ -20,36 +21,50 @@ COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdP
 
 ifeq ($(BR2_aarch64), y)
 COBALT_DEPENDENCIES += browser_toolchain_gcc-linaro-aarch64
-COBALT_REL = amlogic-wayland-arm64
 COBALT_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_AARCH64_INSTALL_DIR)/bin
-COBALT_OEMCRYPTO_LIBS = $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/wv14/arm64
+COBALT_ARCH=arm64
+COBALT_CROSS=aarch64-linux-gnu-
+COBALT_PREBUILT_DIRECTORY = $(TOPDIR)/../vendor/amlogic/cobalt/cobalt-$(COBALT_VERSION)/arm64
 else
 COBALT_DEPENDENCIES += browser_toolchain_gcc-linaro-armeabihf
-COBALT_REL = amlogic-wayland-armv7l
 COBALT_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_ARMEABIHF_INSTALL_DIR)/bin
-COBALT_OEMCRYPTO_LIBS = $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/wv14/arm
+COBALT_ARCH=arm
+COBALT_CROSS=arm-linux-gnueabihf-
+COBALT_PREBUILT_DIRECTORY = $(TOPDIR)/../vendor/amlogic/cobalt/cobalt-$(COBALT_VERSION)/arm
 endif
 
+COBALT_REL = amlogic-wayland
 COBALT_MODE = qa
 COBALT_OUT_DIR = $(COBALT_DIR)/src/out/$(COBALT_REL)_$(COBALT_MODE)
 COBALT_DEPOT_TOOL_DIR = $(BROWSER_DEPOT_TOOL_PATH)
 
+ifeq ($(BR2_PACKAGE_COBALT_WIDEVINE), y)
+	COBALT_DEPENDENCIES += widevine-ce-cdm libsecmem-bin
+	COBALT_ENABLE_WIDEVINE_CE_CDM="export WIDEVINE_CE_CDM_INC=$(STAGING_DIR)/usr/include/widevine/"
+else
+	COBALT_ENABLE_WIDEVINE_CE_CDM="echo compile without widevine support"
+endif
+
+ifeq ($(BR2_PACKAGE_COBALT_UPDATE_PREBUILD), y)
+	COBALT_UPDATE_PREBUILD_CMDS = $(TARGET_STRIP) -s $(COBALT_OUT_DIR)/cobalt -o $(COBALT_PREBUILT_DIRECTORY)/cobalt;
+	COBALT_UPDATE_PREBUILD_CMDS += cp -afT $(COBALT_OUT_DIR)/content $(COBALT_PREBUILT_DIRECTORY)/../content;
+endif
+
+COBALT_CFLAGS="$(TOOLCHAIN_EXTERNAL_CFLAGS)"
+#COBALT_CFLAGS="-mcpu=cortex-a9 -mabi=aapcs-linux -mfloat-abi=softfp -marm  -msoft-float "
+
 define COBALT_BUILD_CMDS
 	touch $(COBALT_DIR)/src/third_party/__init__.py
 	cp -af $(TOPDIR)/package/cobalt/starboard $(COBALT_DIR)/src/third_party
+	$(call qstrip, $(COBALT_ENABLE_WIDEVINE_CE_CDM)); \
 	export SYS_ROOT=$(STAGING_DIR); \
+	export COBALT_CFLAGS=$(COBALT_CFLAGS); \
+	export COBALT_ARCH=$(COBALT_ARCH); \
+	export COBALT_CROSS=$(COBALT_CROSS); \
 	export PATH=$(COBALT_TOOLCHAIN_DIR):$(COBALT_DEPOT_TOOL_DIR):$(PATH); \
 	cd $(COBALT_DIR)/src; \
 	cobalt/build/gyp_cobalt -C $(COBALT_MODE) $(COBALT_REL); \
-	ninja -C $(COBALT_OUT_DIR) cobalt && \
-	if [ -e $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then \
-		cp $(COBALT_OEMCRYPTO_LIBS)/*.so $(STAGING_DIR)/usr/lib/; \
-		ninja -C $(COBALT_OUT_DIR) widevine_ce_cdm_shared; \
-		ninja -C $(COBALT_OUT_DIR) widevine_cdm_cobalt; \
-	fi
-endef
-
-define COBALT_INSTALL_STAGING_CMDS
+	ninja -C $(COBALT_OUT_DIR) cobalt
 endef
 
 COBALT_INSTALL_DIR = $(TARGET_DIR)/usr/bin/cobalt
@@ -58,11 +73,7 @@ define COBALT_INSTALL_TARGET_CMDS
 	mkdir -p $(COBALT_INSTALL_DIR)
 	cp -a $(COBALT_OUT_DIR)/cobalt            $(COBALT_INSTALL_DIR)
 	cp -a $(COBALT_OUT_DIR)/content           $(COBALT_INSTALL_DIR)
-	if [ -e $(COBALT_DIR)/src/third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h ]; then \
-	   cp -a $(COBALT_OUT_DIR)/lib/libwidevine_cdm_cobalt.so $(TARGET_DIR)/usr/lib; \
-	   cp $(COBALT_OEMCRYPTO_LIBS)/*.so $(TARGET_DIR)/usr/lib/; \
-	   cp $(TOPDIR)/package/cobalt/starboard/amlogic/shared/ce_cdm/wv14/*.ta $(TARGET_DIR)/lib/teetz/; \
-	fi
+	$(COBALT_UPDATE_PREBUILD_CMDS)
 endef
 
 ifeq ($(BR2_PACKAGE_LAUNCHER_USE_COBALT), y)

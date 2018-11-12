@@ -1,0 +1,20 @@
+config BR2_PACKAGE_WIDEVINE_CE_CDM
+	bool "widevine ce cdm"
+    default n
+    select BR2_PACKAGE_BROWSER_TOOLCHAIN_DEPOT_TOOLS
+    select BR2_PACKAGE_WIDEVINE_BIN
+    select BR2_PACKAGE_WIDEVINE_BIN_VERSION_14
+
+config BR2_PACKAGE_WIDEVINE_CE_CDM_PREBUILD
+	bool "use prebuild widevine ce cdm"
+    default n
+    depends on BR2_PACKAGE_WIDEVINE_CE_CDM
+
+config BR2_PACKAGE_WIDEVINE_CE_CDM_REPO
+    string "widevine ce cdm url"
+    depends on BR2_PACKAGE_WIDEVINE_CE_CDM && !BR2_PACKAGE_WIDEVINE_CE_CDM_PREBUILD
+
+config BR2_PACKAGE_WIDEVINE_CE_CDM_UPDATE_PREBUILD
+	bool "update widevine ce cdm prebuild"
+    default n
+    depends on BR2_PACKAGE_WIDEVINE_CE_CDM && !BR2_PACKAGE_WIDEVINE_CE_CDM_PREBUILD

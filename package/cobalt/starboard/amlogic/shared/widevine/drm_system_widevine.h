@@ -23,10 +23,8 @@
 #include "starboard/shared/starboard/drm/drm_system_internal.h"
 #include "starboard/shared/starboard/thread_checker.h"
 #include "starboard/thread.h"
-#include "third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h"
-#include "third_party/starboard/amlogic/shared/ce_cdm/util/include/log.h"
-#include "third_party/starboard/amlogic/shared/ce_cdm/util/include/string_conversions.h"
-#include "third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/include/OEMCryptoCENC.h"
+#include "cdm.h"
+#include "OEMCryptoCENC.h"
 #include "third_party/starboard/amlogic/shared/aml_av_components.h"
 
 namespace starboard {
@@ -217,19 +215,5 @@ class DrmSystemWidevine : public SbDrmSystemPrivate,
 }  // namespace widevine
 }  // namespace shared
 }  // namespace starboard
-
-// Widevine use boring ssl which shares most of it's symbol with Cobalt's openssl
-// To solve this name conflics, widevine has to be loaded by dlopen with RTLD_LOCAL flag
-// the symbols in widevine::Cdm and others will be unavailable because of RTLD_LOCAL,
-// Here We will get these function pointers explicitly from a export funcion cobalt_widevine_cdm_init
-struct CobaltWidevineSymbols {
-  decltype(&::wvcdm::InitLogging) InitLogging;
-  decltype(&::wvcdm::a2bs_hex) a2bs_hex;
-  decltype(&::widevine::Cdm::version) version;
-  decltype(&::widevine::Cdm::initialize) initialize;
-  decltype(&::widevine::Cdm::create) create;
-  decltype(&::OEMCrypto_CopyBuffer) CopyBuffer;
-};
-extern "C" int cobalt_widevine_cdm_init(struct CobaltWidevineSymbols * symbols);
 
 #endif  // STARBOARD_SHARED_WIDEVINE_DRM_SYSTEM_WIDEVINE_H_

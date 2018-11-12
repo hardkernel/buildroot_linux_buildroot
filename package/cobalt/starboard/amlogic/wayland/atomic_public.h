@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ARMV7L_ATOMIC_PUBLIC_H_
-#define THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ARMV7L_ATOMIC_PUBLIC_H_
+#ifndef THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ATOMIC_PUBLIC_H_
+#define THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ATOMIC_PUBLIC_H_
 
 #include "third_party/starboard/amlogic/shared/atomic_public.h"
 
-#endif  // THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ARMV7L_ATOMIC_PUBLIC_H_
+#endif  // THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ATOMIC_PUBLIC_H_
