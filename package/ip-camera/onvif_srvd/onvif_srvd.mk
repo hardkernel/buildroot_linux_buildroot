@@ -4,13 +4,24 @@
 #
 #############################################################
 
-ONVIF_SRVD_VERSION = a99ab6a1d6aae600f791f033872ecc59a6c37aea
+ONVIF_SRVD_VERSION = 2af96b38026e603617dc3fb5b6547a0191aa586c
 
 ONVIF_SRVD_LICENSE = BSD 3-Clause
 #ONVIF_SRVD_LICENSE_FILES = COPYING
 ONVIF_SRVD_DEPENDENCIES = openssl zlib
 
 ONVIF_SRVD_SITE = $(call github,jemyzhang,onvif_srvd,$(ONVIF_SRVD_VERSION))
+
+ONVIF_SRVD_SDK_VERSION = 2.8.65
+ONVIF_SRVD_EXTRA_DOWNLOADS = https://sourceforge.net/projects/gsoap2/files/gsoap-2.8/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip
+
+
+define ONVIF_SRVD_COPY_SDK
+	mkdir -p $(@D)/SDK
+	cp -af $(DL_DIR)/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip $(@D)/SDK/gsoap.zip
+endef
+
+ONVIF_SRVD_POST_EXTRACT_HOOKS += ONVIF_SRVD_COPY_SDK
 
 ONVIF_SRVD_MAKE_OPTS = WSSE_ON=1
 ONVIF_TARGET_CFLAGS = "--sysroot=$(STAGING_DIR)"
