@@ -46,6 +46,7 @@ DEFCONFIG_ARRAY=(
     "mesongxl_p400_kernel49"
     "mesongxl_p401_32_kernel49"
     "mesongxl_p401_kernel49"
+    "mesongxl_p212_tdk_32_kernel49"
     "mesongxl_p212_32_kernel49"
     "mesongxl_p212_kernel49"
     "mesongxl_p230_32_kernel49"
