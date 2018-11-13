@@ -138,7 +138,10 @@ define TDK_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/linuxdriver/optee.ko $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/kernel/drivers/trustzone/
 	echo kernel/drivers/trustzone/optee_armtz.ko: kernel/drivers/trustzone/optee.ko >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
 	echo kernel/drivers/trustzone/optee.ko: >> $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
-
+	echo "#OPTEE" >> $(TARGET_DIR)/etc/modules
+	echo optee >> $(TARGET_DIR)/etc/modules
+	echo optee_armtz >> $(TARGET_DIR)/etc/modules
+	install -m 755 package/tdk/S59optee $(TARGET_DIR)/etc/init.d/S59optee
 	$(INSTALL) -D -m 0755 $(@D)/demos/hello_world/out/ca/tee_helloworld $(TARGET_DIR)/usr/bin
 	$(INSTALL) -D -m 0755 $(@D)/demos/optee_test/out/xtest/tee_xtest $(TARGET_DIR)/usr/bin
 	$(TDK_TA_TO_TARGET)
