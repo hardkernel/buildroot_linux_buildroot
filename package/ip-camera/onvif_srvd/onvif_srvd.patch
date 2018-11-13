@@ -1,3 +1,17 @@
+diff --git a/Makefile b/Makefile
+index 56e8857..cdeec91 100644
+--- a/Makefile
++++ b/Makefile
+@@ -270,7 +270,7 @@ define build_gsoap
+     # build
+     if [ ! -f $(SOAPCPP2) ] || [ ! -f $(WSDL2H) ]; then \
+          cd gsoap-2.8; \
+-         CFLAGS= ./configure && \
++         CFLAGS= ./configure --with-openssl=$(OPENSSL) && \
+          make -j 1; \
+          cd ..;\
+     fi
+
 diff --git a/start_scripts/S90onvif_srvd b/start_scripts/S90onvif_srvd
 index d57beb9..7c19871 100755
 --- a/start_scripts/S90onvif_srvd
