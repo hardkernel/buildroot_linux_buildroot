@@ -241,7 +241,6 @@ enum
   PROP_GOP,
   PROP_FRAMERATE,
   PROP_BITRATE,
-  PROP_TREAT_RGB_AS_BGR,
 };
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
@@ -465,10 +464,6 @@ gst_amlx264enc_class_init (GstAmlX264EncClass * klass)
           0, PROP_BITRATE_DEFAULT, PROP_BITRATE_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, PROP_TREAT_RGB_AS_BGR,
-      g_param_spec_boolean ("rgb-as-bgr", "RGB as BGR", "Treat the input rgb format as bgr",
-          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
   gst_element_class_set_static_metadata (element_class,
     "amlx264enc",
     "Codec/Encoder/Video",
@@ -503,7 +498,6 @@ gst_amlx264enc_init (GstAmlX264Enc * encoder)
   encoder->gop = PROP_IDR_PERIOD_DEFAULT;
   encoder->framerate = PROP_FRAMERATE_DEFAULT;
   encoder->bitrate = PROP_BITRATE_DEFAULT;
-  encoder->rgb_as_bgr = FALSE;
 }
 
 typedef struct
@@ -1065,11 +1059,7 @@ gst_amlx264enc_encode_frame (GstAmlX264Enc * encoder,
         fmt = 1;
         break;
       case GST_VIDEO_FORMAT_RGB:
-        if (encoder->rgb_as_bgr) {
-          fmt = 3;
-        } else {
-          fmt = 2;
-        }
+        fmt = 2;
         break;
       case GST_VIDEO_FORMAT_BGR:
         fmt = 3;
@@ -1153,9 +1143,6 @@ gst_amlx264enc_get_property (GObject * object, guint prop_id,
     case PROP_BITRATE:
       g_value_set_int (value, encoder->bitrate);
       break;
-    case PROP_TREAT_RGB_AS_BGR:
-      g_value_set_boolean (value, encoder->rgb_as_bgr);
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1191,9 +1178,6 @@ gst_amlx264enc_set_property (GObject * object, guint prop_id,
       break;
     case PROP_BITRATE:
       encoder->bitrate = g_value_get_int (value);
-      break;
-    case PROP_TREAT_RGB_AS_BGR:
-      encoder->rgb_as_bgr = g_value_get_boolean (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

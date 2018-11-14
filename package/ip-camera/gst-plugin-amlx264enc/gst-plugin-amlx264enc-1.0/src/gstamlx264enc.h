@@ -90,7 +90,6 @@ struct _GstAmlX264Enc
   gint framerate;
   guint bitrate;
   guint sps_id;
-  gboolean rgb_as_bgr;
 
   gint frame_packing;
 
