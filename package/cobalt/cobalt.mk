@@ -83,6 +83,7 @@ endif # BR2_PACKAGE_COBALT_COMPILE_ALL
 ifeq ($(BR2_PACKAGE_LAUNCHER_USE_COBALT), y)
 define COBALT_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 755 package/cobalt/S90cobalt $(TARGET_DIR)/etc/init.d/S90cobalt
+	mkdir -p $(TARGET_DIR)/var/www/
 	cp -af package/cobalt/launcher $(TARGET_DIR)/var/www/
 endef
 endif # BR2_PACKAGE_LAUNCHER_USE_COBALT
