@@ -1,6 +1,7 @@
 #include "aml_av_components.h"
 #include "starboard/shared/starboard/player/filter/audio_renderer_sink_impl.h"
 #include "starboard/shared/starboard/drm/drm_system_internal.h"
+#include "third_party/starboard/amlogic/shared/decode_target_internal.h"
 #if defined(COBALT_WIDEVINE_OPTEE)
 #include "widevine/drm_system_widevine.h"
 #include "third_party/starboard/amlogic/shared/ce_cdm/wv14/secmem_tz.h"
@@ -76,10 +77,6 @@ bool AmlAVCodec::AVInitCodec() {
     isvideo = false;
     dumpfile = getenv("COBALT_DUMP_AUDIO");
     CLOG(WARNING) << "init audio cocec " << codec_param->audio_type;
-    amsysfs_set_sysfs_int("/sys/class/tsync/enable", 1);
-    amsysfs_set_sysfs_int("/sys/class/tsync/mode", 1);
-    amsysfs_set_sysfs_int("/sys/class/tsync/slowsync_enable", 0);
-    amsysfs_set_sysfs_int("/sys/class/tsync/av_threshold_min", 720000);
   }
   codec_param->noblock = 1;
   int ret = codec_init(codec_param);
@@ -87,12 +84,14 @@ bool AmlAVCodec::AVInitCodec() {
     CLOG(ERROR) << "failed to intialize codec " << ret;
     free(codec_param);
     codec_param = NULL;
+    return false;
   }
   codec_set_syncenable(codec_param, 1);
   if (dumpfile) {
     dump_fp = fopen(dumpfile, "wb");
     CLOG(WARNING) << "dump ES file to " << dumpfile << " fp: " << (void*)dump_fp;
   }
+  return true;
 }
 
 void AmlAVCodec::AVInitialize(const ErrorCB &error_cb,
@@ -162,6 +161,8 @@ void AmlAVCodec::AVSeek(SbTime seek_to_time) {
     amsysfs_set_sysfs_str("/sys/class/tsync/pts_audio", buf);
   }
   prerolled = false;
+  pts_seek_to = seek_to_time;
+  time_seek = SbTimeGetMonotonicNow();
   CLOG(WARNING) << "seek to " << seek_to_time/1000000.0;
 }
 
@@ -198,7 +199,7 @@ bool AmlAVCodec::WriteCodec(uint8_t *data, int size, bool *written) {
         return true;
       } else {
           // TODO: need to find out a way to exit playback immediately
-          CLOG(ERROR) << "data partially written, need to wait! remain len:" << remain << " size:" << size;
+          CLOG(WARNING) << "data partially written, need to wait! remain len:" << remain << " size:" << size;
           usleep(1000*10);
       }
       continue;
@@ -568,6 +569,8 @@ AmlVideoRenderer::AmlVideoRenderer(SbMediaVideoCodec video_codec,
                                    SbDecodeTargetGraphicsContextProvider
                                        *decode_target_graphics_context_provider) {
   drm_system_ = drm_system;
+  output_mode_ = output_mode;
+  decode_target_graphics_context_provider_ = decode_target_graphics_context_provider;
   codec_param->has_video = 1;
 #if defined(COBALT_WIDEVINE_OPTEE)
   if (drm_system_) {
@@ -619,9 +622,66 @@ AmlVideoRenderer::AmlVideoRenderer(SbMediaVideoCodec video_codec,
     codec_param->video_type = VFORMAT_H264;
     codec_param->am_sysinfo.format = VIDEO_DEC_FORMAT_H264;
   }
+  if (output_mode_ == kSbPlayerOutputModeDecodeToTexture) {
+    amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+    amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder ionvideo");
+    amsysfs_set_sysfs_int("/sys/module/amvdec_vp9/parameters/double_write_mode", 1);
+    amsysfs_set_sysfs_int("/sys/class/tsync/enable", 1);
+    amsysfs_set_sysfs_int("/sys/class/tsync/mode", 1);
+    if (!InitIonVideo()) {
+      free(codec_param);
+      codec_param = NULL;
+    }
+  } else {
+    amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+    amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder amvideo");
+    amsysfs_set_sysfs_int("/sys/module/amvdec_vp9/parameters/double_write_mode", 0);
+    amsysfs_set_sysfs_int("/sys/class/tsync/enable", 1);
+    amsysfs_set_sysfs_int("/sys/class/tsync/mode", 1);
+    amsysfs_set_sysfs_int("/sys/class/tsync/slowsync_enable", 0);
+    amsysfs_set_sysfs_int("/sys/class/tsync/av_threshold_min", 720000);
+  }
   codec_param->stream_type = STREAM_TYPE_ES_VIDEO;
   AVInitCodec();
   bound_x = bound_y = bound_w = bound_h = 0;
+}
+
+void AmlVideoRenderer::ReleaseEGLResource(void * context)
+{
+  AmlVideoRenderer * v = (AmlVideoRenderer*)context;
+  if (!v->textureId.empty()) {
+    glDeleteTextures(v->nbufs, &v->textureId[0]);
+  }
+  for (auto img : v->eglImage) {
+    eglDestroyImageKHR(v->decode_target_graphics_context_provider_->egl_display, img);
+  }
+}
+
+AmlVideoRenderer::~AmlVideoRenderer() {
+  if (output_mode_ == kSbPlayerOutputModeDecodeToTexture) {
+    CLOG(ERROR) << "clean up EGL resources";
+    SbDecodeTargetRunInGlesContext(decode_target_graphics_context_provider_,
+                                   &AmlVideoRenderer::ReleaseEGLResource, this);
+  }
+}
+
+AmlVideoRenderer::IonBuffer::IonBuffer(int size_) {
+  if (CMEM_alloc(size_, &buffer) < 0) {
+    SB_LOG(INFO) << "failed to CMEM_alloc " << size_ << " bytes";
+    size = 0;
+  }
+  size = size_;
+  addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, buffer.mImageFd, 0);
+  SB_LOG(INFO) <<"ion allocate " << size << " bytes, fd is " << buffer.mImageFd << ", map to " << addr;
+}
+
+AmlVideoRenderer::IonBuffer::~IonBuffer() {
+  if (size) {
+    SB_LOG(INFO) <<"ion free " << size << " bytes, fd is " << buffer.mImageFd << ", map to " << addr;
+    CMEM_free(&buffer);
+    munmap(addr, size);
+    size = 0;
+  }
 }
 
 // Both of the following two functions can be called on any threads.
@@ -648,7 +708,129 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
     CLOG(ERROR) << "video codec does not initialize";
     return kSbDecodeTargetInvalid;
   }
-  return kSbDecodeTargetInvalid;
+#define fourcc_code(a, b, c, d) ((__u32)(a) | ((__u32)(b) << 8) | \
+                         ((__u32)(c) << 16) | ((__u32)(d) << 24))
+#define DRM_FORMAT_NV12     fourcc_code('N', 'V', '1', '2') /* 2x2 subsampled Cr:Cb plane */
+  glActiveTexture(GL_TEXTURE0);
+  uint32_t new_res;
+  int ret = GetFrame(vf);
+  if (ret >= 0) {
+    new_res = ((uint32_t)vf.width << 16) | ((uint32_t)vf.height << 0);
+    if (textureId.empty()) {
+      textureId.resize(nbufs);
+      eglImage.resize(nbufs, EGL_NO_IMAGE_KHR);
+      glGenTextures(nbufs, &textureId[0]);
+      last_resolution = 0;
+    }
+  } else {
+    if (textureId.empty()) {
+      return kSbDecodeTargetInvalid;
+    }
+    new_res = last_resolution;
+  }
+  if (last_resolution != new_res) {
+    last_resolution = new_res;
+    for (int i = 0; i < nbufs; ++i) {
+      EGLint img_attrs[] = {
+          EGL_WIDTH, vf.width,
+          EGL_HEIGHT, vf.height,
+          EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
+          EGL_DMA_BUF_PLANE0_FD_EXT, vbufs[i]->buffer.mImageFd,
+          EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
+          EGL_DMA_BUF_PLANE0_PITCH_EXT, width,
+          EGL_DMA_BUF_PLANE1_FD_EXT, vbufs[i]->buffer.mImageFd,
+          EGL_DMA_BUF_PLANE1_OFFSET_EXT, width * height, // NV12
+          EGL_DMA_BUF_PLANE1_PITCH_EXT, width,
+          EGL_YUV_COLOR_SPACE_HINT_EXT, EGL_ITU_REC2020_EXT, // EGL_ITU_REC601_EXT , EGL_ITU_REC709_EXT , // EGL_ITU_REC2020_EXT
+          EGL_SAMPLE_RANGE_HINT_EXT, EGL_YUV_NARROW_RANGE_EXT, // EGL_YUV_NARROW_RANGE_EXT , // EGL_YUV_FULL_RANGE_EXT creates a "washed out" picture
+          EGL_YUV_CHROMA_HORIZONTAL_SITING_HINT_EXT, EGL_YUV_CHROMA_SITING_0_5_EXT,
+          EGL_YUV_CHROMA_VERTICAL_SITING_HINT_EXT, EGL_YUV_CHROMA_SITING_0_5_EXT,
+          EGL_NONE};
+      if (eglImage[i] != EGL_NO_IMAGE_KHR) {
+        eglDestroyImageKHR( decode_target_graphics_context_provider_->egl_display, eglImage[i]);
+      }
+      eglImage[i] = eglCreateImageKHR(decode_target_graphics_context_provider_->egl_display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
+      CLOG(INFO) << "texid:" << textureId[i] << " eglCreateImageKHR " << (void *)eglImage[i] << " for " << vf.width << "x" << vf.height;
+      }
+  }
+  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId[vf.index]);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  if (ret >= 0) {
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, eglImage[vf.index]);
+    ReleaseFrame(vf);
+#if 0
+  CLOG(ERROR) << "got frame idx:" << vf.index << " pts:" << vf.pts/90000.0 << " "
+      << vf.width << "x" << vf.height << " offset:" << vf.offset
+      << " length:" << vf.length << " duration:" << vf.duration
+      << " error_recovery:" << vf.error_recovery
+      << " sync_frame:" << vf.sync_frame
+      << " frame_num:" << vf.frame_num;
+#endif
+  }
+  int plane_count = 1;
+  int texFormat[2] = {GL_ALPHA, GL_LUMINANCE_ALPHA};
+  SbDecodeTarget decode_target_out = new SbDecodeTargetPrivate;
+  decode_target_out->data = new SbDecodeTargetPrivate::Data;
+  SbDecodeTargetInfo& target_info = decode_target_out->data->info;
+  target_info.format = kSbDecodeTargetFormat1PlaneRGBA;
+  target_info.is_opaque = true;
+  target_info.width = vf.width;
+  target_info.height = vf.height;
+  for (int plane_index = 0; plane_index < plane_count; plane_index++) {
+    decode_target_out->data->info.is_opaque = true;
+
+    SbDecodeTargetInfoPlane& plane = decode_target_out->data->info.planes[plane_index];
+    plane.texture = textureId[vf.index];
+    plane.gl_texture_target = GL_TEXTURE_EXTERNAL_OES;
+    plane.gl_texture_format = texFormat[plane_index];
+    plane.content_region.left = 0.0f;
+    plane.content_region.top = 0.0f;
+    plane.width = vf.width;
+    plane.height = vf.height;
+    plane.content_region.right = static_cast<float>(plane.width);
+    plane.content_region.bottom = static_cast<float>(plane.height);
+  }
+  return decode_target_out;
+}
+
+int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {
+  vframebuf_t f;
+  int ret = amlv4l_dequeuebuf(amvideo.get(), &f);
+  if (ret >= 0) {
+    frameQueue.push(f);
+  }
+  if (!frameQueue.empty()) {
+    vframebuf_t & frm = frameQueue.front();
+    SbTime timerval = SbTimeGetMonotonicNow() - time_seek + pts_seek_to;
+    int64_t frmpts_us = (frm.pts >> 32) * 1000000LL + (frm.pts & 0xffffffff);
+    int delta = frmpts_us - timerval;
+    if (delta < -1000*100) {
+      vf = frm;
+      frameQueue.pop();
+      ret = 0;
+    } else if (delta < 1000 * 30) {
+      vf = frm;
+      frameQueue.pop();
+      ret = 0;
+    } else {
+      ret = -1;
+    }
+  }
+  return ret;
+}
+
+int AmlVideoRenderer::ReleaseFrame(vframebuf_t &vf) {
+  int ret = -EAGAIN;
+  while ((ret == -EAGAIN) || (ret == -EINTR)) {
+    ret = amlv4l_queuebuf(amvideo.get(), &vf);
+  }
+  if (ret < 0) {
+    CLOG(ERROR) << "failed to release frame " << ret << " EAGAIN " << EAGAIN << " EINTR " << EINTR ;
+  }
+  return ret;
 }
 
 bool AmlVideoRenderer::WriteVP9Sample(uint8_t *buf, int dsize, bool *written) {
@@ -686,6 +868,52 @@ bool AmlVideoRenderer::WriteVP9SampleTvp(uint8_t *buf, int dsize,
   return WriteCodec(&frame_data[0], frame_data.size(), written);
 }
 #endif
+
+bool AmlVideoRenderer::InitIonVideo() {
+    nbufs = 4;
+    width = 1920;
+    height = 1080;
+    vbufs.resize(nbufs);
+    CMEM_init();
+    int size = width * height * 3 / 2;    // NV12
+    int ret;
+    amvideo.reset(new_amvideo(FLAGS_V4L_MODE));
+    if (!amvideo) {
+      CLOG(ERROR) << "new_amvideo failed";
+      goto error;
+    }
+    amvideo->display_mode = 0;
+    amvideo->use_frame_mode = 0;
+    ret = amvideo_init(amvideo.get(), 0, width, height, V4L2_PIX_FMT_NV12, nbufs);
+    if (ret < 0) {
+        CLOG(ERROR)<<"amvideo_init failed";
+        goto error;
+    }
+
+    ret = amvideo_start(amvideo.get());
+    if (ret < 0) {
+      CLOG(ERROR) << "amvideo_start failed";
+      goto error;
+    }
+
+    for (int i = 0; i < nbufs; ++i) {
+      vbufs[i].reset(new IonBuffer(size));
+      vframebuf_t vf;
+      vf.fd = vbufs[i]->buffer.mImageFd;
+      vf.length = vbufs[i]->buffer.size;
+      vf.index = i;
+      ret = amlv4l_queuebuf(amvideo.get(), &vf);
+      if (ret < 0) {
+        CLOG(ERROR) << "amlv4l_queuebuf failed";
+        goto error;
+      }
+    }
+    memset(&vf, 0, sizeof(vf));
+    return true;
+error:
+  amvideo.reset();
+  return false;
+}
 
 } // namespace filter
 } // namespace player

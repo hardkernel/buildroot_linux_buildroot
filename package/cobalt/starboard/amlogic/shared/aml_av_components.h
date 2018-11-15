@@ -2,12 +2,25 @@
 #define THIRD_PARTY_STARBOARD_AMLOGIC_SHARED_AML_AV_COMPONENTS_H
 
 #include <algorithm>
+#include <memory>
+#include <queue>
+#include <mutex>
 
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
+#define EGL_EGLEXT_PROTOTYPES 1
+#include <EGL/eglext.h>
+#define GL_GLEXT_PROTOTYPES 1
+#include <GLES2/gl2ext.h>
 extern "C" {
 #include <amthreadpool.h>
 #include <codec.h>
 #include <Amavutils.h>
+#include <amvideo.h>
+#include <IONmem.h>
+//#include "libdrm/drm_fourcc.h"
 }
+
 
 #include "starboard/memory.h"
 #include "starboard/common/scoped_ptr.h"
@@ -85,6 +98,8 @@ protected:
   unsigned int last_read_point;
   SbTime rp_freeze_time;
   SbTime pts_sb;
+  SbTime pts_seek_to;
+  SbTime time_seek;
   bool isvideo;
   bool prerolled;
   FILE * dump_fp;
@@ -121,7 +136,7 @@ public:
                    SbPlayerOutputMode output_mode,
                    SbDecodeTargetGraphicsContextProvider
                        *decode_target_graphics_context_provider);
-  virtual ~AmlVideoRenderer() {}
+  virtual ~AmlVideoRenderer();
   void Initialize(const ErrorCB &error_cb, const PrerolledCB &prerolled_cb,
                   const EndedCB &ended_cb) {
     AVInitialize(error_cb, prerolled_cb, ended_cb);
@@ -147,8 +162,35 @@ public:
   int bound_y;
   int bound_w;
   int bound_h;
-};
+  SbPlayerOutputMode output_mode_;
+  SbDecodeTargetGraphicsContextProvider *decode_target_graphics_context_provider_;
 
+  bool InitIonVideo();
+  static void ReleaseEGLResource(void * context);
+  // for EGL rendering
+  struct IonBuffer {
+    IonBuffer(int size);
+    ~IonBuffer();
+    int size;
+    void * addr;
+    IONMEM_AllocParams buffer;
+  };
+  int GetFrame(vframebuf_t &vf);
+  int ReleaseFrame(vframebuf_t &vf);
+  int nbufs;
+  int width;
+  int height;
+  vframebuf_t vf;
+  struct Deleter_amvideo_dev_t {
+    void operator()(amvideo_dev_t* ptr) { amvideo_release(ptr); };
+  };
+  std::vector<std::unique_ptr<IonBuffer>> vbufs;
+  std::unique_ptr<amvideo_dev_t, Deleter_amvideo_dev_t> amvideo;
+  std::queue<vframebuf_t> frameQueue;
+  std::vector<GLuint> textureId;
+  std::vector<EGLImageKHR> eglImage;
+  uint32_t last_resolution;
+};
 
 } // namespace filter
 } // namespace player

@@ -25,10 +25,6 @@
 #include "starboard/decode_target.h"
 
 SbDecodeTargetPrivate::Data::~Data() {
-#if SB_HAS(GLES2)
-  glDeleteTextures(1, &info.planes[0].texture);
-  SB_DCHECK(glGetError() == GL_NO_ERROR);
-#endif
 }
 
 namespace starboard {
