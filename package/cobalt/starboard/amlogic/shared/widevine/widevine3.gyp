@@ -13,23 +13,29 @@
 # limitations under the License.
 {
   'variables': {
-#    'asm_target_arch': '<(target_arch)',
-    # use Cobalt protobuf
-#    'protobuf_config': 'target',
-#    'protobuf_lib_target': '<(DEPTH)/third_party/protobuf/protobuf.gyp:protobuf_lite',
-#    'protoc_host_target': '<(DEPTH)/third_party/protobuf/protobuf.gyp:protoc#host',
-#    'protoc_bin': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-#    'oemcrypto_dir':'<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto',
-#    'util_dir': '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/util',
-#    'boringssl_dependency': '<(DEPTH)/third_party/openssl/openssl.gyp:openssl',
+# oemctyptoimpl optee ref
+    'oemctyptoimpl':'optee',
   },
   'targets': [
     {
-      'target_name': 'widevine_cmd_cobalt_none',
+      'target_name': 'widevine_cdm_cobalt_none',
       'type': 'none',
+      'conditions': [
+          ['oemctyptoimpl=="optee"', {
+              'all_dependent_settings': {
+                  'defines': [
+                      'COBALT_WIDEVINE_OPTEE',
+                  ],
+                  'libraries': [
+                      '-loemcrypto',
+                      '-lsecmem',
+                      '-lteec',
+                  ],},
+          }],  # oemctyptoimpl=="optee"
+      ],  # conditions
     },
     {
-      'target_name': 'oemcrypto',
+      'target_name': 'oemcrypto_ref',
       'type': 'static_library',
       'includes': [
         '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/ref/oec_ref.gypi',
@@ -42,7 +48,17 @@
       },
     },
     {
-      'target_name': 'widevine_cmd_cobalt',
+      'target_name': 'oemcrypto_optee',
+      'type': 'none',
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/core/include',
+          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/include',
+        ],
+      },
+    },
+    {
+      'target_name': 'widevine_cdm_cobalt',
       'type': 'shared_library',
       'defines': [
         'STARBOARD_IMPLEMENTATION',
@@ -58,10 +74,25 @@
 #          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_timer.h',
       ],
       'dependencies': [
-        'oemcrypto',
         '<(boringssl_dependency)',
         '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/cdm/cdm.gyp:widevine_ce_cdm_static',
       ],
+      'conditions': [
+          ['oemctyptoimpl=="ref"', {
+              'dependencies': [
+                  'oemcrypto_ref',
+              ],  # dependencies
+          }, {
+              'dependencies': [
+                  'oemcrypto_optee',
+              ],  # dependencies
+              'libraries': [
+                '-loemcrypto',
+                '-lsecmem',
+                '-lteec',
+              ]
+          }],  # oemctyptoimpl=="ref"
+      ],  # conditions
       'libraries!': [
         '-lEGL',
         '-lGLESv2',

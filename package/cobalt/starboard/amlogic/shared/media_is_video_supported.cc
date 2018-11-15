@@ -16,6 +16,8 @@
 
 #include "starboard/configuration.h"
 #include "starboard/media.h"
+#include "starboard/string.h"
+#include <stdlib.h>
 
 SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
                                        int frame_width,
@@ -26,6 +28,19 @@ SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
   if (decode_to_texture_required) {
     // There is no Creator CI20 360 video implementation.
     return false;
+  }
+  if (video_codec == kSbMediaVideoCodecVp9) {
+    static int vp9_supported = -1;
+    if (vp9_supported == -1) {
+      const char *env = getenv("COBALT_DISABLE_VP9");
+      if (env && ((SbStringCompareAll(env, "1") == 0) ||
+                  (SbStringCompareAll(env, "yes") == 0) ||
+                  (SbStringCompareAll(env, "true") == 0)))
+        vp9_supported = 0;
+      else
+        vp9_supported = 1;
+    }
+    if (vp9_supported == 0) return false;
   }
   return (video_codec == kSbMediaVideoCodecH264 ||
           video_codec == kSbMediaVideoCodecVp9) &&

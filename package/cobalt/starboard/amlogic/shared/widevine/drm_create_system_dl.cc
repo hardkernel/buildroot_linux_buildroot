@@ -27,6 +27,7 @@ int cobalt_widevine_cdm_init(struct CobaltWidevineSymbols * symbols) {
     symbols->version = &::widevine::Cdm::version;
     symbols->initialize = &::widevine::Cdm::initialize;
     symbols->create = &::widevine::Cdm::create;
+    symbols->CopyBuffer = &::OEMCrypto_CopyBuffer;
     return 0;
 };
 

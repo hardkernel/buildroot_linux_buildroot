@@ -26,6 +26,7 @@
 #include "widevine_timer.h"
 #include "starboard/string.h"
 #include "starboard/time.h"
+#include <string.h>
 
 using wv3cdm = ::widevine::Cdm;
 
@@ -38,7 +39,7 @@ const int kInitializationVectorSize = 16;
 const char* kWidevineKeySystem[] = {"com.widevine", "com.widevine.alpha"};
 const char kWidevineStorageFileName[] = "wvcdm.dat";
 
-const char * widevine_cmd_cobalt_so = "libwidevine_cmd_cobalt.so";
+const char * widevine_cdm_cobalt_so = "libwidevine_cdm_cobalt.so";
 struct CobaltWidevineSymbols * widevine_symbols = nullptr;
 
 class WidevineClock : public wv3cdm::IClock {
@@ -113,6 +114,32 @@ SbDrmStatus CdmStatusToSbDrmStatus(const wv3cdm::Status status) {
 
 SB_ONCE_INITIALIZE_FUNCTION(Mutex, GetInitializationMutex);
 
+static bool LoadWidevineLib() {
+  if (widevine_symbols)
+    return true;
+  void *dlhandle = dlopen(widevine_cdm_cobalt_so, RTLD_LAZY | RTLD_LOCAL);
+  if (dlhandle == NULL) {
+    SB_LOG(ERROR) << "failed to dlopen " << widevine_cdm_cobalt_so;
+    return false;
+  }
+  // widevine_symbols = (decltype(widevine_symbols))dlsym(dlhandle,
+  // "cobalt_widevine_cdm_symbols");
+  decltype(&cobalt_widevine_cdm_init) dl_cobalt_widevine_cdm_init =
+      (decltype(&cobalt_widevine_cdm_init))dlsym(dlhandle,
+                                                 "cobalt_widevine_cdm_init");
+  if (dl_cobalt_widevine_cdm_init != NULL) {
+    widevine_symbols = new CobaltWidevineSymbols();
+    dl_cobalt_widevine_cdm_init(widevine_symbols);
+  }
+  if (widevine_symbols == NULL) {
+    SB_LOG(ERROR) << "failed to find symbols cobalt_widevine_cdm_symbols in "
+                  << widevine_cdm_cobalt_so;
+    dlclose(dlhandle);
+    return false;
+  }
+  return true;
+}
+
 static WidevineStorage s_storage(GetWidevineStoragePath());
 
 void EnsureWidevineCdmIsInitialized(const std::string& company_name,
@@ -128,23 +155,8 @@ void EnsureWidevineCdmIsInitialized(const std::string& company_name,
   if (s_initialized) {
     return;
   }
-  void * dlhandle = dlopen(widevine_cmd_cobalt_so, RTLD_LAZY | RTLD_LOCAL);
-  if (dlhandle == NULL) {
-      SB_LOG(ERROR) << "failed to dlopen " << widevine_cmd_cobalt_so;
-      return ;
-  }
-  //widevine_symbols = (decltype(widevine_symbols))dlsym(dlhandle, "cobalt_widevine_cdm_symbols");
-  decltype(&cobalt_widevine_cdm_init) dl_cobalt_widevine_cdm_init =
-      (decltype(&cobalt_widevine_cdm_init))dlsym(dlhandle, "cobalt_widevine_cdm_init");
-  if (dl_cobalt_widevine_cdm_init != NULL) {
-      widevine_symbols = new CobaltWidevineSymbols;
-      dl_cobalt_widevine_cdm_init(widevine_symbols);
-  }
-  if (widevine_symbols == NULL) {
-      SB_LOG(ERROR) << "failed to find symbols cobalt_widevine_cdm_symbols in " << widevine_cmd_cobalt_so;
-      dlclose(dlhandle);
-      return ;
-  }
+
+  LoadWidevineLib();
 
   widevine_symbols->InitLogging();
 
@@ -162,12 +174,12 @@ void EnsureWidevineCdmIsInitialized(const std::string& company_name,
                << client_info.company_name << "\", and model_name: \""
                << client_info.model_name << "\".";
 
-  auto log_level = wv3cdm::kVerbose;
+  auto log_level = wv3cdm::kSilent;
 #if COBALT_BUILD_TYPE_GOLD
   log_level = wv3cdm::kSilent;
 #endif  // COBALT_BUILD_TYPE_GOLD
   wv3cdm::Status status =
-      widevine_symbols->initialize(wv3cdm::kNoSecureOutput, client_info, &s_storage,
+      widevine_symbols->initialize(wv3cdm::kOpaqueHandle, client_info, &s_storage,
                          &s_clock, &s_timer, log_level);
   SB_DCHECK(status == wv3cdm::kSuccess);
   s_initialized = true;
@@ -222,13 +234,15 @@ DrmSystemWidevine::DrmSystemWidevine(
   SB_DCHECK(cdm_);
 }
 
-DrmSystemWidevine::~DrmSystemWidevine() {}
+DrmSystemWidevine::~DrmSystemWidevine() {
+}
 
 // static
 bool DrmSystemWidevine::IsKeySystemSupported(const char* key_system) {
   for (auto wv_key_system : kWidevineKeySystem) {
     if (SbStringCompareAll(key_system, wv_key_system) == 0) {
-      return true;
+      ScopedLock scoped_lock(*GetInitializationMutex());
+      return LoadWidevineLib();
     }
   }
   return false;
@@ -280,12 +294,17 @@ void DrmSystemWidevine::UpdateSession(int ticket,
   wv3cdm::Status status;
   if (!pending_generate_session_update_requests_.empty()) {
     status = ProcessServerCertificateResponse(str_key);
+    SB_LOG(INFO) << "session:" << sb_drm_session_id << " ticket:" << ticket
+                 << " ProcessServerCertificateResponse " << status
+                 << " num pending:"
+                 << pending_generate_session_update_requests_.size();
   } else {
     const std::string wvcdm_session_id = SbDrmSessionIdToWvdmSessionId(
         sb_drm_session_id, sb_drm_session_id_size);
     status = cdm_->update(wvcdm_session_id, str_key);
+    SB_LOG(INFO) << "session:" << wvcdm_session_id << " ticket:" << ticket
+                 << " Update keys status " << status;
   }
-  SB_DLOG(INFO) << "Update keys status " << status;
 #if SB_API_VERSION >= 10
   session_updated_callback_(this, context_, ticket,
                             CdmStatusToSbDrmStatus(status), "",
@@ -306,6 +325,7 @@ void DrmSystemWidevine::CloseSession(const void* sb_drm_session_id,
   const std::string wvcdm_session_id =
       SbDrmSessionIdToWvdmSessionId(sb_drm_session_id, sb_drm_session_id_size);
   cdm_->close(wvcdm_session_id);
+  SB_LOG(INFO) << "close session:" << wvcdm_session_id;
 }
 
 #if SB_API_VERSION >= 10
@@ -316,6 +336,8 @@ void DrmSystemWidevine::UpdateServerCertificate(int ticket,
   const std::string str_certificate(static_cast<const char*>(certificate),
                                     certificate_size);
   wv3cdm::Status status = cdm_->setServiceCertificate(str_certificate);
+
+  SB_LOG(INFO) << " ticket:" << ticket << " UpdateServerCertificate status " << status;
 
   is_server_certificate_set_ = (status == wv3cdm::kSuccess);
 
@@ -344,6 +366,72 @@ void IncrementIv(uint8_t* iv, size_t block_count) {
   }
 }
 
+static std::string DumpHexToString(const uint8_t* data, int size) {
+  const char kBinToHex[] = "0123456789abcdef";
+  std::string result;
+  result.reserve(size);
+  for (int i = 0; i < size; ++i) {
+    result += kBinToHex[data[i] / 16];
+    result += kBinToHex[data[i] % 16];
+  }
+  return result;
+}
+
+#if defined(COBALT_WIDEVINE_OPTEE)
+OEMCryptoResult DrmSystemWidevine::CopyBuffer(uint8_t *out_buffer, const uint8_t *data_addr,
+                           size_t data_length) {
+  const int chunk_size = 1024 * 100;
+  OEMCrypto_DestBufferDesc bd;
+  memset(&bd, 0, sizeof(bd));
+  bd.type = OEMCrypto_BufferType_Secure;
+  bd.buffer.secure.handle = out_buffer;
+  bd.buffer.secure.max_length = data_length;
+  bd.buffer.secure.offset = 0;
+  uint8_t subsample_flags = OEMCrypto_FirstSubsample | OEMCrypto_LastSubsample;
+  SB_LOG(ERROR) << "Call OEMCrypto_CopyBuffer(" << (void *)data_addr << " ,"
+                << data_length
+                << " ,{type=OEMCrypto_BufferType_Secure,buffer.secure.handle="
+                << (void *)out_buffer
+                << ",buffer.secure.max_length=" << data_length
+                << ",buffer.secure.offset=0}, " << std::hex << std::showbase << (unsigned int)subsample_flags;
+//  OEMCryptoResult result = OEMCrypto_CopyBuffer(data_addr, data_length, &bd, subsample_flags);
+  OEMCryptoResult result = widevine_symbols->CopyBuffer(data_addr, data_length, &bd, subsample_flags);
+  SB_LOG(ERROR) << "OEMCrypto_CopyBuffer return " << result;
+  if ((result == OEMCrypto_ERROR_BUFFER_TOO_LARGE) &&
+      (data_length > chunk_size)) {
+    bd.type = OEMCrypto_BufferType_Secure;
+    bd.buffer.secure.handle = out_buffer;
+    bd.buffer.secure.max_length = data_length;
+    bd.buffer.secure.offset = 0;
+    size_t pos;
+    subsample_flags = OEMCrypto_FirstSubsample;
+    for (pos = 0; pos < data_length; pos += chunk_size) {
+      int lentocopy = data_length - pos;
+      if (lentocopy > chunk_size) {
+        lentocopy = chunk_size;
+      } else {
+        subsample_flags |= OEMCrypto_LastSubsample;
+      }
+      OEMCrypto_DestBufferDesc bd2 = bd;
+      bd2.buffer.secure.offset += pos;
+//      result = OEMCrypto_CopyBuffer(data_addr + pos, lentocopy, &bd2,
+//                                    subsample_flags);
+      result = widevine_symbols->CopyBuffer(data_addr + pos, lentocopy, &bd2,
+                                    subsample_flags);
+      if (result != OEMCrypto_SUCCESS) {
+        SB_LOG(ERROR) << "CopyBuffer vir:" << (void *)data_addr
+                      << " to phy:" << (void *)out_buffer
+                      << " size:" << data_length << " pos:" << pos
+                      << " chunksize:" << lentocopy << " failed:" << result;
+        break;
+      }
+    }
+  }
+  return result;
+}
+#endif
+
+
 SbDrmSystemPrivate::DecryptStatus DrmSystemWidevine::Decrypt(
     InputBuffer* buffer) {
   const SbDrmSampleInfo* drm_info = buffer->drm_info();
@@ -368,19 +456,44 @@ SbDrmSystemPrivate::DecryptStatus DrmSystemWidevine::Decrypt(
   input.iv_length = static_cast<uint32_t>(initialization_vector.size());
   input.is_video = (buffer->sample_type() == kSbMediaTypeVideo);
 
-  std::vector<uint8_t> output_data(buffer->size());
   wv3cdm::OutputBuffer output;
+#if defined(COBALT_WIDEVINE_OPTEE)
+  std::vector<uint8_t> output_data;
+  if ((buffer->sample_type() == kSbMediaTypeVideo) && (decoder_) &&
+      (decoder_->IsTvpMode())) {
+    output.data_length = buffer->size();
+    output.data = decoder_->GetSecMem(output.data_length);
+    if (output.data == NULL) {
+      SB_LOG(ERROR) << "Can't allocate memory in TVP mode, size " << output.data_length;
+      return kFailure;
+    }
+    output.is_secure = true;
+    output_data.assign(sizeof(drminfo_t), 0);
+    drminfo_t *drminfo = (drminfo_t *)&output_data[0];
+    drminfo->drm_level = DRM_LEVEL1;
+    drminfo->drm_pktsize = buffer->size();
+    drminfo->drm_hasesdata = 0;
+    drminfo->drm_phy = (unsigned int)((size_t)(output.data));
+    drminfo->drm_flag = TYPE_DRMINFO | TYPE_PATTERN;
+  } else {
+    // audio use L3
+    output_data.resize(buffer->size());
+    output.data = output_data.data();
+    output.data_length = output_data.size();
+  }
+#else
+  std::vector<uint8_t> output_data(buffer->size());
   output.data = output_data.data();
   output.data_length = output_data.size();
+#endif
 
   size_t block_counter = 0;
   size_t encrypted_offset = 0;
 
-  for (size_t i = 0; i < buffer->drm_info()->subsample_count; i++) {
-    const SbDrmSubSampleMapping& subsample =
-        buffer->drm_info()->subsample_mapping[i];
+  for (size_t i = 0; i < drm_info->subsample_count; i++) {
+    const SbDrmSubSampleMapping& subsample = drm_info->subsample_mapping[i];
     if (subsample.clear_byte_count) {
-      input.last_subsample = i + 1 == buffer->drm_info()->subsample_count &&
+      input.last_subsample = i + 1 == drm_info->subsample_count &&
                              subsample.encrypted_byte_count == 0;
       input.encryption_scheme = wv3cdm::EncryptionScheme::kClear;
       input.data_length = subsample.clear_byte_count;
@@ -390,12 +503,11 @@ SbDrmSystemPrivate::DecryptStatus DrmSystemWidevine::Decrypt(
         if (status == wv3cdm::kNoKey) {
           return kRetry;
         }
-        SB_DLOG(ERROR) << "Decrypt status " << status;
-        SB_DLOG(ERROR) << "Key ID "
-                       << widevine_symbols->a2bs_hex(
-                              std::string(reinterpret_cast<const char*>(
-                                              &drm_info->identifier[0]),
-                                          drm_info->identifier_size));
+        SB_LOG(ERROR) << "Decrypt status " << status;
+        SB_LOG(ERROR) << "Key ID "
+                      << DumpHexToString(reinterpret_cast<const uint8_t *>(
+                                             &drm_info->identifier[0]),
+                                         drm_info->identifier_size);
         return kFailure;
       }
 
@@ -406,7 +518,7 @@ SbDrmSystemPrivate::DecryptStatus DrmSystemWidevine::Decrypt(
     }
 
     if (subsample.encrypted_byte_count) {
-      input.last_subsample = i + 1 == buffer->drm_info()->subsample_count;
+      input.last_subsample = i + 1 == drm_info->subsample_count;
       input.encryption_scheme = wv3cdm::EncryptionScheme::kAesCtr;
       input.data_length = subsample.encrypted_byte_count;
 
@@ -416,12 +528,11 @@ SbDrmSystemPrivate::DecryptStatus DrmSystemWidevine::Decrypt(
           SB_DLOG(ERROR) << "Decrypt status: kNoKey";
           return kRetry;
         }
-        SB_DLOG(ERROR) << "Decrypt status " << status;
-        SB_DLOG(ERROR) << "Key ID "
-                       << widevine_symbols->a2bs_hex(
-                              std::string(reinterpret_cast<const char*>(
-                                              &drm_info->identifier[0]),
-                                          drm_info->identifier_size));
+        SB_LOG(ERROR) << "Decrypt status " << status;
+        SB_LOG(ERROR) << "Key ID "
+                      << DumpHexToString(reinterpret_cast<const uint8_t *>(
+                                             &drm_info->identifier[0]),
+                                         drm_info->identifier_size);
         return kFailure;
       }
 
@@ -461,6 +572,9 @@ void DrmSystemWidevine::GenerateSessionUpdateRequestInternal(
   std::string wvcdm_session_id;
   // createSession() may return |kDeferred| if individualization is pending.
   wv3cdm::Status status = cdm_->createSession(session_type, &wvcdm_session_id);
+  SB_LOG(INFO) << "createSession return " << status
+               << " session id:" << wvcdm_session_id << " ticket:" << ticket
+               << " first:" << is_first_session;
 
   if (status == wv3cdm::kSuccess) {
     // Ensure that the session id generated by the cdm is never the same as the
@@ -473,7 +587,7 @@ void DrmSystemWidevine::GenerateSessionUpdateRequestInternal(
     SB_DLOG(INFO) << "Calling generateRequest()";
     status = cdm_->generateRequest(wvcdm_session_id, init_data_type,
                                    initialization_data);
-    SB_DLOG(INFO) << "generateRequest() returns " << status;
+    SB_LOG(INFO) << "generateRequest() returns " << status;
   } else {
     // createSession() shouldn't return |kDeferred|, and if it does, the
     // following if statement will incorrectly assume that there is a follow-up
@@ -542,6 +656,7 @@ void DrmSystemWidevine::onKeyStatusesChange(
 #if SB_HAS(DRM_KEY_STATUSES)
   wv3cdm::KeyStatusMap key_statuses;
   wv3cdm::Status status = cdm_->getKeyStatuses(wvcdm_session_id, &key_statuses);
+  SB_LOG(INFO) << "session:" << wvcdm_session_id << " getKeyStatuses num keys " << key_statuses.size();
 
   if (status != wv3cdm::kSuccess) {
     return;
@@ -640,6 +755,7 @@ std::string DrmSystemWidevine::SbDrmSessionIdToWvdmSessionId(
 void DrmSystemWidevine::SendServerCertificateRequest(int ticket) {
   std::string message;
   auto status = cdm_->getServiceCertificateRequest(&message);
+  SB_LOG(INFO)<<"getServiceCertificateRequest status:" << status << " len:" << message.size();
   if (status == wv3cdm::kSuccess) {
     SetTicket(kFirstSbDrmSessionId, ticket);
     // Note that calling createSession() without a server certificate may fail.
@@ -694,6 +810,7 @@ void DrmSystemWidevine::SendSessionUpdateRequest(
     const std::string& sb_drm_session_id,
     const std::string& message) {
   int ticket = GetAndResetTicket(sb_drm_session_id);
+  SB_LOG(INFO) << "session:" << sb_drm_session_id << " ticket:" << ticket << " SendSessionUpdateRequest " << type;
 
 #if SB_API_VERSION >= 10
   session_update_request_callback_(

@@ -26,6 +26,8 @@
 #include "third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h"
 #include "third_party/starboard/amlogic/shared/ce_cdm/util/include/log.h"
 #include "third_party/starboard/amlogic/shared/ce_cdm/util/include/string_conversions.h"
+#include "third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/include/OEMCryptoCENC.h"
+#include "third_party/starboard/amlogic/shared/aml_av_components.h"
 
 namespace starboard {
 namespace shared {
@@ -91,6 +93,15 @@ class DrmSystemWidevine : public SbDrmSystemPrivate,
                                const void* certificate,
                                int certificate_size) override;
 #endif  // SB_API_VERSION >= 10
+
+#if defined(COBALT_WIDEVINE_OPTEE)
+  using AmlAVCodec = ::starboard::shared::starboard::player::filter::AmlAVCodec;
+  AmlAVCodec * decoder_;
+  void AttachDecoder(AmlAVCodec * decoder) { decoder_ = decoder;}
+  static OEMCryptoResult CopyBuffer(uint8_t *out_buffer,
+                                    const uint8_t *data_addr,
+                                    size_t data_length);
+#endif
 
  private:
   // Stores the data necessary to call GenerateSessionUpdateRequestInternal().
@@ -200,6 +211,7 @@ class DrmSystemWidevine : public SbDrmSystemPrivate,
 #endif  // SB_API_VERSION >= 10
 
   volatile bool quitting_ = false;
+
 };
 
 }  // namespace widevine
@@ -216,6 +228,7 @@ struct CobaltWidevineSymbols {
   decltype(&::widevine::Cdm::version) version;
   decltype(&::widevine::Cdm::initialize) initialize;
   decltype(&::widevine::Cdm::create) create;
+  decltype(&::OEMCrypto_CopyBuffer) CopyBuffer;
 };
 extern "C" int cobalt_widevine_cdm_init(struct CobaltWidevineSymbols * symbols);
 
