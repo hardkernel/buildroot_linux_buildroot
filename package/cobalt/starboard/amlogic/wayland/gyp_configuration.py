@@ -31,6 +31,13 @@ class ArmWaylandConfiguration(shared_configuration.LinuxConfiguration):
         platform_name, asan_enabled_by_default, goma_supports_compiler)
 
   def GetEnvironmentVariables(self):
+    self.host_compiler_environment = {
+      'CC_host': 'gcc',
+      'CXX_host': 'g++',
+      'LD_host': 'gcc',
+      'ARFLAGS_host': 'rcs',
+      'ARTHINFLAGS_host': 'rcsT',
+    }
     if not hasattr(self, 'host_compiler_environment'):
       self.host_compiler_environment = build.GetHostCompilerEnvironment(
           clang.GetClangSpecification(), self.goma_supports_compiler)
