@@ -39,7 +39,7 @@ const int kInitializationVectorSize = 16;
 const char* kWidevineKeySystem[] = {"com.widevine", "com.widevine.alpha"};
 const char kWidevineStorageFileName[] = "wvcdm.dat";
 
-const char * widevine_cdm_cobalt_so = "libwidevine_cdm_cobalt.so";
+const char * widevine_cdm_cobalt_so = "libwidevine_ce_cdm_shared.so";
 struct CobaltWidevineSymbols * widevine_symbols = nullptr;
 
 class WidevineClock : public wv3cdm::IClock {
@@ -395,7 +395,8 @@ OEMCryptoResult DrmSystemWidevine::CopyBuffer(uint8_t *out_buffer, const uint8_t
                 << ",buffer.secure.max_length=" << data_length
                 << ",buffer.secure.offset=0}, " << std::hex << std::showbase << (unsigned int)subsample_flags;
 //  OEMCryptoResult result = OEMCrypto_CopyBuffer(data_addr, data_length, &bd, subsample_flags);
-  OEMCryptoResult result = widevine_symbols->CopyBuffer(data_addr, data_length, &bd, subsample_flags);
+  decltype(&OEMCrypto_CopyBuffer) oemCopyBuffer = (decltype(&OEMCrypto_CopyBuffer))widevine_symbols->CopyBuffer;
+  OEMCryptoResult result = oemCopyBuffer(data_addr, data_length, &bd, subsample_flags);
   SB_LOG(ERROR) << "OEMCrypto_CopyBuffer return " << result;
   if ((result == OEMCrypto_ERROR_BUFFER_TOO_LARGE) &&
       (data_length > chunk_size)) {
@@ -416,7 +417,7 @@ OEMCryptoResult DrmSystemWidevine::CopyBuffer(uint8_t *out_buffer, const uint8_t
       bd2.buffer.secure.offset += pos;
 //      result = OEMCrypto_CopyBuffer(data_addr + pos, lentocopy, &bd2,
 //                                    subsample_flags);
-      result = widevine_symbols->CopyBuffer(data_addr + pos, lentocopy, &bd2,
+      result = oemCopyBuffer(data_addr + pos, lentocopy, &bd2,
                                     subsample_flags);
       if (result != OEMCrypto_SUCCESS) {
         SB_LOG(ERROR) << "CopyBuffer vir:" << (void *)data_addr

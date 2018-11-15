@@ -26,6 +26,9 @@
                   'defines': [
                       'COBALT_WIDEVINE_OPTEE',
                   ],
+                  'include_dirs': [
+                      '<!(echo $WIDEVINE_CE_CDM_INC)',
+                  ],
                   'libraries': [
                       '-loemcrypto',
                       '-lsecmem',
@@ -33,87 +36,6 @@
                   ],},
           }],  # oemctyptoimpl=="optee"
       ],  # conditions
-    },
-    {
-      'target_name': 'oemcrypto_ref',
-      'type': 'static_library',
-      'includes': [
-        '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/ref/oec_ref.gypi',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/core/include',
-          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/include',
-        ],
-      },
-    },
-    {
-      'target_name': 'oemcrypto_optee',
-      'type': 'none',
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/core/include',
-          '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto/include',
-        ],
-      },
-    },
-    {
-      'target_name': 'widevine_cdm_cobalt',
-      'type': 'shared_library',
-      'defines': [
-        'STARBOARD_IMPLEMENTATION',
-      ],
-      'sources': [
-          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_create_system_dl.cc',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_create_system.cc',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_system_widevine.cc',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/drm_system_widevine.h',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_storage.cc',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_storage.h',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_timer.cc',
-#          '<(DEPTH)/third_party/starboard/amlogic/shared/widevine/widevine_timer.h',
-      ],
-      'dependencies': [
-        '<(boringssl_dependency)',
-        '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/cdm/cdm.gyp:widevine_ce_cdm_static',
-      ],
-      'conditions': [
-          ['oemctyptoimpl=="ref"', {
-              'dependencies': [
-                  'oemcrypto_ref',
-              ],  # dependencies
-          }, {
-              'dependencies': [
-                  'oemcrypto_optee',
-              ],  # dependencies
-              'libraries': [
-                '-loemcrypto',
-                '-lsecmem',
-                '-lteec',
-              ]
-          }],  # oemctyptoimpl=="ref"
-      ],  # conditions
-      'libraries!': [
-        '-lEGL',
-        '-lGLESv2',
-        '-lwayland-egl',
-        '-lwayland-client',
-        '-lasound',
-        '-ldl',
-        '-lpthread',
-        '-lrt',
-        '-lamcodec',
-        '-lamavutils',
-        '-lamadec',
-      ],
-      'cflags': [
-        '-fPIC',
-        '-fvisibility=hidden',
-      ],
-      'ldflags': [
-        '-Wl,--exclude-libs,ALL',
-        '-fvisibility=hidden',
-      ],
-    },
+    }
   ],
 }

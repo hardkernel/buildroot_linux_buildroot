@@ -14,18 +14,18 @@
 
 {
   'target_defaults': {
-    'default_configuration': 'amlogic-wayland-armv7l_debug',
+    'default_configuration': 'amlogic-wayland_debug',
     'configurations': {
-      'amlogic-wayland-armv7l_debug': {
+      'amlogic-wayland_debug': {
         'inherit_from': ['debug_base'],
       },
-      'amlogic-wayland-armv7l_devel': {
+      'amlogic-wayland_devel': {
         'inherit_from': ['devel_base'],
       },
-      'amlogic-wayland-armv7l_qa': {
+      'amlogic-wayland_qa': {
         'inherit_from': ['qa_base'],
       },
-      'amlogic-wayland-armv7l_gold': {
+      'amlogic-wayland_gold': {
         'inherit_from': ['gold_base'],
       },
     }, # end of configurations
@@ -37,9 +37,9 @@
   ],
 
   'variables': {
-    'target_arch': 'arm',
+    'target_arch': '<!(echo $COBALT_ARCH)',
     'arm_version': 7,
-    'arm_float_abi': 'hard',
+    'arm_float_abi%': 'hard',
     'arm_neon': 1,
     'gl_type': 'system_gles2',
 

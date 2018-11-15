@@ -19,8 +19,8 @@
 // Other source files should never include this header directly, but should
 // include the generic "starboard/configuration.h" instead.
 
-#ifndef THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ARM64_CONFIGURATION_PUBLIC_H_
-#define THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ARM64_CONFIGURATION_PUBLIC_H_
+#ifndef THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_CONFIGURATION_PUBLIC_H_
+#define THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_CONFIGURATION_PUBLIC_H_
 
 // --- Architecture Configuration --------------------------------------------
 
@@ -124,4 +124,4 @@
 #define SB_HAS_PLAYER_WITH_URL 0
 #endif  // SB_API_VERSION >= 8
 
-#endif  // THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_ARM64_CONFIGURATION_PUBLIC_H_
+#endif  // THIRD_PARTY_STARBOARD_AMLOGIC_WAYLAND_CONFIGURATION_PUBLIC_H_

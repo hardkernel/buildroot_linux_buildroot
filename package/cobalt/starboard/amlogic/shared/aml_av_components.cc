@@ -4,7 +4,9 @@
 #include "third_party/starboard/amlogic/shared/decode_target_internal.h"
 #if defined(COBALT_WIDEVINE_OPTEE)
 #include "widevine/drm_system_widevine.h"
-#include "third_party/starboard/amlogic/shared/ce_cdm/wv14/secmem_tz.h"
+extern "C" unsigned int Secure_AllocSecureMem(unsigned int length,unsigned int tvp_set);
+extern "C" unsigned int Secure_ReleaseResource();
+extern "C" unsigned int Secure_GetVp9HeaderSize(void *src, unsigned int size, unsigned int *header_size);
 #endif
 
 #include <fcntl.h>
@@ -416,10 +418,10 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     if (codec_param->drmmode && input_buffer->drm_info()) {
       CopyClearBufferToSecure(input_buffer);
     }
+    last_pts_in_secure = input_buffer->timestamp();
 #endif
     data = const_cast<uint8_t *>(input_buffer->data());
     size = input_buffer->size();
-    last_pts_in_secure = input_buffer->timestamp();
   }
 #if defined(COBALT_WIDEVINE_OPTEE)
   else if (codec_param->drmmode && !IsSampleInSecureBuffer(input_buffer)) {

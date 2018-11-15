@@ -17,7 +17,7 @@
   ],
   'variables': {
     'variables': {
-      'has_cdm%': '<!(test -e <(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/cdm/include/cdm.h && echo 1 || echo 0)',
+      'has_cdm%': '<!(test -f <!(echo $WIDEVINE_CE_CDM_INC)/cdm.h && echo 1 || echo 0)',
     },
     # This has_cdm gets exported to gyp files that include this one.
     'has_cdm%': '<(has_cdm)',

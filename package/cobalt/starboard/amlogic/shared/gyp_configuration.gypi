@@ -38,6 +38,7 @@
       # We'll pretend not to be Linux, but Starboard instead.
       '-U__linux__',
       '--sysroot=<(sysroot)',
+      ' <!(echo $COBALT_CFLAGS)'
     ],
 
     # Using an inner scope for 'variables' so that it can be made a default
@@ -73,17 +74,6 @@
         ],
       }],
     ],
-#    'asm_target_arch': '<(target_arch)',
-    'asm_target_arch': 'none',
-    'protobuf_config': 'source',
-#    'protobuf_config': 'target',
-#    'protobuf_lib_target': '<(DEPTH)/third_party/protobuf/protobuf.gyp:protobuf_lite',
-#    'protoc_host_target': '<(DEPTH)/third_party/protobuf/protobuf.gyp:protoc#host',
-#    'protoc_bin': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)protoc<(EXECUTABLE_SUFFIX)',
-    'oemcrypto_dir':'<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/oemcrypto',
-    'util_dir': '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/util',
-#    'privacy_crypto_impl': 'dummy',
-    'boringssl_dependency': '<(DEPTH)/third_party/starboard/amlogic/shared/ce_cdm/third_party/boringssl/boringssl.gyp:crypto',
   },
 
   'target_defaults': {
@@ -93,15 +83,6 @@
       '__STDC_FORMAT_MACROS', # so that we get PRI*
       # Enable GNU extensions to get prototypes like ffsl.
       '_GNU_SOURCE=1',
-    ],
-    'target_conditions': [
-      # widevine protobuf
-      ['_target_name in ["protobuf_lite_cdm","widevine_cdm_core","widevine_ce_cdm_static","oemcrypto_ref","device_files", "license_protocol", "metrics_proto"]', {
-        'cflags': [
-          '-fPIC',
-          '-fvisibility=hidden',
-        ],
-      }],
     ],
   }, # end of target_defaults
 }
