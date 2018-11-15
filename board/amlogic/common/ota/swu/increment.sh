@@ -14,11 +14,11 @@ cd $1
 platform=$2
 
 if [ ${platform} = "emmc" ];then
-    HASH_FILES="u-boot.bin dtb.img boot.img rootfs.zip update.sh"
-    FILES="sw-description sw-description.sig u-boot.bin dtb.img boot.img rootfs.zip update.sh"
+    HASH_FILES="u-boot.bin dtb.img boot.img rootfs.tgz update.sh"
+    FILES="sw-description sw-description.sig u-boot.bin dtb.img boot.img rootfs.tgz update.sh"
 else
-    HASH_FILES="u-boot.bin.usb.bl2 u-boot.bin.usb.tpl dtb.img boot.img rootfs.zip update.sh"
-    FILES="sw-description sw-description.sig u-boot.bin.usb.bl2 u-boot.bin.usb.tpl dtb.img boot.img rootfs.zip update.sh"
+    HASH_FILES="u-boot.bin.usb.bl2 u-boot.bin.usb.tpl dtb.img boot.img rootfs.tgz update.sh"
+    FILES="sw-description sw-description.sig u-boot.bin.usb.bl2 u-boot.bin.usb.tpl dtb.img boot.img rootfs.tgz update.sh"
 
 fi
 

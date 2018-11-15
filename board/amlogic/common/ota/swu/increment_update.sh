@@ -21,12 +21,3 @@ if [ $1 == "preinst" ]; then
 	    mount -t ubifs /dev/ubi1_0 /tmp/rootfs
     fi
 
-    if [ -d "/mnt/etc" ]
-    then
-        mount -o bind /mnt/etc /tmp/rootfs/etc
-    fi
-
-    if [ -d "/mnt/var" ]
-    then
-        mount -o bind /mnt/var /tmp/rootfs/var
-    fi
