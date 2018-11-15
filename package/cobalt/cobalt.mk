@@ -3,35 +3,39 @@
 # Cobalt
 #
 #############################################################
-ifeq ($(BR2_PACKAGE_COBALT_PREBUILT),y)
-include package/cobalt/cobalt-prebuilt/cobalt-prebuilt.mk
-endif
-
-
-ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL),y)
-
 COBALT_VERSION = 19.lts.1.186281
 
-#COBALT_LICENSE = Apache License
-#COBALT_LICENSE_FILES = COPYING
-COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer browser_toolchain_depot_tools
-
-COBALT_SOURCE = cobalt-$(COBALT_VERSION).tar.gz
-COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
-
 ifeq ($(BR2_aarch64), y)
-COBALT_DEPENDENCIES += browser_toolchain_gcc-linaro-aarch64
+COBALT_TOOLCHAIN_DEPENDENCIES = browser_toolchain_gcc-linaro-aarch64
 COBALT_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_AARCH64_INSTALL_DIR)/bin
 COBALT_ARCH=arm64
 COBALT_CROSS=aarch64-linux-gnu-
-COBALT_PREBUILT_DIRECTORY = $(TOPDIR)/../vendor/amlogic/cobalt/cobalt-$(COBALT_VERSION)/arm64
 else
-COBALT_DEPENDENCIES += browser_toolchain_gcc-linaro-armeabihf
+COBALT_TOOLCHAIN_DEPENDENCIES = browser_toolchain_gcc-linaro-armeabihf
 COBALT_TOOLCHAIN_DIR = $(BROWSER_TOOLCHAIN_GCC_LINARO_ARMEABIHF_INSTALL_DIR)/bin
 COBALT_ARCH=arm
 COBALT_CROSS=arm-linux-gnueabihf-
-COBALT_PREBUILT_DIRECTORY = $(TOPDIR)/../vendor/amlogic/cobalt/cobalt-$(COBALT_VERSION)/arm
 endif
+
+COBALT_INSTALL_DIR = $(TARGET_DIR)/usr/bin/cobalt
+COBALT_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/cobalt
+COBALT_PREBUILT_DIRECTORY=$(COBALT_PREBUILT_SITE)/cobalt-$(COBALT_VERSION)/$(COBALT_ARCH)
+
+ifeq ($(BR2_PACKAGE_COBALT_PREBUILT),y)
+COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer libsecmem-bin
+COBALT_SITE = $(COBALT_PREBUILT_SITE)
+COBALT_SITE_METHOD = local
+define COBALT_INSTALL_TARGET_CMDS
+	mkdir -p $(COBALT_INSTALL_DIR)
+	cp -a $(COBALT_PREBUILT_DIRECTORY)/cobalt            $(COBALT_INSTALL_DIR)
+	cp -a $(COBALT_PREBUILT_DIRECTORY)/../content        $(COBALT_INSTALL_DIR)
+endef
+endif
+
+ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL),y)
+COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer browser_toolchain_depot_tools $(COBALT_TOOLCHAIN_DEPENDENCIES)
+COBALT_SOURCE = cobalt-$(COBALT_VERSION).tar.gz
+COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
 
 COBALT_REL = amlogic-wayland
 COBALT_MODE = qa
@@ -55,7 +59,7 @@ COBALT_CFLAGS="$(TOOLCHAIN_EXTERNAL_CFLAGS)"
 
 define COBALT_BUILD_CMDS
 	touch $(COBALT_DIR)/src/third_party/__init__.py
-	cp -af $(TOPDIR)/package/cobalt/starboard $(COBALT_DIR)/src/third_party
+	rsync -a $(TOPDIR)/package/cobalt/starboard $(COBALT_DIR)/src/third_party
 	$(call qstrip, $(COBALT_ENABLE_WIDEVINE_CE_CDM)); \
 	export SYS_ROOT=$(STAGING_DIR); \
 	export COBALT_CFLAGS=$(COBALT_CFLAGS); \
@@ -67,8 +71,6 @@ define COBALT_BUILD_CMDS
 	ninja -C $(COBALT_OUT_DIR) cobalt
 endef
 
-COBALT_INSTALL_DIR = $(TARGET_DIR)/usr/bin/cobalt
-
 define COBALT_INSTALL_TARGET_CMDS
 	mkdir -p $(COBALT_INSTALL_DIR)
 	cp -a $(COBALT_OUT_DIR)/cobalt            $(COBALT_INSTALL_DIR)
@@ -76,16 +78,13 @@ define COBALT_INSTALL_TARGET_CMDS
 	$(COBALT_UPDATE_PREBUILD_CMDS)
 endef
 
+endif # BR2_PACKAGE_COBALT_COMPILE_ALL
+
 ifeq ($(BR2_PACKAGE_LAUNCHER_USE_COBALT), y)
 define COBALT_INSTALL_INIT_SYSV
-	rm -rf $(TARGET_DIR)/etc/init.d/S90*
-	$(INSTALL) -D -m 755 package/cobalt/S90cobalt \
-		$(TARGET_DIR)/etc/init.d/S90cobalt
-	cp -af package/cobalt/launcher \
-		$(TARGET_DIR)/var/www/
+	$(INSTALL) -D -m 755 package/cobalt/S90cobalt $(TARGET_DIR)/etc/init.d/S90cobalt
+	cp -af package/cobalt/launcher $(TARGET_DIR)/var/www/
 endef
-endif
+endif # BR2_PACKAGE_LAUNCHER_USE_COBALT
 
 $(eval $(generic-package))
-
-endif
