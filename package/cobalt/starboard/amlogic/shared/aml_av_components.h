@@ -20,7 +20,7 @@ extern "C" {
 #include <IONmem.h>
 //#include "libdrm/drm_fourcc.h"
 }
-
+#include <dlfcn.h>
 
 #include "starboard/memory.h"
 #include "starboard/common/scoped_ptr.h"
@@ -31,6 +31,12 @@ extern "C" {
 #include "starboard/shared/starboard/player/filter/media_time_provider.h"
 #include "starboard/shared/starboard/player/input_buffer_internal.h"
 
+template <class> struct DlFuncWrapper {};
+template <typename R, typename... ARGS> struct DlFuncWrapper<R (*)(ARGS...)> {
+  void Load(void *dlHandle, const char *name) { *(void **)&dlFunc = dlsym(dlHandle, name); }
+  R operator()(ARGS... args) { return dlFunc(std::forward<ARGS>(args)...); }
+  R (*dlFunc)(ARGS...) = nullptr;
+};
 
 namespace starboard {
 namespace shared {
@@ -80,6 +86,7 @@ public:
   bool IsTvpMode() { return (codec_param && codec_param->drmmode); }
   void CopyClearBufferToSecure(InputBuffer *input_buffer);
   bool IsSampleInSecureBuffer(InputBuffer *input_buffer);
+  static bool LoadDrmRequiredLibraries(void);
 #endif
 
 protected:
@@ -197,4 +204,6 @@ public:
 } // namespace starboard
 } // namespace shared
 } // namespace starboard
+
+
 #endif //THIRD_PARTY_STARBOARD_AMLOGIC_SHARED_AML_AV_COMPONENTS_H

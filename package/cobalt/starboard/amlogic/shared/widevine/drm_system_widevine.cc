@@ -117,9 +117,13 @@ SB_ONCE_INITIALIZE_FUNCTION(Mutex, GetInitializationMutex);
 static bool LoadWidevineLib() {
   if (widevine_symbols)
     return true;
-  void *dlhandle = dlopen(widevine_cdm_cobalt_so, RTLD_LAZY | RTLD_LOCAL);
+  if (!DrmSystemWidevine::AmlAVCodec::LoadDrmRequiredLibraries()) {
+    SB_LOG(ERROR) << "can't load drm library";
+    return false;
+  }
+  void *dlhandle = dlopen(widevine_cdm_cobalt_so, RTLD_NOW | RTLD_LOCAL);
   if (dlhandle == NULL) {
-    SB_LOG(ERROR) << "failed to dlopen " << widevine_cdm_cobalt_so;
+    SB_LOG(ERROR) << "failed to dlopen " << widevine_cdm_cobalt_so << " :" << dlerror();
     return false;
   }
   // widevine_symbols = (decltype(widevine_symbols))dlsym(dlhandle,

@@ -4,9 +4,9 @@
 #include "third_party/starboard/amlogic/shared/decode_target_internal.h"
 #if defined(COBALT_WIDEVINE_OPTEE)
 #include "widevine/drm_system_widevine.h"
-extern "C" unsigned int Secure_AllocSecureMem(unsigned int length,unsigned int tvp_set);
-extern "C" unsigned int Secure_ReleaseResource();
-extern "C" unsigned int Secure_GetVp9HeaderSize(void *src, unsigned int size, unsigned int *header_size);
+static DlFuncWrapper<unsigned int (*)(unsigned int,unsigned int)> dlSecure_AllocSecureMem;
+static DlFuncWrapper<unsigned int(*)()> dlSecure_ReleaseResource;
+static DlFuncWrapper<unsigned int (*)(void *, unsigned int, unsigned int *)> dlSecure_GetVp9HeaderSize;
 #endif
 
 #include <fcntl.h>
@@ -44,7 +44,7 @@ AmlAVCodec::~AmlAVCodec() {
 #if defined(COBALT_WIDEVINE_OPTEE)
     if (codec_param->drmmode == 1) {
       if (sec_drm_mem) {
-        Secure_ReleaseResource();
+        dlSecure_ReleaseResource();
         sec_drm_mem = NULL;
       }
       if (sec_drm_mem_virt) {
@@ -373,6 +373,34 @@ bool AmlAVCodec::IsSampleInSecureBuffer(InputBuffer *input_buffer)
 {
     return (last_pts_in_secure==input_buffer->timestamp());
 }
+
+static struct {
+  const char * dlname;
+  void * dlHandle;
+} s_drm_libraries_dlopen[] = {
+    {"libteec.so", NULL},
+    {"libsecmem.so", NULL},
+    {"liboemcrypto.so", NULL}
+};
+static bool s_drm_libraries_loaded = false;
+bool AmlAVCodec::LoadDrmRequiredLibraries(void) {
+  if (s_drm_libraries_loaded)
+    return true;
+  for (int i=0; i<sizeof(s_drm_libraries_dlopen)/sizeof(s_drm_libraries_dlopen[0]); ++i) {
+    if (s_drm_libraries_dlopen[i].dlHandle == NULL) {
+      s_drm_libraries_dlopen[i].dlHandle = dlopen(s_drm_libraries_dlopen[i].dlname, RTLD_NOW | RTLD_GLOBAL);
+      if (s_drm_libraries_dlopen[i].dlHandle == NULL) {
+        SB_LOG(ERROR) << "can't load drm library " << s_drm_libraries_dlopen[i].dlname << " : " << dlerror();
+        return false;
+      }
+    }
+  }
+  dlSecure_AllocSecureMem.Load(s_drm_libraries_dlopen[1].dlHandle, "Secure_AllocSecureMem");
+  dlSecure_ReleaseResource.Load(s_drm_libraries_dlopen[1].dlHandle, "Secure_ReleaseResource");
+  dlSecure_GetVp9HeaderSize.Load(s_drm_libraries_dlopen[1].dlHandle, "Secure_GetVp9HeaderSize");
+  s_drm_libraries_loaded = true;
+  return true;
+}
 #endif
 
 
@@ -576,14 +604,20 @@ AmlVideoRenderer::AmlVideoRenderer(SbMediaVideoCodec video_codec,
   codec_param->has_video = 1;
 #if defined(COBALT_WIDEVINE_OPTEE)
   if (drm_system_) {
+    if (!LoadDrmRequiredLibraries()) {
+      CLOG(ERROR) << "can't load drm library, encrypted content will not play";
+      drm_system_ = kSbDrmSystemInvalid;
+    }
+  }
+  if (drm_system_) {
     codec_param->drmmode = 1;
     if (sec_drm_mem) {
       CLOG(ERROR) << "unexpected: Secure memory shouldn't be inialized here";
-      Secure_ReleaseResource();
+      dlSecure_ReleaseResource();
       sec_drm_mem = NULL;
     }
     bool is_4k = true;
-    sec_drm_mem = (uint8_t *)Secure_AllocSecureMem(
+    sec_drm_mem = (uint8_t *)dlSecure_AllocSecureMem(
         sec_mem_size,
         (is_4k ? 2 : 1) | ((video_codec == kSbMediaVideoCodecVp9) ? 0x10 : 0));
     sec_drm_mem_virt = NULL;
@@ -864,7 +898,7 @@ bool AmlVideoRenderer::WriteVP9SampleTvp(uint8_t *buf, int dsize,
   unsigned int header_size = 0;
   frame_data.assign(buf, buf + dsize);
   drminfo_t *drminfo = (drminfo_t *)&frame_data[0];
-  Secure_GetVp9HeaderSize((void *)drminfo->drm_phy, drminfo->drm_pktsize,
+  dlSecure_GetVp9HeaderSize((void *)drminfo->drm_phy, drminfo->drm_pktsize,
                           &header_size);
   drminfo->drm_pktsize += header_size;
   return WriteCodec(&frame_data[0], frame_data.size(), written);

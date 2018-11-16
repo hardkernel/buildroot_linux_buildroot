@@ -28,11 +28,6 @@
                   ],
                   'include_dirs': [
                       '<!(echo $WIDEVINE_CE_CDM_INC)',
-                  ],
-                  'libraries': [
-                      '-loemcrypto',
-                      '-lsecmem',
-                      '-lteec',
                   ],},
           }],  # oemctyptoimpl=="optee"
       ],  # conditions
