@@ -22,7 +22,7 @@ COBALT_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/cobalt
 COBALT_PREBUILT_DIRECTORY=$(COBALT_PREBUILT_SITE)/cobalt-$(COBALT_VERSION)/$(COBALT_ARCH)
 
 ifeq ($(BR2_PACKAGE_COBALT_PREBUILT),y)
-COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer libsecmem-bin
+COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer
 COBALT_SITE = $(COBALT_PREBUILT_SITE)
 COBALT_SITE_METHOD = local
 define COBALT_INSTALL_TARGET_CMDS
@@ -43,7 +43,7 @@ COBALT_OUT_DIR = $(COBALT_DIR)/src/out/$(COBALT_REL)_$(COBALT_MODE)
 COBALT_DEPOT_TOOL_DIR = $(BROWSER_DEPOT_TOOL_PATH)
 
 ifeq ($(BR2_PACKAGE_COBALT_WIDEVINE), y)
-	COBALT_DEPENDENCIES += widevine-ce-cdm libsecmem-bin
+	COBALT_DEPENDENCIES += widevine-ce-cdm
 	COBALT_ENABLE_WIDEVINE_CE_CDM="export WIDEVINE_CE_CDM_INC=$(STAGING_DIR)/usr/include/widevine/"
 else
 	COBALT_ENABLE_WIDEVINE_CE_CDM="echo compile without widevine support"
