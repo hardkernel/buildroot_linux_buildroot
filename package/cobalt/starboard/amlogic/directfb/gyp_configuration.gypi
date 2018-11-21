@@ -14,18 +14,18 @@
 
 {
   'target_defaults': {
-    'default_configuration': 'amlogic-wayland_debug',
+    'default_configuration': 'amlogic-directfb_debug',
     'configurations': {
-      'amlogic-wayland_debug': {
+      'amlogic-directfb_debug': {
         'inherit_from': ['debug_base'],
       },
-      'amlogic-wayland_devel': {
+      'amlogic-directfb_devel': {
         'inherit_from': ['devel_base'],
       },
-      'amlogic-wayland_qa': {
+      'amlogic-directfb_qa': {
         'inherit_from': ['qa_base'],
       },
-      'amlogic-wayland_gold': {
+      'amlogic-directfb_gold': {
         'inherit_from': ['gold_base'],
       },
     }, # end of configurations
@@ -41,17 +41,14 @@
     'arm_version': 7,
     'arm_float_abi%': 'hard',
     'arm_neon': 1,
-    'gl_type': 'system_gles2',
-    'enable_map_to_mesh': 1,
+    'gl_type': 'none',
+    'enable_map_to_mesh': 0,
 
     'platform_libraries': [
-      '-lEGL',
-      '-lGLESv2',
-      '-lwayland-egl',
-      '-lwayland-client',
+      '-ldirectfb',
+      '-ldirect',
     ],
     'linker_flags': [
-      '-Wl,--wrap=eglGetDisplay',
       '--sysroot=<(sysroot)',
     ],
     'compiler_flags_qa!': [

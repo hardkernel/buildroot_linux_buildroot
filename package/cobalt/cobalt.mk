@@ -32,12 +32,17 @@ define COBALT_INSTALL_TARGET_CMDS
 endef
 endif
 
-ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL),y)
+ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL), y)
 COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer browser_toolchain_depot_tools $(COBALT_TOOLCHAIN_DEPENDENCIES)
 COBALT_SOURCE = cobalt-$(COBALT_VERSION).tar.gz
 COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
 
+ifeq ($(BR2_PACKAGE_COBALT_GLES), y)
 COBALT_REL = amlogic-wayland
+else
+COBALT_REL = amlogic-directfb
+COBALT_DEPENDENCIES += directfb
+endif
 COBALT_MODE = qa
 COBALT_OUT_DIR = $(COBALT_DIR)/src/out/$(COBALT_REL)_$(COBALT_MODE)
 COBALT_DEPOT_TOOL_DIR = $(BROWSER_DEPOT_TOOL_PATH)

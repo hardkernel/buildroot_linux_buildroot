@@ -42,6 +42,22 @@ config BR2_PACKAGE_COBALT_PREBUILT
 
 endchoice
 
+choice
+    prompt "cobalt graphic mode"
+    default BR2_PACKAGE_COBALT_GLES
+    depends on !BR2_PACKAGE_COBALT_PREBUILT
+    help
+      Select the graphic mode used by cobalt
+
+config BR2_PACKAGE_COBALT_GLES
+    bool "gles"
+    depends on BR2_PACKAGE_HAS_LIBGLES
+
+config BR2_PACKAGE_COBALT_DFB
+    bool "directfb"
+    depends on BR2_PACKAGE_DIRECTFB
+endchoice
+
 config BR2_PACKAGE_COBALT_WIDEVINE
 	bool "enable widevine drm support"
     default n
