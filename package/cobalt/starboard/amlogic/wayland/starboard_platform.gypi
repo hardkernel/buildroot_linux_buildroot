@@ -19,6 +19,8 @@
       '<(DEPTH)/third_party/starboard/amlogic/wayland/main.cc',
       '<(DEPTH)/third_party/starboard/amlogic/wayland/system_get_property.cc',
       '<(DEPTH)/third_party/starboard/amlogic/wayland/player_output_mode_supported.cc',
+      '<(DEPTH)/third_party/starboard/amlogic/wayland/window_internal.cc',
+      '<(DEPTH)/third_party/starboard/amlogic/wayland/dev_input.cc',
       '<(DEPTH)/starboard/shared/starboard/link_receiver.cc',
       '<(DEPTH)/starboard/shared/wayland/application_wayland.cc',
       '<(DEPTH)/starboard/shared/wayland/egl_workaround.cc',

@@ -684,6 +684,7 @@ AmlVideoRenderer::AmlVideoRenderer(SbMediaVideoCodec video_codec,
 
 void AmlVideoRenderer::ReleaseEGLResource(void * context)
 {
+#if SB_HAS(GLES2)
   AmlVideoRenderer * v = (AmlVideoRenderer*)context;
   if (!v->textureId.empty()) {
     glDeleteTextures(v->nbufs, &v->textureId[0]);
@@ -691,14 +692,17 @@ void AmlVideoRenderer::ReleaseEGLResource(void * context)
   for (auto img : v->eglImage) {
     eglDestroyImageKHR(v->decode_target_graphics_context_provider_->egl_display, img);
   }
+#endif /* SB_HAS(GLES2) */
 }
 
 AmlVideoRenderer::~AmlVideoRenderer() {
+#if SB_HAS(GLES2)
   if (output_mode_ == kSbPlayerOutputModeDecodeToTexture) {
     CLOG(ERROR) << "clean up EGL resources";
     SbDecodeTargetRunInGlesContext(decode_target_graphics_context_provider_,
                                    &AmlVideoRenderer::ReleaseEGLResource, this);
   }
+#endif /* SB_HAS(GLES2) */
 }
 
 AmlVideoRenderer::IonBuffer::IonBuffer(int size_) {
@@ -744,6 +748,7 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
     CLOG(ERROR) << "video codec does not initialize";
     return kSbDecodeTargetInvalid;
   }
+#if SB_HAS(GLES2)
 #define fourcc_code(a, b, c, d) ((__u32)(a) | ((__u32)(b) << 8) | \
                          ((__u32)(c) << 16) | ((__u32)(d) << 24))
 #define DRM_FORMAT_NV12     fourcc_code('N', 'V', '1', '2') /* 2x2 subsampled Cr:Cb plane */
@@ -830,6 +835,9 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
     plane.content_region.bottom = static_cast<float>(plane.height);
   }
   return decode_target_out;
+#else /* SB_HAS(GLES2) */
+  return kSbDecodeTargetInvalid;
+#endif /* SB_HAS(GLES2) */
 }
 
 int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {

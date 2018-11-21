@@ -5,13 +5,17 @@
 #include <memory>
 #include <queue>
 #include <mutex>
+#include "starboard/configuration.h"
 
+#if SB_HAS(GLES2)
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 #define EGL_EGLEXT_PROTOTYPES 1
 #include <EGL/eglext.h>
 #define GL_GLEXT_PROTOTYPES 1
 #include <GLES2/gl2ext.h>
+#endif /* SB_HAS(GLES2) */
+
 extern "C" {
 #include <amthreadpool.h>
 #include <codec.h>
@@ -194,9 +198,11 @@ public:
   std::vector<std::unique_ptr<IonBuffer>> vbufs;
   std::unique_ptr<amvideo_dev_t, Deleter_amvideo_dev_t> amvideo;
   std::queue<vframebuf_t> frameQueue;
+#if SB_HAS(GLES2)
   std::vector<GLuint> textureId;
   std::vector<EGLImageKHR> eglImage;
   uint32_t last_resolution;
+#endif /* SB_HAS(GLES2) */
 };
 
 } // namespace filter

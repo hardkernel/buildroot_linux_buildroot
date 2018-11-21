@@ -38,8 +38,6 @@
       '<(DEPTH)/third_party/starboard/amlogic/shared/aml_av_components.cc',
       '<(DEPTH)/third_party/starboard/amlogic/shared/filter_based_player_worker_handler.cc',
       '<(DEPTH)/third_party/starboard/amlogic/shared/player_create.cc',
-      '<(DEPTH)/third_party/starboard/amlogic/shared/wayland/window_internal.cc',
-      '<(DEPTH)/third_party/starboard/amlogic/shared/wayland/dev_input.cc',
       '<(DEPTH)/starboard/shared/alsa/alsa_audio_sink_type.cc',
       '<(DEPTH)/starboard/shared/alsa/alsa_audio_sink_type.h',
       '<(DEPTH)/starboard/shared/alsa/alsa_util.cc',
