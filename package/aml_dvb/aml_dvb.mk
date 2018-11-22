@@ -7,7 +7,7 @@ AML_DVB_VERSION = 1.0
 AML_DVB_SITE = $(TOPDIR)/../vendor/amlogic/dvb
 AML_DVB_SITE_METHOD = local
 AML_DVB_INSTALL_STAGING = YES
-AML_DVB_DEPENDENCIES = aml_zvbi libiconv libplayer
+AML_DVB_DEPENDENCIES = aml_zvbi libplayer sqlite
 
 define AML_DVB_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D) all
