@@ -450,3 +450,197 @@ function stop_swupdate(){
 	send_commond("endswupdate");
 }
 //-----------Swupdate handle end-----------//
+
+/***********************************************
+ * Soundbar handle
+ **********************************************/
+function send_audio_command(command, callback,cgi)
+{
+  var cgi = cgi || "cgi-bin/soundbar.cgi";
+	command_xmlhttp = GetXmlHttpObject();               //create req obj
+	command_xmlhttp.onreadystatechange = function () {        //get data from web action
+		handleCommand(command_xmlhttp, callback);
+	}
+	var url = "";
+	url = cgi + "?command=" +command;
+	command_xmlhttp.open("GET",url,true);
+	command_xmlhttp.setRequestHeader("If-Modified-Since","0");
+	command_xmlhttp.setRequestHeader("Cache-Control","no-cache");
+	command_xmlhttp.setRequestHeader("CONTENT-TYPE","application/x-www-form-urlencoded");
+	command_xmlhttp.send(null);
+}
+
+function get_audio_input_list()
+{
+	var	wifi_json = send_audio_command("showinput&", set_input_list_to_select);
+	show_loading();
+	setTimeout(function () { $('#loading').hide(); }, 3000);
+}
+
+function set_audio_input()
+{
+	setTimeout(function(){$("#mymodal").modal("hide")},2000);
+	var input_ssid = document.getElementById("modal_ssid").value;
+	var	wifi_json = send_audio_command("enable-input&value="+input_ssid, set_input_list_to_select);
+
+	//set_wifi(input_ssid,input_pwd);
+}
+
+function set_input_list_to_select(command_xmlhttp)
+{
+	var response_date = command_xmlhttp.responseText;
+
+	obj_Data = eval("("+response_date+")");
+	if(obj_Data.length == 0){
+		get_audio_input_list();
+	}
+	else{
+		var htmlNodes = '';
+
+		for(var i = 0; i < obj_Data.length; i++){
+			if(obj_Data[i].enabled)
+				htmlNodes += '<a class="list-group-item" id="input_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].name + '  *' + '</a>';
+			else
+				htmlNodes += '<a class="list-group-item" id="input_' + i + '"' + ' role="button" data-toggle="modal" data-target="#myModal">' + obj_Data[i].name + '</a>';
+		}
+		htmlNodes += '</ul>';
+
+		$('#testtext').html(htmlNodes);
+
+		var j;
+		var index = 1;
+		var wifi_select = document.getElementById("ssid");
+		for(j = 0; j < obj_Data.length; j++){
+			var wifi = new Object;
+			wifi.ssid = obj_Data[j].name;
+			//wifi_select.Option.add(wifi.id);
+		}
+	}
+    get_audio_system_info()
+}
+
+$("#audiovolume")[0].oninput = function(){
+    change_audio_volume(this.value);
+}
+
+function change_audio_volume(audiovolume)
+{
+	var wifi_json = send_audio_command("set-volume&value="+audiovolume);
+}
+
+
+function update_audio_system_info(command_xmlhttp)
+{
+	var response_date = command_xmlhttp.responseText;
+
+	obj_Data = eval("("+response_date+")");
+	if(obj_Data.length == 0){
+		get_audio_system_info();
+	}
+	else{
+       // <input id="audiovolume" type="range" min="0" max="100" value="60" />
+		for(var i = 0; i < obj_Data.length; i++){
+            if(obj_Data[i].name == "volume"){
+                var audiovolumetest = document.getElementById("audiovolume");
+                audiovolumetest.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "mute"){
+                var audiomute = document.getElementById("audiomute");
+                audiomute.checked = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq_status"){
+                var eqstatus = document.getElementById("eq_status");
+                eqstatus.checked = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq1"){
+                var eq = document.getElementById("eqi1");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq2"){
+                var eq = document.getElementById("eqi2");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq3"){
+                var eq = document.getElementById("eqi3");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq4"){
+                var eq = document.getElementById("eqi4");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq5"){
+                var eq = document.getElementById("eqi5");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq6"){
+                var eq = document.getElementById("eqi6");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq7"){
+                var eq = document.getElementById("eqi7");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq7"){
+                var eq = document.getElementById("eqi7");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq8"){
+                var eq = document.getElementById("eqi8");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq9"){
+                var eq = document.getElementById("eqi9");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq10"){
+                var eq = document.getElementById("eqi10");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq11"){
+                var eq = document.getElementById("eqi11");
+                eq.value = obj_Data[i].value;
+            } else if(obj_Data[i].name == "eq12"){
+                var eq = document.getElementById("eqi12");
+                eq.value = obj_Data[i].value;
+            }
+		}
+	}
+	//check_wifi_connected();
+}
+
+function get_audio_system_info()
+{
+    var wifi_json = send_audio_command("getsysteminfo&", update_audio_system_info);
+}
+
+function set_audio_mute()
+{
+	var audio_mute = document.getElementById("audiomute").checked;
+	var	wifi_json = send_audio_command("set-mute&value="+audio_mute);
+
+	//set_wifi(input_ssid,input_pwd);
+}
+
+
+
+function audio_reset_eq()
+{
+    var wifi_json = send_audio_command("reset-EQ&");
+    get_audio_system_info();
+}
+
+//$("#eqi1")[0].oninput = function(){
+//    var wifi_json = send_audio_command("set-eq1&value="+this.value);
+//}
+
+function change_audio_equalizer(index, eq)
+{
+    var wifi_json = send_audio_command("set-eq"+index+"&value="+eq);
+}
+
+function audio_dataplay_play()
+{
+    var playstate = document.getElementById("audioplaystate");
+    var format = document.getElementById("audioplayformat");
+    if(playstate.value == "Play") {
+        send_audio_command("dataplay-start&value="+format.value);
+        playstate.value = "Stop"
+    } else if(playstate.value == "Stop") {
+        send_audio_command("dataplay-stop&");
+        playstate.value = "Play"
+    }
+}
+
+function set_audio_EQEnabled()
+{
+	var enabled = document.getElementById("eq_status").checked;
+	var	wifi_json = send_audio_command("set-EQ&value="+enabled);
+	//set_wifi(input_ssid,input_pwd);
+}
+//-----------Soundbar handle end-----------//

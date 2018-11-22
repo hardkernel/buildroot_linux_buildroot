@@ -14,7 +14,6 @@ else
 	MAIN_CGI_BIN = main32.cgi
 endif
 
-
 define WEB_UI_WIFI_INSTALL_TARGET_CMDS
 	mkdir -p ${TARGET_DIR}/var/www/cgi-bin
 	cp $(@D)/Html/* ${TARGET_DIR}/var/www/
@@ -24,6 +23,12 @@ define WEB_UI_WIFI_INSTALL_TARGET_CMDS
 	cp -rf $(@D)/js ${TARGET_DIR}/var/www/
 	cp $(@D)/cgi-bin/${MAIN_CGI_BIN} ${TARGET_DIR}/var/www/cgi-bin/main.cgi
 	cp -rf $(@D)/cgi-bin/scripts/* ${TARGET_DIR}/var/www/cgi-bin/
+	if [ "$(BR2_PACKAGE_AUDIOSERVICE)" == "y" ] ; then						\
+		echo " do nothing";																					\
+	else																													\
+		echo "delete linkage of soundbar on main page";							\
+		sed -i '/soundbar/d' ${TARGET_DIR}/var/www/index.html;			\
+	fi
 endef
 
 $(eval $(generic-package))
