@@ -441,10 +441,12 @@ endif #amlogic-4.9-dev
 
 ifeq ($(WIFI_MODULE),qca9377)
 define WIFI_FW_INSTALL_TARGET_CMDS
+	mkdir -p $(TARGET_DIR)/lib/firmware/qca
 	mkdir -p $(TARGET_DIR)/lib/firmware/qca9377
 	mkdir -p $(TARGET_DIR)/lib/firmware/qca9377/wlan
 	$(INSTALL) -D -m 0644 $(@D)/qcom/config/qca9377/wifi_49/*.bin $(TARGET_DIR)/lib/firmware/qca9377/
 	$(INSTALL) -D -m 0644 $(@D)/qcom/config/qca9377/wifi_49/wlan/* $(TARGET_DIR)/lib/firmware/qca9377/wlan/
+	$(INSTALL) -D -m 0644 $(@D)/qcom/config/qca9377/bt_bluez/* $(TARGET_DIR)/lib/firmware/qca/
 endef
 endif
 

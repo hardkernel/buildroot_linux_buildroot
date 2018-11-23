@@ -51,6 +51,13 @@ realtek_bt_init()
 	rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 &
 }
 
+qca_bt_init()
+{
+	modprobe hci_uart
+	usleep 300000
+	hciattach -s 115200 /dev/ttyS1 qca 2> /dev/null
+}
+
 A2DP_service()
 {
 	echo "|--bluez a2dp-sink/hfp-hf service--|"
@@ -125,6 +132,8 @@ Blue_start()
 
 	if [ $device = "rtk" ];then
 		realtek_bt_init
+	elif [ $device = "qca" ];then
+		qca_bt_init
 	else
 		modprobe hci_uart
 		usleep 300000
