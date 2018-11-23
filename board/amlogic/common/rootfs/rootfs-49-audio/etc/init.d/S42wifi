@@ -182,7 +182,8 @@ case "${wifi_chip_id}" in
 	0x02d0)
 		wifi_setup both
 		;;
-	0x024c)
+	#we use qca9377 same with rtk temperary
+	0x024c|0x0271)
 		RTK_WIFI_FLAG="TRUE"
 		wifi_rtk
 		;;
@@ -206,8 +207,7 @@ case "$1" in
 		$MULTI_WIFI station 0
         $POWERCTL 0
         ;;
-    netready|netup|netdown|netchange) ;;
-    restart|reload)
+    restart)
         killall hostapd
         killall wpa_supplicant
         killall dnsmasq

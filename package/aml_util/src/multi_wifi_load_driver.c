@@ -48,9 +48,16 @@
 #define MRVL_KO_PATH     DEFAULT_CONFIG_PATH
 #endif
 
+#ifdef QCA_MODULES_PATH
+#define QCA_KO_PATH     XSTR(QCA_MODULES_PATH)
+#else
+#define QCA_KO_PATH     DEFAULT_CONFIG_PATH
+#endif
+
 #define MODULE_ARG_FIRMWARE     0
 #define MODULE_ARG_IFNAME       1
 #define MODULE_ARG_STACFG       2
+#define MODULE_ARG_OTHER        3
 
 #if defined(__NR_finit_module)
 # define finit_module(fd, uargs, flags) syscall(__NR_finit_module, fd, uargs, flags)
@@ -64,6 +71,7 @@ typedef struct config_arg {
     const char *ifname;
     const char *if2name;
     const char *stacfgpath;
+    const char *arg;
 } module_arg;
 
 typedef struct load_info {
@@ -304,6 +312,18 @@ static const dongle_info dongle_registerd[] = {
 		"sd8xxx",
 		"sd8xxx_8987.ko",
 		"cal_data_cfg=none"
+	},
+	{
+		"0701",
+		"wlan",
+		"wlan.ko",
+		QCA_KO_PATH,
+		.wifi_module_arg = {
+			.arg_type   = MODULE_ARG_OTHER,
+			.arg        = "country_code=CN",
+		},
+		"qca9377",
+		0x0,
 	}
 };
 
@@ -324,10 +344,14 @@ static void get_module_arg(const module_arg *arg, char *str, int type)
     case MODULE_ARG_STACFG: {
 	sprintf(str, "stacfgpath=%s", arg->stacfgpath);
 	break;
-    }
-    default:
+	}
+	case MODULE_ARG_OTHER: {
+	sprintf(str, "%s", arg->arg);
 	break;
-    }
+	}
+	default:
+	break;
+	}
 }
 
 static char file_name[100] = {'\0'};

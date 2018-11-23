@@ -33,7 +33,7 @@ rtk_support()
 	wifi_chip_id_vendor="/sys/bus/mmc/devices/sdio:0001/sdio:0001:1/vendor"
 	wifi_chip_id=`cat ${wifi_chip_id_vendor}`
 	case "${wifi_chip_id}" in
-		0x024c)
+		0x024c|0x0271)
 		RTK_WIFI_FLAG="TRUE"
 		;;
 	esac
@@ -54,13 +54,7 @@ sleep 1
 echo "Stopp prv dhcpcd first"
 start-stop-daemon -K -o -p $PIDFILE4 2> /dev/null
 sleep 1
-echo "delete prv br0"
-ifconfig | grep br0 > /dev/null
-if [ $? -eq 0 ];then
-	ifconfig br0 down > /dev/null
-	brctl delbr br0
-fi
-sleep 1
+${MULTI_WIFI} station 0
 }
 
 #uninstall rtk driver
