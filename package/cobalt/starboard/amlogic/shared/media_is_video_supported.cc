@@ -44,8 +44,16 @@ SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
     }
     if (vp9_supported == 0) return false;
   }
+  int max_supported_width = 3840;
+  int max_supported_height = 2160;
+  int max_supported_fps = 60;
+  if (decode_to_texture_required) {
+      max_supported_width = 1920;
+      max_supported_height = 1080;
+      max_supported_fps = 30;
+  }
   return (video_codec == kSbMediaVideoCodecH264 ||
           video_codec == kSbMediaVideoCodecVp9) &&
-         frame_width <= 3840 && frame_height <= 2160 &&
-         bitrate <= SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND && fps <= 60;
+         frame_width <= max_supported_width && frame_height <= max_supported_height &&
+         bitrate <= SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND && fps <= max_supported_fps;
 }

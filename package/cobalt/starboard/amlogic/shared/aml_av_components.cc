@@ -846,24 +846,24 @@ int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {
   if (ret >= 0) {
     frameQueue.push(f);
   }
-  if (!frameQueue.empty()) {
+  while (!frameQueue.empty()) {
     vframebuf_t & frm = frameQueue.front();
     SbTime timerval = SbTimeGetMonotonicNow() - time_seek + pts_seek_to;
     int64_t frmpts_us = (frm.pts >> 32) * 1000000LL + (frm.pts & 0xffffffff);
     int delta = frmpts_us - timerval;
-    if (delta < -1000*100) {
-      vf = frm;
+    if (delta < -1000*300) {
       frameQueue.pop();
-      ret = 0;
+      ReleaseFrame(frm);
+      continue;
     } else if (delta < 1000 * 30) {
       vf = frm;
       frameQueue.pop();
-      ret = 0;
+      return 0;
     } else {
-      ret = -1;
+      return -1;
     }
   }
-  return ret;
+  return -1;
 }
 
 int AmlVideoRenderer::ReleaseFrame(vframebuf_t &vf) {
