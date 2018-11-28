@@ -22,6 +22,7 @@ define WEB_UI_WIFI_INSTALL_TARGET_CMDS
 	cp -rf $(@D)/images ${TARGET_DIR}/var/www/
 	cp -rf $(@D)/js ${TARGET_DIR}/var/www/
 	cp $(@D)/cgi-bin/${MAIN_CGI_BIN} ${TARGET_DIR}/var/www/cgi-bin/main.cgi
+	cp $(@D)/cgi-bin/soundbar.cgi ${TARGET_DIR}/var/www/cgi-bin/
 	cp -rf $(@D)/cgi-bin/scripts/* ${TARGET_DIR}/var/www/cgi-bin/
 	if [ "$(BR2_PACKAGE_AUDIOSERVICE)" == "y" ] ; then						\
 		echo " do nothing";																					\
