@@ -68,8 +68,27 @@ case $command in
 
 # start player
     "dataplay-start")
-    logger -p local3.debug "start play /data/ness/test2.$param"
-    asplay.py /data/ness/test2.$param &
+    if [ "$param" == "mp3" ] || [ "$param" == "aac" ] || [ "$param" == "ac3" ] || [ "$param" == "dts" ]; then
+        if [ -f "/data/audio/test.$param" ]; then
+            logger -p local3.debug "start play /data/audio/test.$param"
+            asplay.py /data/audio/test.$param &
+        else
+            logger -p local3.debug "please push file test.$param to folder /data/audio/"
+        fi
+    elif [ -f "$param" ]; then
+        logger -p local3.debug "start play $param"
+        asplay.py $param &
+    else
+        # search file in folder /media and /data
+        filepath=$(find /media -name $param | head -1)
+        if [ "$filepath" == "" ]; then
+            filepath=$(find /data -name $param | head -1)
+        fi
+        if [ "$filepath" != "" ]; then
+            logger -p local3.debug "start play $filepath"
+            asplay.py $filepath &
+        fi
+    fi
     ;;
 
     "set-volume")
