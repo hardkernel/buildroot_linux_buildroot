@@ -5,7 +5,7 @@
 ################################################################################
 
 RAMSMP_VERSION = 3.5.0
-RAMSMP_SITE = http://www.alasir.com/software/ramspeed
+RAMSMP_SITE = http://sources.buildroot.net/ramsmp
 RAMSMP_ARCH = $(if $(BR2_i386),i386)$(if $(BR2_x86_64),x86_64)
 RAMSMP_LICENSE = Alasir License
 RAMSMP_LICENSE_FILES = LICENCE
