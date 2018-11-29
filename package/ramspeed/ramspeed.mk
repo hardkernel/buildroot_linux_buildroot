@@ -5,7 +5,7 @@
 ################################################################################
 
 RAMSPEED_VERSION = 2.6.0
-RAMSPEED_SITE = http://www.alasir.com/software/ramspeed
+RAMSPEED_SITE = http://sources.buildroot.net/ramspeed
 RAMSPEED_ARCH = $(if $(BR2_i386),i386)$(if $(BR2_x86_64),x86_64)
 RAMSPEED_LICENSE = Alasir License
 RAMSPEED_LICENSE_FILES = LICENCE
