@@ -161,6 +161,10 @@ public:
   void WriteEndOfStream() { AVWriteEndOfStream(); }
   bool IsEndOfStreamWritten() const { return AVIsEndOfStreamWritten(); }
 
+  // decode to texture mode needs special handle
+  void Play() override;
+  void Pause() override;
+
   // Both of the following two functions can be called on any threads.
   void SetBounds(int z_index, int x, int y, int width, int height);
   SbDecodeTarget GetCurrentDecodeTarget();
@@ -175,6 +179,7 @@ public:
   int bound_h;
   SbPlayerOutputMode output_mode_;
   SbDecodeTargetGraphicsContextProvider *decode_target_graphics_context_provider_;
+  bool isPaused;
 
   bool InitIonVideo();
   static void ReleaseEGLResource(void * context);
@@ -192,6 +197,7 @@ public:
   int width;
   int height;
   vframebuf_t vf;
+  vframebuf_t cur_frame;
   struct Deleter_amvideo_dev_t {
     void operator()(amvideo_dev_t* ptr) { amvideo_release(ptr); };
   };
