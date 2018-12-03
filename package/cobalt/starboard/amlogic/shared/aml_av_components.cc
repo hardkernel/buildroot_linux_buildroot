@@ -132,18 +132,15 @@ void AmlAVCodec::AVPause() {
   CLOG(INFO) << "codec_paused";
 }
 
+extern "C" int codec_set_track_rate(codec_para_t *p,void *rate);
 void AmlAVCodec::AVSetPlaybackRate(double playback_rate) {
   if (!codec_param) {
     CLOG(ERROR) << "codec does not initialize";
     return;
   }
-  if (isvideo) {
-    if ((playback_rate > 0.99) && (playback_rate < 1.01)) {
-      // set_tsync_enable(1);
-      //codec_set_video_playrate(codec_param, (int)(1 * (1 << 16)));
-    } else {
-      //codec_set_video_playrate(codec_param, (int)(playback_rate * (1 << 16)));
-    }
+  if (!isvideo) {
+    int ratei = (int)(playback_rate * 100) * 10000;
+    codec_set_track_rate(codec_param, (void*)ratei);
   }
 }
 
@@ -762,12 +759,16 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
       eglImage.resize(nbufs, EGL_NO_IMAGE_KHR);
       glGenTextures(nbufs, &textureId[0]);
       last_resolution = 0;
+    } else {
+      ReleaseFrame(cur_frame);
     }
+    cur_frame = vf;
   } else {
     if (textureId.empty()) {
       return kSbDecodeTargetInvalid;
     }
     new_res = last_resolution;
+    vf = cur_frame;
   }
   if (last_resolution != new_res) {
     last_resolution = new_res;
@@ -799,9 +800,7 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
   glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  if (ret >= 0) {
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, eglImage[vf.index]);
-    ReleaseFrame(vf);
+  glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, eglImage[vf.index]);
 #if 0
   CLOG(ERROR) << "got frame idx:" << vf.index << " pts:" << vf.pts/90000.0 << " "
       << vf.width << "x" << vf.height << " offset:" << vf.offset
@@ -810,7 +809,6 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
       << " sync_frame:" << vf.sync_frame
       << " frame_num:" << vf.frame_num;
 #endif
-  }
   int plane_count = 1;
   int texFormat[2] = {GL_ALPHA, GL_LUMINANCE_ALPHA};
   SbDecodeTarget decode_target_out = new SbDecodeTargetPrivate;
@@ -841,10 +839,15 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
 }
 
 int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {
-  vframebuf_t f;
-  int ret = amlv4l_dequeuebuf(amvideo.get(), &f);
-  if (ret >= 0) {
-    frameQueue.push(f);
+  if (frameQueue.size() < nbufs-1) {
+    vframebuf_t f;
+    int ret = amlv4l_dequeuebuf(amvideo.get(), &f);
+    if (ret >= 0) {
+      frameQueue.push(f);
+    }
+  }
+  if (isPaused) {
+    return -1;
   }
   while (!frameQueue.empty()) {
     vframebuf_t & frm = frameQueue.front();
@@ -953,10 +956,25 @@ bool AmlVideoRenderer::InitIonVideo() {
       }
     }
     memset(&vf, 0, sizeof(vf));
+    isPaused = true;
     return true;
 error:
   amvideo.reset();
   return false;
+}
+
+void AmlVideoRenderer::Play() {
+  time_seek = SbTimeGetMonotonicNow();
+  AmlAVCodec::Play();
+  isPaused = false;
+}
+
+void AmlVideoRenderer::Pause() {
+  SbTime now = SbTimeGetMonotonicNow();
+  pts_seek_to += (now - time_seek);
+  time_seek = now;
+  AmlAVCodec::Pause();
+  isPaused = true;
 }
 
 } // namespace filter
