@@ -356,4 +356,8 @@
 #error "Linux builds need a GCC-like compiler (for the moment)."
 #endif
 
+// has to define this to support kSbMediaAudioSampleTypeInt16,
+// amlogic alsa driver does not support kSbMediaAudioSampleTypeFloat32
+#define SB_HAS_QUIRK_SUPPORT_INT16_AUDIO_SAMPLES 1
+
 #endif  // THIRD_PARTY_STARBOARD_AMLOGIC_SHARED_CONFIGURATION_PUBLIC_H_
