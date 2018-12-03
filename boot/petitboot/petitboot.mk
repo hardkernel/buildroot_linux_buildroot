@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-PETITBOOT_VERSION = petitboot-1.7.x
-PETITBOOT_SITE = https://github.com/open-power/petitboot.git
+PETITBOOT_VERSION = petitboot-1.6.x-remove-network
+PETITBOOT_SITE = https://github.com/JeonghwaCho/petitboot.git
 PETITBOOT_SITE_METHOD = git
 PETITBOOT_INSTALL_STAGING = YES
 PETITBOOT_LICENSE = GPLv2
