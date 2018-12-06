@@ -4,8 +4,8 @@ software =
 	hardware-compatibility: [ "1.0" ];
 	files: (
 		{
-			filename = "rootfs.zip";
-			path = "/tmp/rootfs.zip";
+			filename = "rootfs.tgz";
+			path = "/tmp/rootfs.tgz";
 		}
 	);
 	images: (

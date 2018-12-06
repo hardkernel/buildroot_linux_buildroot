@@ -53,13 +53,13 @@ ifneq ($(RECOVERY_OTA_DIR),)
 rootfs-ota-swu-pack-ubifs:
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
 ifeq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
-	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand-ab $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-ab $(BINARIES_DIR)/sw-description
 else
-	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand $(BINARIES_DIR)/sw-description
-	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/sw-description-nand-increment $(BINARIES_DIR)/sw-description-nand-increment
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-increment $(BINARIES_DIR)/sw-description-increment
 endif
-	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/ota_package_create.sh $(HOST_DIR)/usr/bin
-	$(HOST_DIR)/usr/bin/ota_package_create.sh nand
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/ota-package-filelist-nand $(BINARIES_DIR)/ota-package-filelist
+	$(BINARIES_DIR)/ota_package_create.sh
 ROOTFS_UBIFS_POST_TARGETS += rootfs-ota-swu-pack-ubifs
 endif
 
