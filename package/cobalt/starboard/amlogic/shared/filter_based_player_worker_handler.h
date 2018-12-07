@@ -113,6 +113,7 @@ class FilterBasedPlayerWorkerHandler : public PlayerWorker::Handler,
   bool video_prerolled_ = false;
   bool audio_ended_ = false;
   bool video_ended_ = false;
+  bool underflow_pause = false;
 
   // A mutex guarding changes to the existence (e.g. creation/destruction)
   // of the |video_renderer_| object.  This is necessary because calls to
