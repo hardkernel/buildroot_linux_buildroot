@@ -472,6 +472,28 @@ void FilterBasedPlayerWorkerHandler::Update() {
     auto media_time = GetMediaTimeProvider()->GetCurrentMediaTime(
         &is_playing, &is_eos_played, &is_underflow);
     update_media_info_cb_(media_time, dropped_frames, is_underflow);
+    // cobalt seems ignoring underflow flag, we need to implement our own buffering logic here
+    if (!paused_) {
+      if (!underflow_pause) {
+        if ((video_renderer_ && video_renderer_->GetNumFramesBuffered() < 30) ||
+            (audio_renderer_ && audio_renderer_->GetNumFramesBuffered() < 30)) {
+          GetMediaTimeProvider()->Pause();
+          if (video_renderer_) {
+            video_renderer_->Pause();
+          }
+          underflow_pause = true;
+        }
+      } else {
+        if ((video_renderer_ && video_renderer_->GetNumFramesBuffered() > 200) &&
+            (audio_renderer_ && audio_renderer_->GetNumFramesBuffered() > 200)) {
+          GetMediaTimeProvider()->Play();
+          if (video_renderer_) {
+            video_renderer_->Play();
+          }
+          underflow_pause = false;
+        }
+      }
+    }
   }
 
   update_job_token_ = Schedule(update_job_, kUpdateInterval);

@@ -93,6 +93,9 @@ bool AmlAVCodec::AVInitCodec() {
     dump_fp = fopen(dumpfile, "wb");
     CLOG(WARNING) << "dump ES file to " << dumpfile << " fp: " << (void*)dump_fp;
   }
+  buffer_full = false;
+  log_last_append_time = 0LL;
+  log_last_pts = 0LL;
   return true;
 }
 
@@ -407,6 +410,7 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     CLOG(ERROR) << "codec does not initialize";
     return false;
   }
+  buffer_full = true;
   struct buf_status bufstat;
   int ret;
   if (isvideo)
@@ -420,6 +424,23 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
   }
   uint8_t *data = const_cast<uint8_t *>(input_buffer->data());
   int size = input_buffer->size();
+  static const int log_time_interval = kSbTimeSecond * 5;
+  SbTime now = SbTimeGetMonotonicNow();
+  if ((now >= log_last_append_time) || (input_buffer->timestamp() >= log_last_pts)) {
+    const char *encrypted = input_buffer->drm_info() ? "enc" : "clr";
+    log_last_append_time = now + log_time_interval;
+    log_last_pts = input_buffer->timestamp() + log_time_interval;
+    int pts;
+    if (isvideo)
+      pts = codec_get_vpts(codec_param);
+    else
+      pts = codec_get_apts(codec_param);
+    SbTime ptssb = (uint32_t)pts * kSbTimeMillisecond / 90;
+    CLOG(INFO) << "write " << encrypted << " sample size:" << size
+               << " pts:" << input_buffer->timestamp() / 1000000.0
+               << " cur:" << ptssb / 1000000.0 << " buf:" << bufstat.data_len
+               << "/" << bufstat.size;
+  }
   if (bufstat.free_len < size + 1024 * 32) {
     *written = false;
     return true;
@@ -462,6 +483,13 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     *written = false;
     return true;
   }
+  // find from right(big) to left(small) for the first pts less than pts_sb
+  auto it = std::find_if(frame_pts.rbegin(), frame_pts.rend(),
+      std::bind(std::less<SbTime>(), std::placeholders::_1, pts_sb));
+  frame_pts.insert(it.base(), pts_sb);
+  if (frame_pts.size() > 300) {
+    frame_pts.pop_front();
+  }
   bool success = false;
   if (feed_data_func) {
     success = feed_data_func(data, size, written);
@@ -474,8 +502,26 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
       CLOG(ERROR) << "prerolled ";
       Schedule(prerolled_cb_);
     }
+    buffer_full = false;
   }
   return success;
+}
+
+int AmlAVCodec::GetNumFramesBuffered() {
+  int pts;
+  if (buffer_full)
+    return frame_pts.size();
+  if (isvideo)
+    pts = codec_get_vpts(codec_param);
+  else
+    pts = codec_get_apts(codec_param);
+  if (pts != -1) {
+    SbTime ptssb = (uint32_t)pts * kSbTimeMillisecond / 90;
+    int num = std::count_if(frame_pts.begin(), frame_pts.end(),
+        std::bind(std::greater<SbTime>(), std::placeholders::_1, ptssb));
+    return num;
+  }
+  return frame_pts.size();
 }
 
 void AmlAVCodec::AVCheckDecoderEos() {
@@ -539,7 +585,12 @@ int AmlAVCodec::AVGetDroppedFrames() const {
     CLOG(ERROR) << "codec does not initialize";
     return 0;
   }
-  return 0;
+  int dropframes = 0;
+  if (isvideo) {
+    dropframes = amsysfs_get_sysfs_int(
+        "/sys/module/amvideo/parameters/drop_frame_count");
+  }
+  return dropframes;
 }
 
 AmlAudioRenderer::AmlAudioRenderer(SbMediaAudioCodec audio_codec,

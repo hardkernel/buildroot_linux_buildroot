@@ -5,6 +5,8 @@
 #include <memory>
 #include <queue>
 #include <mutex>
+#include <list>
+#include <functional>
 #include "starboard/configuration.h"
 
 #if SB_HAS(GLES2)
@@ -84,6 +86,7 @@ public:
   SbTime GetCurrentMediaTime(bool *is_playing, bool *is_eos_played, bool* is_underflow) override {
     return AVGetCurrentMediaTime(is_playing, is_eos_played);
   }
+  int GetNumFramesBuffered();
 
 #if defined(COBALT_WIDEVINE_OPTEE)
   uint8_t * GetSecMem(int size) { return sec_drm_mem; }
@@ -104,6 +107,11 @@ protected:
   std::function<void()> func_check_eos;
   std::function<bool(uint8_t *, int, bool*)> feed_data_func;
   std::vector<uint8_t> frame_data;
+  // recent pushed frame pts, used to detect underflow condition
+  std::list<SbTime> frame_pts;
+  bool buffer_full;
+  SbTime log_last_append_time;
+  SbTime log_last_pts;
   int eos_state; // 0: no eos, 1:eos but play buffering data, 2:eos and no more
                  // data in buffer
   unsigned int last_read_point;
