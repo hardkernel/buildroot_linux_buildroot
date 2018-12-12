@@ -48,8 +48,7 @@ echo
 echo "SPI memory is updated successfully."
 echo "Please remove SDCARD and slide the boot switch to 'SPI'"
 echo "Then, reboot!!"
-sleep 60
-reboot
+while true; do gpio toggle GPIOAO_11; sleep 1; done
 __EOF
 
 ${HOST_DIR}/usr/bin/mkimage -A arm64 -T script -O linux -C none \
