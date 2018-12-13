@@ -83,5 +83,12 @@
       # Enable GNU extensions to get prototypes like ffsl.
       '_GNU_SOURCE=1',
     ],
+    'target_conditions': [
+      ['_target_name=="nplb"', {
+        'sources': [
+          '<(DEPTH)/starboard/common/thread.cc',
+        ],
+      }],
+    ],
   }, # end of target_defaults
 }
