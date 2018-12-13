@@ -53,7 +53,7 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[0])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[0])->weight_format.quant_data.dfp.fixed_point_pos = 3;
     ((convolution_relu_pooling_info_t *)node_info[0])->weight_blob_offset = 24;
-    ((convolution_relu_pooling_info_t *)node_info[0])->weight_blob_size = 2256;
+    ((convolution_relu_pooling_info_t *)node_info[0])->weight_blob_size = 2248;
     ((convolution_relu_pooling_info_t *)node_info[0])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[0])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[0])->bias_format.quant_data.dfp.fixed_point_pos = 10;
@@ -129,8 +129,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[2])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[2])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[2])->weight_format.quant_data.dfp.fixed_point_pos = 7;
-    ((convolution_relu_pooling_info_t *)node_info[2])->weight_blob_offset = 2280;
-    ((convolution_relu_pooling_info_t *)node_info[2])->weight_blob_size = 20176;
+    ((convolution_relu_pooling_info_t *)node_info[2])->weight_blob_offset = 2272;
+    ((convolution_relu_pooling_info_t *)node_info[2])->weight_blob_size = 20168;
     ((convolution_relu_pooling_info_t *)node_info[2])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[2])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[2])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -206,8 +206,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[4])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[4])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[4])->weight_format.quant_data.dfp.fixed_point_pos = 8;
-    ((convolution_relu_pooling_info_t *)node_info[4])->weight_blob_offset = 22456;
-    ((convolution_relu_pooling_info_t *)node_info[4])->weight_blob_size = 75984;
+    ((convolution_relu_pooling_info_t *)node_info[4])->weight_blob_offset = 22440;
+    ((convolution_relu_pooling_info_t *)node_info[4])->weight_blob_size = 75976;
     ((convolution_relu_pooling_info_t *)node_info[4])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[4])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[4])->bias_format.quant_data.dfp.fixed_point_pos = 10;
@@ -279,8 +279,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[6])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[6])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[6])->weight_format.quant_data.dfp.fixed_point_pos = 6;
-    ((convolution_relu_pooling_info_t *)node_info[6])->weight_blob_offset = 98440;
-    ((convolution_relu_pooling_info_t *)node_info[6])->weight_blob_size = 9936;
+    ((convolution_relu_pooling_info_t *)node_info[6])->weight_blob_offset = 98416;
+    ((convolution_relu_pooling_info_t *)node_info[6])->weight_blob_size = 9928;
     ((convolution_relu_pooling_info_t *)node_info[6])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[6])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[6])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -352,8 +352,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[8])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[8])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[8])->weight_format.quant_data.dfp.fixed_point_pos = 7;
-    ((convolution_relu_pooling_info_t *)node_info[8])->weight_blob_offset = 108376;
-    ((convolution_relu_pooling_info_t *)node_info[8])->weight_blob_size = 75984;
+    ((convolution_relu_pooling_info_t *)node_info[8])->weight_blob_offset = 108344;
+    ((convolution_relu_pooling_info_t *)node_info[8])->weight_blob_size = 75976;
     ((convolution_relu_pooling_info_t *)node_info[8])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[8])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[8])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -429,8 +429,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[10])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[10])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[10])->weight_format.quant_data.dfp.fixed_point_pos = 7;
-    ((convolution_relu_pooling_info_t *)node_info[10])->weight_blob_offset = 184360;
-    ((convolution_relu_pooling_info_t *)node_info[10])->weight_blob_size = 278544;
+    ((convolution_relu_pooling_info_t *)node_info[10])->weight_blob_offset = 184320;
+    ((convolution_relu_pooling_info_t *)node_info[10])->weight_blob_size = 278536;
     ((convolution_relu_pooling_info_t *)node_info[10])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[10])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[10])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -502,8 +502,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[12])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[12])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[12])->weight_format.quant_data.dfp.fixed_point_pos = 6;
-    ((convolution_relu_pooling_info_t *)node_info[12])->weight_blob_offset = 462904;
-    ((convolution_relu_pooling_info_t *)node_info[12])->weight_blob_size = 35024;
+    ((convolution_relu_pooling_info_t *)node_info[12])->weight_blob_offset = 462856;
+    ((convolution_relu_pooling_info_t *)node_info[12])->weight_blob_size = 35016;
     ((convolution_relu_pooling_info_t *)node_info[12])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[12])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[12])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -575,8 +575,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[14])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[14])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[14])->weight_format.quant_data.dfp.fixed_point_pos = 8;
-    ((convolution_relu_pooling_info_t *)node_info[14])->weight_blob_offset = 497928;
-    ((convolution_relu_pooling_info_t *)node_info[14])->weight_blob_size = 298192;
+    ((convolution_relu_pooling_info_t *)node_info[14])->weight_blob_offset = 497872;
+    ((convolution_relu_pooling_info_t *)node_info[14])->weight_blob_size = 298184;
     ((convolution_relu_pooling_info_t *)node_info[14])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[14])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[14])->bias_format.quant_data.dfp.fixed_point_pos = 11;
@@ -652,8 +652,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[16])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[16])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[16])->weight_format.quant_data.dfp.fixed_point_pos = 7;
-    ((convolution_relu_pooling_info_t *)node_info[16])->weight_blob_offset = 796120;
-    ((convolution_relu_pooling_info_t *)node_info[16])->weight_blob_size = 1090256;
+    ((convolution_relu_pooling_info_t *)node_info[16])->weight_blob_offset = 796056;
+    ((convolution_relu_pooling_info_t *)node_info[16])->weight_blob_size = 1090248;
     ((convolution_relu_pooling_info_t *)node_info[16])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[16])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[16])->bias_format.quant_data.dfp.fixed_point_pos = 10;
@@ -725,8 +725,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[18])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[18])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[18])->weight_format.quant_data.dfp.fixed_point_pos = 6;
-    ((convolution_relu_pooling_info_t *)node_info[18])->weight_blob_offset = 1886376;
-    ((convolution_relu_pooling_info_t *)node_info[18])->weight_blob_size = 134352;
+    ((convolution_relu_pooling_info_t *)node_info[18])->weight_blob_offset = 1886304;
+    ((convolution_relu_pooling_info_t *)node_info[18])->weight_blob_size = 134344;
     ((convolution_relu_pooling_info_t *)node_info[18])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[18])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[18])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -798,8 +798,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[20])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[20])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[20])->weight_format.quant_data.dfp.fixed_point_pos = 8;
-    ((convolution_relu_pooling_info_t *)node_info[20])->weight_blob_offset = 2020728;
-    ((convolution_relu_pooling_info_t *)node_info[20])->weight_blob_size = 1181264;
+    ((convolution_relu_pooling_info_t *)node_info[20])->weight_blob_offset = 2020648;
+    ((convolution_relu_pooling_info_t *)node_info[20])->weight_blob_size = 1181064;
     ((convolution_relu_pooling_info_t *)node_info[20])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[20])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[20])->bias_format.quant_data.dfp.fixed_point_pos = 11;
@@ -871,8 +871,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[22])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[22])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[22])->weight_format.quant_data.dfp.fixed_point_pos = 6;
-    ((convolution_relu_pooling_info_t *)node_info[22])->weight_blob_offset = 3201992;
-    ((convolution_relu_pooling_info_t *)node_info[22])->weight_blob_size = 134352;
+    ((convolution_relu_pooling_info_t *)node_info[22])->weight_blob_offset = 3201712;
+    ((convolution_relu_pooling_info_t *)node_info[22])->weight_blob_size = 134344;
     ((convolution_relu_pooling_info_t *)node_info[22])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[22])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[22])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -944,8 +944,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[24])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[24])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[24])->weight_format.quant_data.dfp.fixed_point_pos = 8;
-    ((convolution_relu_pooling_info_t *)node_info[24])->weight_blob_offset = 3336344;
-    ((convolution_relu_pooling_info_t *)node_info[24])->weight_blob_size = 1184976;
+    ((convolution_relu_pooling_info_t *)node_info[24])->weight_blob_offset = 3336056;
+    ((convolution_relu_pooling_info_t *)node_info[24])->weight_blob_size = 1184968;
     ((convolution_relu_pooling_info_t *)node_info[24])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[24])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[24])->bias_format.quant_data.dfp.fixed_point_pos = 11;
@@ -1047,8 +1047,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[27])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[27])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[27])->weight_format.quant_data.dfp.fixed_point_pos = 7;
-    ((convolution_relu_pooling_info_t *)node_info[27])->weight_blob_offset = 4521320;
-    ((convolution_relu_pooling_info_t *)node_info[27])->weight_blob_size = 4442512;
+    ((convolution_relu_pooling_info_t *)node_info[27])->weight_blob_offset = 4521024;
+    ((convolution_relu_pooling_info_t *)node_info[27])->weight_blob_size = 4442504;
     ((convolution_relu_pooling_info_t *)node_info[27])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[27])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[27])->bias_format.quant_data.dfp.fixed_point_pos = 10;
@@ -1120,8 +1120,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[29])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[29])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[29])->weight_format.quant_data.dfp.fixed_point_pos = 5;
-    ((convolution_relu_pooling_info_t *)node_info[29])->weight_blob_offset = 8963832;
-    ((convolution_relu_pooling_info_t *)node_info[29])->weight_blob_size = 528272;
+    ((convolution_relu_pooling_info_t *)node_info[29])->weight_blob_offset = 8963528;
+    ((convolution_relu_pooling_info_t *)node_info[29])->weight_blob_size = 528584;
     ((convolution_relu_pooling_info_t *)node_info[29])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[29])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[29])->bias_format.quant_data.dfp.fixed_point_pos = 9;
@@ -1193,8 +1193,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[31])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[31])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[31])->weight_format.quant_data.dfp.fixed_point_pos = 8;
-    ((convolution_relu_pooling_info_t *)node_info[31])->weight_blob_offset = 9492104;
-    ((convolution_relu_pooling_info_t *)node_info[31])->weight_blob_size = 4728016;
+    ((convolution_relu_pooling_info_t *)node_info[31])->weight_blob_offset = 9492112;
+    ((convolution_relu_pooling_info_t *)node_info[31])->weight_blob_size = 4728008;
     ((convolution_relu_pooling_info_t *)node_info[31])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[31])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[31])->bias_format.quant_data.dfp.fixed_point_pos = 11;
@@ -1267,7 +1267,7 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[33])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[33])->weight_format.quant_data.dfp.fixed_point_pos = 6;
     ((convolution_relu_pooling_info_t *)node_info[33])->weight_blob_offset = 14220120;
-    ((convolution_relu_pooling_info_t *)node_info[33])->weight_blob_size = 529616;
+    ((convolution_relu_pooling_info_t *)node_info[33])->weight_blob_size = 529608;
     ((convolution_relu_pooling_info_t *)node_info[33])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[33])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[33])->bias_format.quant_data.dfp.fixed_point_pos = 10;
@@ -1339,8 +1339,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[35])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[35])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[35])->weight_format.quant_data.dfp.fixed_point_pos = 5;
-    ((convolution_relu_pooling_info_t *)node_info[35])->weight_blob_offset = 14749736;
-    ((convolution_relu_pooling_info_t *)node_info[35])->weight_blob_size = 4725328;
+    ((convolution_relu_pooling_info_t *)node_info[35])->weight_blob_offset = 14749728;
+    ((convolution_relu_pooling_info_t *)node_info[35])->weight_blob_size = 4725320;
     ((convolution_relu_pooling_info_t *)node_info[35])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[35])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[35])->bias_format.quant_data.dfp.fixed_point_pos = 10;
@@ -1412,8 +1412,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[37])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[37])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[37])->weight_format.quant_data.dfp.fixed_point_pos = 12;
-    ((convolution_relu_pooling_info_t *)node_info[37])->weight_blob_offset = 19475064;
-    ((convolution_relu_pooling_info_t *)node_info[37])->weight_blob_size = 9446608;
+    ((convolution_relu_pooling_info_t *)node_info[37])->weight_blob_offset = 19475048;
+    ((convolution_relu_pooling_info_t *)node_info[37])->weight_blob_size = 9446600;
     ((convolution_relu_pooling_info_t *)node_info[37])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[37])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[37])->bias_format.quant_data.dfp.fixed_point_pos = 14;
@@ -1485,8 +1485,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[39])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[39])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[39])->weight_format.quant_data.dfp.fixed_point_pos = 11;
-    ((convolution_relu_pooling_info_t *)node_info[39])->weight_blob_offset = 28921672;
-    ((convolution_relu_pooling_info_t *)node_info[39])->weight_blob_size = 9446608;
+    ((convolution_relu_pooling_info_t *)node_info[39])->weight_blob_offset = 28921648;
+    ((convolution_relu_pooling_info_t *)node_info[39])->weight_blob_size = 9446600;
     ((convolution_relu_pooling_info_t *)node_info[39])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[39])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[39])->bias_format.quant_data.dfp.fixed_point_pos = 15;
@@ -1529,7 +1529,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     tensor_size[0] = 13;
     tensor_size[1] = 13;
     tensor_size[2] = 3072;
-    tensor = vxcCreateTensor(context, 3, tensor_size, VX_TYPE_INT8, VX_QUANT_DYNAMIC_FIXED_POINT, 0.000000, 0, 3);
+    tensor_size[3] = 1;
+    tensor = vxcCreateTensor(context, 4, tensor_size, VX_TYPE_INT8, VX_QUANT_DYNAMIC_FIXED_POINT, 0.000000, 0, 3);
     if (tensor == NULL)
     {
         goto error;
@@ -1623,8 +1624,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[43])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[43])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[43])->weight_format.quant_data.dfp.fixed_point_pos = 10;
-    ((convolution_relu_pooling_info_t *)node_info[43])->weight_blob_offset = 38368280;
-    ((convolution_relu_pooling_info_t *)node_info[43])->weight_blob_size = 28320976;
+    ((convolution_relu_pooling_info_t *)node_info[43])->weight_blob_offset = 38368248;
+    ((convolution_relu_pooling_info_t *)node_info[43])->weight_blob_size = 28320968;
     ((convolution_relu_pooling_info_t *)node_info[43])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[43])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[43])->bias_format.quant_data.dfp.fixed_point_pos = 13;
@@ -1696,8 +1697,8 @@ vx_status vxcCreateNeuralNetwork(vx_graph graph, char* data_file_name, vx_tensor
     ((convolution_relu_pooling_info_t *)node_info[45])->weight_format.data_format = VX_TYPE_INT8;
     ((convolution_relu_pooling_info_t *)node_info[45])->weight_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[45])->weight_format.quant_data.dfp.fixed_point_pos = 9;
-    ((convolution_relu_pooling_info_t *)node_info[45])->weight_blob_offset = 66689256;
-    ((convolution_relu_pooling_info_t *)node_info[45])->weight_blob_size = 31952;
+    ((convolution_relu_pooling_info_t *)node_info[45])->weight_blob_offset = 66689216;
+    ((convolution_relu_pooling_info_t *)node_info[45])->weight_blob_size = 31944;
     ((convolution_relu_pooling_info_t *)node_info[45])->bias_format.data_format = VX_TYPE_INT32;
     ((convolution_relu_pooling_info_t *)node_info[45])->bias_format.quant_format = VX_QUANT_DYNAMIC_FIXED_POINT;
     ((convolution_relu_pooling_info_t *)node_info[45])->bias_format.quant_data.dfp.fixed_point_pos = 13;
