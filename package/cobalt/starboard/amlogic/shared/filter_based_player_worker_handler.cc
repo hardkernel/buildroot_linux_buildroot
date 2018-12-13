@@ -50,6 +50,10 @@ class MonotonicSystemTimeProviderImpl : public MonotonicSystemTimeProvider {
 
 }  // namespace
 
+::starboard::Mutex FilterBasedPlayerWorkerHandler::av_refcount_mutex;
+int FilterBasedPlayerWorkerHandler::num_audios = 0;
+int FilterBasedPlayerWorkerHandler::num_videos = 0;
+
 FilterBasedPlayerWorkerHandler::FilterBasedPlayerWorkerHandler(
     SbMediaVideoCodec video_codec,
     SbMediaAudioCodec audio_codec,
@@ -80,6 +84,22 @@ FilterBasedPlayerWorkerHandler::FilterBasedPlayerWorkerHandler(
 
   update_job_ = std::bind(&FilterBasedPlayerWorkerHandler::Update, this);
   bounds_ = PlayerWorker::Bounds();
+}
+
+bool FilterBasedPlayerWorkerHandler::AllocateDecoders(SbMediaVideoCodec video_codec, SbMediaAudioCodec audio_codec) {
+  ::starboard::ScopedLock lock(av_refcount_mutex);
+  if (((video_codec != kSbMediaVideoCodecNone) && (num_videos >= max_video_decoders)) ||
+      ((audio_codec != kSbMediaAudioCodecNone) && (num_audios >= max_audio_decoders))) {
+    SB_LOG(ERROR) << "reached max opened decoder audio:" << num_audios << " video:" << num_videos;
+    return false;
+  }
+  if (video_codec != kSbMediaVideoCodecNone) {
+    num_videos++;
+  }
+  if (audio_codec != kSbMediaAudioCodecNone) {
+    num_audios++;
+  }
+  return true;
 }
 
 bool FilterBasedPlayerWorkerHandler::IsPunchoutMode() const {
@@ -512,6 +532,15 @@ void FilterBasedPlayerWorkerHandler::Stop() {
     // might call GetCurrentDecodeTarget(), which would try to take this lock.
     ::starboard::ScopedLock lock(video_renderer_existence_mutex_);
     video_renderer = video_renderer_.Pass();
+  }
+  {
+    ::starboard::ScopedLock lock(av_refcount_mutex);
+    if (video_renderer) {
+      num_videos--;
+    }
+    if (audio_renderer_) {
+      num_audios--;
+    }
   }
   video_renderer.reset();
   audio_renderer_.reset();

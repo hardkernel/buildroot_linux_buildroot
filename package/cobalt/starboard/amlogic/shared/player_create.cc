@@ -108,6 +108,11 @@ SbPlayer SbPlayerCreate(SbWindow window,
     return kSbPlayerInvalid;
   }
 
+  if (!FilterBasedPlayerWorkerHandler::AllocateDecoders(video_codec, audio_codec)) {
+    SB_LOG(ERROR) << "Failed to allocate decoders";
+    return kSbPlayerInvalid;
+  }
+
   UpdateActiveSessionPlatformPlaybackState(kPlaying);
 
   starboard::scoped_ptr<PlayerWorker::Handler> handler(

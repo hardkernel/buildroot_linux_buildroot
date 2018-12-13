@@ -50,6 +50,8 @@ class FilterBasedPlayerWorkerHandler : public PlayerWorker::Handler,
       SbPlayerOutputMode output_mode,
       SbDecodeTargetGraphicsContextProvider* provider);
 
+  static bool AllocateDecoders(SbMediaVideoCodec video_codec, SbMediaAudioCodec audio_codec);
+
  private:
   bool IsPunchoutMode() const;
   bool Init(SbPlayer player,
@@ -124,6 +126,13 @@ class FilterBasedPlayerWorkerHandler : public PlayerWorker::Handler,
   // GetCurrentDecodeTarget() won't modify |video_renderer_|, and all other
   // accesses are happening from the same thread.
   ::starboard::Mutex video_renderer_existence_mutex_;
+
+  // multiple decoders case
+  const static int max_audio_decoders = 1;
+  const static int max_video_decoders = 1;
+  static ::starboard::Mutex av_refcount_mutex;
+  static int num_audios;
+  static int num_videos;
 
   SbPlayerOutputMode output_mode_;
   SbDecodeTargetGraphicsContextProvider*

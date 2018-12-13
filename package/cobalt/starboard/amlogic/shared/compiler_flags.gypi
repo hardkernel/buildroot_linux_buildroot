@@ -47,6 +47,8 @@
       '-fno-rtti',
     ],
     'common_clang_flags': [
+      '-fsigned-char',
+      '-fno-delete-null-pointer-checks',
     ],
     'conditions': [
       ['clang==1', {
