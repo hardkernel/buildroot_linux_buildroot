@@ -256,14 +256,14 @@
       <data key="d5">convolutionrelu</data>
     </node>
     <node id="p0">
-      <data key="d6">416 416 3</data>
+      <data key="d6">416 416 3 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">7</data>
     </node>
     <node id="p1">
-      <data key="d6">208 208 32</data>
+      <data key="d6">208 208 32 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -416,14 +416,14 @@
       <data key="d5">pooling padding height bottom</data>
     </node>
     <node id="p30">
-      <data key="d6">208 208 32</data>
+      <data key="d6">208 208 32 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p31">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -576,14 +576,14 @@
       <data key="d5">pooling padding height bottom</data>
     </node>
     <node id="p60">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p61">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -736,14 +736,14 @@
       <data key="d5">pooling padding height bottom</data>
     </node>
     <node id="p90">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p91">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -896,28 +896,28 @@
       <data key="d5">pooling padding height bottom</data>
     </node>
     <node id="p120">
-      <data key="d6">416 416 3</data>
+      <data key="d6">416 416 3 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
       <data key="d11">7</data>
     </node>
     <node id="p121">
-      <data key="d6">13 13 30</data>
+      <data key="d6">13 13 30 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p122">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p123">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -974,14 +974,14 @@
       <data key="d5">padding height bottom</data>
     </node>
     <node id="p134">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p135">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -993,14 +993,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p137">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p138">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1012,14 +1012,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p140">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p141">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1031,14 +1031,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p143">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p144">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1050,14 +1050,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p146">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p147">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1069,14 +1069,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p149">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p150">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1088,14 +1088,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p152">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p153">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1107,14 +1107,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p155">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p156">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1126,14 +1126,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p158">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p159">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1145,14 +1145,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p161">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p162">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1164,14 +1164,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p164">
-      <data key="d6">208 208 32</data>
+      <data key="d6">208 208 32 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p165">
-      <data key="d6">208 208 32</data>
+      <data key="d6">208 208 32 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1183,14 +1183,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p167">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p168">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1202,14 +1202,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p170">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p171">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1221,14 +1221,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p173">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">1</data>
     </node>
     <node id="p174">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1240,14 +1240,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p176">
-      <data key="d6">104 104 128</data>
+      <data key="d6">104 104 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p177">
-      <data key="d6">104 104 128</data>
+      <data key="d6">104 104 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1259,14 +1259,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p179">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">1</data>
     </node>
     <node id="p180">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1278,14 +1278,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p182">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p183">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1297,14 +1297,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p185">
-      <data key="d6">52 52 256</data>
+      <data key="d6">52 52 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p186">
-      <data key="d6">52 52 256</data>
+      <data key="d6">52 52 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1316,14 +1316,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p188">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p189">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1335,14 +1335,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p191">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p192">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1354,14 +1354,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p194">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p195">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1373,14 +1373,14 @@
       <data key="d5">leaky ratio</data>
     </node>
     <node id="p197">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p198">
-      <data key="d6">13 13 2048</data>
+      <data key="d6">13 13 2048 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1392,7 +1392,7 @@
       <data key="d5">reorg stride</data>
     </node>
     <node id="p200">
-      <data key="d6">13 13 3072</data>
+      <data key="d6">13 13 3072 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1404,28 +1404,28 @@
       <data key="d5">Dimension</data>
     </node>
     <node id="p202">
-      <data key="d6">13 13 2048</data>
+      <data key="d6">13 13 2048 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p203">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input1</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p204">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p205">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1533,14 +1533,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p225">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p226">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1648,14 +1648,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p246">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p247">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1763,14 +1763,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p267">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p268">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1878,14 +1878,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p288">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p289">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -1993,14 +1993,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p309">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p310">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2108,14 +2108,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p330">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p331">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2223,14 +2223,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p351">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p352">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2338,14 +2338,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p372">
-      <data key="d6">13 13 512</data>
+      <data key="d6">13 13 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">5</data>
     </node>
     <node id="p373">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2453,14 +2453,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p393">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p394">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2568,14 +2568,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p414">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p415">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2683,14 +2683,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p435">
-      <data key="d6">13 13 3072</data>
+      <data key="d6">13 13 3072 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p436">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2798,14 +2798,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p456">
-      <data key="d6">13 13 1024</data>
+      <data key="d6">13 13 1024 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">4</data>
     </node>
     <node id="p457">
-      <data key="d6">13 13 30</data>
+      <data key="d6">13 13 30 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -2913,14 +2913,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p477">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p478">
-      <data key="d6">104 104 128</data>
+      <data key="d6">104 104 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -3028,14 +3028,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p498">
-      <data key="d6">104 104 128</data>
+      <data key="d6">104 104 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p499">
-      <data key="d6">104 104 64</data>
+      <data key="d6">104 104 64 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -3143,14 +3143,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p519">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">2</data>
     </node>
     <node id="p520">
-      <data key="d6">52 52 256</data>
+      <data key="d6">52 52 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -3258,14 +3258,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p540">
-      <data key="d6">52 52 256</data>
+      <data key="d6">52 52 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p541">
-      <data key="d6">52 52 128</data>
+      <data key="d6">52 52 128 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>
@@ -3373,14 +3373,14 @@
       <data key="d5">dilation</data>
     </node>
     <node id="p561">
-      <data key="d6">26 26 256</data>
+      <data key="d6">26 26 256 1</data>
       <data key="d7">tensor</data>
       <data key="d5">input0</data>
       <data key="d8">int8</data>
       <data key="d11">3</data>
     </node>
     <node id="p562">
-      <data key="d6">26 26 512</data>
+      <data key="d6">26 26 512 1</data>
       <data key="d7">tensor</data>
       <data key="d5">output0</data>
       <data key="d8">int8</data>

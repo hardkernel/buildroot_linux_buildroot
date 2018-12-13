@@ -14,7 +14,7 @@ extern "C" {
 #include "VX/vx.h"
 #include "VX/vx_khr_cnn.h"
 
-#define NN_INPUT_DIMENSION_NUMBER     3
+#define NN_INPUT_DIMENSION_NUMBER     4
 #define NN_INPUT_WIDTH                416
 #define NN_INPUT_HEIGHT               416
 #define NN_INPUT_CHANNEL              3
