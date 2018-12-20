@@ -4,13 +4,13 @@
 #
 #############################################################
 
-ONVIF_SRVD_VERSION = 2af96b38026e603617dc3fb5b6547a0191aa586c
+ONVIF_SRVD_VERSION = 4c61623b6d3388ae1506957e62c943c71cac8545
 
 ONVIF_SRVD_LICENSE = BSD 3-Clause
 #ONVIF_SRVD_LICENSE_FILES = COPYING
 ONVIF_SRVD_DEPENDENCIES = host-openssl openssl zlib
 
-ONVIF_SRVD_SITE = $(call github,jemyzhang,onvif_srvd,$(ONVIF_SRVD_VERSION))
+ONVIF_SRVD_SITE = $(call github,KoynovStas,onvif_srvd,$(ONVIF_SRVD_VERSION))
 
 ONVIF_SRVD_SDK_VERSION = 2.8.65
 ONVIF_SRVD_EXTRA_DOWNLOADS = https://sourceforge.net/projects/gsoap2/files/gsoap-2.8/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip

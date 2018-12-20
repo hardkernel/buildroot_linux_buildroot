@@ -1,14 +1,23 @@
 diff --git a/Makefile b/Makefile
-index 56e8857..cdeec91 100644
+index 55f3042..fa9d59e 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -270,7 +270,7 @@ define build_gsoap
+@@ -23,7 +23,7 @@ COMMON_DIR        = ./src
+ GENERATED_DIR     = ./generated
+ 
+ 
+-CFLAGS            = -DDAEMON_NAME='"$(DAEMON_NAME)"'
++CFLAGS           := $(CFLAGS) -DDAEMON_NAME='"$(DAEMON_NAME)"'
+ CFLAGS           += -DDAEMON_MAJOR_VERSION=$(DAEMON_MAJOR_VERSION)
+ CFLAGS           += -DDAEMON_MINOR_VERSION=$(DAEMON_MINOR_VERSION)
+ CFLAGS           += -DDAEMON_PATCH_VERSION=$(DAEMON_PATCH_VERSION)
+@@ -267,7 +267,7 @@ define build_gsoap
      # build
      if [ ! -f $(SOAPCPP2) ] || [ ! -f $(WSDL2H) ]; then \
           cd gsoap-2.8; \
--         CFLAGS= ./configure && \
+-         ./configure && \
 +         CFLAGS= ./configure --with-openssl=$(OPENSSL) && \
-          make -j 1; \
+          make -j1; \
           cd ..;\
      fi
 

@@ -1,5 +1,6 @@
 config BR2_PACKAGE_ONVIF_SRVD
   bool "onvif server package"
+  select BR2_PACKAGE_ONVIF_WSDD
   select BR2_PACKAGE_RTSPATT
   help
      onvif server
