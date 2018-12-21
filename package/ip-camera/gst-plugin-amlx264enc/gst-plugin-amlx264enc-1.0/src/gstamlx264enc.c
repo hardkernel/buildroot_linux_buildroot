@@ -233,7 +233,7 @@ load_x264_libraries (void)
 #define PROP_IDR_PERIOD_DEFAULT -1
 #define PROP_FRAMERATE_DEFAULT 30
 #define PROP_BITRATE_DEFAULT 2000
-#define PROP_BITRATE_MAX 5000
+#define PROP_BITRATE_MAX 6000
 
 enum
 {
@@ -461,7 +461,7 @@ gst_amlx264enc_class_init (GstAmlX264EncClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_BITRATE,
       g_param_spec_int ("bitrate", "Bitrate", "bitrate(bps)",
-          0, PROP_BITRATE_DEFAULT, PROP_BITRATE_DEFAULT,
+          0, PROP_BITRATE_MAX, PROP_BITRATE_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_static_metadata (element_class,
@@ -629,6 +629,7 @@ static gboolean
 gst_amlx264enc_init_encoder (GstAmlX264Enc * encoder)
 {
   GstVideoInfo *info;
+  guint encoder_bitrate = encoder->bitrate * 1000;
 
   if (!encoder->input_state) {
     GST_DEBUG_OBJECT (encoder, "Have no input state yet");
@@ -650,9 +651,14 @@ gst_amlx264enc_init_encoder (GstAmlX264Enc * encoder)
 
   GST_OBJECT_UNLOCK (encoder);
 
+  if (encoder->framerate < 20) {
+    // adaptive bitrate on low framerate
+    encoder_bitrate = encoder_bitrate * encoder->framerate / 30;
+  }
+
   encoder->x264enc = encoder->vtable->vl_video_encoder_init (CODEC_ID_H264,
       info->width, info->height,
-      encoder->framerate, encoder->bitrate * encoder->framerate * 1000 / 30, encoder->gop,
+      encoder->framerate, encoder_bitrate, encoder->gop,
       0);
   if (!encoder->x264enc) {
     GST_ELEMENT_ERROR (encoder, STREAM, ENCODE,
