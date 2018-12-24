@@ -1,0 +1,103 @@
+diff --git a/include/server.h b/include/server.h
+index 2f992bb..c46a1a9 100644
+--- a/include/server.h
++++ b/include/server.h
+@@ -32,6 +32,7 @@
+ #define DEFAULT_DIGEST_ENABLED false
+ #define DEFAULT_GST_PIPELINE ""
+ #define DEFAULT_FACE_DETECTION_ENABLED false
++#define DEFAULT_USE_X265 false
+ 
+ enum InputType { UNDEFINED_INPUT, FILE_INPUT, RTSP_INPUT, VIDEOTESTSRC_INPUT, DEVICE_INPUT };
+ 
+@@ -60,6 +61,8 @@ typedef struct s_config {
+   std::string pipeline;
+   // Face Detection
+   bool face_detection;
++  // use x265
++  bool use_x265;
+ } t_config;
+ 
+ typedef struct s_server {
+diff --git a/src/parsing.cpp b/src/parsing.cpp
+index af00790..fb37bbe 100644
+--- a/src/parsing.cpp
++++ b/src/parsing.cpp
+@@ -119,13 +119,22 @@ void parse_env(std::shared_ptr<t_config> &config) {
+       config->face_detection = true;
+     }
+   }
++
++  // Use x265enc
++  if ( const char *use_x265 = std::getenv("RTSP_USE_X265ENC")) {
++    if (strcmp(use_x265, "true") == 0) {
++      config->use_x265 = true;
++    } else {
++      config->use_x265 = false;
++    }
++  }
+ }
+ 
+ // Overwrite default parameters via cmd line
+ bool parse_args(std::shared_ptr<t_config> &config, int argc, char **argv) {
+   int c;
+   opterr = 0;
+-  while ((c = getopt(argc, argv, "r:u:l:p:b:f:s:i:g:e:hta")) != -1) {
++  while ((c = getopt(argc, argv, "r:u:l:p:b:f:s:i:g:e:htax")) != -1) {
+     switch (c) {
+     case 'r': // Route
+       if (optarg && optarg[0] == '-') {
+@@ -211,6 +220,9 @@ bool parse_args(std::shared_ptr<t_config> &config, int argc, char **argv) {
+     case 'a': // Face Detection
+       config->face_detection = true;
+       break;
++    case 'x':
++      config->use_x265 = true;
++      break;
+     case 'h': // help
+       fprintf(stdout,
+               "Usage: %s [-l address] [-b port] [-r route] [-i "
+diff --git a/src/pipeline.cpp b/src/pipeline.cpp
+index 3e6df65..cf82866 100644
+--- a/src/pipeline.cpp
++++ b/src/pipeline.cpp
+@@ -33,7 +33,12 @@ std::string time_overlay(std::shared_ptr<t_config> &config) {
+ 
+ // Take raw, change caps according to conf and transcode in h264
+ std::string encode(std::shared_ptr<t_config> &config) {
+-  std::cout << "H264 encoding with:" << std::endl
++  if (config->use_x265) {
++    std::cout << "H265 ";
++  } else {
++    std::cout << "H264 ";
++  }
++  std::cout << "encoding with:" << std::endl
+             << "Framerate:\t" << config->framerate << std::endl
+             << "Bitrate:\t" << config->bitrate << std::endl
+             << "Resolution:\t" << config->scale.first << "x"
+@@ -54,7 +59,11 @@ std::string encode(std::shared_ptr<t_config> &config) {
+   launchCmd += " ! videorate ! video/x-raw,framerate=";
+   launchCmd += config->framerate;
+   launchCmd += "/1";
+-  launchCmd += " ! amlx264enc";
++  if (config->use_x265) {
++    launchCmd += " ! amlx265enc";
++  } else {
++    launchCmd += " ! amlx264enc";
++  }
+   launchCmd += " framerate=";
+   launchCmd += config->framerate;
+   launchCmd += " bitrate=";
+@@ -140,7 +149,11 @@ std::string create_pipeline(std::shared_ptr<t_config> &config) {
+       launchCmd += create_device_input(config);
+     }
+ 
+-    launchCmd += " ! rtph264pay name=pay0 pt=96 ";
++    if (config->use_x265) {
++      launchCmd += " ! rtph265pay name=pay0 pt=96 ";
++    } else {
++      launchCmd += " ! rtph264pay name=pay0 pt=96 ";
++    }
+   }
+ 
+   launchCmd += " )";

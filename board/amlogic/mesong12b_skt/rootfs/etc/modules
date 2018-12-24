@@ -25,6 +25,7 @@ amvdec_real
 amvdec_vc1
 amvdec_vp9
 encoder
+vpu
 
 #ISP
 iv009_isp_iq
