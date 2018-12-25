@@ -36,7 +36,7 @@ CONFIGS := CONFIG_AMLOGIC_MEDIA_VDEC_MPEG12=m \
     CONFIG_AMLOGIC_MEDIA_VDEC_REAL=m \
     CONFIG_AMLOGIC_MEDIA_VDEC_AVS=m \
     CONFIG_AMLOGIC_MEDIA_VENC_H264=m \
-    CONFIG_AMLOGIC_MEDIA_VECN_H265=m
+    CONFIG_AMLOGIC_MEDIA_VENC_H265=m
 
 define copy-media-modules
 	$(foreach m, $(shell find $(strip $(1)) -name "*.ko"),\

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_GST_PLUGIN_AMLX265ENC
+	bool "gstream1 plugin amlogic x265 encoder"
+    select BR2_PACKAGE_LIBVPHEVCODEC
+	help
+	  gstreamer 1.0 plugins

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_LIBVPHEVCODEC
+	bool "amlogic h265 video encoder"
+	help
+	  h265 video encoder library
+
