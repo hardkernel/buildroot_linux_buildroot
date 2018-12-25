@@ -40,7 +40,7 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 
 // TODO: Make this configurable inside SbPlayerCreate().
-const SbTimeMonotonic kUpdateInterval = 200 * kSbTimeMillisecond;
+const SbTimeMonotonic kUpdateInterval = 100 * kSbTimeMillisecond;
 
 class MonotonicSystemTimeProviderImpl : public MonotonicSystemTimeProvider {
   SbTimeMonotonic GetMonotonicNow() const override {
@@ -205,7 +205,8 @@ bool FilterBasedPlayerWorkerHandler::Init(
                   kSbMediaTypeVideo));
   }
 
-  update_job_token_ = Schedule(update_job_, kUpdateInterval);
+  // move to preroll finish
+  //update_job_token_ = Schedule(update_job_, kUpdateInterval);
 
   return true;
 }
@@ -379,7 +380,7 @@ bool FilterBasedPlayerWorkerHandler::SetPlaybackRate(double playback_rate) {
   if ((playback_rate > -0.01) && (playback_rate < 0.01) && !paused_) {
     return SetPause(true);
   }
-  if ((playback_rate > 0.99) && (playback_rate < 1.01) && paused_) {
+  if ((playback_rate > 0.01) && paused_) {
     return SetPause(false);
   }
   return true;
@@ -451,6 +452,7 @@ void FilterBasedPlayerWorkerHandler::OnPrerolled(SbMediaType media_type) {
 
   if (audio_prerolled_ && (!video_renderer_ || video_prerolled_)) {
     update_player_state_cb_(kSbPlayerStatePresenting);
+    Update();
     if (!paused_) {
       GetMediaTimeProvider()->Play();
       if (video_renderer_) {
@@ -491,12 +493,18 @@ void FilterBasedPlayerWorkerHandler::Update() {
     bool is_underflow;
     auto media_time = GetMediaTimeProvider()->GetCurrentMediaTime(
         &is_playing, &is_eos_played, &is_underflow);
+    if (0) {
+      SbTime now = SbTimeGetMonotonicNow();
+      SB_LOG(WARNING) << "sbtime: " << now/1000000.0 << " mediatime: " << media_time/1000000.0 << "(" << media_time << ")";
+    }
     update_media_info_cb_(media_time, dropped_frames, is_underflow);
     // cobalt seems ignoring underflow flag, we need to implement our own buffering logic here
     if (!paused_) {
+      int nframe_video = (video_renderer_) ? video_renderer_->GetNumFramesBuffered() : AmlAVCodec::MAX_NUM_FRAMES;
+      int nframe_audio = (audio_renderer_) ? audio_renderer_->GetNumFramesBuffered() : AmlAVCodec::MAX_NUM_FRAMES;
       if (!underflow_pause) {
-        if ((video_renderer_ && video_renderer_->GetNumFramesBuffered() < 30) ||
-            (audio_renderer_ && audio_renderer_->GetNumFramesBuffered() < 30)) {
+        if ((nframe_video < 30) || (nframe_audio < 30)) {
+          SB_LOG(WARNING) << "buffer underflow, audio:" << nframe_audio << " video:" << nframe_video;
           GetMediaTimeProvider()->Pause();
           if (video_renderer_) {
             video_renderer_->Pause();
@@ -504,8 +512,8 @@ void FilterBasedPlayerWorkerHandler::Update() {
           underflow_pause = true;
         }
       } else {
-        if ((video_renderer_ && video_renderer_->GetNumFramesBuffered() > 200) &&
-            (audio_renderer_ && audio_renderer_->GetNumFramesBuffered() > 200)) {
+        if ((nframe_video >= AmlAVCodec::MAX_NUM_FRAMES) && (nframe_audio >= AmlAVCodec::MAX_NUM_FRAMES)) {
+          SB_LOG(WARNING) << "underflow recover, audio:" << nframe_audio << " video:" << nframe_video;
           GetMediaTimeProvider()->Play();
           if (video_renderer_) {
             video_renderer_->Play();

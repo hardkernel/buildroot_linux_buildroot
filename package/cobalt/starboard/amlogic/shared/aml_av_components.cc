@@ -39,6 +39,7 @@ AmlAVCodec::AmlAVCodec()
 
 AmlAVCodec::~AmlAVCodec() {
   if (codec_param) {
+    CLOG(WARNING) << "close codec";
     codec_reset(codec_param);
     codec_close(codec_param);
 #if defined(COBALT_WIDEVINE_OPTEE)
@@ -96,6 +97,10 @@ bool AmlAVCodec::AVInitCodec() {
   buffer_full = false;
   log_last_append_time = 0LL;
   log_last_pts = 0LL;
+  isPaused = false;
+  num_frame_pts = 0;
+  pts_seek_to = 0;
+  time_seek = 0;
   return true;
 }
 
@@ -116,9 +121,12 @@ void AmlAVCodec::AVPlay() {
     CLOG(ERROR) << "codec does not initialize";
     return;
   }
-  int ret = codec_resume(codec_param);
-  if (ret != CODEC_ERROR_NONE) {
-    CLOG(ERROR) << "failed to resume codec " << ret;
+  if (isPaused) {
+    int ret = codec_resume(codec_param);
+    if (ret != CODEC_ERROR_NONE) {
+      CLOG(ERROR) << "failed to resume codec " << ret;
+    }
+    isPaused = false;
   }
   CLOG(INFO) << "codec_resumed";
 }
@@ -128,9 +136,12 @@ void AmlAVCodec::AVPause() {
     CLOG(ERROR) << "codec does not initialize";
     return;
   }
-  int ret = codec_pause(codec_param);
-  if (ret != CODEC_ERROR_NONE) {
-    CLOG(ERROR) << "failed to pause codec " << ret;
+  if (!isPaused) {
+    int ret = codec_pause(codec_param);
+    if (ret != CODEC_ERROR_NONE) {
+      CLOG(ERROR) << "failed to pause codec " << ret;
+    }
+    isPaused = true;
   }
   CLOG(INFO) << "codec_paused";
 }
@@ -141,9 +152,19 @@ void AmlAVCodec::AVSetPlaybackRate(double playback_rate) {
     CLOG(ERROR) << "codec does not initialize";
     return;
   }
+  CLOG(WARNING) << "AVSetPlaybackRate " << playback_rate;
   if (!isvideo) {
     int ratei = (int)(playback_rate * 100) * 10000;
     codec_set_track_rate(codec_param, (void*)ratei);
+#if 0
+    if (ratei == 1000000) {
+      codec_set_av_threshold(codec_param, 100);
+    } else {
+      // for playback rate other the x1, set larger av sync threshhold
+      // in fast/slow motion, avsync is less significant
+      codec_set_av_threshold(codec_param, 400);
+    }
+#endif
   }
 }
 
@@ -152,19 +173,32 @@ void AmlAVCodec::AVSeek(SbTime seek_to_time) {
     CLOG(ERROR) << "codec does not initialize";
     return;
   }
-  int ret = codec_reset(codec_param);
-  if (ret != CODEC_ERROR_NONE) {
-    CLOG(ERROR) << "failed to reset codec " << ret;
+  // avoid unnecessary seek at the beginning
+  if ((seek_to_time == 0) && (time_seek == 0LL)) {
+    CLOG(INFO) << "skip init seek to 0";
+  } else {
+    int ret = codec_reset(codec_param);
+    if (ret != CODEC_ERROR_NONE) {
+      CLOG(ERROR) << "failed to reset codec " << ret;
+    }
+    if (isPaused) {
+      codec_pause(codec_param);
+    }
   }
   if (!isvideo) {
     unsigned long pts90k = seek_to_time * 90 / kSbTimeMillisecond;
     char buf[64];
-    sprintf(buf, "0x%lx", pts90k+1);
+    sprintf(buf, "0x%lx", pts90k + 1);
     amsysfs_set_sysfs_str("/sys/class/tsync/pts_audio", buf);
   }
   prerolled = false;
   pts_seek_to = seek_to_time;
   time_seek = SbTimeGetMonotonicNow();
+  frame_pts.clear();
+  num_frame_pts = 0;
+  buffer_full = false;
+  log_last_append_time = 0LL;
+  log_last_pts = 0LL;
   CLOG(WARNING) << "seek to " << seek_to_time/1000000.0;
 }
 
@@ -183,7 +217,11 @@ SbTime AmlAVCodec::AVGetCurrentMediaTime(bool *is_playing,
   if (pts == -1) {
     CLOG(ERROR) << "failed to get pts";
   } else {
-      retpts = (uint32_t)pts * kSbTimeMillisecond / 90;
+    retpts = (uint32_t)pts * kSbTimeMillisecond / 90;
+    if (retpts < pts_seek_to) {
+      CLOG(WARNING) << "pts " << retpts / 1000000.0 << " < seektopts " << pts_seek_to / 1000000.0;
+      retpts = pts_seek_to;
+    }
   }
   return retpts;
 }
@@ -410,6 +448,11 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     CLOG(ERROR) << "codec does not initialize";
     return false;
   }
+  if ((!prerolled) && ((num_frame_pts >= PREROLL_NUM_FRAMES) || buffer_full) ) {
+    prerolled = true;
+    CLOG(ERROR) << "prerolled buffnum " << num_frame_pts << " full " << buffer_full;
+    Schedule(prerolled_cb_);
+  }
   buffer_full = true;
   struct buf_status bufstat;
   int ret;
@@ -436,10 +479,16 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     else
       pts = codec_get_apts(codec_param);
     SbTime ptssb = (uint32_t)pts * kSbTimeMillisecond / 90;
+    char pqinfo[256];
+    if (frame_pts.empty())
+      sprintf(pqinfo, "empty");
+    else
+      sprintf(pqinfo, "%.6f,%.6f num:%d", frame_pts.front() / 1000000.0,
+              frame_pts.back() / 1000000.0, num_frame_pts);
     CLOG(INFO) << "write " << encrypted << " sample size:" << size
                << " pts:" << input_buffer->timestamp() / 1000000.0
                << " cur:" << ptssb / 1000000.0 << " buf:" << bufstat.data_len
-               << "/" << bufstat.size;
+               << "/" << bufstat.size << " ptsq:" << pqinfo;
   }
   if (bufstat.free_len < size + 1024 * 32) {
     *written = false;
@@ -487,7 +536,9 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
   auto it = std::find_if(frame_pts.rbegin(), frame_pts.rend(),
       std::bind(std::less<SbTime>(), std::placeholders::_1, pts_sb));
   frame_pts.insert(it.base(), pts_sb);
-  if (frame_pts.size() > 300) {
+  if (num_frame_pts < MAX_NUM_FRAMES) {
+    ++num_frame_pts;
+  } else {
     frame_pts.pop_front();
   }
   bool success = false;
@@ -497,11 +548,6 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     success = WriteCodec(data, size, written);
   }
   if (success && *written) {
-    if (!prerolled) {
-      prerolled = true;
-      CLOG(ERROR) << "prerolled ";
-      Schedule(prerolled_cb_);
-    }
     buffer_full = false;
   }
   return success;
@@ -509,8 +555,8 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
 
 int AmlAVCodec::GetNumFramesBuffered() {
   int pts;
-  if (buffer_full)
-    return frame_pts.size();
+  if (buffer_full || eos_state || !codec_param)
+    return MAX_NUM_FRAMES;
   if (isvideo)
     pts = codec_get_vpts(codec_param);
   else
@@ -521,7 +567,7 @@ int AmlAVCodec::GetNumFramesBuffered() {
         std::bind(std::greater<SbTime>(), std::placeholders::_1, ptssb));
     return num;
   }
-  return frame_pts.size();
+  return MAX_NUM_FRAMES;
 }
 
 void AmlAVCodec::AVCheckDecoderEos() {
@@ -536,16 +582,20 @@ void AmlAVCodec::AVCheckDecoderEos() {
       CLOG(ERROR) << "failed to get buffer state " << ret;
       return;
     }
-    if (bufstat.read_pointer != last_read_point) {
+    SbTime now = SbTimeGetMonotonicNow();
+    if ((bufstat.read_pointer != last_read_point) || isPaused) {
       last_read_point = bufstat.read_pointer;
-      rp_freeze_time = SbTimeGetMonotonicNow() + kSbTimeMillisecond * 100;
-    } else if (SbTimeGetMonotonicNow() > rp_freeze_time) {
-      SbLogFormatF("%sbuffer freeze, size:%x datalen:%x free:%x rp:%x wp:%x\n",
-                   name.c_str(), bufstat.size, bufstat.data_len, bufstat.free_len,
-                   bufstat.read_pointer, bufstat.write_pointer);
-      ended_cb_();
-      eos_state = 2;
-      return;
+      rp_freeze_time = now + kSbTimeMillisecond * 100;
+    } else if (now > rp_freeze_time) {
+      if ((bufstat.data_len <= 0x100) ||
+          (now > rp_freeze_time + kSbTimeMillisecond * 400)) {
+        SbLogFormatF("%sbuffer freeze, size:%x datalen:%x free:%x rp:%x wp:%x\n",
+            name.c_str(), bufstat.size, bufstat.data_len, bufstat.free_len,
+            bufstat.read_pointer, bufstat.write_pointer);
+        ended_cb_();
+        eos_state = 2;
+        return;
+      }
     }
     Schedule(func_check_eos, kSbTimeMillisecond * 30);
   }
@@ -557,6 +607,11 @@ void AmlAVCodec::AVWriteEndOfStream() {
     return;
   }
   CLOG(WARNING) << "WriteEndOfStream eos state " << eos_state;
+  if (!prerolled) {
+    prerolled = true;
+    CLOG(ERROR) << "prerolled at end of stream buffnum " << num_frame_pts << " full " << buffer_full;
+    Schedule(prerolled_cb_);
+  }
   if (eos_state == 0) {
     eos_state = 1;
     last_read_point = 0;
@@ -570,6 +625,9 @@ void AmlAVCodec::AVSetVolume(double volume) {
     return;
   }
   CLOG(WARNING) << "AVSetVolume " << volume;
+  //if (!isvideo) {
+  //  codec_set_volume(codec_param, volume);
+  //}
 }
 
 bool AmlAVCodec::AVIsEndOfStreamWritten() const {
@@ -802,6 +860,7 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
 #define DRM_FORMAT_NV12     fourcc_code('N', 'V', '1', '2') /* 2x2 subsampled Cr:Cb plane */
   glActiveTexture(GL_TEXTURE0);
   uint32_t new_res;
+  vframebuf_t vf;
   int ret = GetFrame(vf);
   if (ret >= 0) {
     new_res = ((uint32_t)vf.width << 16) | ((uint32_t)vf.height << 0);
@@ -809,42 +868,45 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
       textureId.resize(nbufs);
       eglImage.resize(nbufs, EGL_NO_IMAGE_KHR);
       glGenTextures(nbufs, &textureId[0]);
-      last_resolution = 0;
+      last_resolution.resize(nbufs, 0);
     } else {
-      ReleaseFrame(cur_frame);
+      // EGL triple buffer, the dmabuf will be used AFTER swapbuffer
+      // we need to reserve the most recent 2 frames
+      if (displayFrames.size() >= 2) {
+        ReleaseFrame(displayFrames.front());
+        displayFrames.pop();
+      }
     }
-    cur_frame = vf;
+    displayFrames.push(vf);
   } else {
     if (textureId.empty()) {
       return kSbDecodeTargetInvalid;
     }
-    new_res = last_resolution;
-    vf = cur_frame;
+    vf = displayFrames.back();
+    new_res = last_resolution[vf.index];
   }
-  if (last_resolution != new_res) {
-    last_resolution = new_res;
-    for (int i = 0; i < nbufs; ++i) {
-      EGLint img_attrs[] = {
-          EGL_WIDTH, vf.width,
-          EGL_HEIGHT, vf.height,
-          EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
-          EGL_DMA_BUF_PLANE0_FD_EXT, vbufs[i]->buffer.mImageFd,
-          EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
-          EGL_DMA_BUF_PLANE0_PITCH_EXT, width,
-          EGL_DMA_BUF_PLANE1_FD_EXT, vbufs[i]->buffer.mImageFd,
-          EGL_DMA_BUF_PLANE1_OFFSET_EXT, width * height, // NV12
-          EGL_DMA_BUF_PLANE1_PITCH_EXT, width,
-          EGL_YUV_COLOR_SPACE_HINT_EXT, EGL_ITU_REC2020_EXT, // EGL_ITU_REC601_EXT , EGL_ITU_REC709_EXT , // EGL_ITU_REC2020_EXT
-          EGL_SAMPLE_RANGE_HINT_EXT, EGL_YUV_NARROW_RANGE_EXT, // EGL_YUV_NARROW_RANGE_EXT , // EGL_YUV_FULL_RANGE_EXT creates a "washed out" picture
-          EGL_YUV_CHROMA_HORIZONTAL_SITING_HINT_EXT, EGL_YUV_CHROMA_SITING_0_5_EXT,
-          EGL_YUV_CHROMA_VERTICAL_SITING_HINT_EXT, EGL_YUV_CHROMA_SITING_0_5_EXT,
-          EGL_NONE};
-      if (eglImage[i] != EGL_NO_IMAGE_KHR) {
-        eglDestroyImageKHR( decode_target_graphics_context_provider_->egl_display, eglImage[i]);
-      }
-      eglImage[i] = eglCreateImageKHR(decode_target_graphics_context_provider_->egl_display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
-      CLOG(INFO) << "texid:" << textureId[i] << " eglCreateImageKHR " << (void *)eglImage[i] << " for " << vf.width << "x" << vf.height;
-      }
+  if (last_resolution[vf.index] != new_res) {
+    last_resolution[vf.index] = new_res;
+    EGLint img_attrs[] = {
+        EGL_WIDTH, vf.width,
+        EGL_HEIGHT, vf.height,
+        EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
+        EGL_DMA_BUF_PLANE0_FD_EXT, vbufs[vf.index]->buffer.mImageFd,
+        EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
+        EGL_DMA_BUF_PLANE0_PITCH_EXT, width,
+        EGL_DMA_BUF_PLANE1_FD_EXT, vbufs[vf.index]->buffer.mImageFd,
+        EGL_DMA_BUF_PLANE1_OFFSET_EXT, width * height, // NV12
+        EGL_DMA_BUF_PLANE1_PITCH_EXT, width,
+        EGL_YUV_COLOR_SPACE_HINT_EXT, EGL_ITU_REC2020_EXT, // EGL_ITU_REC601_EXT , EGL_ITU_REC709_EXT , // EGL_ITU_REC2020_EXT
+        EGL_SAMPLE_RANGE_HINT_EXT, EGL_YUV_NARROW_RANGE_EXT, // EGL_YUV_NARROW_RANGE_EXT , // EGL_YUV_FULL_RANGE_EXT creates a "washed out" picture
+        EGL_YUV_CHROMA_HORIZONTAL_SITING_HINT_EXT, EGL_YUV_CHROMA_SITING_0_5_EXT,
+        EGL_YUV_CHROMA_VERTICAL_SITING_HINT_EXT, EGL_YUV_CHROMA_SITING_0_5_EXT,
+        EGL_NONE};
+    if (eglImage[vf.index] != EGL_NO_IMAGE_KHR) {
+      eglDestroyImageKHR(decode_target_graphics_context_provider_->egl_display, eglImage[vf.index]);
+    }
+    eglImage[vf.index] = eglCreateImageKHR(decode_target_graphics_context_provider_->egl_display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
+    CLOG(INFO) << "texid:" << textureId[vf.index] << " eglCreateImageKHR " << (void *)eglImage[vf.index] << " for " << vf.width << "x" << vf.height;
   }
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId[vf.index]);
   glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -853,7 +915,9 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
   glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, eglImage[vf.index]);
 #if 0
-  CLOG(ERROR) << "got frame idx:" << vf.index << " pts:" << vf.pts/90000.0 << " "
+  char ptsbuf[128];
+  sprintf(ptsbuf, "%d.%06d ", (int)(vf.pts>>32), (int)vf.pts);
+  CLOG(ERROR) << "got frame idx:" << vf.index << " pts:" << ptsbuf
       << vf.width << "x" << vf.height << " offset:" << vf.offset
       << " length:" << vf.length << " duration:" << vf.duration
       << " error_recovery:" << vf.error_recovery
@@ -890,7 +954,7 @@ SbDecodeTarget AmlVideoRenderer::GetCurrentDecodeTarget() {
 }
 
 int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {
-  if (frameQueue.size() < nbufs-1) {
+  if (frameQueue.size() < nbufs-displayFrames.size()) {
     vframebuf_t f;
     int ret = amlv4l_dequeuebuf(amvideo.get(), &f);
     if (ret >= 0) {
@@ -906,6 +970,7 @@ int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {
     int64_t frmpts_us = (frm.pts >> 32) * 1000000LL + (frm.pts & 0xffffffff);
     int delta = frmpts_us - timerval;
     if (delta < -1000*300) {
+      //CLOG(ERROR) << "drop frame idx:" << frm.index << " pts:" << frmpts_us/1000000.0 << " delta:" << delta;
       frameQueue.pop();
       ReleaseFrame(frm);
       continue;
@@ -968,7 +1033,7 @@ bool AmlVideoRenderer::WriteVP9SampleTvp(uint8_t *buf, int dsize,
 #endif
 
 bool AmlVideoRenderer::InitIonVideo() {
-    nbufs = 4;
+    nbufs = 5;
     width = 1920;
     height = 1080;
     vbufs.resize(nbufs);
@@ -1006,8 +1071,6 @@ bool AmlVideoRenderer::InitIonVideo() {
         goto error;
       }
     }
-    memset(&vf, 0, sizeof(vf));
-    isPaused = true;
     return true;
 error:
   amvideo.reset();
@@ -1017,15 +1080,17 @@ error:
 void AmlVideoRenderer::Play() {
   time_seek = SbTimeGetMonotonicNow();
   AmlAVCodec::Play();
-  isPaused = false;
 }
 
 void AmlVideoRenderer::Pause() {
+  AmlAVCodec::Pause();
+  // let seek set the initial value
+  if (time_seek == 0LL) {
+    return;
+  }
   SbTime now = SbTimeGetMonotonicNow();
   pts_seek_to += (now - time_seek);
   time_seek = now;
-  AmlAVCodec::Pause();
-  isPaused = true;
 }
 
 } // namespace filter

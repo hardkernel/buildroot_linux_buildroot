@@ -43,7 +43,7 @@
     'arm_neon': 1,
     'gl_type': 'system_gles2',
     'enable_map_to_mesh': 1,
-    'cobalt_minimum_frame_time_in_milliseconds': '33.0',
+#    'cobalt_minimum_frame_time_in_milliseconds': '33.0',
 
     'platform_libraries': [
       '-lEGL',

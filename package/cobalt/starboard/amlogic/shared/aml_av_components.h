@@ -87,6 +87,8 @@ public:
     return AVGetCurrentMediaTime(is_playing, is_eos_played);
   }
   int GetNumFramesBuffered();
+  const static int MAX_NUM_FRAMES = 300;
+  const static int PREROLL_NUM_FRAMES = 100;
 
 #if defined(COBALT_WIDEVINE_OPTEE)
   uint8_t * GetSecMem(int size) { return sec_drm_mem; }
@@ -109,11 +111,14 @@ protected:
   std::vector<uint8_t> frame_data;
   // recent pushed frame pts, used to detect underflow condition
   std::list<SbTime> frame_pts;
+  // std::list::size() is not guaranty to be O(1), count the number instead
+  int num_frame_pts;
   bool buffer_full;
   SbTime log_last_append_time;
   SbTime log_last_pts;
   int eos_state; // 0: no eos, 1:eos but play buffering data, 2:eos and no more
                  // data in buffer
+  bool isPaused;
   unsigned int last_read_point;
   SbTime rp_freeze_time;
   SbTime pts_sb;
@@ -187,7 +192,6 @@ public:
   int bound_h;
   SbPlayerOutputMode output_mode_;
   SbDecodeTargetGraphicsContextProvider *decode_target_graphics_context_provider_;
-  bool isPaused;
 
   bool InitIonVideo();
   static void ReleaseEGLResource(void * context);
@@ -204,8 +208,7 @@ public:
   int nbufs;
   int width;
   int height;
-  vframebuf_t vf;
-  vframebuf_t cur_frame;
+  std::queue<vframebuf_t> displayFrames;
   struct Deleter_amvideo_dev_t {
     void operator()(amvideo_dev_t* ptr) { amvideo_release(ptr); };
   };
@@ -215,7 +218,7 @@ public:
 #if SB_HAS(GLES2)
   std::vector<GLuint> textureId;
   std::vector<EGLImageKHR> eglImage;
-  uint32_t last_resolution;
+  std::vector<uint32_t> last_resolution;
 #endif /* SB_HAS(GLES2) */
 };
 

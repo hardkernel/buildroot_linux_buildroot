@@ -14,6 +14,9 @@ start() {
   export XDG_RUNTIME_DIR=/run/wayland/
   (
   while true; do
+    export sys_amplayer_drop_pcm=0
+    export  media_amadec_prefilltime=0
+    export media_amadec_use_renderadd=1
     /usr/bin/cobalt/cobalt --web_file_path=/var/www --url=file:///launcher/launcher.html
   done
   ) &
