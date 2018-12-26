@@ -13,6 +13,8 @@ DEFCONFIG_ARRAY=(
     "mesong12b_w400_32_release"
     "mesong12b_w400_vccktest_release"
     "mesong12b_w400_vccktest_32_release"
+    "mesong12b_w411_release"
+    "mesong12b_w411_32_release"
     "mesong12a_skt_32_release"
     "mesong12a_skt_release"
     "mesong12a_u200_32_release"
