@@ -42,6 +42,19 @@ typedef struct _GstAmlYoloFace      GstAmlYoloFace;
 typedef struct _GstAmlYoloFaceClass GstAmlYoloFaceClass;
 typedef struct _GstAmlYoloFaceVTable GstAmlYoloFaceVTable;
 
+#define MAX_DETECT_NUM 100
+typedef struct _DetectPoint {
+  int left;
+  int top;
+  int right;
+  int bottom;
+} DetectPoint;
+
+typedef struct _DetectResult {
+   int  detect_num;
+   DetectPoint pt[MAX_DETECT_NUM];
+} DetectResult;
+
 struct _GstAmlYoloFace {
   GstBaseTransform element;
 
@@ -51,6 +64,9 @@ struct _GstAmlYoloFace {
 
   GstVideoInfo info;
   gboolean is_info_set;
+  gint detect_interval;
+  gint frame_cnt;
+  DetectResult *result;
 };
 
 struct _GstAmlYoloFaceClass {
