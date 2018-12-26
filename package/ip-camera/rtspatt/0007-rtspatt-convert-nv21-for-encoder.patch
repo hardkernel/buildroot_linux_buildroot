@@ -1,0 +1,15 @@
+diff --git a/src/pipeline.cpp b/src/pipeline.cpp
+index cf82866..c5d5fb1 100644
+--- a/src/pipeline.cpp
++++ b/src/pipeline.cpp
+@@ -54,8 +54,9 @@ std::string encode(std::shared_ptr<t_config> &config) {
+   launchCmd += config->scale.second;
+   // If face detection enabled, add it to the pipeline
+   if (config->face_detection) {
+-    launchCmd += " ! queue ! amlyoloface";
++    launchCmd += " ! amlyoloface";
+   }
++  launchCmd += " ! videoconvert ! video/x-raw,format=NV21";
+   launchCmd += " ! videorate ! video/x-raw,framerate=";
+   launchCmd += config->framerate;
+   launchCmd += "/1";
