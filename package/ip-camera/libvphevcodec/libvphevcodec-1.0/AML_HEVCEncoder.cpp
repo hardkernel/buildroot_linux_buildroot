@@ -1908,7 +1908,7 @@ retry:
 AMVEnc_Status AML_HEVCRelease(AMVHEVCEncHandle *Handle) {
     int end = 1;
 
-    if (Wave4VpuEncEncPic(Handle, Handle->src_idx, end, NULL, NULL, NULL) != 0)
+    if (Wave4VpuEncEncPic(Handle, Handle->src_idx, end, NULL, NULL, NULL) != AMVENC_SUCCESS)
         return AMVENC_FAIL;
     Handle->src_idx++;
     Handle->src_idx = Handle->src_idx % Handle->src_count;
