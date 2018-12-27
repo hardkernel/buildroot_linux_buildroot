@@ -1,0 +1,51 @@
+diff --git a/include/server.h b/include/server.h
+index cbd4fc5..ef8acc8 100644
+--- a/include/server.h
++++ b/include/server.h
+@@ -32,6 +32,7 @@
+ #define DEFAULT_DIGEST_ENABLED false
+ #define DEFAULT_GST_PIPELINE ""
+ #define DEFAULT_FACE_DETECTION_ENABLED false
++#define DEFAULT_FACE_DETECT_INTERVAL 3
+ #define DEFAULT_USE_X265 false
+ 
+ enum InputType { UNDEFINED_INPUT, FILE_INPUT, RTSP_INPUT, VIDEOTESTSRC_INPUT, DEVICE_INPUT };
+@@ -61,6 +62,7 @@ typedef struct s_config {
+   std::string pipeline;
+   // Face Detection
+   bool face_detection;
++  std::string face_detect_interval;
+   // use x265
+   bool use_x265;
+   bool disable_videorate;
+diff --git a/src/parsing.cpp b/src/parsing.cpp
+index b4a3298..9a0ec30 100644
+--- a/src/parsing.cpp
++++ b/src/parsing.cpp
+@@ -120,6 +120,12 @@ void parse_env(std::shared_ptr<t_config> &config) {
+     }
+   }
+ 
++  // Face Detect Interval
++  config->face_detect_interval = DEFAULT_FACE_DETECT_INTERVAL;
++  if (const char *interval = std::getenv("RTSP_FACE_DETECT_INTERVAL")) {
++    config->face_detect_interval = interval;
++  }
++
+   // Use x265enc
+   if ( const char *use_x265 = std::getenv("RTSP_USE_X265ENC")) {
+     if (strcmp(use_x265, "true") == 0) {
+diff --git a/src/pipeline.cpp b/src/pipeline.cpp
+index c13c196..c826248 100644
+--- a/src/pipeline.cpp
++++ b/src/pipeline.cpp
+@@ -54,7 +54,8 @@ std::string encode(std::shared_ptr<t_config> &config) {
+   launchCmd += config->scale.second;
+   // If face detection enabled, add it to the pipeline
+   if (config->face_detection) {
+-    launchCmd += " ! amlyoloface";
++    launchCmd += " ! amlyoloface interval=";
++    launchCmd += config->face_detect_interval;
+   }
+   launchCmd += " ! videoconvert ! video/x-raw,format=NV21";
+   if (!config->disable_videorate) {
