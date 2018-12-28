@@ -8,7 +8,7 @@ CFLAGS += $(INCLUDE) -fPIC
 ################################################################################
 # Supply necessary libraries.
 LIBS += -L$(AQROOT)/sharelib -l OpenVX -l OpenVXU -l CLC -l VSC -l m -lGAL -l ovxlib -l LLVM_viv
-LIBS += -lm -ldl -ldirectfb
+LIBS += -lm -ldl -ldirectfb -pthread
 
 #############################################################################
 # Macros.

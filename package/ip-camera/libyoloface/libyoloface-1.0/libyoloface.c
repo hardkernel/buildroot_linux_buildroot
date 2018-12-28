@@ -12,9 +12,24 @@
 #include "vx_utility.h"
 #include "libyoloface.h"
 
+#define USE_ASYNC_PROCESS
+
+#ifdef USE_ASYNC_PROCESS
+#include <pthread.h>
+
+typedef struct _process_buf_info {
+  vx_int8 *buf;
+  vx_int32 width;
+  vx_int32 height;
+} PROCESS_BUF_INFO_t;
+
+static pthread_mutex_t gs_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 #define NN_TENSOR_MAX_DIMENSION_NUMBER 4
 
 static DetectResult gDetectResult;
+static DetectResult gDetectResult_output;
 static vx_tensor                   input = NULL;
 static vx_tensor_addressing        inputs_tensor_addressing = NULL;
 
@@ -37,15 +52,15 @@ static tensors_info_t  outputs_info;
 
 static IDirectFB *dfb = NULL;
 static IDirectFBSurface *primary_surface = NULL;
-static bool primary_surface_locked = false;
 
-static const char*
-dfb_resize(const char *buf, int w, int h) {
+static char *
+dfb_resize(char *buf, int w, int h) {
   IDirectFBSurface *input_surface = NULL;
   DFBSurfaceDescription sdsc;
   DFBSurfaceDescription ddsc;
-  DFBRectangle dst;
-  const char* outbuf = NULL;
+  DFBRectangle dstrect;
+  const char* ddscbuf = NULL;
+  char* outbuf = NULL;
   int outpitch = 0;
 
   if (dfb == NULL) {
@@ -71,22 +86,33 @@ dfb_resize(const char *buf, int w, int h) {
     ddsc.caps = DSCAPS_NONE;
     ddsc.pixelformat = DSPF_RGB24;
     DFBCHECK(dfb->CreateSurface(dfb, &ddsc, &primary_surface));
-    primary_surface_locked = false;
   }
 
-  if (primary_surface_locked) {
-    primary_surface->Unlock(primary_surface);
-  }
 
-  dst.x = 0; dst.y = 0;
-  dst.w = NN_INPUT_WIDTH;
-  dst.h = NN_INPUT_HEIGHT;
+  dstrect.x = 0; dstrect.y = 0;
+  dstrect.w = NN_INPUT_WIDTH;
+  dstrect.h = NN_INPUT_HEIGHT;
 
   DFBCHECK(primary_surface->StretchBlit(primary_surface,
-        input_surface, NULL, &dst));
+        input_surface, NULL, &dstrect));
 
-  DFBCHECK(primary_surface->Lock(primary_surface, DSLF_READ, (void **)&outbuf, &outpitch));
-  primary_surface_locked = true;
+  DFBCHECK(primary_surface->Lock(primary_surface, DSLF_READ, (void **)&ddscbuf, &outpitch));
+
+  outbuf = (char *) malloc (NN_INPUT_WIDTH * NN_INPUT_HEIGHT * 3);
+  if (outpitch == NN_INPUT_WIDTH * 3) {
+    memcpy(outbuf, ddscbuf, outpitch * NN_INPUT_HEIGHT);
+  } else {
+    const char *src = ddscbuf;
+    char *dst = outbuf;
+    for (int h = 0; h < NN_INPUT_HEIGHT; h++) {
+      memcpy(dst, src, NN_INPUT_WIDTH * 3);
+      src += outpitch;
+      dst += (NN_INPUT_WIDTH * 3);
+    }
+  }
+
+  primary_surface->Unlock(primary_surface);
+
 
   DFBCHECK(input_surface->Release(input_surface));
 
@@ -95,9 +121,6 @@ dfb_resize(const char *buf, int w, int h) {
 
 static void dfb_resize_deinit() {
   if (primary_surface) {
-    if (primary_surface_locked) {
-      DFBCHECK(primary_surface->Unlock(primary_surface));
-    }
     DFBCHECK(primary_surface->Release(primary_surface));
     primary_surface = NULL;
   }
@@ -111,6 +134,9 @@ static void generate_detections_results(int num, float thresh, box *boxes, float
 {
   int i, detect_num = 0;
 
+#ifdef USE_ASYNC_PROCESS
+  pthread_mutex_lock(&gs_mutex);
+#endif
   for (i = 0; i < num; ++i)
   {
     int classId = max_index(probs[i], classes);
@@ -138,6 +164,9 @@ static void generate_detections_results(int num, float thresh, box *boxes, float
     }
   }
   gDetectResult.detect_num= detect_num ;
+#ifdef USE_ASYNC_PROCESS
+  pthread_mutex_unlock(&gs_mutex);
+#endif
 }
 
 static int yolo_v2_post_process(float *predictions, int width, int height, int modelWidth, int modelHeight, int input_num, int *input_size )
@@ -304,7 +333,11 @@ exit:
   return status;
 }
 
+#ifdef USE_ASYNC_PROCESS
+void *vx_image_process(void* param)
+#else
 static vx_status vx_image_process(vx_uint8 * src,int width,int height)
+#endif
 {
   vx_status status = VX_FAILURE;
   vx_uint32                   output_size[NN_TENSOR_MAX_DIMENSION_NUMBER];
@@ -326,7 +359,14 @@ static vx_status vx_image_process(vx_uint8 * src,int width,int height)
   //unsigned char *orgPixel = NULL;
   vx_float32 * outBuf = NULL;
 
+#ifdef USE_ASYNC_PROCESS
+  PROCESS_BUF_INFO_t *buf_info = (PROCESS_BUF_INFO_t *)param;
+  vx_uint8* src = buf_info->buf;
+  vx_int32 width = buf_info->width;
+  vx_int32 height = buf_info->height;
+#else
   src = dfb_resize(src, width, height);
+#endif
 
   data_format    = NN_INPUT_DATA_FORMAT;
   if (input_data_ptr == NULL)
@@ -343,6 +383,8 @@ static vx_status vx_image_process(vx_uint8 * src,int width,int height)
       input_data_ptr[j  + offset] = (vx_int8)((tmpdata >  127) ? 127 : (tmpdata < -128) ? -128 : tmpdata);
     }
   }
+
+  free(src);
 
   status = vxCopyTensorPatch(input, NULL, inputs_tensor_addressing, input_data_ptr, VX_WRITE_ONLY, 0);  //input_data_ptr to src
   _CHECK_STATUS(status, process_exit);
@@ -426,20 +468,43 @@ process_exit:
     vxReleaseTensorAddressing(&output_user_addr);
   }
 
+#ifdef USE_ASYNC_PROCESS
+  buf_info->buf = NULL;
+  return NULL;
+#else
   return status;
+#endif
 }
 
 #define DEFAULT_MODULE_PATH "/etc/yoloface_model.dat"
 
 int yoloface_init(const char *model_path) {
+  gDetectResult.detect_num = 0;
   if (model_path == NULL) {
     model_path = DEFAULT_MODULE_PATH;
   }
-  return vx_setup(model_path) == VX_SUCCESS;
+  return vx_setup((char *)model_path) == VX_SUCCESS;
 }
 
+PROCESS_BUF_INFO_t process_buf = {0};
+
 int yoloface_process(const char *buf, int width, int height) {
+#ifdef USE_ASYNC_PROCESS
+  if (process_buf.buf != NULL) {
+    // previous process not finished
+    return 1;
+  }
+
+  process_buf.buf = (vx_int8 *)dfb_resize((char *)buf, width, height);
+  process_buf.width = width;
+  process_buf.height = height;
+
+  pthread_t tid;
+  pthread_create(&tid, NULL, vx_image_process, (void*)&process_buf);
+  return 1;
+#else
   return vx_image_process(buf, width, height) == VX_SUCCESS;
+#endif
 }
 
 void yoloface_deinit() {
@@ -447,6 +512,13 @@ void yoloface_deinit() {
 }
 
 DetectResult *yoloface_get_detection_result() {
+#ifdef USE_ASYNC_PROCESS
+  pthread_mutex_lock(&gs_mutex);
+  memcpy(&gDetectResult_output, &gDetectResult, sizeof(gDetectResult));
+  pthread_mutex_unlock(&gs_mutex);
+  return &gDetectResult_output;
+#else
   return &gDetectResult;
+#endif
 }
 
