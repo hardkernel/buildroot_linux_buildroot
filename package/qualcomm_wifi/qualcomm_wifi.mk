@@ -31,6 +31,7 @@ define QUALCOMM_WIFI_BUILD_CMDS
 endef
 
 define QUALCOMM_WIFI_INSTALL_TARGET_CMDS
+	$(INSTALL) -D -m 755 package/qualcomm_wifi/S44bluetooth $(TARGET_DIR)/etc/init.d
 	$(QUALCOMM_QCA9377_INSTALL_CMDS)
 endef
 

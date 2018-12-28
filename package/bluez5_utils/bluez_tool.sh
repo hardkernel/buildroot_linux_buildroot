@@ -1,15 +1,16 @@
 #!/bin/sh
 
+
 if [ $2 ];then
-	mode=$2
+	device=$2
 else
-	mode="a2dp"
+	device="rtk"
 fi
 
 if [ $3 ];then
-	device=$3
+	mode=$3
 else
-	device="rtk"
+	mode="sink"
 fi
 
 configure_file="/etc/bluetooth/main.conf"
@@ -58,7 +59,7 @@ qca_bt_init()
 	hciattach -s 115200 /dev/ttyS1 qca 2> /dev/null
 }
 
-A2DP_service()
+A2DP_SINK_SERVICE()
 {
 	echo "|--bluez a2dp-sink/hfp-hf service--|"
 	hciconfig hci0 up
@@ -82,6 +83,7 @@ A2DP_service()
 	default_agent > /dev/null &
 	hfp_ctl &
 
+	hciconfig hci0 class 0x240408
 	hciconfig hci0 piscan
 	hciconfig hci0 inqparms 18:1024
 	hciconfig hci0 pageparms 18:1024
@@ -89,7 +91,27 @@ A2DP_service()
 
 }
 
-BLE_service()
+A2DP_SOURCE_SERVICE()
+{
+	echo "|--bluez a2dp-source service--|"
+	hciconfig hci0 up
+
+	grep -Insr "debug=1" $configure_file > /dev/null
+	if [ $? -eq 0 ]; then
+
+	echo "|--bluez service in debug mode--|"
+		/usr/libexec/bluetooth/bluetoothd -n -d 2> /etc/bluetooth/bluetoothd.log &
+		sleep 1
+		bluealsa -p a2dp-source 2> /etc/bluetooth/bluealsa.log &
+	else
+		/usr/libexec/bluetooth/bluetoothd -n &
+		sleep 1
+		bluealsa -p a2dp-source 2> /dev/null &
+	fi
+	default_agent > /dev/null &
+}
+
+BLE_SERVICE()
 {
 	echo "|--bluez ble service--|"
 	hciconfig hci0 up
@@ -107,16 +129,18 @@ service_down()
 	killall bluealsa
 	killall bluetoothd
 	killall btgatt-server
+        killall hcidump
 	hciconfig hci0 down
-
 }
 
 service_up()
 {
 	if [ $mode = "ble" ];then
-		BLE_service
+		BLE_SERVICE
+	elif [ $mode = "source" ];then
+		A2DP_SOURCE_SERVICE
 	else
-		A2DP_service
+		A2DP_SINK_SERVICE
 	fi
 }
 
@@ -154,6 +178,11 @@ Blue_start()
 	if [ $cnt -eq 0 ];then
 		echo "hcio shows up fail!!!"
 		exit 0
+	fi
+
+	grep -Insr "debug=1" $configure_file > /dev/null
+	if [ $? -eq 0 ]; then
+		hcidump -w /etc/bluetooth/btsnoop.cfa &
 	fi
 
 	service_up
@@ -194,7 +223,6 @@ case "$1" in
 		service_down
 		service_up
 		;;
-	netready|netup|netdown|netchange) ;;
 	stop)
 		Blue_stop
 		;;

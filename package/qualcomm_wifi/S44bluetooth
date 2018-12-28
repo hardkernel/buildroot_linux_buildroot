@@ -2,7 +2,7 @@
 
 case "$1" in
     start)
-        /usr/bin/bluez_tool.sh start rtk &
+        /usr/bin/bluez_tool.sh start qca &
         ;;
     stop)
         /usr/bin/bluez_tool.sh stop
