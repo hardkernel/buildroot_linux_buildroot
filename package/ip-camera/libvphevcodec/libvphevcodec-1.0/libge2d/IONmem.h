@@ -10,6 +10,7 @@
 #ifndef IONMEM_H
 #define IONMEM_H
 #include "ion.h"
+#include <stdbool.h>
 #if defined (__cplusplus)
 extern "C" {
 #endif
@@ -45,10 +46,11 @@ typedef struct IONMEM_AllocParams {
 
 
 int CMEM_init(void);
-unsigned long CMEM_alloc(size_t size, IONMEM_AllocParams *params);
+unsigned long CMEM_alloc(size_t size, IONMEM_AllocParams *params, bool cache_flag);
 /*void* CMEM_getUsrPtr(unsigned long PhyAdr, int size);*/
 int CMEM_free(IONMEM_AllocParams *params);
 int CMEM_exit(void);
+int CMEM_invalid_cache(int shared_fd);
 
 #if defined (__cplusplus)
 }
