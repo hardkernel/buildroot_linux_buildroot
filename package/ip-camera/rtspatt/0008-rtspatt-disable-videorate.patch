@@ -29,13 +29,13 @@ index fb37bbe..b4a3298 100644
  
  // Overwrite default parameters via cmd line
 diff --git a/src/pipeline.cpp b/src/pipeline.cpp
-index c5d5fb1..c13c196 100644
+index cf82866..557e66d 100644
 --- a/src/pipeline.cpp
 +++ b/src/pipeline.cpp
-@@ -57,9 +57,11 @@ std::string encode(std::shared_ptr<t_config> &config) {
-     launchCmd += " ! amlyoloface";
+@@ -56,9 +56,11 @@ std::string encode(std::shared_ptr<t_config> &config) {
+   if (config->face_detection) {
+     launchCmd += " ! queue ! amlyoloface";
    }
-   launchCmd += " ! videoconvert ! video/x-raw,format=NV21";
 -  launchCmd += " ! videorate ! video/x-raw,framerate=";
 -  launchCmd += config->framerate;
 -  launchCmd += "/1";

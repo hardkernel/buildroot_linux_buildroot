@@ -89,6 +89,8 @@ struct _GstAmlX264Enc
   gint gop;
   gint framerate;
   guint bitrate;
+  guint min_buffers;
+  guint max_buffers;
   guint sps_id;
 
   gint frame_packing;
