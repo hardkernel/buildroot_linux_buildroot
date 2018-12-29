@@ -11,7 +11,8 @@ start() {
 }
 stop() {
 	printf "Stopping audioservice: "
-    /usb/bin/asplay.py exit
+  #/usb/bin/asplay.py exit
+  killall audioservice
 	echo "OK"
 }
 restart() {
