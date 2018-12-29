@@ -230,10 +230,12 @@ load_x264_libraries (void)
   return TRUE;
 }
 
-#define PROP_IDR_PERIOD_DEFAULT -1
+#define PROP_IDR_PERIOD_DEFAULT 30
 #define PROP_FRAMERATE_DEFAULT 30
 #define PROP_BITRATE_DEFAULT 2000
 #define PROP_BITRATE_MAX 6000
+#define PROP_MIN_BUFFERS_DEFAULT 4
+#define PROP_MAX_BUFFERS_DEFAULT 6
 
 enum
 {
@@ -241,6 +243,8 @@ enum
   PROP_GOP,
   PROP_FRAMERATE,
   PROP_BITRATE,
+  PROP_MIN_BUFFERS,
+  PROP_MAX_BUFFERS,
 };
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
@@ -451,7 +455,7 @@ gst_amlx264enc_class_init (GstAmlX264EncClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_GOP,
       g_param_spec_int ("gop", "GOP", "IDR frame refresh interval",
-          -1, 255, PROP_IDR_PERIOD_DEFAULT,
+          -1, 1000, PROP_IDR_PERIOD_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_FRAMERATE,
@@ -462,6 +466,16 @@ gst_amlx264enc_class_init (GstAmlX264EncClass * klass)
   g_object_class_install_property (gobject_class, PROP_BITRATE,
       g_param_spec_int ("bitrate", "Bitrate", "bitrate(bps)",
           0, PROP_BITRATE_MAX, PROP_BITRATE_DEFAULT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_MIN_BUFFERS,
+      g_param_spec_int ("min-buffers", "Min-Buffers", "min number of input buffer",
+          3, 10, PROP_MIN_BUFFERS_DEFAULT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_MAX_BUFFERS,
+      g_param_spec_int ("max-buffers", "Max-Buffers", "max number of input buffer",
+          3, 10, PROP_MAX_BUFFERS_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_static_metadata (element_class,
@@ -497,7 +511,8 @@ gst_amlx264enc_init (GstAmlX264Enc * encoder)
 {
   encoder->gop = PROP_IDR_PERIOD_DEFAULT;
   encoder->framerate = PROP_FRAMERATE_DEFAULT;
-  encoder->bitrate = PROP_BITRATE_DEFAULT;
+  encoder->max_buffers = PROP_MAX_BUFFERS_DEFAULT;
+  encoder->min_buffers = PROP_MIN_BUFFERS_DEFAULT;
 }
 
 typedef struct
@@ -954,7 +969,7 @@ gst_amlx264enc_propose_allocation (GstVideoEncoder * encoder, GstQuery * query)
 {
   GstAmlX264Enc *self = GST_AMLX264ENC (encoder);
   GstVideoInfo *info;
-  guint num_buffers;
+  guint size, min = 0, max = 0;
 
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
 
@@ -965,9 +980,13 @@ gst_amlx264enc_propose_allocation (GstVideoEncoder * encoder, GstQuery * query)
     return FALSE;
 
   info = &self->input_state->info;
-  num_buffers = 2;
-
-  gst_query_add_allocation_pool (query, NULL, info->size, num_buffers, 0);
+  if (gst_query_get_n_allocation_pools (query) > 0) {
+    gst_query_parse_nth_allocation_pool (query, 0, NULL, &size, &min, &max);
+    size = MAX (size, info->size);
+    gst_query_set_nth_allocation_pool (query, 0, NULL, size, self->min_buffers, self->max_buffers);
+  } else {
+    gst_query_add_allocation_pool (query, NULL, info->size, self->min_buffers, self->max_buffers);
+  }
 
   return GST_VIDEO_ENCODER_CLASS (parent_class)->propose_allocation (encoder,
       query);
@@ -1149,6 +1168,12 @@ gst_amlx264enc_get_property (GObject * object, guint prop_id,
     case PROP_BITRATE:
       g_value_set_int (value, encoder->bitrate);
       break;
+    case PROP_MIN_BUFFERS:
+      g_value_set_int (value, encoder->min_buffers);
+      break;
+    case PROP_MAX_BUFFERS:
+      g_value_set_int (value, encoder->max_buffers);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1184,6 +1209,12 @@ gst_amlx264enc_set_property (GObject * object, guint prop_id,
       break;
     case PROP_BITRATE:
       encoder->bitrate = g_value_get_int (value);
+      break;
+    case PROP_MIN_BUFFERS:
+      encoder->min_buffers = g_value_get_int (value);
+      break;
+    case PROP_MAX_BUFFERS:
+      encoder->max_buffers = g_value_get_int (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
