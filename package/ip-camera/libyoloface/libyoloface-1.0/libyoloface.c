@@ -500,7 +500,10 @@ int yoloface_process(const char *buf, int width, int height) {
   process_buf.height = height;
 
   pthread_t tid;
-  pthread_create(&tid, NULL, vx_image_process, (void*)&process_buf);
+  pthread_attr_t attr;
+  int rc = pthread_attr_init(&attr);
+  rc = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+  rc = pthread_create(&tid, &attr, vx_image_process, (void*)&process_buf);
   return 1;
 #else
   return vx_image_process(buf, width, height) == VX_SUCCESS;
