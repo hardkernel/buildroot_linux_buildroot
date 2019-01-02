@@ -49,6 +49,20 @@ GST_DEBUG_CATEGORY_STATIC (gst_aml_yolo_face_debug);
 
 #define HAVE_AMLYOLOFACE_ADDITIONAL_LIBRARIES "/usr/lib/libyoloface.so"
 
+#define MAX_DETECT_NUM 100
+typedef struct _DetectPoint {
+  int left;
+  int top;
+  int right;
+  int bottom;
+} DetectPoint;
+
+typedef struct _DetectResult {
+   int  detect_num;
+   DetectPoint pt[MAX_DETECT_NUM];
+} DetectResult;
+
+
 
 struct _GstAmlYoloFaceVTable
 {
@@ -148,13 +162,9 @@ enum
   LAST_SIGNAL
 };
 
-#define PROP_DEFAULT_DETECT_INTERVAL 3
-#define PROP_MAX_DETECT_INTERVAL 10
-
 enum
 {
   PROP_0,
-  PROP_DETECT_INTERVAL,
 };
 
 /* the capabilities of the inputs and outputs.
@@ -295,11 +305,6 @@ gst_aml_yolo_face_class_init (GstAmlYoloFaceClass * klass)
   gobject_class->get_property = gst_aml_yolo_face_get_property;
   gobject_class->finalize = gst_aml_yolo_face_finalize;
 
-  g_object_class_install_property (gobject_class, PROP_DETECT_INTERVAL,
-      g_param_spec_int ("interval", "Interval", "Detection intervals(every n frames). 0: detect every frame",
-          0, PROP_MAX_DETECT_INTERVAL, PROP_DEFAULT_DETECT_INTERVAL,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
   gst_element_class_set_details_simple (gstelement_class,
     "AmlYoloFace",
     "Generic/Filter",
@@ -328,9 +333,6 @@ gst_aml_yolo_face_init (GstAmlYoloFace *filter)
   filter->vtable = NULL;
   filter->is_facelib_inited = FALSE;
   filter->is_info_set = FALSE;
-  filter->detect_interval = PROP_DEFAULT_DETECT_INTERVAL;
-  filter->frame_cnt = 0;
-  filter->result = NULL;
   gst_aml_yolo_face_open (filter);
 }
 
@@ -341,9 +343,6 @@ gst_aml_yolo_face_set_property (GObject * object, guint prop_id,
   GstAmlYoloFace *filter = GST_AMLYOLOFACE (object);
 
   switch (prop_id) {
-    case PROP_DETECT_INTERVAL:
-      filter->detect_interval = g_value_get_int (value);
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -357,9 +356,6 @@ gst_aml_yolo_face_get_property (GObject * object, guint prop_id,
   GstAmlYoloFace *filter = GST_AMLYOLOFACE (object);
 
   switch (prop_id) {
-    case PROP_DETECT_INTERVAL:
-      g_value_set_int (value, filter->detect_interval);
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -447,25 +443,17 @@ gst_aml_yolo_face_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     return GST_FLOW_ERROR;
   }
 
-  filter->frame_cnt ++;
 
   GstVideoInfo *info = &filter->info;
   GstMapInfo outbuf_info;
   if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
-    if (filter->detect_interval == 0 ||
-        (filter->frame_cnt % (filter->detect_interval + 1)) == 0) {
-      if (filter->vtable->yoloface_process (outbuf_info.data, info->width, info->height) != 0) {
-        filter->result = filter->vtable->yoloface_get_detection_result ();
-      } else {
-        filter->result = NULL;
-      }
-    }
-    if (filter->result) {
-      for (int i = 0; i < filter->result->detect_num; i++) {
-        draw_rect (outbuf_info.data, info->width, info->height,
-            filter->result->pt[i].left, filter->result->pt[i].top,
-            filter->result->pt[i].right, filter->result->pt[i].bottom, 2);
-      }
+    if (filter->vtable->yoloface_process (outbuf_info.data, info->width, info->height) != 0) {
+        DetectResult *result = filter->vtable->yoloface_get_detection_result ();
+        for (int i = 0; i < result->detect_num; i++) {
+          draw_rect (outbuf_info.data, info->width, info->height,
+              result->pt[i].left, result->pt[i].top,
+              result->pt[i].right, result->pt[i].bottom, 2);
+        }
     }
     gst_buffer_unmap (outbuf, &outbuf_info);
   }
