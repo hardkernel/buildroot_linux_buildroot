@@ -20,7 +20,7 @@ index 986a8c3..8e20c50 100644
  
  typedef struct s_server {
 diff --git a/src/parsing.cpp b/src/parsing.cpp
-index 676c893..053f6fa 100644
+index 32741d2..af00790 100644
 --- a/src/parsing.cpp
 +++ b/src/parsing.cpp
 @@ -109,13 +109,23 @@ void parse_env(std::shared_ptr<t_config> &config) {
@@ -59,7 +59,7 @@ index 676c893..053f6fa 100644
        fprintf(stdout,
                "Usage: %s [-l address] [-b port] [-r route] [-i "
 diff --git a/src/pipeline.cpp b/src/pipeline.cpp
-index 878cbaa..f34fb64 100644
+index 2c4c387..56def6e 100644
 --- a/src/pipeline.cpp
 +++ b/src/pipeline.cpp
 @@ -47,6 +47,10 @@ std::string encode(std::shared_ptr<t_config> &config) {
@@ -68,7 +68,7 @@ index 878cbaa..f34fb64 100644
    launchCmd += config->scale.second;
 +  // If face detection enabled, add it to the pipeline
 +  if (config->face_detection) {
-+    launchCmd += " ! queue ! amlyoloface";
++    launchCmd += " ! amlyoloface";
 +  }
    launchCmd += " ! videorate ! video/x-raw,framerate=";
    launchCmd += config->framerate;
