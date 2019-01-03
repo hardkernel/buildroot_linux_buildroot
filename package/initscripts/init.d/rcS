@@ -4,13 +4,6 @@ if [ -f /etc/init.d/rc.modules ]; then
         /etc/init.d/rc.modules
 fi
 
-#Must run S03datamount first, as it will change /etc folder
-#then impact what kind /etc/init.d/* scripts need to run
-#S03datamount must report no error if run multi-times
-if [ -f /etc/init.d/S03datamount ]; then
-        /etc/init.d/S03datamount start
-fi
-
 # make sure user config directory is /var
 # / is read only, which can causes some application launch failed
 export XDG_CONFIG_HOME=/var
