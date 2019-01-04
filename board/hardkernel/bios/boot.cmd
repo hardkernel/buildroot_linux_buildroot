@@ -10,7 +10,7 @@ setenv kernel_addr_r "0x1080000"
 setenv kernel_addr_load "0x4000000"
 setenv ramdisk_addr_r "0x3080000"
 
-setenv fdtfile "s922d_odroidn2.dtb"
+setenv fdtfile "meson64_odroidn2.dtb"
 
 load mmc ${devno}:1 ${kernel_addr_load} uImage
 && load mmc ${devno}:1 ${ramdisk_addr_r} rootfs.cpio.uboot

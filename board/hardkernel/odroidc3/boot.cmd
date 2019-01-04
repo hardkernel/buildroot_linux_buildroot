@@ -9,7 +9,7 @@ setenv kernel_addr_r "0x1080000"
 setenv kernel_addr_load "0x3000000"
 setenv ramdisk_addr_r "0x3080000"
 
-setenv fdtfile "s905d2_odroidc3.dtb"
+setenv fdtfile "meson64_odroidc3.dtb"
 
 fatload mmc ${devno}:1 ${kernel_addr_load} Image.gz
 && unzip ${kernel_addr_load} ${kernel_addr_r}
