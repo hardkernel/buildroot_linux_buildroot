@@ -456,10 +456,42 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
   buffer_full = true;
   struct buf_status bufstat;
   int ret;
-  if (isvideo)
+  if (isvideo) {
     ret = codec_get_vbuf_state(codec_param, &bufstat);
-  else
+    // send HDR metadata before feeding any data
+    if (num_frame_pts == 0) {
+      const SbMediaVideoSampleInfo *sinfo = input_buffer->video_sample_info();
+      if (sinfo && sinfo->color_metadata &&
+          ((sinfo->color_metadata->transfer == kSbMediaTransferIdSmpteSt2084) ||
+           (sinfo->color_metadata->transfer == kSbMediaTransferIdAribStdB67))) {
+        SbMediaMasteringMetadata *md = &sinfo->color_metadata->mastering_metadata;
+        char buf[256];
+        sprintf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d",
+                // below 8 values are in units of 0.00002
+                (int)(md->primary_g_chromaticity_x * 50000 + 0.5),
+                (int)(md->primary_g_chromaticity_y * 50000 + 0.5),
+                (int)(md->primary_b_chromaticity_x * 50000 + 0.5),
+                (int)(md->primary_b_chromaticity_y * 50000 + 0.5),
+                (int)(md->primary_r_chromaticity_x * 50000 + 0.5),
+                (int)(md->primary_r_chromaticity_y * 50000 + 0.5),
+                (int)(md->white_point_chromaticity_x * 50000 + 0.5),
+                (int)(md->white_point_chromaticity_y * 50000 + 0.5),
+                // in 0.0001 cd/m^2
+                (int)(md->luminance_max * 10000 + 0.5),
+                (int)(md->luminance_min * 10000 + 0.5),
+                // in cd/m^2
+                (int)(sinfo->color_metadata->max_cll + 0.5),
+                (int)(sinfo->color_metadata->max_fall + 0.5));
+        amsysfs_set_sysfs_str( "/sys/module/am_vecm/parameters/customer_master_display_param", buf);
+        amsysfs_set_sysfs_int( "/sys/module/am_vecm/parameters/customer_master_display_en", 1);
+        CLOG(INFO) << "Write HDR metadata: " << buf;
+      } else {
+        amsysfs_set_sysfs_int( "/sys/module/am_vecm/parameters/customer_master_display_en", 0);
+      }
+    }
+  } else {
     ret = codec_get_abuf_state(codec_param, &bufstat);
+  }
   if (ret != 0) {
     CLOG(ERROR) << "failed to get buffer state ret:" << ret << " errno:" << errno << ":" << strerror(errno);
     *written = false;
@@ -807,6 +839,10 @@ AmlVideoRenderer::~AmlVideoRenderer() {
     CLOG(ERROR) << "clean up EGL resources";
     SbDecodeTargetRunInGlesContext(decode_target_graphics_context_provider_,
                                    &AmlVideoRenderer::ReleaseEGLResource, this);
+    amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+    amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder amvideo");
+    amsysfs_set_sysfs_int("/sys/module/amvdec_vp9/parameters/double_write_mode", 0);
+    amsysfs_set_sysfs_int( "/sys/module/am_vecm/parameters/customer_master_display_en", 0);
   }
 #endif /* SB_HAS(GLES2) */
 }
