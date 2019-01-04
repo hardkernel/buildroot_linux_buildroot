@@ -28,7 +28,7 @@ SPIBOOT_IMAGE=${BINARIES_DIR}/spiboot.img
 rm -f ${SPIBOOT_IMAGE}
 dd if=/dev/zero of=${SPIBOOT_IMAGE} bs=1M count=8 conv=fsync,notrunc
 dd if=${BINARIES_DIR}/u-boot.bin of=${SPIBOOT_IMAGE} bs=512 seek=0 conv=fsync,notrunc
-dd if=${BINARIES_DIR}/s922d_odroidn2.dtb of=${SPIBOOT_IMAGE} bs=512 seek=2048 conv=fsync,notrunc
+dd if=${BINARIES_DIR}/meson64_odroidn2.dtb of=${SPIBOOT_IMAGE} bs=512 seek=2048 conv=fsync,notrunc
 dd if=${BINARIES_DIR}/uImage of=${SPIBOOT_IMAGE} bs=512 seek=2248 conv=fsync,notrunc
 dd if=${BINARIES_DIR}/rootfs.cpio.uboot of=${SPIBOOT_IMAGE} bs=512 seek=10038 conv=fsync,notrunc
 

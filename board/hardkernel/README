@@ -13,10 +13,10 @@ How to build it
 ===============
 
 For ODROID-C3,
-  $ make odroidc3_s905d2_32_release_defconfig
+  $ make odroidc3_release_defconfig
 
 For ODROID-N2,
-  $ make odroidn2_s922d_release_defconfig
+  $ make odroidn2_release_defconfig
 
 Then you can edit the build options using
 
@@ -40,8 +40,8 @@ After building, you should obtain this tree:
     +-- boot.scr                   [2]
     +-- boot.cmd                   [3]
     +-- boot.vfat
-    +-- s905d2_odroidc3.dtb        [4]
-    +-- s922d_odroidn2.dtb         [5]
+    +-- meson64_odroidc3.dtb       [4]
+    +-- meson64_odroidn2.dtb       [5]
     +-- rootfs.ext2
     +-- rootfs.ext4
     +-- rootfs.cpio
