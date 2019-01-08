@@ -8,7 +8,7 @@ menu "Target packages"
 menu "amlogic"
 	source "package/aml_customer/Config.in"
 	source "package/aml_util/Config.in"
-	source "package/aml_pdm_mic_test/Config.in
+	source "package/aml_pdm_mic_test/Config.in"
 	source "package/aml_thermal/Config.in"
 	source "package/amlogic_test/Config.in"
 	source "package/aml_brcm_bsa/Config.in"
