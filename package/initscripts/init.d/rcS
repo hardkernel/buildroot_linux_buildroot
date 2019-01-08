@@ -4,6 +4,13 @@ if [ -f /etc/init.d/rc.modules ]; then
         /etc/init.d/rc.modules
 fi
 
+#Must run S02overlayfs first, as it will change /etc folder
+#then impact what kind /etc/init.d/* scripts need to run
+if [ -f /etc/init.d/S02overlayfs ]; then
+    /etc/init.d/S02overlayfs start
+fi
+
+
 # make sure user config directory is /var
 # / is read only, which can causes some application launch failed
 export XDG_CONFIG_HOME=/var
@@ -29,6 +36,9 @@ for i in /etc/init.d/S??* ;do
      [ ! -f "$i" ] && continue
 
      case "$i" in
+	*S02overlayfs)
+        continue
+        ;;
 	*.sh)
 	    # Source shell script for speed.
 	    (
