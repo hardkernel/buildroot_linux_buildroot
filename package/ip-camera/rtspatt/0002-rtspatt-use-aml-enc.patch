@@ -8,7 +8,7 @@ index f8636aa..db471e5 100644
    launchCmd += "/1";
 -  launchCmd += " ! capsfilter ! queue"
 -               " ! x264enc speed-preset=superfast";
-+  launchCmd += " ! amlx264enc";
++  launchCmd += " ! amlvenc";
 +  launchCmd += " framerate=";
 +  launchCmd += config->framerate;
  

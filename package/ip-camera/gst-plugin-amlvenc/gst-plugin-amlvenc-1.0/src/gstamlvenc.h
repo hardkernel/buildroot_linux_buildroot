@@ -43,8 +43,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GST_AMLX265ENC_H__
-#define __GST_AMLX265ENC_H__
+#ifndef __GST_AMLVENC_H__
+#define __GST_AMLVENC_H__
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
@@ -56,34 +56,32 @@
 
 G_BEGIN_DECLS
 
-#define GST_TYPE_AMLX265ENC \
-  (gst_amlx265enc_get_type())
-#define GST_AMLX265ENC(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_AMLX265ENC,GstAmlX265Enc))
-#define GST_AMLX265ENC_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_AMLX265ENC,GstAmlX265EncClass))
-#define GST_IS_AMLX265ENC(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLX265ENC))
-#define GST_IS_AMLX265ENC_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLX265ENC))
+#define GST_TYPE_AMLVENC \
+  (gst_amlvenc_get_type())
+#define GST_AMLVENC(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_AMLVENC,GstAmlVEnc))
+#define GST_AMLVENC_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_AMLVENC,GstAmlVEncClass))
+#define GST_IS_AMLVENC(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_AMLVENC))
+#define GST_IS_AMLVENC_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_AMLVENC))
 
-typedef struct _GstAmlX265Enc      GstAmlX265Enc;
-typedef struct _GstAmlX265EncClass GstAmlX265EncClass;
-typedef struct _GstAmlX265EncVTable GstAmlX265EncVTable;
+typedef struct _GstAmlVEnc      GstAmlVEnc;
+typedef struct _GstAmlVEncClass GstAmlVEncClass;
+typedef struct _GstAmlVEncVTable GstAmlVEncVTable;
 
 typedef long vl_codec_handle_t;
 
-struct _GstAmlX265Enc
+struct _GstAmlVEnc
 {
   GstVideoEncoder element;
 
   /*< private >*/
-  GstAmlX265EncVTable *vtable;
-  vl_codec_handle_t x265enc;
-
-  /* List of frame/buffer mapping structs for
-   * pending frames */
-  GList *pending_frames;
+  GstAmlVEncVTable *vtable;
+  vl_codec_handle_t venc;
+  gchar *enc_buf;
+  gint enc_type;
 
   /* properties */
   gint gop;
@@ -91,30 +89,20 @@ struct _GstAmlX265Enc
   guint bitrate;
   guint min_buffers;
   guint max_buffers;
-  guint sps_id;
-
-  gint frame_packing;
+  guint encoder_bufsize;
 
   /* input description */
   GstVideoCodecState *input_state;
 
-  /* configuration changed  while playing */
-  gboolean reconfig;
-
-  /* from the downstream caps */
-  const gchar *peer_profile;
-  gboolean peer_intra_profile;
-  gint peer_level_idc;
-
 };
 
-struct _GstAmlX265EncClass
+struct _GstAmlVEncClass
 {
   GstVideoEncoderClass parent_class;
 };
 
-GType gst_amlx265enc_get_type (void);
+GType gst_amlvenc_get_type (void);
 
 G_END_DECLS
 
-#endif /* __GST_AMLX265ENC_H__ */
+#endif /* __GST_AMLVENC_H__ */

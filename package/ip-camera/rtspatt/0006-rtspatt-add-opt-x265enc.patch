@@ -75,19 +75,6 @@ index 3e6df65..cf82866 100644
              << "Framerate:\t" << config->framerate << std::endl
              << "Bitrate:\t" << config->bitrate << std::endl
              << "Resolution:\t" << config->scale.first << "x"
-@@ -54,7 +59,11 @@ std::string encode(std::shared_ptr<t_config> &config) {
-   launchCmd += " ! videorate ! video/x-raw,framerate=";
-   launchCmd += config->framerate;
-   launchCmd += "/1";
--  launchCmd += " ! amlx264enc";
-+  if (config->use_x265) {
-+    launchCmd += " ! amlx265enc";
-+  } else {
-+    launchCmd += " ! amlx264enc";
-+  }
-   launchCmd += " framerate=";
-   launchCmd += config->framerate;
-   launchCmd += " bitrate=";
 @@ -140,7 +149,11 @@ std::string create_pipeline(std::shared_ptr<t_config> &config) {
        launchCmd += create_device_input(config);
      }

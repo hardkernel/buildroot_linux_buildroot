@@ -44,6 +44,6 @@ index cf82866..557e66d 100644
 +    launchCmd += config->framerate;
 +    launchCmd += "/1";
 +  }
-   if (config->use_x265) {
-     launchCmd += " ! amlx265enc";
-   } else {
+   launchCmd += " ! amlvenc";
+   launchCmd += " framerate=";
+   launchCmd += config->framerate;
