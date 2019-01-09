@@ -321,9 +321,9 @@ $(Q) case "$(1)" in \
 	AP6236) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/6212; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/6212/; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/*.txt $(TARGET_DIR)/etc/wifi/6212/nvram.txt; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/bcm43430b.hcd; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/6212/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/nvram*.txt $(TARGET_DIR)/etc/wifi/6212/nvram.txt; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/BCM43430B0.hcd; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/config.txt $(TARGET_DIR)/etc/wifi/6212/; \
 		;; \
 	AP6234) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/6234; \
