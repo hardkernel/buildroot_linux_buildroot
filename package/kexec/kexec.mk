@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-KEXEC_VERSION = v2.0.18
-KEXEC_SITE = git://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git
+KEXEC_VERSION = odroid-v2.0.18
+KEXEC_SITE = https://github.com/tobetter/kexec-tools.git
 KEXEC_SITE_METHOD = git
 KEXEC_INSTALL_STAGING = YES
 KEXEC_LICENSE = GPLv2
