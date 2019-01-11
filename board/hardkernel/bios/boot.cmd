@@ -4,6 +4,7 @@
 
 setenv videoargs "logo=osd0,loaded,0x3d800000 vout=1080p60hz,enable hdmimode=1080p60hz osd_reverse=0 video_reverse=0"
 setenv bootargs "root=/dev/ram0 init=/int console=tty0 console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xff803000 ramoops.pstore_en1=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 console=tty0 ${videoargs}"
+setenv bootargs "${bootargs} quiet"
 
 setenv fdt_addr_r "0x1000000"
 setenv kernel_addr_r "0x1080000"
