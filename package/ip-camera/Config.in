@@ -8,4 +8,9 @@ source "package/ip-camera/libvpcodec/Config.in"
 source "package/ip-camera/libvphevcodec/Config.in"
 source "package/ip-camera/gst-plugin-amlyoloface/Config.in"
 source "package/ip-camera/libyoloface/Config.in"
+config BR2_LINUX_KERNEL_IRCUT
+	bool "amlogic ircut"
+	default n
+	help
+	  amlogic ircut control
 endmenu

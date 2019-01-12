@@ -561,3 +561,8 @@ BR2_PACKAGE_BOA=y
 #Web ui wifi config
 #
 BR2_PACKAGE_WEB_UI_WIFI=y
+
+#
+#Enable amlogic ircut
+#
+BR2_LINUX_KERNEL_IRCUT=y
