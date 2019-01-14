@@ -201,83 +201,6 @@ static void gst_aml_yolo_face_set_property (GObject * object, guint prop_id,
 static void gst_aml_yolo_face_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-typedef enum LINE_DIRECTION_e {
-  LINE_DIRECTION_VERTICAL,
-  LINE_DIRECTION_HORIZONTAL,
-} LINE_DIRECTION_t;
-
-static void
-draw_line (gchar *buf, gint buf_w, gint buf_h, gint x0, gint y0, gint length, gint thickness, LINE_DIRECTION_t dir) {
-  gint pos;
-  gchar *pfill;
-
-  if (length <=0) return;
-
-  thickness =  thickness <= 0 ? 1 : thickness;
-
-  if (dir == LINE_DIRECTION_HORIZONTAL) {
-    if (y0 + thickness > buf_h) {
-      y0 = buf_h - thickness;
-    }
-    length += thickness;
-    if (x0 + length > buf_w) {
-      length = buf_w - x0;
-    }
-    for (gint t = 0; t < thickness; t++) {
-      pos = x0 + (y0 + t) * buf_w;
-      pfill = buf + pos * 3;
-      for (gint w = 0; w < length; w++) {
-        *pfill++ = 255;
-        *pfill++ = 0;
-        *pfill++ = 0;
-      }
-    }
-  } else {
-    if (x0 + thickness > buf_w) {
-      x0 = buf_w - thickness;
-    }
-    for (gint h = 0; h < length; h++) {
-      pos = x0 + (y0 + h) * buf_w;
-      pfill = buf + pos * 3;
-      for (gint t = 0; t < thickness; t++) {
-        *pfill++ = 255;
-        *pfill++ = 0;
-        *pfill++ = 0;
-      }
-    }
-  }
-
-}
-
-static void
-draw_rect (gchar *buf, gint w, gint h, gint x0, gint y0, gint x1, gint y1, gint thickness) {
-  if (x1 < x0) {
-    gint temp = x1;
-    x1 = x0;
-    x0 = temp;
-  }
-  if (y1 < y0) {
-    gint temp = y1;
-    y1 = y0;
-    y0 = temp;
-  }
-
-  if (x1 >= w || y1 >= h) {
-    return;
-  }
-
-  gint fill_w = x1 - x0;
-  gint fill_h = y1 - y0;
-  thickness = thickness > fill_w ? fill_w : thickness;
-  thickness = thickness > fill_h ? fill_h : thickness;
-
-  draw_line (buf, w, h, x0, y0, fill_w, thickness, LINE_DIRECTION_HORIZONTAL);
-  draw_line (buf, w, h, x0, y1, fill_w, thickness, LINE_DIRECTION_HORIZONTAL);
-  draw_line (buf, w, h, x0, y0, fill_h, thickness, LINE_DIRECTION_VERTICAL);
-  draw_line (buf, w, h, x1, y0, fill_h, thickness, LINE_DIRECTION_VERTICAL);
-
-}
-
 static gboolean gst_aml_yolo_face_open (GstAmlYoloFace * base);
 
 static gboolean gst_aml_yolo_face_close (GstAmlYoloFace * base);
@@ -417,6 +340,29 @@ gst_aml_yolo_face_set_caps (GstBaseTransform * base, GstCaps * in, GstCaps * out
 }
 
 /* GstBaseTransform vmethod implementations */
+#define GST_EVENT_YOLOFACE_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
+static void
+gst_aml_yolo_face_push_result (GstBaseTransform * base, DetectResult *result)
+{
+  if (result->detect_num <= 0) return;
+
+  int res_size = result->detect_num * sizeof (DetectPoint);
+  GstMapInfo info;
+
+  GstBuffer *resbuf = gst_buffer_new_allocate (NULL, res_size, NULL);
+  if ( !gst_buffer_map (resbuf, &info, GST_MAP_WRITE)) return;
+
+  g_memmove (info.data, result->pt, res_size);
+  gst_buffer_unmap (resbuf, &info);
+  GstStructure *resst = gst_structure_new ("face-detection",
+      "rectnum", G_TYPE_INT, result->detect_num,
+      "rectbuf", GST_TYPE_BUFFER, resbuf,
+      NULL);
+
+  GstEvent *face_detect_event = gst_event_new_custom (GST_EVENT_YOLOFACE_DETECTED,
+      resst);
+  gst_element_send_event (base, face_detect_event);
+}
 
 /* this function does the actual processing
  */
@@ -449,11 +395,7 @@ gst_aml_yolo_face_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
   if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
     if (filter->vtable->yoloface_process (outbuf_info.data, info->width, info->height) != 0) {
         DetectResult *result = filter->vtable->yoloface_get_detection_result ();
-        for (int i = 0; i < result->detect_num; i++) {
-          draw_rect (outbuf_info.data, info->width, info->height,
-              result->pt[i].left, result->pt[i].top,
-              result->pt[i].right, result->pt[i].bottom, 2);
-        }
+        gst_aml_yolo_face_push_result (base, result);
     }
     gst_buffer_unmap (outbuf, &outbuf_info);
   }

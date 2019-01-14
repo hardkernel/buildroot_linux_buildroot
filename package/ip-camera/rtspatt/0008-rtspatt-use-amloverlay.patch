@@ -1,0 +1,150 @@
+diff --git a/include/server.h b/include/server.h
+index cbd4fc5..52a88bf 100644
+--- a/include/server.h
++++ b/include/server.h
+@@ -28,7 +28,7 @@
+ #define DEFAULT_WIDTH "1920"
+ #define DEFAULT_HEIGHT "1080"
+ #define DEFAULT_BITRATE "2000"
+-#define DEFAULT_TIME_ENABLED false
++#define DEFAULT_OVERLAY_OPTION ""
+ #define DEFAULT_DIGEST_ENABLED false
+ #define DEFAULT_GST_PIPELINE ""
+ #define DEFAULT_FACE_DETECTION_ENABLED false
+@@ -54,7 +54,7 @@ typedef struct s_config {
+   std::string bitrate;
+ 
+   // Options
+-  bool time;
++  std::string overlay_option;
+   bool digest;
+ 
+   // Custom gstreamer pipeline
+diff --git a/src/parsing.cpp b/src/parsing.cpp
+index b4a3298..a79756c 100644
+--- a/src/parsing.cpp
++++ b/src/parsing.cpp
+@@ -84,14 +84,10 @@ void parse_env(std::shared_ptr<t_config> &config) {
+     config->input = input;
+   }
+ 
+-  // Time
+-  config->time = DEFAULT_TIME_ENABLED;
+-  if (const char *time = std::getenv("ENABLE_TIME_OVERLAY")) {
+-    if (strcmp(time, "false") == 0) {
+-      config->time = false;
+-    } else {
+-      config->time = true;
+-    }
++  // Overlay
++  config->overlay_option = DEFAULT_OVERLAY_OPTION;
++  if (const char *option = std::getenv("RTSP_OVERLAY_OPTION")) {
++    config->overlay_option = option;
+   }
+ 
+   // Digest auth (if anything other than digest, basic will be used)
+@@ -141,7 +137,7 @@ void parse_env(std::shared_ptr<t_config> &config) {
+ bool parse_args(std::shared_ptr<t_config> &config, int argc, char **argv) {
+   int c;
+   opterr = 0;
+-  while ((c = getopt(argc, argv, "r:u:l:p:b:f:s:i:g:e:htax")) != -1) {
++  while ((c = getopt(argc, argv, "r:u:l:p:b:f:s:i:g:e:t:hax")) != -1) {
+     switch (c) {
+     case 'r': // Route
+       if (optarg && optarg[0] == '-') {
+@@ -212,8 +208,11 @@ bool parse_args(std::shared_ptr<t_config> &config, int argc, char **argv) {
+       config->bitrate = optarg;
+       break;
+     }
+-    case 't': // Time Overlay
+-      config->time = true;
++    case 't': // Overlay
++      if (optarg && optarg[0] == '-') {
++        break;
++      }
++      config->overlay_option = optarg;
+       break;
+     case 'd': // Use digest instead of basic auth
+       config->digest = true;
+@@ -234,14 +233,14 @@ bool parse_args(std::shared_ptr<t_config> &config, int argc, char **argv) {
+       fprintf(stdout,
+               "Usage: %s [-l address] [-b port] [-r route] [-i "
+               "input] [-u username] [-p password] [-f framerate] [-s "
+-              "'width'x'height'] [-d] [-t] [-h] [-g gst-pipeline] [-e bitrate]\n",
++              "'width'x'height'] [-d] [-t overly-option] [-h] [-g gst-pipeline] [-e bitrate]\n",
+               argv[0]);
+       exit(0);
+       break;
+     case '?':
+       if (optopt == 'r' || optopt == 'l' || optopt == 'p' || optopt == 'u' ||
+           optopt == 'i' || optopt == 'a' || optopt == 'b' || optopt == 'f' ||
+-          optopt == 's' || optopt == 'g' || optopt == 'e') {
++          optopt == 's' || optopt == 't' || optopt == 'g' || optopt == 'e') {
+         fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+       } else if (isprint(optopt)) {
+         fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+diff --git a/src/pipeline.cpp b/src/pipeline.cpp
+index a663065..1ddaa48 100644
+--- a/src/pipeline.cpp
++++ b/src/pipeline.cpp
+@@ -18,19 +18,6 @@
+ #include <iostream>
+ #include <string.h>
+ 
+-// If time overlay is enabled, add it to the pipeline
+-std::string time_overlay(std::shared_ptr<t_config> &config) {
+-  if (config->time) {
+-    return " ! timeoverlay halignment=left valignment=top "
+-           "shaded-background=true "
+-           "font-desc=\"Sans 10\" ! "
+-           "clockoverlay halignment=right valignment=top "
+-           "shaded-background=true "
+-           "font-desc=\"Sans 10\"";
+-  }
+-  return "";
+-}
+-
+ // Take raw, change caps according to conf and transcode in h264
+ std::string encode(std::shared_ptr<t_config> &config) {
+   if (config->use_x265) {
+@@ -56,6 +43,8 @@ std::string encode(std::shared_ptr<t_config> &config) {
+   if (config->face_detection) {
+     launchCmd += " ! amlyoloface";
+   }
++  launchCmd += " ! amloverlay ";
++  launchCmd += config->overlay_option;
+   if (!config->disable_videorate) {
+     launchCmd += " ! videorate ! video/x-raw,framerate=";
+     launchCmd += config->framerate;
+@@ -85,7 +74,6 @@ std::string create_rtsp_input(std::shared_ptr<t_config> &config) {
+       config->scale.second != DEFAULT_HEIGHT) {
+     launchCmd += " ! h264parse ! avdec_h264"; // Decode
+ 
+-    launchCmd += time_overlay(config);
+     launchCmd += encode(config);
+   }
+   return launchCmd;
+@@ -101,7 +89,6 @@ std::string create_videotestsrc_input(std::shared_ptr<t_config> &config) {
+     launchCmd += config->input.substr(8);
+   }
+ 
+-  launchCmd += time_overlay(config);
+   launchCmd += encode(config);
+   return launchCmd;
+ }
+@@ -113,7 +100,6 @@ std::string create_file_input(std::shared_ptr<t_config> &config) {
+   launchCmd += "appsrc name=mysrc";
+   launchCmd += " ! decodebin";
+ 
+-  launchCmd += time_overlay(config);
+   launchCmd += encode(config);
+   return launchCmd;
+ }
+@@ -125,7 +111,6 @@ std::string create_device_input(std::shared_ptr<t_config> &config) {
+   launchCmd += " v4l2src device=";
+   launchCmd += config->input;
+ 
+-  launchCmd += time_overlay(config);
+   launchCmd += encode(config);
+   return launchCmd;
+ }

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GST_PLUGIN_AMLOVERLAY
+	bool "Amlogic gstream1 text overlay plugin"
+	help
+	  gstreamer 1.0 plugins
