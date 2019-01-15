@@ -28,7 +28,7 @@ menu "amlogic"
     source "package/bt_setup/Config.in"
 	source "package/assistant-sdk/Config.in"
 	source "package/mdnsresponder/Config.in"
-	source "package/audioservice/Config.in"
+	source "../vendor/amlogic/audioservice/Config.in"
 	source "package/aml_dvb/Config.in"
 	source "package/aml_zvbi/Config.in"
 endmenu
