@@ -331,6 +331,7 @@ static bool AddVP9Header(uint8_t *buf, int dsize, std::vector<uint8_t> & data)
         return false;
   }
   data.resize(0);
+  data.reserve(dsize + frame_number * 16);
   if (frame_number >= 1) {
     for (cur_frame = 0; cur_frame < frame_number; cur_frame++) {
       int framesize = size[cur_frame];
@@ -359,6 +360,12 @@ static bool AddVP9Header(uint8_t *buf, int dsize, std::vector<uint8_t> & data)
       data.insert(data.end(), fdata, fdata+16);
       framesize -= 4;
       data.insert(data.end(), old_framedata, old_framedata+framesize);
+    }
+    // VP9 decoder may not work for a small frame, padding to 4K bytes
+    if (data.size() < 1023 * 4) {
+      data.insert(data.end(), 1023 * 4 - data.size(), 0x55);
+      const uint8_t padding[] = {0, 0, 1, 0xff};
+      data.insert(data.end(), padding, padding + 4);
     }
     return true;
   }
@@ -679,6 +686,8 @@ int AmlAVCodec::AVGetDroppedFrames() const {
   if (isvideo) {
     dropframes = amsysfs_get_sysfs_int(
         "/sys/module/amvideo/parameters/drop_frame_count");
+    if (dropframes < 5)
+        dropframes = 0;
   }
   return dropframes;
 }
