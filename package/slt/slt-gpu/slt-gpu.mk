@@ -6,20 +6,19 @@ SLT_GPU_SITE = $(TOPDIR)/../vendor/amlogic/slt/gpu_slt_test/slt
 SLT_GPU_SITE_METHOD = local
 SLT_GPU_DEPENDENCIES = gpu
 
-CROSS_COMPILE = $(TARGET_CROSS)
-INC = $(STAGING_DIR)/usr/include
-LIB_PATH = $(STAGING_DIR)/usr/lib
-
 ifeq ($(BR2_aarch64),y)
 FILL_BUFFER = fill_buffer/64bit/gpu.fill_buffer
 FLATLAND = flatland/64bit/flatland
+LIB_PATH=$(STAGING_DIR)/usr/lib64
 else ifeq ($(BR2_ARM_EABIHF),y)
 FILL_BUFFER = fill_buffer/32bit/gpu.fill_buffer
 FLATLAND = flatland/32bit/flatland
+LIB_PATH=$(STAGING_DIR)/usr/lib
 endif
 
 define SLT_GPU_BUILD_CMDS
-    $(MAKE) CC=$(TARGET_CXX) -C $(@D)
+    $(TARGET_MAKE_ENV) $(MAKE) CC=$(TARGET_CXX) CROSS_COMPILE=$(TARGET_CROSS) \
+    INC=$(STAGING_DIR)/usr/include LIB_PATH=$(LIB_PATH) -C $(@D)
 endef
 
 define SLT_GPU_INSTALL_TARGET_CMDS
