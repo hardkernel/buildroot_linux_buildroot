@@ -3,6 +3,8 @@
 powerStateFile="/sys/power/state"
 powerResumeFlag="/etc/adckey/powerState"
 wake_lockFile="/sys/power/wake_lock"
+SB_POWERSCRIPT_FILE="/etc/adckey/soundbar_power.sh"
+SB_SUSPENDFLAG="/tmp/sb_suspend"
 
 wait_wake_lock()
 {
@@ -26,17 +28,22 @@ wait_wake_lock()
 
 powerStateChange()
 {
-    if [ -f $powerResumeFlag ];then
-        rm $powerResumeFlag
-        return 0;
-    fi
-    #######suspend#######
-    aml_socket aml_musicBox_socket suspend
-    wait_wake_lock
-    touch $powerResumeFlag
-    echo "mem" > $powerStateFile
-    ######resume#########
-    aml_socket aml_musicBox_socket resume
+    if [ -f $SB_POWERSCRIPT_FILE ] ;then
+        touch $SB_SUSPENDFLAG
+        $SB_POWERSCRIPT_FILE suspend &
+    else
+        if [ -f $powerResumeFlag ];then
+            rm $powerResumeFlag
+            return 0;
+        fi
+        #######suspend#######
+        aml_socket aml_musicBox_socket suspend
+        wait_wake_lock
+        touch $powerResumeFlag
+        echo "mem" > $powerStateFile
+        ######resume#########
+        aml_socket aml_musicBox_socket resume
+	fi
 }
 
 volumeUpAction()
@@ -103,6 +110,18 @@ bsa_ble_service()
 	aml_ble_wifi_setup &
 	aml_musicBox  ble_mode &
 }
+
+echo "adckey_function.sh $1"
+if [ -f $SB_POWERSCRIPT_FILE ] ; then
+    if [ -f $SB_SUSPENDFLAG ] ; then
+        # if use the new suspend mechanism
+        # it will check whether /etc/sb_suspend is exist
+        # if yes, it means system enter suspend mode and it should not response any keys
+        # until resume from suspend.
+				echo "suspend stat, ignore the input keys"
+        exit
+    fi
+fi
 
 case $1 in
     "power") powerStateChange ;;

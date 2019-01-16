@@ -6,4 +6,20 @@
 WifiConfig              139
 VolumeUp                115    #this key used VolumeUp
 VolumeDown              114    #this key used VolumeDown
+VolumeUp                104    #this key used VolumeUp
+VolumeDown              109    #this key used VolumeDown
 power                   116
+mute                    113
+programup               120
+programdown             121
+left                    105
+right                   106
+up                      103
+down                    108
+ok                      97
+info                    133
+back                    15
+menu                    125
+home                    102
+zoomup                  130
+zoomin                  131
