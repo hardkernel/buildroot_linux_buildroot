@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+# onvif_rtsp
+#
+
+PID_FILE=/tmp/onvif_rtsp.pid
+
+export RTSP_NETWORK_ADDRESS=${RTSP_NETWORK_ADDRESS:-"0.0.0.0"}
+export RTSP_NETWORK_PORT=${RTSP_NETWORK_PORT:-"554"}
+export RTSP_NETWORK_ROUTE=${RTSP_NETWORK_ROUTE:-"/live.sdp"}
+export RTSP_AUTH_USERNAME=${RTSP_AUTH_USERNAME:-""}
+export RTSP_AUTH_PASSWORD=${RTSP_AUTH_PASSWORD:-""}
+export RTSP_VIDEO_DEVICE=${RTSP_VIDEO_DEVICE:-"/dev/video0"}
+export RTSP_VIDEO_FRAMERATE=${RTSP_VIDEO_FRAMERATE:-"30"}
+export RTSP_VIDEO_RESOLUTION=${RTSP_VIDEO_RESOLUTION:-"1920x1080"}
+export RTSP_VIDEO_BITRATE=${RTSP_VIDEO_BITRATE:-"2000"}
+export RTSP_VIDEO_GOP=${RTSP_VIDEO_GOP:-"15"}
+export RTSP_VIDEO_USE_X265ENC=${RTSP_VIDEO_USE_X265ENC:-"true"}
+#export RTSP_AUDIO_DEVICE=${RTSP_AUDIO_DEVICE:-""}
+#export RTSP_AUDIO_BITRATE=${RTSP_AUDIO_BITRATE:-""}
+#export RTSP_AUDIO_SAMPLERATE=${RTSP_AUDIO_SAMPLERATE:-""}
+#export RTSP_AUDIO_CODEC=${RTSP_AUDIO_CODEC:-""}
+#export RTSP_AUDIO_BACKCHANNEL_CLOCK_RATE=${RTSP_AUDIO_BACKCHANNEL_CLOCK_RATE:-""}
+#export RTSP_AUDIO_BACKCHANNEL_ENCODING=${RTSP_AUDIO_BACKCHANNEL_ENCODING:-""}
+export RTSP_OVERLAY_OPTIONS=${RTSP_OVERLAY_OPTIONS:-""}
+export RTSP_FACE_DETECTION_ENABLED=${RTSP_FACE_DETECTION_ENABLED:-"true"}
+
+DAEMON=onvif_rtsp
+DAEMON_ARGS=""
+
+start() {
+  if [ -f $PID_FILE ] && kill -0 $(cat $PID_FILE); then
+    echo "$DAEMON already running"
+    return 1
+  fi
+  printf "Starting onvif rtsp server..."
+  eval "$DAEMON $DAEMON_ARGS &"
+  echo $! > $PID_FILE
+}
+
+stop() {
+  if [ ! -f "$PID_FILE" ] || ! kill -0 $(cat "$PID_FILE"); then
+    echo "$DAEMON not running"
+    return 1
+  fi
+  printf "Stopping $DAEMON "
+  kill $(cat $PID_FILE) && rm -f $PID_FILE
+  echo "$DAEMON stopped"
+}
+restart() {
+  stop
+  start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    restart
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
+
