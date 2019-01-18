@@ -33,10 +33,12 @@ diff --git a/gst-libs/gst/audio/streamvolume.h b/gst-libs/gst/audio/streamvolume
 index c8d16e9..ee9ee8a 100644
 --- a/gst-libs/gst/audio/streamvolume.h
 +++ b/gst-libs/gst/audio/streamvolume.h
-@@ -72,6 +72,8 @@ gboolean        gst_stream_volume_get_mute        (GstStreamVolume *volume);
+@@ -72,6 +72,10 @@ gboolean        gst_stream_volume_get_mute        (GstStreamVolume *volume);
  gdouble         gst_stream_volume_convert_volume  (GstStreamVolumeFormat from,
                                                     GstStreamVolumeFormat to,
                                                     gdouble val) G_GNUC_CONST;
++
++GST_AUDIO_API
 +void            gst_set_relative_volume            (GstElement * play,
 +                                                   gdouble volume_step);
 

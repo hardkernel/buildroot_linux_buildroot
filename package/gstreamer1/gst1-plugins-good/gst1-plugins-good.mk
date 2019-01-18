@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-GST1_PLUGINS_GOOD_VERSION = 1.10.4
+GST1_PLUGINS_GOOD_VERSION = 1.14.2
 GST1_PLUGINS_GOOD_SOURCE = gst-plugins-good-$(GST1_PLUGINS_GOOD_VERSION).tar.xz
 GST1_PLUGINS_GOOD_SITE = https://gstreamer.freedesktop.org/src/gst-plugins-good
 GST1_PLUGINS_GOOD_LICENSE_FILES = COPYING
-GST1_PLUGINS_GOOD_LICENSE = LGPLv2.1+
+GST1_PLUGINS_GOOD_LICENSE = LGPL-2.1+
 
 GST1_PLUGINS_GOOD_CONF_OPTS = \
 	--disable-valgrind \
@@ -21,9 +21,7 @@ GST1_PLUGINS_GOOD_CONF_OPTS = \
 	--disable-aalib \
 	--disable-aalibtest \
 	--disable-libcaca \
-	--disable-esd \
-	--disable-esdtest
-
+	--disable-qt
 
 # Options which require currently unpackaged libraries
 GST1_PLUGINS_GOOD_CONF_OPTS += \
@@ -169,6 +167,20 @@ ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_ISOMP4),y)
 GST1_PLUGINS_GOOD_CONF_OPTS += --enable-isomp4
 else
 GST1_PLUGINS_GOOD_CONF_OPTS += --disable-isomp4
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_LAME),y)
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-lame
+GST1_PLUGINS_GOOD_DEPENDENCIES += lame
+else
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-lame
+endif
+
+ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_MPG123),y)
+GST1_PLUGINS_GOOD_CONF_OPTS += --enable-mpg123
+GST1_PLUGINS_GOOD_DEPENDENCIES += mpg123
+else
+GST1_PLUGINS_GOOD_CONF_OPTS += --disable-mpg123
 endif
 
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_LAW),y)
