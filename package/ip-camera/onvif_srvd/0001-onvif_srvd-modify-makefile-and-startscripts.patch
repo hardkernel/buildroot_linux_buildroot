@@ -22,7 +22,7 @@ index 55f3042..fa9d59e 100644
      fi
 
 diff --git a/start_scripts/S90onvif_srvd b/start_scripts/S90onvif_srvd
-index d57beb9..7c19871 100755
+index d57beb9..7c19871 100644
 --- a/start_scripts/S90onvif_srvd
 +++ b/start_scripts/S90onvif_srvd
 @@ -1,19 +1,20 @@
