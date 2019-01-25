@@ -1,0 +1,18 @@
+config BR2_PACKAGE_AIRPLAY2
+	bool "Build AirPlay2 package"
+    default n
+    select BR2_PACKAGE_MDNSRESPONDER
+    help
+        airplay 2
+
+config BR2_PACKAGE_AIRPLAY2_GIT_URL
+    string "airplay2 source git url"
+    default "ssh://scgit.amlogic.com:29418/airplay/airplayv2"
+    depends on BR2_PACKAGE_AIRPLAY2
+
+config BR2_PACKAGE_GPTP
+    bool "Build GPTP"
+    default y
+    depends on BR2_PACKAGE_AIRPLAY2
+    help
+        https://github.com/AVnu/gptp
