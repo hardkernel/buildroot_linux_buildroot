@@ -15,13 +15,21 @@ ONVIF_SRVD_SITE = $(call github,KoynovStas,onvif_srvd,$(ONVIF_SRVD_VERSION))
 ONVIF_SRVD_SDK_VERSION = 2.8.65
 ONVIF_SRVD_EXTRA_DOWNLOADS = https://sourceforge.net/projects/gsoap2/files/gsoap-2.8/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip
 
+ONVIF_SRVD_INTERNAL_SITE = $(TOPDIR)/../vendor/amlogic/onvif/onvif_srvd
 
 define ONVIF_SRVD_COPY_SDK
 	mkdir -p $(@D)/SDK
 	cp -af $(DL_DIR)/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip $(@D)/SDK/gsoap.zip
 endef
-
 ONVIF_SRVD_POST_EXTRACT_HOOKS += ONVIF_SRVD_COPY_SDK
+
+define ONVIF_SRVD_COPY_INTERNAL_SRC
+   if [ -d $(ONVIF_SRVD_INTERNAL_SITE) ]; then \
+     rsync -av --exclude='.git' $(ONVIF_SRVD_INTERNAL_SITE)/ $(ONVIF_SRVD_DIR); \
+   fi
+endef
+
+ONVIF_SRVD_PRE_BUILD_HOOKS += ONVIF_SRVD_COPY_INTERNAL_SRC
 
 ONVIF_SRVD_MAKE_OPTS = WSSE_ON=1
 ONVIF_SRVD_GSOAP_OPENSSL = $(HOST_DIR)/usr
@@ -29,7 +37,7 @@ define ONVIF_SRVD_BUILD_CMDS
 	$(TARGET_MAKE_ENV) \
 	  GCC=$(TARGET_CXX) CFLAGS="$(TARGET_CFLAGS)" \
 	  OPENSSL=$(ONVIF_SRVD_GSOAP_OPENSSL) \
-	  $(MAKE) $(ONVIF_SRVD_MAKE_OPTS) -C $(@D) all
+	  $(MAKE) $(ONVIF_SRVD_MAKE_OPTS) -C $(@D) release
 endef
 
 ONVIF_SRVD_INSTALL_DIR = $(TARGET_DIR)/usr/bin/
