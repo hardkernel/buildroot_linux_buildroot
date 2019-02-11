@@ -1,5 +1,15 @@
 #!/bin/sh
 
+part_dev="/dev/mmcblk0p1"
+
+function reboot() {
+	echo 1 > /proc/sys/kernel/sysrq
+	echo b > /proc/sysrq-trigger
+	echo TEST
+}
+
+. /etc/spiupdate
+
 /usr/bin/busybox --install -s
 
 CURRENT_TIMESTAMP=$(date '+%s')
@@ -18,6 +28,9 @@ clear
 /usr/bin/udevadm hwdb --update
 /usr/bin/udevadm trigger
 
+# need to update SPI flash memory?
+spiflash_update /dev/mtd0
+
 mkdir -p /var/log/petitboot
 
 /usr/sbin/pb-discover &
@@ -25,8 +38,7 @@ mkdir -p /var/log/petitboot
 
 if [ -e /etc/pb-lockdown ]; then
         echo "Failed to launch petitboot, rebooting!"
-        echo 1 > /proc/sys/kernel/sysrq
-        echo b > /proc/sysrq-trigger
+	reboot
 else
         echo "Failed to launch petitboot, dropping to a shell"
         exec sh

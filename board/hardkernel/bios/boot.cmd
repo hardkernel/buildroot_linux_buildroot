@@ -14,6 +14,9 @@ setenv ramdisk_addr_r "0x3080000"
 setenv fdtfile "meson64_odroidn2.dtb"
 
 load mmc ${devno}:1 ${kernel_addr_load} uImage
-&& load mmc ${devno}:1 ${ramdisk_addr_r} rootfs.cpio.uboot
-&& load mmc ${devno}:1 ${fdt_addr_r} ${fdtfile}
-&& bootm ${kernel_addr_load} ${ramdisk_addr_r} ${fdt_addr_r}
+load mmc ${devno}:1 ${ramdisk_addr_r} rootfs.cpio.uboot
+load mmc ${devno}:1 ${fdt_addr_r} ${fdtfile}
+
+if test -e mmc ${devno}:1 spiboot.img; then fdt addr ${fdt_addr_r}; fdt resize; fdt set /emmc@ffe07000 status "disabled"; fdt set /soc/cbus/spifc@14000 status "okay"; fi
+
+bootm ${kernel_addr_load} ${ramdisk_addr_r} ${fdt_addr_r}

@@ -32,28 +32,6 @@ dd if=${BINARIES_DIR}/meson64_odroidn2.dtb of=${SPIBOOT_IMAGE} bs=512 seek=2048 
 dd if=${BINARIES_DIR}/uImage of=${SPIBOOT_IMAGE} bs=512 seek=2248 conv=fsync,notrunc
 dd if=${BINARIES_DIR}/rootfs.cpio.uboot of=${SPIBOOT_IMAGE} bs=512 seek=10038 conv=fsync,notrunc
 
-cat>${BINARIES_DIR}/spiupdate.cmd<<__EOF
-load mmc 0 \${loadaddr} spiboot.img
-sf probe
-sf erase 0 0x800000
-sf write \${loadaddr} 0 \${filesize}
-echo "..#######..##....##"
-echo ".##.....##.##...##."
-echo ".##.....##.##..##.."
-echo ".##.....##.#####..."
-echo ".##.....##.##..##.."
-echo ".##.....##.##...##."
-echo "..#######..##....##"
-echo
-echo "SPI memory is updated successfully."
-echo "Please remove SDCARD and slide the boot switch to 'SPI'"
-echo "Then, reboot!!"
-while true; do gpio toggle GPIOAO_11; sleep 1; done
-__EOF
-
-${HOST_DIR}/usr/bin/mkimage -A arm64 -T script -O linux -C none \
-	-d ${BINARIES_DIR}/spiupdate.cmd ${BINARIES_DIR}/boot.scr
-
 #
 # Dropping MMC boot image
 #
@@ -66,8 +44,3 @@ genimage --config "${GENIMAGE_CFG}"	\
 # Generating MMC boot image
 #
 dd if=${BINARIES_DIR}/u-boot.bin of=${BINARIES_DIR}/sdcard.img bs=512 seek=1 conv=fsync,notrunc
-
-#
-# Generating SPI update image
-#
-dd if=${BINARIES_DIR}/u-boot.bin of=${BINARIES_DIR}/spi-update.img bs=512 seek=1 conv=fsync,notrunc

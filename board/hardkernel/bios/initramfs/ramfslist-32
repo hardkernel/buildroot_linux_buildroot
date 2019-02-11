@@ -41,6 +41,7 @@
 ./etc/resolv.conf
 ./etc/services
 ./etc/shadow
+./etc/spiupdate
 ./etc/sysctl.d
 ./etc/systemd
 ./etc/systemd/journald.conf
@@ -555,6 +556,10 @@
 ./usr/sbin/ether-wake
 ./usr/sbin/fbset
 ./usr/sbin/fdformat
+./usr/sbin/flashcp
+./usr/sbin/flash_eraseall
+./usr/sbin/flash_lock
+./usr/sbin/flash_unlock
 ./usr/sbin/freeramdisk
 ./usr/sbin/fsck
 ./usr/sbin/getty
@@ -612,7 +617,6 @@
 ./usr/sbin/pvs
 ./usr/sbin/pvscan
 ./usr/sbin/rdate
-./usr/sbin/reboot
 ./usr/sbin/rmmod
 ./usr/sbin/route
 ./usr/sbin/runlevel
