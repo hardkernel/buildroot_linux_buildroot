@@ -1,0 +1,42 @@
+function spiflash_update() {
+	[ ! -e ${1} ] && return 1
+
+	n=1
+	while [ ${n} -le 5 ]; do
+		echo "W: waiting for "${part_dev}"..."
+		[ -e ${part_dev} ] && break
+		n=$((n + 1))
+		sleep 1
+	done
+
+	mount ${part_dev} /opt 2> /dev/null || return 1
+	if [ ! -f /opt/spiboot.img ]; then
+		echo "W: no SPIBOOT.IMG, SPI flash memory is not updated..."
+		sleep 5
+		return 1
+	fi
+
+	clear
+
+	#echo "I: Unlock the SPI flash memory."
+	#/sbin/flash_unlock ${1}
+
+	echo "I: SPIBOOT.IMG is found, SPI flash memory will be updated!!"
+	echo "I: Updating new SPI flash memory image..."
+	/sbin/flashcp -v /opt/spiboot.img ${1}
+
+	#echo "I: Lock the SPI flash memory."
+	#/sbin/flash_lock ${1}
+
+	echo "W: removing the flash memory image from "${part_dev}
+	rm -f /opt/spiboot.img
+	umount ${part_dev}
+
+	echo "Done."
+	echo
+	echo "I: SPI flash memory is updated, the system will reboot after 5 seconds."
+	echo "I: Please slide the boot selector switch to 'SPI' in order to boot from SPI flash memory..."
+	sleep 5
+	reboot
+}
+
