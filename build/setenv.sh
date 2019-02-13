@@ -4,7 +4,7 @@ LOCAL_DIR=$(pwd)
 BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
-DEFCONFIG_ARRAY=("odroidc3" "odroidn2" "odroidn2_bios" "mesong12b_w400_release" "mesong12b_w400_32_release" "mesong12a_skt_32_release" "mesong12a_skt_release" "mesong12a_u200_32_release" "mesong12a_u200_release" "mesong12a_u211_32_release" "mesong12a_u211_release" "txlx_t962e_r321_32_release" "txlx_t962e_r321_release" "mesonaxg_s400_32_release" "mesonaxg_s400_32_debug" "mesonaxg_s400_debug" "mesonaxg_s400_release" "mesonaxg_s400_32_emmc" "mesonaxg_s400_emmc"  "mesonaxg_s420_32_debug" "mesonaxg_s420_32_release" "mesonaxg_s420_debug" "mesonaxg_s420_release" "mesonaxg_a113x_skt_32"  "mesonaxg_a113x_skt" "mesonaxg_a113d_skt_32" "mesonaxg_a113d_skt" "mesongxl_p400_32_kernel49" "mesongxl_p400_kernel49" "mesongxl_p401_32_kernel49" "mesongxl_p401_kernel49" "mesongxl_p212_32_kernel49" "mesongxl_p212_kernel49" "mesongxl_p230_32_kernel49" "mesongxl_p230_kernel49" "mesongxl_p231_32_kernel49" "mesongxl_p231_kernel49" "mesongxl_p241_32_kernel49" "mesongxl_p241_kernel49" "mesongxm_q200_32_kernel49" "mesongxm_q200_kernel49" "meson8b_m200_kernel49" "mesongxl_p400" "mesongxl_p400_32" "mesongxl_p401" "mesongxl_p401_32" "mesongxb_p200" "mesongxb_p200_32" "mesongxb_p201" "mesongxb_p201_32" "mesongxl_p212" "mesongxl_p212_32" "mesongxl_p230" "mesongxl_p230_32" "mesongxl_p231" "mesongxl_p231_32" "mesongxl_p241" "mesongxl_p241_32" "mesongxm_q200" "mesongxm_q200_32" "meson8_k200" "meson8_k200b" "meson8b_m200" "meson8b_m201" "meson8m2_n200" "meson8b_m400")
+DEFCONFIG_ARRAY=( "odroidn2" "odroidn2_bios" )
 
 DEFCONFIG_ARRAY_LEN=${#DEFCONFIG_ARRAY[@]}
 
@@ -119,7 +119,7 @@ function choose_type()
 {
 	choose_info
 	local DEFAULT_NUM DEFAULT_VALUE
-	DEFAULT_NUM=5
+	DEFAULT_NUM=1
 	DEFAULT_VALUE="mesongxl_p212_release"
 
 	export TARGET_BUILD_TYPE=
