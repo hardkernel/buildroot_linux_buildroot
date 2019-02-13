@@ -403,9 +403,9 @@ endif # BR2_TARGET_UBOOT_ENVIMAGE
 
 config BR2_TARGET_UBOOT_AMLOGIC
     bool "amlogic uboot"
-    depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_CODESOURCERY
-    depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_GCC_LINARO_ARM_NONE
-    depends on BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_ARC
+    depends on (BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_CODESOURCERY \
+		    && BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_GCC_LINARO_ARM_NONE \
+		    && BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_ARC) || BR2_TARGET_UBOOT_ODROID_N2
     select BR2_PACKAGE_HOST_AML_IMG_PACKER_NEW
     help
         amlogic uboot
@@ -440,8 +440,13 @@ config BR2_TARGET_UBOOT_PLATFORM
 config BR2_TARGET_UBOOT_ENCRYPTION
     bool "secure boot"
 
+config BR2_TARGET_UBOOT_ODROID_COMMON
+    bool
+    default n
+
 config BR2_TARGET_UBOOT_ODROID
     bool "odroidc1 uboot"
+    select BR2_TARGET_UBOOT_ODROID_COMMON
     help
         odroidc1 uboot
 
@@ -452,13 +457,15 @@ config BR2_TARGET_UBOOT_ODROID_C2
 
 config BR2_TARGET_UBOOT_ODROID_C3
     bool "odroidc3 uboot"
+    select BR2_TARGET_UBOOT_ODROID_COMMON
     help
         odroidc3 uboot
 
 config BR2_TARGET_UBOOT_ODROID_N2
-    bool "odroidc2 uboot"
+    bool "odroidn2 uboot"
+    select BR2_TARGET_UBOOT_ODROID_COMMON
     help
-        odroidc2 uboot
+        odroidn2 uboot
 
 config BR2_TARGET_USBTOOL_AMLOGIC
     bool "amlogic usb tool"
