@@ -14,3 +14,15 @@ config BR2_PACKAGE_AML_CUSTOMER_GIT_URL
 	depends on BR2_PACKAGE_AML_CUSTOMER
 	help
 	  the URL of amlogic customer git repo
+
+config BR2_PACKAGE_AML_STRIP_KERNEL
+	bool  "Strip kernel size by disable addon options"
+	default n
+	help
+	  Allow project to disable additional kernel options to decrease size
+
+config BR2_PACKAGE_AML_STRIP_KERNEL_OPT_LIST
+	string  "Add-on disabled kernel options, separate by white space"
+	default ""
+	help
+	  Please add project specified disabled kernel options which is not covered by buildroot by default

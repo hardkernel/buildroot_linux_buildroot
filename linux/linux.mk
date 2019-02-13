@@ -422,6 +422,11 @@ define LINUX_KCONFIG_FIXUP_CMDS
 	$(call KCONFIG_DISABLE_OPT,CONFIG_PM_RUNTIME,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_LOW_MEMORY_KILLER,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_LOW_MEMORY_KILLER_AUTODETECT_OOM_ADJ_VALUES,$(@D)/.config)
+	# Allow project to reconfigure kernel options
+	# If the option is still required by other module, disable it here can not work
+	$(if $(BR2_PACKAGE_AML_STRIP_KERNEL),
+		$(call KCONFIG_DISABLE_OPT_LIST,$(BR2_PACKAGE_AML_STRIP_KERNEL_OPT_LIST),$(@D)/.config))
+
 endef
 
 ifeq ($(BR2_LINUX_KERNEL_DTS_SUPPORT),y)
