@@ -3,7 +3,7 @@
 # mDNSResponder
 #
 #############################################################
-MDNSRESPONDER_VERSION = 765.50.9
+MDNSRESPONDER_VERSION = 878.200.35
 MDNSRESPONDER_SOURCE = mDNSResponder-$(MDNSRESPONDER_VERSION).tar.gz
 MDNSRESPONDER_SITE = https://opensource.apple.com/tarballs/mDNSResponder
 MDNSRESPONDER_DIR = $(BUILD_DIR)/mdnsresponder-$(MDNSRESPONDER_VERSION)
