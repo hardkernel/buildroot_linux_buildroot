@@ -25,6 +25,7 @@ DEFCONFIG_ARRAY=(
     "mesong12a_u211_release"
     "txlx_t962e_r321_32_release"
     "txlx_t962e_r321_release"
+    "mesonaxg_s420_costdown_32_release"
     "mesonaxg_s400_sb_32_release"
     "mesonaxg_s400_32_release"
     "mesonaxg_s400_gva_32_release"
