@@ -769,10 +769,9 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     return GST_FLOW_NOT_NEGOTIATED;
   }
 
-  GST_ERROR("enter");
   GstVideoInfo *info = &overlay->info;
   GstMapInfo outbuf_info;
-  if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
+  if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ | GST_MAP_WRITE)) {
     overlay_init();
     overlay_create_inputbuffer (outbuf_info.data, info->width, info->height);
     if (overlay->draw_clock || overlay->draw_pts) {
@@ -847,7 +846,6 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     overlay_destroy_inputbuffer();
     gst_buffer_unmap (outbuf, &outbuf_info);
   }
-  GST_ERROR("exit");
 
   return GST_FLOW_OK;
 }
