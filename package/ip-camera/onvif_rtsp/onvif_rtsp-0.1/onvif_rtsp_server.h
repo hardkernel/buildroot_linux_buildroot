@@ -10,13 +10,16 @@ extern "C" {
 }
 #endif
 #include "onvif_rtsp_config.h"
-
+#include "onvif_rtsp_pipeline.h"
 
 typedef struct rtsp_server {
   GMainLoop *loop;
   GstRTSPServer *server;
   GstRTSPMountPoints *mounts;
   GstRTSPMediaFactory *factory;
+
+  RTSP_PIPELINE_t pipelines;
+
   GstRTSPAuth *auth;
   GstRTSPToken *token;
   gchar *basic;
