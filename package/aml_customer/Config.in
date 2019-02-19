@@ -21,8 +21,23 @@ config BR2_PACKAGE_AML_STRIP_KERNEL
 	help
 	  Allow project to disable additional kernel options to decrease size
 
-config BR2_PACKAGE_AML_STRIP_KERNEL_OPT_LIST
-	string  "Add-on disabled kernel options, separate by white space"
+if BR2_PACKAGE_AML_STRIP_KERNEL
+
+config BR2_PACKAGE_AML_STRIP_KERNEL_DISABLE_OPT_LIST
+	string  "Add-on disabled kernel options, separate by whitespace"
 	default ""
 	help
 	  Please add project specified disabled kernel options which is not covered by buildroot by default
+
+config BR2_PACKAGE_AML_STRIP_KERNEL_ENABLE_OPT_LIST
+	string  "Add-on enable kernel options, separate by whitespace"
+	default ""
+	help
+	  Please add project specified enable kernel options which is not covered by buildroot by default
+
+config BR2_PACKAGE_AML_STRIP_KERNEL_SET_OPT_LIST
+	string  "Add-on kernel options new value, separate by whitespace"
+	default ""
+	help
+	  Please add project specified new kernel options value which is not covered by buildroot by default
+endif

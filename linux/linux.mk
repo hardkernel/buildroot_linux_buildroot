@@ -425,7 +425,9 @@ define LINUX_KCONFIG_FIXUP_CMDS
 	# Allow project to reconfigure kernel options
 	# If the option is still required by other module, disable it here can not work
 	$(if $(BR2_PACKAGE_AML_STRIP_KERNEL),
-		$(call KCONFIG_DISABLE_OPT_LIST,$(BR2_PACKAGE_AML_STRIP_KERNEL_OPT_LIST),$(@D)/.config))
+		$(call KCONFIG_DISABLE_OPT_LIST,$(BR2_PACKAGE_AML_STRIP_KERNEL_DISABLE_OPT_LIST),$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT_LIST,$(BR2_PACKAGE_AML_STRIP_KERNEL_ENABLE_OPT_LIST),$(@D)/.config)
+		$(call KCONFIG_SET_OPT_LIST,$(BR2_PACKAGE_AML_STRIP_KERNEL_SET_OPT_LIST),$(@D)/.config))
 
 endef
 
