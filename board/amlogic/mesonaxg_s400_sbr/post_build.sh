@@ -31,7 +31,7 @@ if [ -f $1/etc/alsa_bsa.conf ] ; then
 	textexist=$(cat $1/etc/alsa_bsa.conf | grep 2to8)
 	# echo "textexist = $textexist"
 	if [ -z "$textexist" ] ; then
-		sed -i 's/dmixer_avs_auto/2to8/g' $1/etc/alsa_bsa.conf
+		sed -i 's/dmixer_avs_auto/default/g' $1/etc/alsa_bsa.conf
 	fi
 fi
 
