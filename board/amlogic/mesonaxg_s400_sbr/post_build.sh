@@ -58,3 +58,23 @@ if [ -f $1/etc/halaudio/8ch_aml_audio_config.json ] ; then
 		$1/etc/aml_audio_config.json
 fi
 
+# Change BT name to amlogic-sbr froom amlogic
+# Remote the logic about check /etc/wifi/ap_name
+if [ -f $1/etc/init.d/S44bluetooth ]; then
+	sed -i 's/bt_name=\"amlogic\"/bt_name=\"amlogic-sbr\"/g' $1/etc/init.d/S44bluetooth
+	sed -i '/while [ $cnt -lt 10 ]/,/done/d' $1/etc/init.d/S44bluetooth
+fi
+
+# Remove some no useful files
+rm -frv $1/lib/debug
+# /usr/bin/app_* are related with avs
+rm -frv $1/usr/bin/app_*
+rm -frv $1/etc/avskey
+# remove the files related to Wifi
+rm -frv $1/etc/wifi
+rm -frv $1/etc/init.d/S81spotify
+rm -frv $1/etc/init.d/S42wifi
+
+rm -frv $1/etc/init.d/S40network
+rm -frv $1/etc/init.d/S41inetd
+
