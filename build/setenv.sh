@@ -11,6 +11,7 @@ DEFCONFIG_ARRAY=(
     "mesong12b_skt_release"
     "mesong12b_w400_release"
     "mesong12b_w400_32_release"
+    "mesong12b_w400_wayland_release"
     "mesong12b_w400_32_wayland_release"
     "mesong12b_w400_vccktest_release"
     "mesong12b_w400_vccktest_32_release"
