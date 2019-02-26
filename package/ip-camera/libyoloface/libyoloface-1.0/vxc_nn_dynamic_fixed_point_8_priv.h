@@ -60,6 +60,15 @@ typedef struct tensor_info
     void*                  data;
 } tensor_info_t;
 
+typedef struct tensor_data_info
+{
+    tensor_format_info_t    format;
+    vx_int32                num_of_dim;
+    vx_uint32               extend[NN_TENSOR_MAX_DIMENSION];
+    vx_int64                offset;
+    vx_int32                size;
+} tensor_data_info_t;
+
 /* Get the size of specified format */
 vx_uint32 vxcGetTypeSize(vx_enum format);
 
@@ -67,6 +76,12 @@ vx_uint32 vxcGetTypeSize(vx_enum format);
 vx_tensor vxcLoadTensor(vx_context context, vx_uint32 num_of_dim,
         vx_uint32 width, vx_uint32 height, vx_uint32 ifm, vx_uint32 ofm,
         tensor_format_info_t* tfi, FILE* fp,
+        vx_uint32 blob_offset, vx_uint32 blob_size, vx_uint32 blob_uint_size);
+
+/* Load a tensor from the resource file */
+vx_tensor vxcLoadTensor2(vx_context context, vx_uint32 num_of_dim,
+        vx_uint32 width, vx_uint32 height, vx_uint32 ifm, vx_uint32 ofm,
+        tensor_format_info_t* tfi,
         vx_uint32 blob_offset, vx_uint32 blob_size, vx_uint32 blob_uint_size);
 
 /* Create a tensor from the specified data */
