@@ -26,6 +26,7 @@ typedef struct rtsp_config_video {
 } CFG_VIDEO_t;
 
 typedef struct rtsp_config_backchannel {
+  std::string device;
   std::string clock_rate;
   std::string encoding;
 } CFG_BACKCHANNEL_t;
@@ -35,10 +36,22 @@ typedef struct rtsp_config_audio {
   std::string bitrate;
   std::string samplerate;
   std::string codec;
-  CFG_BACKCHANNEL_t backchannel;
 } CFG_AUDIO_t;
 
+typedef struct rtsp_config_storage {
+  std::string location; // storage location (directory)
+  std::string chunk_duration; // video chunk duration (minutes)
+  long reserved_space_size; // reserved space in MBytes
+  bool enabled;
+} CFG_STORAGE_t;
+
 typedef struct rtsp_config_debug_pipeline {
+  // Disable audio
+  bool disable_audio;
+
+  // Disable backchannel
+  bool disable_backchannel;
+
   std::string pipeline;
   std::string backchannel;
 } CFG_DEBUG_t;
@@ -54,8 +67,15 @@ typedef struct rtsp_config {
   // Audio options
   CFG_AUDIO_t audio;
 
+  // Storage options
+  CFG_STORAGE_t storage;
+
+  // Backchannel options
+  CFG_BACKCHANNEL_t backchannel;
+
   // Overlay options
   std::string overlay_options;
+
 
   // Face detection
   bool face_detection;
