@@ -92,6 +92,16 @@ static void rtsp_config_parse_property (std::shared_ptr<CONFIG_t> &config) {
     }
   }
 
+  // ISP options
+  // WDR
+  if ( ipc_get_property ("ipc/isp/wdr/enabled", value)) {
+    if (strcmp (value, "true") == 0) {
+      config->isp.wdr_enabled = true;
+    } else {
+      config->isp.wdr_enabled = false;
+    }
+  }
+
   // Audio options
   // Audio device
   if (ipc_get_property ("ipc/audio/device", value)) {
@@ -175,6 +185,8 @@ static void rtsp_config_parse_property (std::shared_ptr<CONFIG_t> &config) {
 #define DEFAULT_VIDEO_BITRATE "2000"
 #define DEFAULT_GOP "30"
 #define DEFAULT_USE_X265 true
+
+#define DEFAULT_WDR_ENABLED false
 
 #define DEFAULT_AUDIO_DEVICE "test"
 #define DEFAULT_AUDIO_BITRATE "64"
@@ -277,6 +289,17 @@ static void rtsp_config_parse_env (std::shared_ptr<CONFIG_t> &config) {
       config->video.use_x265 = true;
     } else {
       config->video.use_x265 = false;
+    }
+  }
+
+  // ISP options
+  // WDR
+  config->isp.wdr_enabled = DEFAULT_WDR_ENABLED;
+  if ( const char *value = std::getenv ("IPC_ISP_WDR_ENABLED")) {
+    if (strcmp (value, "true") == 0) {
+      config->isp.wdr_enabled = true;
+    } else {
+      config->isp.wdr_enabled = false;
     }
   }
 
