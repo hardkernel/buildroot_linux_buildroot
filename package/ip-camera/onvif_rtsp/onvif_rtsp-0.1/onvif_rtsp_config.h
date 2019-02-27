@@ -23,7 +23,12 @@ typedef struct config_video {
   std::string gop;
   // use x265
   bool use_x265;
+
 } CFG_VIDEO_t;
+
+typedef struct config_isp {
+  bool wdr_enabled;
+} CFG_ISP_t;
 
 typedef struct config_backchannel {
   std::string device;
@@ -66,6 +71,9 @@ typedef struct config {
 
   // Audio options
   CFG_AUDIO_t audio;
+
+  // ISP options
+  CFG_ISP_t isp;
 
   // Storage options
   CFG_STORAGE_t storage;

@@ -1,8 +1,14 @@
 #include "onvif_rtsp_source.h"
+#include "onvif_rtsp_v4l2ctl.h"
 
 static void
 on_v4l2src_prepare_format (GstElement* object, gint fd, GstCaps* caps, RTSP_SERVER_t *srv) {
-  g_print ("on_v4l2src_prepare_format: %d\n", fd);
+  std::shared_ptr<CONFIG_t> config = srv->config;
+
+  // set fps
+  onvif_rtsp_v4l2ctl_fps (fd, std::stoi(config->video.framerate));
+  // set wdr mode
+  onvif_rtsp_v4l2ctl_wdr (fd, config->isp.wdr_enabled);
 
 }
 
