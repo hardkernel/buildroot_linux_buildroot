@@ -22,7 +22,7 @@ on_notify_caps (GstPad *pad, GParamSpec *pspec, GstCaps **pcaps) {
 
 static bool source_init (RTSP_SERVER_t *srv) {
   GError *error = NULL;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
 
   std::string pipeline_desc = pipeline_create_src (config);
   PIPELINE_SRC_t *src = &srv->pipelines.src;

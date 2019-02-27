@@ -1,7 +1,7 @@
 #include "onvif_rtsp_pipeline.h"
 #include <string.h>
 
-std::string pipeline_create_src (std::shared_ptr<RTSP_CONFIG_t> &config) {
+std::string pipeline_create_src (std::shared_ptr<CONFIG_t> &config) {
   std::string pipeline_desc = "";
 
   // video
@@ -78,7 +78,7 @@ std::string pipeline_create_src (std::shared_ptr<RTSP_CONFIG_t> &config) {
   return pipeline_desc;
 }
 
-std::string pipeline_create_sto (std::shared_ptr<RTSP_CONFIG_t> &config) {
+std::string pipeline_create_sto (std::shared_ptr<CONFIG_t> &config) {
   std::string pipeline_desc = "";
 
   // video
@@ -119,7 +119,7 @@ std::string pipeline_create_sto (std::shared_ptr<RTSP_CONFIG_t> &config) {
 }
 
 
-std::string pipeline_create_rtp (std::shared_ptr<RTSP_CONFIG_t> &config) {
+std::string pipeline_create_rtp (std::shared_ptr<CONFIG_t> &config) {
   std::string pipeline_desc = " ( ";
 
   // video
@@ -155,7 +155,7 @@ std::string pipeline_create_rtp (std::shared_ptr<RTSP_CONFIG_t> &config) {
   return pipeline_desc;
 }
 
-std::string pipeline_create_backchannel (std::shared_ptr<RTSP_CONFIG_t> &config) {
+std::string pipeline_create_backchannel (std::shared_ptr<CONFIG_t> &config) {
   if (not config->debug.backchannel.empty ()) {
     return config->debug.backchannel;
   }
