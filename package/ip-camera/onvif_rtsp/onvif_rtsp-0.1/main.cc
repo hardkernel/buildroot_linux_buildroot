@@ -16,7 +16,7 @@ sig_handler (int signo) {
 }
 
 int main (int argc, char **argv) {
-  std::shared_ptr<RTSP_CONFIG_t> config = std::make_shared<RTSP_CONFIG_t> ();
+  std::shared_ptr<CONFIG_t> config = std::make_shared<CONFIG_t> ();
   server.config = config;
 
   signal (SIGINT, sig_handler);

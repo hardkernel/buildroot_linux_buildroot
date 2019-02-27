@@ -76,7 +76,7 @@ storage_build_filename (void) {
 static void
 storage_set_filelocation (RTSP_SERVER_t *srv) {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
 
   std::string filename = "/dev/null";
 
@@ -104,7 +104,7 @@ storage_set_filelocation (RTSP_SERVER_t *srv) {
 static gboolean
 on_switch_file (RTSP_SERVER_t *srv) {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
   if (sto->pipeline == NULL) {
     fprintf (stderr, "In the switch file callback the user data was NULL, fatal!\n");
 
@@ -185,7 +185,7 @@ static GstPadProbeReturn
 on_buffer_probe (GstPad *pad, GstPadProbeInfo *info, RTSP_SERVER_t *srv)
 {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
   if (sto->pipeline == NULL) {
     fprintf (stderr, "In buffer probe callback the user data was NULL, fatal!\n");
 
@@ -247,7 +247,7 @@ static gboolean
 on_timeout (RTSP_SERVER_t *srv)
 {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
   if (sto->pipeline == NULL) {
     fprintf (stderr, "In timeout callback the user data was NULL, fatal!\n");
 
@@ -291,7 +291,7 @@ on_timeout (RTSP_SERVER_t *srv)
 static bool
 storage_init (RTSP_SERVER_t *srv) {
   GError *error = NULL;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
 
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
 
@@ -339,7 +339,7 @@ storage_init (RTSP_SERVER_t *srv) {
 static void
 storage_uninit (RTSP_SERVER_t *srv) {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
 
   GST_OBJ_FREE (sto->pipeline);
 
@@ -367,7 +367,7 @@ static gboolean
 delay_start_storage (RTSP_SERVER_t *srv) {
   PIPELINE_SRC_t *src = &srv->pipelines.src;
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
 
   if (src->vsink_caps == NULL ||
       (!config->debug.disable_audio && src->asink_caps == NULL)){
@@ -412,7 +412,7 @@ delay_start_storage (RTSP_SERVER_t *srv) {
 
 bool rtsp_storage_start (RTSP_SERVER_t *srv) {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
-  std::shared_ptr<RTSP_CONFIG_t> config = srv->config;
+  std::shared_ptr<CONFIG_t> config = srv->config;
 
   if (!config->storage.enabled) {
     g_print ("Storage disabled\n");
@@ -458,3 +458,4 @@ bool rtsp_storage_stop (RTSP_SERVER_t *srv) {
   storage_uninit (srv);
   return true;
 }
+

@@ -24,7 +24,7 @@ typedef struct rtsp_server {
   GstRTSPToken *token;
   gchar *basic;
 
-  std::shared_ptr<RTSP_CONFIG_t> config;
+  std::shared_ptr<CONFIG_t> config;
 } RTSP_SERVER_t;
 
 bool rtsp_server_init(RTSP_SERVER_t *serv);

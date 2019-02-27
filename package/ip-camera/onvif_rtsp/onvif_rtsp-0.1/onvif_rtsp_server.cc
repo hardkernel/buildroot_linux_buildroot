@@ -3,7 +3,7 @@
 static void
 on_client_media_configure (GstRTSPMediaFactory *factory, GstRTSPMedia *media, RTSP_SERVER_t *serv) {
   PIPELINE_SRC_t *src = &serv->pipelines.src;
-  std::shared_ptr<RTSP_CONFIG_t> config = serv->config;
+  std::shared_ptr<CONFIG_t> config = serv->config;
 
   GstElement *rtp = gst_rtsp_media_get_element (media);
 

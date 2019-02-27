@@ -52,9 +52,9 @@ typedef struct rtsp_pipeline {
   PIPELINE_STO_t sto;
 } RTSP_PIPELINE_t;
 
-std::string pipeline_create_src(std::shared_ptr<RTSP_CONFIG_t> &config);
-std::string pipeline_create_sto(std::shared_ptr<RTSP_CONFIG_t> &config);
-std::string pipeline_create_rtp(std::shared_ptr<RTSP_CONFIG_t> &config);
-std::string pipeline_create_backchannel(std::shared_ptr<RTSP_CONFIG_t> &config);
+std::string pipeline_create_src(std::shared_ptr<CONFIG_t> &config);
+std::string pipeline_create_sto(std::shared_ptr<CONFIG_t> &config);
+std::string pipeline_create_rtp(std::shared_ptr<CONFIG_t> &config);
+std::string pipeline_create_backchannel(std::shared_ptr<CONFIG_t> &config);
 
 #endif /* _ONVIF_RTSP_SERVER_ */
