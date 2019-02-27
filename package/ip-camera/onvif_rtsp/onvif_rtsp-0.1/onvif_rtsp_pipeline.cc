@@ -26,6 +26,10 @@ std::string pipeline_create_src (std::shared_ptr<CONFIG_t> &config) {
     pipeline_desc += config->overlay_options;
   }
 
+  if (config->imagecap.enabled) {
+    pipeline_desc += " ! amlimgcap name=imgcap";
+  }
+
   pipeline_desc += " ! amlvenc framerate=";
   pipeline_desc += config->video.framerate;
 

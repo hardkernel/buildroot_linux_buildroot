@@ -11,6 +11,7 @@ typedef struct rtsp_source_pipeline {
 
   GstElement *vsink;
   GstElement *asink;
+  GstElement *imgcap;
 
   GstPad *vsink_sink_pad;
   GstPad *asink_sink_pad;

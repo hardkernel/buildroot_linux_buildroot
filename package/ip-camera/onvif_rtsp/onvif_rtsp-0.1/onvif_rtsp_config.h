@@ -50,6 +50,11 @@ typedef struct config_storage {
   bool enabled;
 } CFG_STORAGE_t;
 
+typedef struct config_image_capture {
+  std::string location; // image location (directory)
+  bool enabled;
+} CFG_IMGCAP_t;
+
 typedef struct config_debug {
   // Disable audio
   bool disable_audio;
@@ -78,12 +83,14 @@ typedef struct config {
   // Storage options
   CFG_STORAGE_t storage;
 
+  // Image capture
+  CFG_IMGCAP_t imagecap;
+
   // Backchannel options
   CFG_BACKCHANNEL_t backchannel;
 
   // Overlay options
   std::string overlay_options;
-
 
   // Face detection
   bool face_detection;

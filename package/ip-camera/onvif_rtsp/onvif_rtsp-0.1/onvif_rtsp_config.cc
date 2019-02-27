@@ -169,6 +169,19 @@ static void rtsp_config_parse_property (std::shared_ptr<CONFIG_t> &config) {
     }
   }
 
+  // Image Capture
+  if (ipc_get_property ("ipc/image capture/enabled", value)) {
+    if (strcmp (value, "false") == 0) {
+      config->imagecap.enabled = false;
+    } else {
+      config->imagecap.enabled = true;
+    }
+  }
+
+  if (ipc_get_property ("ipc/image capture/location", value)) {
+    config->imagecap.location = value;
+  }
+
 }
 
 #define DEFAULT_USERNAME ""
@@ -203,6 +216,9 @@ static void rtsp_config_parse_property (std::shared_ptr<CONFIG_t> &config) {
 #define DEFAULT_STORAGE_CHUNK_DURATION "5"
 #define DEFAULT_STORAGE_RESERVED_SPACE_SIZE 200
 #define DEFAULT_STORAGE_ENABLED false
+
+#define DEFAULT_IMAGE_CAPTURE_ENABLED false
+#define DEFAULT_IMAGE_CAPTURE_LOCATION ""
 
 #define DEFAULT_DEBUG_DISABLE_AUDIO false
 #define DEFAULT_DEBUG_DISABLE_BACKCHANNEL false
@@ -386,6 +402,21 @@ static void rtsp_config_parse_env (std::shared_ptr<CONFIG_t> &config) {
     } else {
       config->face_detection = true;
     }
+  }
+
+  // Image Capture
+  config->imagecap.enabled = DEFAULT_IMAGE_CAPTURE_ENABLED;
+  if ( const char *value = std::getenv ("IPC_IMAGE_CAPTURE_ENABLED")) {
+    if (strcmp (value, "false") == 0) {
+      config->imagecap.enabled = false;
+    } else {
+      config->imagecap.enabled = true;
+    }
+  }
+
+  config->imagecap.location = DEFAULT_IMAGE_CAPTURE_LOCATION;
+  if (const char *value = std::getenv ("IPC_IMAGE_CAPTURE_LOCATION")) {
+    config->imagecap.location = value;
   }
 
   // --- debug options ---
