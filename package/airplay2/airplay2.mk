@@ -9,6 +9,8 @@ AIRPLAY2_DEPENDENCIES = mdnsresponder
 ifeq ($(BR2_PACKAGE_GPTP),y)
 	AIRPLAY2_DEPENDENCIES += gptp
 endif
+#AIRPLAY2_SITE_METHOD = local
+#AIRPLAY2_SITE = $(AIRPLAY2_PKGDIR)/airplayv2
 AIRPLAY2_SITE_METHOD = git
 AIRPLAY2_SITE = $(call qstrip,$(BR2_PACKAGE_AIRPLAY2_GIT_URL))
 
@@ -18,6 +20,7 @@ endef
 
 define AIRPLAY2_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 755 -D $(@D)/AirPlaySDK/build/Release-linux/airplaydemo $(TARGET_DIR)/usr/bin/
+	$(INSTALL) -m 755 -D $(AIRPLAY2_PKGDIR)/S82airplay2 $(TARGET_DIR)/etc/init.d/
 endef
 
 $(eval $(generic-package))
