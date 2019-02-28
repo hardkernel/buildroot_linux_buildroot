@@ -1,5 +1,6 @@
 #include "onvif_rtsp_source.h"
 #include "onvif_rtsp_v4l2ctl.h"
+#include "onvif_rtsp_common.h"
 
 static void
 on_v4l2src_prepare_format (GstElement* object, gint fd, GstCaps* caps, RTSP_SERVER_t *srv) {
@@ -26,6 +27,29 @@ on_notify_caps (GstPad *pad, GParamSpec *pspec, GstCaps **pcaps) {
 
 }
 
+#define GST_EVENT_CAPIMG GST_EVENT_MAKE_TYPE(81, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
+
+static void
+do_capture_image (RTSP_SERVER_t *srv) {
+  std::shared_ptr<CONFIG_t> config = srv->config;
+
+  if (!config->imagecap.enabled || config->imagecap.location.empty()) return;
+
+  PIPELINE_SRC_t *src = &srv->pipelines.src;
+
+  rtsp_common_create_dir (config->imagecap.location.c_str());
+  std::string filename = rtsp_common_build_filename(".jpg");
+
+  GstStructure *resst = gst_structure_new ("capture-image",
+      "location", G_TYPE_STRING, filename.c_str(),
+      NULL);
+
+  GstEvent *capimg_event = gst_event_new_custom ((GstEventType)GST_EVENT_CAPIMG,
+      resst);
+  gst_element_send_event (src->imgcap, capimg_event);
+
+}
+
 static bool source_init (RTSP_SERVER_t *srv) {
   GError *error = NULL;
   std::shared_ptr<CONFIG_t> config = srv->config;
@@ -36,6 +60,9 @@ static bool source_init (RTSP_SERVER_t *srv) {
   src->pipeline = gst_parse_launch (pipeline_desc.c_str (), &error);
   src->vsrc = gst_bin_get_by_name (GST_BIN (src->pipeline), "vsrc");
   src->vsink = gst_bin_get_by_name (GST_BIN (src->pipeline), "vsink");
+  if (config->imagecap.enabled) {
+    src->imgcap = gst_bin_get_by_name (GST_BIN (src->pipeline), "imgcap");
+  }
   src->vsink_sink_pad = gst_element_get_static_pad (src->vsink, "sink");
   src->vsink_caps = NULL;
   g_signal_connect (src->vsink_sink_pad, "notify::caps",

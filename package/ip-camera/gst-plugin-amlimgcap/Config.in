@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GST_PLUGIN_AMLIMGCAP
+	bool "Amlogic gstream1 image capture plugin"
+	help
+	  gstreamer 1.0 plugins

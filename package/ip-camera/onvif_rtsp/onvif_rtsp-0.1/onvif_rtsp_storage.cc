@@ -1,4 +1,5 @@
 #include "onvif_rtsp_storage.h"
+#include "onvif_rtsp_common.h"
 #include <ctime>
 #include <unistd.h>
 #include <dirent.h>
@@ -65,14 +66,6 @@ storage_freeup_space (std::string location, long reserved_space_size) {
 
 }
 
-static std::string
-storage_build_filename (void) {
-  std::time_t t = std::time (nullptr);
-  char time_str[64];
-  std::strftime (time_str, sizeof (time_str), "%Y-%m-%d_%H-%M-%S", std::localtime (&t));
-  return std::string (time_str) + ".mp4";
-}
-
 static void
 storage_set_filelocation (RTSP_SERVER_t *srv) {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
@@ -80,16 +73,10 @@ storage_set_filelocation (RTSP_SERVER_t *srv) {
 
   std::string filename = "/dev/null";
 
-  if (config->storage.enabled) {
+  if (config->storage.enabled && !config->storage.location.empty()) {
     // check dir existance
-    DIR *dir = opendir (config->storage.location.c_str ());
-    if (!dir) {
-      if (mkdir (config->storage.location.c_str (), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
-        perror ("create storage dir");
-      }
-    }
-    closedir (dir);
-    filename = storage_build_filename ();
+    rtsp_common_create_dir (config->storage.location.c_str ());
+    filename = rtsp_common_build_filename (".mp4");
     gs_file_list.push_back (filename);
 
     filename = config->storage.location + "/" + filename;
