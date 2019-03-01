@@ -21,7 +21,9 @@ GPU_SITE_METHOD = git
 endif
 GPU_MODEL=$(call qstrip,$(BR2_PACKAGE_GPU_MODEL))
 
-GPU_MODULE_DIR = kernel/amlogic/gpu
+#GPU_MODULE_DIR = kernel/amlogic/gpu
+GPU_MODULE_DIR = hardware/aml-4.9/arm/gpu/
+
 GPU_INSTALL_DIR = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/$(GPU_MODULE_DIR)
 GPU_DEPENDENCIES = linux
 
