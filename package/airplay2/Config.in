@@ -12,7 +12,7 @@ config BR2_PACKAGE_AIRPLAY2_GIT_URL
 
 config BR2_PACKAGE_GPTP
     bool "Build GPTP"
-    default y
+    default n
     depends on BR2_PACKAGE_AIRPLAY2
     help
         https://github.com/AVnu/gptp
