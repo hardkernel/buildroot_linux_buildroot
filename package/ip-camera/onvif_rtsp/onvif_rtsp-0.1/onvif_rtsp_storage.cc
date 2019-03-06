@@ -428,12 +428,18 @@ bool rtsp_storage_start (RTSP_SERVER_t *srv) {
 
 bool rtsp_storage_stop (RTSP_SERVER_t *srv) {
   PIPELINE_STO_t *sto = &srv->pipelines.sto;
+  std::shared_ptr<CONFIG_t> config = srv->config;
   if (sto->pipeline == NULL) {
     return true;
   }
 
   /* terminating, set pipeline to NULL and clean up */
   g_print ("Closing storage pipeline\n");
+
+  gst_pad_send_event (sto->muxer_vsink_pad, gst_event_new_eos ());
+  if (!config->debug.disable_audio) {
+    gst_pad_send_event (sto->muxer_asink_pad, gst_event_new_eos ());
+  }
 
   gst_element_set_state (sto->pipeline, GST_STATE_NULL);
   if (gst_element_get_state (sto->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
