@@ -8,6 +8,7 @@ static void
 sig_handler (int signo) {
   switch (signo) {
     case SIGINT:
+    case SIGTERM:
       if (server.loop) {
         g_main_loop_quit (server.loop);
       }
@@ -20,6 +21,7 @@ int main (int argc, char **argv) {
   server.config = config;
 
   signal (SIGINT, sig_handler);
+  signal (SIGTERM, sig_handler);
 
   rtsp_config_init (config);
 
