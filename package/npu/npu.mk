@@ -39,7 +39,10 @@ NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/sharelib/libOpenCL.so $(NPU_SO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/libOpenVX.so $(NPU_SO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/libOpenVXU.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libNNVXCBinary.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/libNNVXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/libNNVXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/libOvx12VXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/libOvx12VXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/libovxlib.so $(NPU_SO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/libVivanteOpenCL.so $(NPU_SO_INSTALL_DIR);
 path = 	$(@D)

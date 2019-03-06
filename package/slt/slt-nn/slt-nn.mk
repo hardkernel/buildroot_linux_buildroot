@@ -15,8 +15,9 @@ define SLT_NN_INSTALL_TARGET_CMDS
     $(INSTALL) -D -m 0755 $(@D)/run.sh $(TARGET_DIR)/usr/bin/NN_SLT
     $(INSTALL) -D -m 0755 $(@D)/DnCNN.export.data $(TARGET_DIR)/usr/bin/NN_SLT
     $(INSTALL) -D -m 0755 $(@D)/dncnn $(TARGET_DIR)/usr/bin/NN_SLT
-    $(INSTALL) -D -m 0755 $(@D)/output.txt $(TARGET_DIR)/usr/bin/NN_SLT
-    $(INSTALL) -D -m 0755 $(@D)/inp_1_out0_1_640_640_3_nchw.tensor $(TARGET_DIR)/usr/bin/NN_SLT
+    $(INSTALL) -D -m 0755 $(@D)/output.bin $(TARGET_DIR)/usr/bin/NN_SLT
+    $(INSTALL) -D -m 0755 $(@D)/input.bin $(TARGET_DIR)/usr/bin/NN_SLT
+    $(INSTALL) -D -m 0755 $(@D)/inp_2.tensor $(TARGET_DIR)/usr/bin/NN_SLT
 endef
 
 define SLT_NN_INSTALL_CLEAN_CMDS
