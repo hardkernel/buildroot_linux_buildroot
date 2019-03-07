@@ -3,7 +3,7 @@
 # Cobalt
 #
 #############################################################
-COBALT_VERSION = 19.lts.1.186281
+COBALT_VERSION = 19.lts.3.194831
 
 ifeq ($(BR2_aarch64), y)
 COBALT_TOOLCHAIN_DEPENDENCIES = browser_toolchain_gcc-linaro-aarch64
@@ -36,6 +36,7 @@ ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL), y)
 COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer browser_toolchain_depot_tools $(COBALT_TOOLCHAIN_DEPENDENCIES)
 COBALT_SOURCE = cobalt-$(COBALT_VERSION).tar.gz
 COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
+COBALT_STRIP_COMPONENTS=0
 
 ifeq ($(BR2_PACKAGE_COBALT_GLES), y)
 COBALT_REL = amlogic-wayland
