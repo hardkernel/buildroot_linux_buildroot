@@ -2,6 +2,8 @@
 #include "onvif_rtsp_v4l2ctl.h"
 #include "onvif_rtsp_common.h"
 
+static bool rtsp_source_delay_start_audio (RTSP_SERVER_t *srv);
+
 static void
 on_v4l2src_prepare_format (GstElement* object, gint fd, GstCaps* caps, RTSP_SERVER_t *srv) {
   std::shared_ptr<CONFIG_t> config = srv->config;
@@ -14,15 +16,25 @@ on_v4l2src_prepare_format (GstElement* object, gint fd, GstCaps* caps, RTSP_SERV
 }
 
 static void
-on_notify_caps (GstPad *pad, GParamSpec *pspec, GstCaps **pcaps) {
+on_notify_caps (GstPad *pad, GParamSpec *pspec, RTSP_SERVER_t *srv) {
+  PIPELINE_SRC_t *src = &srv->pipelines.src;
+
   GstCaps *caps;
   g_object_get (pad, "caps", &caps, NULL);
 
   if (caps) {
-    if (*pcaps) {
-      gst_caps_unref (*pcaps);
+    if (pad == src->vsink_sink_pad) {
+      if (src->vsink_caps) {
+        gst_caps_unref (src->vsink_caps);
+      }
+      src->vsink_caps = gst_caps_copy (caps);
+      rtsp_source_delay_start_audio (srv);
+    } else {
+      if (src->asink_caps) {
+        gst_caps_unref (src->asink_caps);
+      }
+      src->asink_caps = gst_caps_copy (caps);
     }
-    *pcaps = gst_caps_copy (caps);
   }
 
 }
@@ -54,26 +66,30 @@ static bool source_init (RTSP_SERVER_t *srv) {
   GError *error = NULL;
   std::shared_ptr<CONFIG_t> config = srv->config;
 
-  std::string pipeline_desc = pipeline_create_src (config);
+  std::string pipeline_desc = pipeline_create_video_src (config);
   PIPELINE_SRC_t *src = &srv->pipelines.src;
 
-  src->pipeline = gst_parse_launch (pipeline_desc.c_str (), &error);
-  src->vsrc = gst_bin_get_by_name (GST_BIN (src->pipeline), "vsrc");
-  src->vsink = gst_bin_get_by_name (GST_BIN (src->pipeline), "vsink");
+  src->astat = GST_STATE_NULL;
+
+  src->vpipeline = gst_parse_launch (pipeline_desc.c_str (), &error);
+  src->vsrc = gst_bin_get_by_name (GST_BIN (src->vpipeline), "vsrc");
+  src->vsink = gst_bin_get_by_name (GST_BIN (src->vpipeline), "vsink");
   if (config->imagecap.enabled) {
-    src->imgcap = gst_bin_get_by_name (GST_BIN (src->pipeline), "imgcap");
+    src->imgcap = gst_bin_get_by_name (GST_BIN (src->vpipeline), "imgcap");
   }
   src->vsink_sink_pad = gst_element_get_static_pad (src->vsink, "sink");
   src->vsink_caps = NULL;
   g_signal_connect (src->vsink_sink_pad, "notify::caps",
-      G_CALLBACK (on_notify_caps), &src->vsink_caps);
+      G_CALLBACK (on_notify_caps), srv);
 
   if (!config->debug.disable_audio) {
-    src->asink = gst_bin_get_by_name (GST_BIN (src->pipeline), "asink");
+    pipeline_desc = pipeline_create_audio_src (config);
+    src->apipeline = gst_parse_launch (pipeline_desc.c_str (), &error);
+    src->asink = gst_bin_get_by_name (GST_BIN (src->apipeline), "asink");
     src->asink_sink_pad = gst_element_get_static_pad (src->asink, "sink");
     src->asink_caps = NULL;
     g_signal_connect (src->asink_sink_pad, "notify::caps",
-        G_CALLBACK (on_notify_caps), &src->asink_caps);
+        G_CALLBACK (on_notify_caps), srv);
   }
 
   g_signal_connect (src->vsrc, "prepare-format",
@@ -84,19 +100,19 @@ static bool source_init (RTSP_SERVER_t *srv) {
 
 bool rtsp_source_start (RTSP_SERVER_t *srv) {
   PIPELINE_SRC_t *src = &srv->pipelines.src;
-  if (src->pipeline == NULL) {
+  if (src->vpipeline == NULL) {
     if (!source_init (srv)) {
       return false;
     }
   }
   /* start playing the pipeline, causes recording to start */
-  gst_element_set_state (src->pipeline, GST_STATE_PLAYING);
+  gst_element_set_state (src->vpipeline, GST_STATE_PLAYING);
 
   /* using get_state we wait for the state change to complete */
-  if (gst_element_get_state (src->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
+  if (gst_element_get_state (src->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
 	  == GST_STATE_CHANGE_FAILURE) {
-	g_print ("Failed to get the pipeline into the PLAYING state\n");
-    gst_element_set_state (src->pipeline, GST_STATE_NULL);
+	g_print ("Failed to get the video pipeline into the PLAYING state\n");
+    gst_element_set_state (src->vpipeline, GST_STATE_NULL);
     return false;
   }
 
@@ -105,20 +121,68 @@ bool rtsp_source_start (RTSP_SERVER_t *srv) {
 
 }
 
+static bool
+rtsp_source_delay_start_audio (RTSP_SERVER_t *srv) {
+  PIPELINE_SRC_t *src = &srv->pipelines.src;
+  std::shared_ptr<CONFIG_t> config = srv->config;
+
+  if (config->debug.disable_audio) return true;
+
+  if (src->apipeline == NULL) {
+    g_print ("audio pipeline not created, could not be started\n");
+    return false;
+  }
+
+  if (src->astat == GST_STATE_PLAYING) {
+    return true;
+  }
+
+  /* start playing the pipeline, causes recording to start */
+  gst_element_set_state (src->apipeline, GST_STATE_PLAYING);
+
+  /* using get_state we wait for the state change to complete */
+  if (gst_element_get_state (src->apipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
+	  == GST_STATE_CHANGE_FAILURE) {
+	g_print ("Failed to get the audio pipeline into the PLAYING state\n");
+    gst_element_set_state (src->apipeline, GST_STATE_NULL);
+    src->astat = GST_STATE_NULL;
+    return false;
+  }
+
+  src->astat = GST_STATE_PLAYING;
+
+  return true;
+
+
+}
+
 bool rtsp_source_stop (RTSP_SERVER_t *srv) {
   PIPELINE_SRC_t *src= &srv->pipelines.src;
-  if (src->pipeline == NULL) {
+  std::shared_ptr<CONFIG_t> config = srv->config;
+
+  if (src->vpipeline == NULL) {
     return true;
   }
 
   /* terminating, set pipeline to NULL and clean up */
   g_print ("Closing stream and file\n");
 
-  gst_element_set_state (src->pipeline, GST_STATE_NULL);
-  if (gst_element_get_state (src->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
+  gst_element_set_state (src->vpipeline, GST_STATE_NULL);
+  if (gst_element_get_state (src->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
       == GST_STATE_CHANGE_FAILURE) {
-    g_print ("Failed to get the pipline into the NULL state\n");
+    g_print ("Failed to get the video pipline into the NULL state\n");
     return false;
   }
+
+  if (config->debug.disable_audio) return true;
+
+  gst_element_set_state (src->apipeline, GST_STATE_NULL);
+  if (gst_element_get_state (src->apipeline, NULL, NULL, GST_CLOCK_TIME_NONE)
+      == GST_STATE_CHANGE_FAILURE) {
+    g_print ("Failed to get the audio pipline into the NULL state\n");
+    return false;
+  }
+  src->astat = GST_STATE_NULL;
+
   return true;
 }

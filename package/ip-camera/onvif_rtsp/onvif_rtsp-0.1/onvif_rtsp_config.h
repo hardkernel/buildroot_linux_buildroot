@@ -38,7 +38,9 @@ typedef struct config_backchannel {
 
 typedef struct config_audio {
   std::string device;
-  std::string bitrate;
+  std::string device_options;
+  std::string channels;
+  std::string format;
   std::string samplerate;
   std::string codec;
 } CFG_AUDIO_t;

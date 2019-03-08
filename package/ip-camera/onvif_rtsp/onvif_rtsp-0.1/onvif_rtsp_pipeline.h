@@ -5,7 +5,8 @@
 #include "onvif_rtsp_config.h"
 
 typedef struct rtsp_source_pipeline {
-  GstElement *pipeline;
+  GstElement *vpipeline;
+  GstElement *apipeline;
 
   GstElement *vsrc;
 
@@ -18,6 +19,8 @@ typedef struct rtsp_source_pipeline {
 
   GstCaps *vsink_caps;
   GstCaps *asink_caps;
+
+  GstState astat;
 
 } PIPELINE_SRC_t;
 
@@ -53,7 +56,8 @@ typedef struct rtsp_pipeline {
   PIPELINE_STO_t sto;
 } RTSP_PIPELINE_t;
 
-std::string pipeline_create_src(std::shared_ptr<CONFIG_t> &config);
+std::string pipeline_create_video_src(std::shared_ptr<CONFIG_t> &config);
+std::string pipeline_create_audio_src(std::shared_ptr<CONFIG_t> &config);
 std::string pipeline_create_sto(std::shared_ptr<CONFIG_t> &config);
 std::string pipeline_create_rtp(std::shared_ptr<CONFIG_t> &config);
 std::string pipeline_create_backchannel(std::shared_ptr<CONFIG_t> &config);
