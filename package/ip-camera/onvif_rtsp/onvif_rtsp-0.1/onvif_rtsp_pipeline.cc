@@ -1,7 +1,7 @@
 #include "onvif_rtsp_pipeline.h"
 #include <string.h>
 
-std::string pipeline_create_src (std::shared_ptr<CONFIG_t> &config) {
+std::string pipeline_create_video_src (std::shared_ptr<CONFIG_t> &config) {
   std::string pipeline_desc = "";
 
   // video
@@ -48,6 +48,13 @@ std::string pipeline_create_src (std::shared_ptr<CONFIG_t> &config) {
   pipeline_desc += " ! udpsink name=vsink host=224.1.1.1 auto-multicast=true port=2222 sync=false";
   pipeline_desc += " multicast-iface=lo";
 
+  g_print ("Video source pipeline:\n  %s\n", pipeline_desc.c_str ());
+  return pipeline_desc;
+}
+
+std::string pipeline_create_audio_src (std::shared_ptr<CONFIG_t> &config) {
+  std::string pipeline_desc = "";
+
   // audio
   if (!config->debug.disable_audio) {
     if (config->audio.device == "test") {
@@ -55,7 +62,19 @@ std::string pipeline_create_src (std::shared_ptr<CONFIG_t> &config) {
     } else {
       pipeline_desc += " alsasrc device=";
       pipeline_desc += config->audio.device;
+      if (not config->audio.device_options.empty()) {
+        pipeline_desc += " ";
+        pipeline_desc += config->audio.device_options;
+      }
+      pipeline_desc += " ! audio/x-raw,format=";
+      pipeline_desc += config->audio.format;
+      pipeline_desc += ",rate=";
+      pipeline_desc += config->audio.samplerate;
+      pipeline_desc += ",channels=";
+      pipeline_desc += config->audio.channels;
+      pipeline_desc += " ! audioconvert ! audioresample";
     }
+
 
     if (config->audio.codec == "mulaw") {
       pipeline_desc += " ! mulawenc";
@@ -78,7 +97,7 @@ std::string pipeline_create_src (std::shared_ptr<CONFIG_t> &config) {
     pipeline_desc += " multicast-iface=lo";
   }
 
-  g_print ("Source pipeline:\n  %s\n", pipeline_desc.c_str ());
+  g_print ("Audio source pipeline:\n  %s\n", pipeline_desc.c_str ());
   return pipeline_desc;
 }
 

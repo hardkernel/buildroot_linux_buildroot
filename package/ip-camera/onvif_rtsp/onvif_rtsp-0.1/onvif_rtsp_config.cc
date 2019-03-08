@@ -107,14 +107,27 @@ static void rtsp_config_parse_property (std::shared_ptr<CONFIG_t> &config) {
   if (ipc_get_property ("ipc/audio/device", value)) {
     config->audio.device = value;
   }
-  // Audio bitrate
-  if (ipc_get_property ("ipc/audio/bitrate", value)) {
-    config->audio.bitrate = value;
+
+  // Audio device options
+  if (ipc_get_property ("ipc/audio/device_options", value)) {
+    config->audio.device_options = value;
   }
+
+  // Audio channels
+  if (ipc_get_property ("ipc/audio/channels", value)) {
+    config->audio.channels = value;
+  }
+
+  // Audio format
+  if (ipc_get_property ("ipc/audio/format", value)) {
+    config->audio.format = value;
+  }
+
   // Audio samplerate
   if (ipc_get_property ("ipc/audio/samplerate", value)) {
     config->audio.samplerate = value;
   }
+
   // Audio encoder
   if (ipc_get_property ("ipc/audio/codec", value)) {
     config->audio.codec = value;
@@ -202,9 +215,12 @@ static void rtsp_config_parse_property (std::shared_ptr<CONFIG_t> &config) {
 #define DEFAULT_WDR_ENABLED false
 
 #define DEFAULT_AUDIO_DEVICE "test"
-#define DEFAULT_AUDIO_BITRATE "64"
-#define DEFAULT_SAMPLERATE "8"
-#define DEFAULT_AUDIO_CODEC "mp3"
+#define DEFAULT_AUDIO_DEVICE_OPTIONS ""
+#define DEFAULT_AUDIO_CHANNELS "2"
+#define DEFAULT_AUDIO_SAMPLERATE "48000"
+#define DEFAULT_AUDIO_FORMAT "S16LE"
+#define DEFAULT_AUDIO_CODEC "mulaw"
+
 #define DEFAULT_BACKCHANNEL_CLOCK_RATE "8000"
 #define DEFAULT_BACKCHANNEL_ENCODING "PCMU"
 #define DEFAULT_BACKCHANNEL_DEVICE ""
@@ -325,16 +341,31 @@ static void rtsp_config_parse_env (std::shared_ptr<CONFIG_t> &config) {
   if (const char *device = std::getenv ("IPC_AUDIO_DEVICE")) {
     config->audio.device = device;
   }
-  // Audio bitrate
-  config->audio.bitrate = DEFAULT_AUDIO_BITRATE;
-  if (const char *bitrate = std::getenv ("IPC_AUDIO_BITRATE")) {
-    config->audio.bitrate = bitrate;
+
+  // Audio device options
+  config->audio.device_options = DEFAULT_AUDIO_DEVICE_OPTIONS;
+  if (const char *value = std::getenv ("IPC_AUDIO_DEVICE_OPTIONS")) {
+    config->audio.device_options = value;
   }
+
+  // Audio channels
+  config->audio.channels = DEFAULT_AUDIO_CHANNELS;
+  if (const char *value = std::getenv ("IPC_AUDIO_CHANNELS")) {
+    config->audio.channels = value;
+  }
+
+  // Audio format
+  config->audio.format = DEFAULT_AUDIO_FORMAT;
+  if (const char *value = std::getenv ("IPC_AUDIO_FORMAT")) {
+    config->audio.format = value;
+  }
+
   // Audio samplerate
-  config->audio.samplerate = DEFAULT_SAMPLERATE;
+  config->audio.samplerate = DEFAULT_AUDIO_SAMPLERATE;
   if (const char *samplerate = std::getenv ("IPC_AUDIO_SAMPLERATE")) {
     config->audio.samplerate = samplerate;
   }
+
   // Audio encoder
   config->audio.codec = DEFAULT_AUDIO_CODEC;
   if (const char *codec = std::getenv ("IPC_AUDIO_CODEC")) {
