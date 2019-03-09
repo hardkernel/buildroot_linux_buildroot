@@ -62,6 +62,11 @@ bt_func()
   asplay enable-input BT
 }
 
+as_soundeffect_func()
+{
+  asplay soundeffect-set $1
+}
+
 echo "adckey_function.sh $1"
 if [ -f $SB_POWERSCRIPT_FILE ] ; then
   if [ -f $SB_SUSPENDFLAG ] ; then
@@ -86,6 +91,7 @@ case $1 in
   "SPDIF") as_source_func $1 ;;
   "HDMIARC") as_source_func $1 ;;
   "bluetooth") bt_func ;;
+  "DAP" | "BM" | "DRC" | "POST" | "UPMIX" | "VIRT" | "LEGACY" | "HFILT") as_soundeffect_func $1 ;;
   *) echo "no function to add this case: $1" ;;
 esac
 

@@ -23,4 +23,14 @@ HDMI2                   208     # REPEAT key (4,2)
 HDMIARC                 205     # PAIR key (3,3)
 SPDIF                   206     # DIMMER key (3,4)
 bluetooth               203     # BT key (2,3)
+DAP                     212     # DAP
+BM                      213     # BM
+DRC                     214     # DRC
+POST                    215     # POST
+UPMIX                   216     # UPMIX
+VIRT                    217     # VIRT
+LEGACY                  218     # LEGACY
+HFILT                   219     # HFILT
+LOUNDNESS               220     # Loundness
+AUDIOINFO               221     # Audio_info
 
