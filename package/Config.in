@@ -31,6 +31,7 @@ menu "amlogic"
 	source "../vendor/amlogic/audioservice/Config.in"
 	source "package/aml_dvb/Config.in"
 	source "package/aml_zvbi/Config.in"
+	source "package/aml_nn_detect/Config.in"
 endmenu
 
 menu "Audio and video applications"
