@@ -27,6 +27,7 @@ define SLT_GPU_INSTALL_TARGET_CMDS
     $(INSTALL) -D -m 0755 $(@D)/fill_buffer/sample.bmp $(TARGET_DIR)/usr/
     $(INSTALL) -D -m 0755 $(@D)/$(FILL_BUFFER) $(TARGET_DIR)/usr/bin/
     $(INSTALL) -D -m 0755 $(@D)/$(FLATLAND) $(TARGET_DIR)/usr/bin/
+    ln  -s /usr/share/arm/opengles_31/compute_particles/assets  $(TARGET_DIR)/assets
 endef
 
 define SLT_GPU_INSTALL_CLEAN_CMDS
