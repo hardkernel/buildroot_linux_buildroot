@@ -29,8 +29,9 @@ DRC                     214     # DRC
 POST                    215     # POST
 UPMIX                   216     # UPMIX
 VIRT                    217     # VIRT
-LEGACY                  218     # LEGACY
+#LEGACY                  218     # LEGACY
+VLAMP                   218     # VLAMP
 HFILT                   219     # HFILT
-LOUNDNESS               220     # Loundness
-AUDIOINFO               221     # Audio_info
+LOUDNESS                220     # Loudness
+VMCAL                   221     # VMCAL
 

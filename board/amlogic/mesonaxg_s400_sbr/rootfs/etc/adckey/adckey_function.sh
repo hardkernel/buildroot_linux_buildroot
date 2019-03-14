@@ -91,7 +91,7 @@ case $1 in
   "SPDIF") as_source_func $1 ;;
   "HDMIARC") as_source_func $1 ;;
   "bluetooth") bt_func ;;
-  "DAP" | "BM" | "DRC" | "POST" | "UPMIX" | "VIRT" | "LEGACY" | "HFILT") as_soundeffect_func $1 ;;
+  "DAP" | "BM" | "DRC" | "POST" | "UPMIX" | "VIRT" | "LEGACY" | "HFILT" | "LOUDNESS" | "VLAMP" | "VMCAL") as_soundeffect_func $1 ;;
   *) echo "no function to add this case: $1" ;;
 esac
 
