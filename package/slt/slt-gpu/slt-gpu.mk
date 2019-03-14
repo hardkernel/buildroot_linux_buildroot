@@ -24,6 +24,7 @@ endef
 define SLT_GPU_INSTALL_TARGET_CMDS
     $(INSTALL) -D -m 0755 $(@D)/check_err/gpu.check_err $(TARGET_DIR)/usr/bin/
     $(INSTALL) -D -m 0755 $(@D)/opengles2_basic/gpu.gl2_basic $(TARGET_DIR)/usr/bin/
+    $(INSTALL) -D -m 0755 $(@D)/fill_buffer/sample.bmp $(TARGET_DIR)/usr/
     $(INSTALL) -D -m 0755 $(@D)/$(FILL_BUFFER) $(TARGET_DIR)/usr/bin/
     $(INSTALL) -D -m 0755 $(@D)/$(FLATLAND) $(TARGET_DIR)/usr/bin/
 endef
