@@ -1,0 +1,142 @@
+{
+    "ipc": {
+        "audio": {
+            "enabled": false,
+            "device": "test",
+            "device options": "",
+            "channels": 2,
+            "format": "S16LE",
+            "codec": "mulaw",
+            "samplerate": 48000
+        },
+        "video": {
+            "device": "/dev/video0",
+            "bitrate": 2000,
+            "codec": "h265",
+            "framerate": 30,
+            "gop": 30,
+            "resolution": "1920x1080"
+        },
+        "isp": {
+            "wdr": {
+                "enabled": false
+            }
+        },
+        "backchannel": {
+            "enabled": false,
+            "clock rate": 8000,
+            "encoding": "PCMU",
+            "device": ""
+        },
+        "face detection": {
+            "enabled": true
+        },
+        "overlay": {
+            "time": {
+                "font": {
+                    "color": "0xffffffff",
+                    "background color": "0x00000000",
+                    "font file": "",
+                    "size": 48
+                },
+                "date": {
+                    "enabled": true,
+                    "location": "top-right"
+                },
+                "pts": {
+                    "enabled": false,
+                    "location": "bot-right"
+                }
+            },
+            "watermark": {
+                "image": {
+                    "file": "",
+                    "location": {
+                        "left": 0,
+                        "top": 0,
+                        "width": 0,
+                        "height": 0
+                    }
+                },
+                "text": {
+                    "font": {
+                        "color": "0xffffffff",
+                        "background color": "0x00000000",
+                        "font file": "",
+                        "size": 30
+                    },
+                    "location": {
+                        "left": 0,
+                        "top": 0
+                    },
+                    "text": ""
+                }
+            },
+            "face detection": {
+              "rect color": "0xffff00ff"
+            }
+        },
+        "storage": {
+          "enabled": false,
+          "location": "",
+          "chunk duration": 5,
+          "reserved space size": 200
+        },
+        "image capture": {
+          "enabled": false,
+          "location": "",
+          "trigger": false
+        }
+
+    },
+    "onvif": {
+        "device": {
+            "firmware ver": "1.0",
+            "hardware id": "111",
+            "manufacturer": "amlogic",
+            "model": "0",
+            "serial number": "10101010"
+        },
+        "discover": {
+            "enabled": true
+        },
+        "media": {
+            "profiles": [
+                {
+                    "name": "RTSP",
+                    "protocol": "rtsp",
+                    "width": 1920,
+                    "height": 1080
+                }
+            ]
+        },
+        "network": {
+            "interface": "eth1",
+            "port": "1000"
+        },
+        "scopes": [
+            "onvif://www.onvif.org/name/TestDev",
+            "onvif://www.onvif.org/location/Unknowx",
+            "onvif://www.onvif.org/Profile/Streaming",
+            "onvif://www.onvif.org/Profile/S"
+        ],
+        "users": [
+            {
+                "name": "admin",
+                "password": "admin",
+                "level": "Administrator"
+            }
+        ]
+    },
+    "rtsp": {
+        "network": {
+            "address": "0.0.0.0",
+            "port": 554,
+            "route": "/live.sdp"
+        },
+        "auth": {
+            "username": "",
+            "password": ""
+        }
+    }
+}
