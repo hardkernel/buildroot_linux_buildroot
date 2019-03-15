@@ -67,6 +67,7 @@ fi
 
 # Remove some no useful files
 rm -frv $1/lib/debug
+rm -frv $1/etc/init.d/S60input
 # /usr/bin/app_* are related with avs
 rm -frv $1/usr/bin/app_*
 rm -frv $1/etc/avskey
