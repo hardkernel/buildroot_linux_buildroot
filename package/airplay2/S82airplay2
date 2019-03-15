@@ -1,6 +1,6 @@
 #! /bin/sh
 
-OPTIONS="-D dmixer_avs_auto"
+OPTIONS="-D hw:0,2 -u 20000"
 NAME=airplaydemo
 DAEMON=/usr/bin/$NAME
 PIDFILE=/var/run/$NAME.pid
