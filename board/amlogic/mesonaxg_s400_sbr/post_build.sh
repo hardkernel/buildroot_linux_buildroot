@@ -38,17 +38,18 @@ fi
 # MCU6350 gpio interrupt config
 echo "Start to change /etc/init.d/S90audioservice to support mcu6350"
 if [ -f $1/etc/init.d/S90audioservice ] ; then
-	sed -i '/#!\/bin\/sh/a\
-\n# MCU6350 gpio interrupt config\
-# gpio_z4(4) + base(411) = 415\
-GPIO_INDEX=415\
-NODE_GPIO=/sys/class/gpio/gpio$GPIO_INDEX\
-if [ ! -d "$NODE_GPIO" ]; then\
-	echo $GPIO_INDEX > /sys/class/gpio/export\
-	echo in     > $NODE_GPIO/direction\
-	echo rising > $NODE_GPIO/edge\
-fi\
-' $1/etc/init.d/S90audioservice
+	textexist=$(cat $1/etc/init.d/S90audioservice | grep MCU6350)
+	if [ -z "$textexist" ] ; then
+		sed -i '/#!\/bin\/sh/a fi\n' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a \\techo rising > $NODE_GPIO/edge' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a \\techo in     > $NODE_GPIO/direction' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a \\techo $GPIO_INDEX > /sys/class/gpio/export' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a if [ ! -d "$NODE_GPIO" ]; then' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a NODE_GPIO=/sys/class/gpio/gpio$GPIO_INDEX' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a GPIO_INDEX=415' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a # gpio_z4(4) + base(411) = 415' $1/etc/init.d/S90audioservice
+		sed -i '/#!\/bin\/sh/a \\n# MCU6350 gpio interrupt config' $1/etc/init.d/S90audioservice
+	fi
 fi
 
 # Copy related aml_halaudio configure file
