@@ -103,6 +103,11 @@ struct _GstAmlOverlay {
 
   GstVideoInfo info;
   gboolean is_info_set;
+
+  gboolean font_changed;
+  gboolean watermark_text_font_changed;
+  gboolean watermark_text_changed;
+  gboolean watermark_img_changed;
 };
 
 struct _GstAmlOverlayClass {

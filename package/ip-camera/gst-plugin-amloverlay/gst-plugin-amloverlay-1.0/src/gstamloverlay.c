@@ -376,6 +376,11 @@ gst_aml_overlay_init (GstAmlOverlay *overlay)
   overlay->disable_facerect = DEFAULT_PROP_DISABLE_FACERECT;
   overlay->facerect_color = DEFAULT_PROP_FACERECT_COLOR;
 
+  overlay->font_changed = FALSE;
+  overlay->watermark_text_font_changed = FALSE;
+  overlay->watermark_text_changed = FALSE;
+  overlay->watermark_img_changed = FALSE;
+
   gst_aml_overlay_open (overlay);
 }
 
@@ -401,6 +406,7 @@ gst_aml_overlay_set_property (GObject * object, guint prop_id,
     case PROP_FONT_FILE:
       g_free(overlay->fontfile);
       overlay->fontfile = g_value_dup_string (value);
+      overlay->font_changed = TRUE;
       break;
     case PROP_FONT_COLOR:
       overlay->fontcolor = g_value_get_uint (value);
@@ -410,23 +416,34 @@ gst_aml_overlay_set_property (GObject * object, guint prop_id,
       break;
     case PROP_FONT_SIZE:
       overlay->fontsize = g_value_get_int (value);
+      overlay->font_changed = TRUE;
       break;
     case PROP_DRAW_OUTLINE:
       overlay->draw_outline = g_value_get_boolean (value);
       break;
     case PROP_WATERMARK_TEXT:
-      g_free(overlay->watermark_text);
-      overlay->watermark_text = g_value_dup_string (value);
+      {
+        gchar *t = g_value_dup_string (value);
+        if (g_strcmp0 (t, overlay->watermark_text)) {
+          g_free (overlay->watermark_text);
+          overlay->watermark_text = t;
+          overlay->watermark_text_changed = TRUE;
+        } else {
+          g_free (t);
+        }
+      }
       break;
     case PROP_WATERMARK_TEXT_FONT_FILE:
       g_free(overlay->watermark_fontfile);
       overlay->watermark_fontfile = g_value_dup_string (value);
+      overlay->watermark_text_font_changed = TRUE;
       break;
     case PROP_WATERMARK_TEXT_FONT_COLOR:
       overlay->watermark_fontcolor = g_value_get_uint (value);
       break;
     case PROP_WATERMARK_TEXT_FONT_SIZE:
       overlay->watermark_fontsize = g_value_get_int (value);
+      overlay->watermark_text_font_changed = TRUE;
       break;
     case PROP_WATERMARK_TEXT_XPOS:
       overlay->watermark_text_xpos = g_value_get_int (value);
@@ -435,8 +452,16 @@ gst_aml_overlay_set_property (GObject * object, guint prop_id,
       overlay->watermark_text_ypos = g_value_get_int (value);
       break;
     case PROP_WATERMARK_IMG:
-      g_free(overlay->watermark_img);
-      overlay->watermark_img = g_value_dup_string (value);
+      {
+        gchar *t = g_value_dup_string (value);
+        if (g_strcmp0 (t, overlay->watermark_img)) {
+          g_free (overlay->watermark_img);
+          overlay->watermark_img = t;
+          overlay->watermark_img_changed = TRUE;
+        } else {
+          g_free (t);
+        }
+      }
       break;
     case PROP_WATERMARK_IMG_XPOS:
       overlay->watermark_img_xpos = g_value_get_int (value);
@@ -445,10 +470,22 @@ gst_aml_overlay_set_property (GObject * object, guint prop_id,
       overlay->watermark_img_ypos = g_value_get_int (value);
       break;
     case PROP_WATERMARK_IMG_WIDTH:
-      overlay->watermark_img_width = g_value_get_int (value);
+      {
+        gint i = g_value_get_int (value);
+        if (i != overlay->watermark_img_width) {
+          overlay->watermark_img_width = i;
+          overlay->watermark_img_changed = TRUE;
+        }
+      }
       break;
     case PROP_WATERMARK_IMG_HEIGHT:
-      overlay->watermark_img_height = g_value_get_int (value);
+      {
+        gint i = g_value_get_int (value);
+        if (i != overlay->watermark_img_height) {
+          overlay->watermark_img_height = i;
+          overlay->watermark_img_changed = TRUE;
+        }
+      }
       break;
     case PROP_DISABLE_FACERECT:
       overlay->disable_facerect = g_value_get_boolean (value);
@@ -775,7 +812,12 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     overlay_init();
     overlay_create_inputbuffer (outbuf_info.data, info->width, info->height);
     if (overlay->draw_clock || overlay->draw_pts) {
-      if (overlay->clock_font == NULL) {
+      if (overlay->clock_font == NULL
+          || overlay->font_changed) {
+        overlay->font_changed = FALSE;
+        if (overlay->clock_font) {
+          overlay_destroy_font (overlay->clock_font);
+        }
         overlay->clock_font = overlay->pts_font = overlay_create_font (overlay->fontfile,
             overlay->fontsize, overlay->draw_outline ? 1 : 0);
       }
@@ -811,20 +853,35 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
       }
     }
     if (strlen (overlay->watermark_text) > 0) {
-      if (overlay->watermark_font == NULL) {
+      if (overlay->watermark_font == NULL
+          || overlay->watermark_text_font_changed) {
+        if (overlay->watermark_font) {
+          overlay_destroy_font (overlay->watermark_font);
+        }
         overlay->watermark_font = overlay_create_font (overlay->watermark_fontfile,
             overlay->watermark_fontsize, 0);
       }
-      if (overlay->watermark_text_surface == NULL) {
+      if (overlay->watermark_text_surface == NULL
+          || overlay->watermark_text_changed || overlay->watermark_text_font_changed) {
+        if (overlay->watermark_text_surface) {
+          overlay_destroy_surface (overlay->watermark_text_surface);
+        }
         overlay->watermark_text_surface = overlay_create_text_surface (overlay->watermark_text,
             overlay->watermark_font, overlay->watermark_fontcolor, 0);
       }
+      overlay->watermark_text_font_changed = FALSE;
+      overlay->watermark_text_changed = FALSE;
       overlay_draw_surface (overlay->watermark_text_surface,
           overlay->watermark_text_xpos, overlay->watermark_text_ypos);
     }
 
     if (strlen (overlay->watermark_img) > 0) {
-      if (overlay->watermark_img_surface == NULL) {
+      if (overlay->watermark_img_surface == NULL
+          || overlay->watermark_img_changed) {
+        overlay->watermark_img_changed = FALSE;
+        if (overlay->watermark_img_surface) {
+          overlay_destroy_surface (overlay->watermark_img_surface);
+        }
         overlay->watermark_img_surface = overlay_create_image_surface (overlay->watermark_img,
             overlay->watermark_img_width, overlay->watermark_img_height);
       }
