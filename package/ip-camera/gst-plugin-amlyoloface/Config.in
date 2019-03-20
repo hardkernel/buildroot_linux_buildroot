@@ -1,5 +1,0 @@
-config BR2_PACKAGE_GST_PLUGIN_AMLYOLOFACE
-	bool "gstream1 plugin face detection"
-    select BR2_PACKAGE_LIBYOLOFACE
-	help
-	  gstreamer 1.0 plugins

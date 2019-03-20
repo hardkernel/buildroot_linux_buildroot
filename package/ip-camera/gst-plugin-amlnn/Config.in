@@ -1,0 +1,5 @@
+config BR2_PACKAGE_GST_PLUGIN_AMLNN
+	bool "gstream1 plugin NN detection"
+    select BR2_PACKAGE_AML_NN_DETECT
+	help
+	  gstreamer 1.0 plugins
