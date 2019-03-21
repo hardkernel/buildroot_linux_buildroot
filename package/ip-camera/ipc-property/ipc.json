@@ -23,7 +23,18 @@
             },
             "brightness": 128,
             "contrast": 128,
-            "saturation": 128
+            "saturation": 128,
+            "hue": 128,
+            "sharpness": 128,
+            "exposure" : {
+              "auto": true,
+              "absolute": 0
+            },
+            "whitebalance": {
+              "auto": true,
+              "temperature": 128
+            },
+            "ircut": true
         },
         "backchannel": {
             "enabled": false,
