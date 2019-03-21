@@ -54,6 +54,8 @@ enum
   LAST_SIGNAL
 };
 
+#define NN_DETECT_DELAY_FRAMES 3
+
 #define DEFAULT_PROP_DRAW_CLOCK TRUE
 #define DEFAULT_PROP_DRAW_PTS FALSE
 #define DEFAULT_PROP_DRAW_OUTLINE TRUE
@@ -151,7 +153,7 @@ static GstFlowReturn gst_aml_overlay_transform_ip (GstBaseTransform * base,
 static gboolean gst_aml_overlay_set_caps (GstBaseTransform * base,
     GstCaps * in, GstCaps * out);
 
-static gboolean gst_aml_overlay_sink_event (GstBaseTransform * base, GstEvent *event);
+static gboolean gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event);
 /* GObject vmethod implementations */
 
 #define GST_TYPE_AML_TEXT_OVERLAY_POS (gst_aml_text_overlay_pos_get_type())
@@ -196,7 +198,7 @@ gst_aml_overlay_class_init (GstAmlOverlayClass * klass)
   gobject_class->set_property = gst_aml_overlay_set_property;
   gobject_class->get_property = gst_aml_overlay_get_property;
   gobject_class->finalize = gst_aml_overlay_finalize;
-  gstbasetransform_class->sink_event = gst_aml_overlay_sink_event;
+  gstbasetransform_class->sink_event = gst_aml_overlay_event;
 
   g_object_class_install_property (gobject_class, PROP_DRAW_CLOCK,
       g_param_spec_boolean ("draw-clock", "Draw-Clock",
@@ -634,51 +636,52 @@ gst_aml_overlay_set_caps (GstBaseTransform * base, GstCaps * in, GstCaps * out)
   return TRUE;
 }
 
-#define MAX_DETECT_NUM 100
-typedef struct _DetectPoint {
-  int left;
-  int top;
-  int right;
-  int bottom;
-} DetectPoint;
+typedef struct Relative_DetectPoint {
+  float rel_left;
+  float rel_top;
+  float rel_right;
+  float rel_bottom;
+} RDetectPoint_t;
 
 typedef struct _DetectResult {
    int  detect_num;
-   DetectPoint pt[MAX_DETECT_NUM];
+   RDetectPoint_t *pt;
 } DetectResult;
 
-#define GST_EVENT_YOLOFACE_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
-DetectResult *face_detect_result = NULL;
+#define GST_EVENT_NN_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
+DetectResult gs_detect_res = {0, NULL};
+gint nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
 static gboolean
-gst_aml_overlay_sink_event (GstBaseTransform * base, GstEvent *event)
+gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
 {
   switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_YOLOFACE_DETECTED:
+    case GST_EVENT_NN_DETECTED:
       {
         const GstStructure *resst = gst_event_get_structure (event);
         gboolean ret = TRUE;
-        if (gst_structure_has_name (resst, "face-detection")) {
+        if (gst_structure_has_name (resst, "nn-detection")) {
           GstMapInfo info;
           const GValue *size = gst_structure_get_value (resst, "rectnum");
           const GValue *buf = gst_structure_get_value (resst, "rectbuf");
+          gint detect_num = g_value_get_int (size);
           GstBuffer *resbuf = gst_value_get_buffer (buf);
-          DetectResult *res = (DetectResult *)g_malloc (sizeof(DetectResult));
-          res->detect_num = g_value_get_int (size);
+          RDetectPoint_t *pt = (RDetectPoint_t *)g_malloc (sizeof(RDetectPoint_t) * detect_num);
           if (gst_buffer_map (resbuf, &info, GST_MAP_READ)) {
-            g_memmove (res->pt, info.data, info.size);
+            g_memmove (pt, info.data, info.size);
             gst_buffer_unmap (resbuf, &info);
           } else {
-            g_free (res);
-            res = NULL;
+            g_free (pt);
+            pt = NULL;
             ret = FALSE;
           }
 
-          if (face_detect_result) {
-            g_free (face_detect_result);
+          if (gs_detect_res.pt) {
+            g_free (gs_detect_res.pt);
           }
-          face_detect_result = res;
+          gs_detect_res.pt = pt;
+          gs_detect_res.detect_num = detect_num;
           gst_buffer_unref (resbuf);
-
+          nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
           return ret;
         }
       }
@@ -889,15 +892,23 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
           overlay->watermark_img_xpos, overlay->watermark_img_ypos);
     }
     if (!overlay->disable_facerect) {
-      if (face_detect_result) {
-        for (int i = 0; i < face_detect_result->detect_num; i++) {
-          DetectPoint *pt = &face_detect_result->pt[i];
-          overlay_draw_rect(pt->left, pt->top,
-              pt->right - pt->left, pt->bottom - pt->top, 3,
-              overlay->facerect_color);
+      if (gs_detect_res.detect_num) {
+        for (int i = 0; i < gs_detect_res.detect_num; i++) {
+          RDetectPoint_t *pt = &gs_detect_res.pt[i];
+          overlay_draw_rect(
+              (int)(pt->rel_left * info->width),
+              (int)(pt->rel_top * info->height),
+              (int)((pt->rel_right - pt->rel_left) * info->width),
+              (int)((pt->rel_bottom - pt->rel_top) * info->height),
+              3, overlay->facerect_color);
         }
-        g_free(face_detect_result);
-        face_detect_result = NULL;
+        if (nn_rect_delay_clear_frames == 0) {
+          gs_detect_res.detect_num = 0;
+          g_free(gs_detect_res.pt);
+          gs_detect_res.pt = NULL;
+        } else {
+          nn_rect_delay_clear_frames --;
+        }
       }
     }
     overlay_destroy_inputbuffer();
