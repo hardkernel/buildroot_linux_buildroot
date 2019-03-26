@@ -27,12 +27,15 @@
             "hue": 128,
             "sharpness": 128,
             "exposure" : {
-              "auto": true,
-              "absolute": 0
+                "auto": true,
+                "absolute": 0
             },
             "whitebalance": {
-              "auto": true,
-              "temperature": 128
+                "auto": true,
+                "crgain": 128,
+                "cbgain": 128,
+                "crgain_default": 0,
+                "cbgain_default": 0
             },
             "ircut": true
         },
@@ -113,6 +116,9 @@
         },
         "discover": {
             "enabled": true
+        },
+        "imaging": {
+            "forcepersist": true
         },
         "media": {
             "profiles": [
