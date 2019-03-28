@@ -279,6 +279,7 @@ define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/u-boot.bin.encrypt.sd.bin $(BINARIES_DIR)/
 	$(INSTALL) -m 0755 $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))/aml_encrypt_$(BR2_TARGET_UBOOT_PLATFORM) $(HOST_DIR)/usr/bin
 endef
+UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
 endif
 
 ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_AMLOGIC)),y)
