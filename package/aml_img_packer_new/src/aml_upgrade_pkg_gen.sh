@@ -200,6 +200,21 @@ else
 	fi
 fi
 
+aml_recovery=${PRODUCT_OUTPUT_DIR}/recovery.img
+if [ ${platform} = "meson8b" ];then
+    aml_secureboot_sign_kernel_m8b ${aml_recovery}
+    if [ ! -f ${aml_recovery}.encrypt ]; then
+        echo "fail to sign recovery image"
+        exit 1
+    fi
+else
+    aml_secureboot_sign_kernel ${aml_recovery}
+    if [ ! -f ${aml_recovery}.encrypt ]; then
+        echo "fail to sign recovery image"
+        exit 1
+    fi
+fi
+
 aml_dtb=${PRODUCT_OUTPUT_DIR}/dtb.img
 if [ ${platform} != "meson8b" ];then
 	aml_secureboot_sign_bin ${aml_dtb}

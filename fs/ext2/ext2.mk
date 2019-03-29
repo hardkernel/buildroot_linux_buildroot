@@ -73,11 +73,14 @@ endif #BR2_TARGET_USBTOOL_AMLOGIC
 
 RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(RECOVERY_OTA_DIR),)
-rootfs-ota-swu-pack-ext4fs:
+ifeq ($(BR2_TARGET_UBOOT_ENCRYPTION),y)
+	RECOVERY_ENC_FLAG="-enc"
+endif
+rootfs-ota-swu-pack-ext4fs: rootfs-usb-image-pack
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-emmc $(BINARIES_DIR)/sw-description
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-emmc-increment $(BINARIES_DIR)/sw-description-increment
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/ota-package-filelist-emmc $(BINARIES_DIR)/ota-package-filelist
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-emmc$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-emmc-increment$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description-increment
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/ota-package-filelist-emmc$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/ota-package-filelist
 	$(BINARIES_DIR)/ota_package_create.sh
 ROOTFS_EXT2_POST_TARGETS += rootfs-ota-swu-pack-ext4fs
 endif

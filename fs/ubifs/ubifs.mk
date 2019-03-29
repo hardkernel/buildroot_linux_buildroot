@@ -50,15 +50,18 @@ UPGRADE_DIR_OVERLAY := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR_OVERLAY))
 
 RECOVERY_OTA_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_DIR))
 ifneq ($(RECOVERY_OTA_DIR),)
-rootfs-ota-swu-pack-ubifs:
+ifeq ($(BR2_TARGET_UBOOT_ENCRYPTION),y)
+	RECOVERY_ENC_FLAG="-enc"
+endif
+rootfs-ota-swu-pack-ubifs: rootfs-usb-image-pack-ubi
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
 ifeq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-ab $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-ab$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description
 else
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand $(BINARIES_DIR)/sw-description
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-increment $(BINARIES_DIR)/sw-description-increment
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-increment$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description-increment
 endif
-	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/ota-package-filelist-nand $(BINARIES_DIR)/ota-package-filelist
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/ota-package-filelist-nand$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/ota-package-filelist
 	$(BINARIES_DIR)/ota_package_create.sh
 ROOTFS_UBIFS_POST_TARGETS += rootfs-ota-swu-pack-ubifs
 endif
