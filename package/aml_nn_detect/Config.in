@@ -1,5 +1,0 @@
-config BR2_PACKAGE_AML_NN_DETECT
-    bool "aml nn_detect library"
-    help
-        Support nn detection
-        depends on BR2_PACKAGE_NPU
