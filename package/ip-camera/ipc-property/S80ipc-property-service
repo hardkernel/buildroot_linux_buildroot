@@ -6,7 +6,7 @@ PID_FILE=/tmp/$DAEMON.pid
 CFG_FILE=/etc/ipc.json
 
 DAEMON_ARGS="--pid_file $PID_FILE"
-DAEMON_ARGS="--cfg_file $CFG_FILE"
+DAEMON_ARGS="$DAEMON_ARGS --cfg_file $CFG_FILE"
 
 
 d_start()
