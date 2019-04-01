@@ -1,4 +1,5 @@
 menu "ip camera"
+source "package/ip-camera/onvif_prebuilt/Config.in"
 source "package/ip-camera/onvif_srvd/Config.in"
 source "package/ip-camera/onvif_wsdd/Config.in"
 source "package/ip-camera/onvif_rtsp/Config.in"
