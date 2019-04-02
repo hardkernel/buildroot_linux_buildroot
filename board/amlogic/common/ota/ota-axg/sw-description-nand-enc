@@ -47,24 +47,24 @@ software =
 			type = "flash";
 		},
 		{
-			filename = "u-boot.bin.usb.tpl";
+			filename = "u-boot.bin.encrypt.usb.tpl";
 			device = "/dev/mtd1";
 			type = "flash";
 		},
 		{
-			filename = "u-boot.bin.usb.tpl";
+			filename = "u-boot.bin.encrypt.usb.tpl";
 			device = "/dev/mtd1";
 			offset = "2M";
 			type = "flash";
 		},
 		{
-			filename = "u-boot.bin.usb.tpl";
+			filename = "u-boot.bin.encrypt.usb.tpl";
 			device = "/dev/mtd1";
 			offset = "4M";
 			type = "flash";
 		},
 		{
-			filename = "u-boot.bin.usb.tpl";
+			filename = "u-boot.bin.encrypt.usb.tpl";
 			device = "/dev/mtd1";
 			offset = "6M";
 			type = "flash";

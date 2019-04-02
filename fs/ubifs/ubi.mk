@@ -29,7 +29,6 @@ define ROOTFS_UBI_CMD
 	rm $(BUILD_DIR)/ubinize.cfg
 endef
 
-
 DEVICE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_OVERLAY))
 UPGRADE_DIR := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR))
 UPGRADE_DIR_OVERLAY := $(patsubst "%",%,$(BR2_ROOTFS_UPGRADE_DIR_OVERLAY))
@@ -52,6 +51,24 @@ rootfs-usb-image-pack-ubi:
 endif
 ROOTFS_UBI_POST_TARGETS += rootfs-usb-image-pack-ubi
 endif #BR2_TARGET_USBTOOL_UBI_AMLOGIC
+
+ifneq ($(RECOVERY_OTA_DIR),)
+ifeq ($(BR2_TARGET_UBOOT_ENCRYPTION),y)
+	RECOVERY_ENC_FLAG="-enc"
+endif
+rootfs-ota-swu-pack-ubifs:
+	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
+ifeq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-ab$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description
+else
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-increment$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description-increment
+endif
+	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/ota-package-filelist-nand$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/ota-package-filelist
+	$(BINARIES_DIR)/ota_package_create.sh
+ROOTFS_UBI_POST_TARGETS += rootfs-ota-swu-pack-ubifs
+endif
+
 
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
 SD_BOOT = $(BINARIES_DIR)/u-boot.bin.sd.bin
