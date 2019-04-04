@@ -3,6 +3,8 @@
 #include <directfb_strings.h>
 #include <directfb_util.h>
 
+#define MAX_MULTILINES 32
+
 #define DFBCHECK(x...)                                         \
   {                                                            \
     DFBResult err = x;                                         \
@@ -86,6 +88,32 @@ static void DestroyInputSurface() {
   }
 }
 
+static int
+string_line_break (char *str, char *lines[]) {
+  if (str == NULL) return 0;
+  char *p = str;
+  int n = 0;
+  if (lines) {
+    lines[n] = p;
+  }
+  n ++;
+  while (*p != '\0') {
+    if (*p == '\n') {
+      if (lines) {
+        *p = '\0';
+        if (*(p+1) != '\0') {
+          lines[n] = p+1;
+        }
+      }
+      if (*(p+1) != '\0') {
+        n++;
+      }
+    }
+    p++;
+  }
+  return n;
+}
+
 void overlay_init() {
   Init();
 }
@@ -119,8 +147,11 @@ void overlay_get_string_wh(const char* txt, void *font, int *w, int *h) {
     DFBCHECK (f->GetHeight(f, &sh));
   }
 
+  int lines = string_line_break (txt, NULL);
+  lines = lines > 0 ? lines : 1;
+
   if (w) *w = sw;
-  if (h) *h = sh;
+  if (h) *h = sh * lines;
 }
 
 static void swapARGB2ABGR(char *data, int pitch, int height) {
@@ -154,10 +185,17 @@ void *overlay_create_text_surface(const char* txt, void *font, int color, int bg
   IDirectFBSurface *text_surface = NULL;
   IDirectFBFont *f = (IDirectFBFont *)font;
 
+  char *mtxt = strdup (txt);
+  char *txt_lines[MAX_MULTILINES];
+  int lines = string_line_break (mtxt, txt_lines);
+  int i;
+  int line_height;
+  DFBCHECK (f->GetHeight(f, &line_height));
+
   desc.flags = DSDESC_PIXELFORMAT | DSDESC_WIDTH | DSDESC_HEIGHT;
   desc.pixelformat = DSPF_ARGB;
   DFBCHECK (f->GetStringWidth(f, txt, -1, &desc.width));
-  DFBCHECK (f->GetHeight(f, &desc.height));
+  desc.height = line_height * lines;
 
   u8 b = (bgcolor >> 24) & 0xff;
   u8 g = (bgcolor >> 16) & 0xff;
@@ -181,8 +219,12 @@ void *overlay_create_text_surface(const char* txt, void *font, int color, int bg
   DFBCHECK (text_surface->SetColors (text_surface, color_ids, colors, 2));
   DFBCHECK (text_surface->SetSrcBlendFunction(text_surface, DSBF_SRCALPHA));
   DFBCHECK (text_surface->SetDstBlendFunction(text_surface, DSBF_INVSRCALPHA));
-  DFBCHECK (text_surface->DrawString (text_surface, txt, -1, 0, 0,
-        DSTF_TOPLEFT | DSTF_OUTLINE | DSTF_BLEND_FUNCS));
+  for (i = 0; i < lines; i++) {
+    int y = line_height * i;
+    DFBCHECK (text_surface->DrawString (text_surface, txt_lines[i], -1, 0, y,
+          DSTF_TOPLEFT | DSTF_OUTLINE | DSTF_BLEND_FUNCS));
+  }
+  free (mtxt);
 
   char *data = NULL;
   int pitch = 0;

@@ -77,8 +77,14 @@ enum
 #define DEFAULT_PROP_WATERMARK_IMG_YPOS 0
 #define DEFAULT_PROP_WATERMARK_IMG_WIDTH -1
 #define DEFAULT_PROP_WATERMARK_IMG_HEIGHT -1
-#define DEFAULT_PROP_DISABLE_FACERECT FALSE
-#define DEFAULT_PROP_FACERECT_COLOR 0xffff00ff
+#define DEFAULT_PROP_NNRECT_SHOW TRUE
+#define DEFAULT_PROP_NN_RECTCOLOR 0xffff00ff
+
+#define DEFAULT_PROP_FACENET_SHOW TRUE
+#define DEFAULT_PROP_FACENET_FONTCOLOR 0x00ff80ff
+#define DEFAULT_PROP_FACENET_FONTFILE "/usr/share/directfb-1.7.7/decker.ttf"
+#define DEFAULT_PROP_FACENET_FONTSIZE 32
+#define DEFAULT_PROP_FACENET_RECTCOLOR 0xff00ffff
 
 enum
 {
@@ -103,8 +109,14 @@ enum
   PROP_WATERMARK_IMG_YPOS,
   PROP_WATERMARK_IMG_WIDTH,
   PROP_WATERMARK_IMG_HEIGHT,
-  PROP_DISABLE_FACERECT,
-  PROP_FACERECT_COLOR,
+  PROP_NNRECT_SHOW,
+  PROP_NN_RECTCOLOR,
+
+  PROP_FACENET_SHOW,
+  PROP_FACENET_FONTCOLOR,
+  PROP_FACENET_FONTFILE,
+  PROP_FACENET_FONTSIZE,
+  PROP_FACENET_RECTCOLOR,
 };
 
 /* the capabilities of the inputs and outputs.
@@ -222,10 +234,10 @@ gst_aml_overlay_class_init (GstAmlOverlayClass * klass)
           "pts position", GST_TYPE_AML_TEXT_OVERLAY_POS,
           DEFAULT_PROP_PTS_POS, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, PROP_DISABLE_FACERECT,
-      g_param_spec_boolean ("disable-face", "disable-face",
-          "Whether to disable face detection result",
-          DEFAULT_PROP_DISABLE_FACERECT,
+  g_object_class_install_property (gobject_class, PROP_NNRECT_SHOW,
+      g_param_spec_boolean ("show-nn-rect", "show-nn-rect",
+          "show nn detection rect",
+          DEFAULT_PROP_NNRECT_SHOW,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_FONT_FILE,
@@ -312,10 +324,38 @@ gst_aml_overlay_class_init (GstAmlOverlayClass * klass)
         DEFAULT_PROP_WATERMARK_TEXT_FONT_COLOR,
         G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_FACERECT_COLOR,
-      g_param_spec_uint ("face-rect-color", "Face-Rect-Color",
-        "Color to use for face detection rectangel (RGBA).", 0, G_MAXUINT32,
-        DEFAULT_PROP_FACERECT_COLOR,
+  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_NN_RECTCOLOR,
+      g_param_spec_uint ("nn-rect-color", "NN-Rect-Color",
+        "Color to use for nn detection rectangel (RGBA).", 0, G_MAXUINT32,
+        DEFAULT_PROP_NN_RECTCOLOR,
+        G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_FACENET_SHOW,
+      g_param_spec_boolean ("show-facenet", "show-facenet",
+          "show facenet detection info",
+          DEFAULT_PROP_FACENET_SHOW,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_FACENET_FONTFILE,
+      g_param_spec_string ("facenet-font-file", "Facenet-Font-File",
+        "Truetype font file for display facenet info", DEFAULT_PROP_FACENET_FONTFILE,
+        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_FACENET_FONTSIZE,
+      g_param_spec_int ("facenet-font-size", "Facenet-Font-Size",
+        "Font size for facenet info", 8,
+        256, DEFAULT_PROP_FACENET_FONTSIZE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_FACENET_FONTCOLOR,
+      g_param_spec_uint ("facenet-font-color", "Facenet-Font-Color",
+        "Color to use for facenet info (RGBA).", 0, G_MAXUINT32,
+        DEFAULT_PROP_FACENET_FONTCOLOR,
+        G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_FACENET_RECTCOLOR,
+      g_param_spec_uint ("facenet-rect-color", "Facenet-Rect-Color",
+        "Color to use for facenet rectangel (RGBA).", 0, G_MAXUINT32,
+        DEFAULT_PROP_FACENET_RECTCOLOR,
         G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_details_simple (gstelement_class,
@@ -375,8 +415,14 @@ gst_aml_overlay_init (GstAmlOverlay *overlay)
   overlay->watermark_img_ypos = DEFAULT_PROP_WATERMARK_IMG_YPOS;
   overlay->watermark_img_width = DEFAULT_PROP_WATERMARK_IMG_WIDTH;
   overlay->watermark_img_height = DEFAULT_PROP_WATERMARK_IMG_HEIGHT;
-  overlay->disable_facerect = DEFAULT_PROP_DISABLE_FACERECT;
-  overlay->facerect_color = DEFAULT_PROP_FACERECT_COLOR;
+  overlay->nnrect_show = DEFAULT_PROP_NNRECT_SHOW;
+  overlay->nn_rectcolor = DEFAULT_PROP_NN_RECTCOLOR;
+
+  overlay->facenet_show = DEFAULT_PROP_FACENET_SHOW;
+  overlay->facenet_rectcolor = DEFAULT_PROP_FACENET_RECTCOLOR;
+  overlay->facenet_fontfile = g_strdup(DEFAULT_PROP_FACENET_FONTFILE);
+  overlay->facenet_fontcolor = DEFAULT_PROP_FACENET_FONTCOLOR;
+  overlay->facenet_fontsize = DEFAULT_PROP_FACENET_FONTSIZE;
 
   overlay->font_changed = FALSE;
   overlay->watermark_text_font_changed = FALSE;
@@ -489,11 +535,29 @@ gst_aml_overlay_set_property (GObject * object, guint prop_id,
         }
       }
       break;
-    case PROP_DISABLE_FACERECT:
-      overlay->disable_facerect = g_value_get_boolean (value);
+    case PROP_NNRECT_SHOW:
+      overlay->nnrect_show = g_value_get_boolean (value);
       break;
-    case PROP_FACERECT_COLOR:
-      overlay->facerect_color = g_value_get_uint (value);
+    case PROP_NN_RECTCOLOR:
+      overlay->nn_rectcolor = g_value_get_uint (value);
+      break;
+    case PROP_FACENET_SHOW:
+      overlay->facenet_show = g_value_get_boolean (value);
+      break;
+    case PROP_FACENET_RECTCOLOR:
+      overlay->facenet_rectcolor = g_value_get_uint (value);
+      break;
+    case PROP_FACENET_FONTFILE:
+      g_free(overlay->facenet_fontfile);
+      overlay->facenet_fontfile = g_value_dup_string (value);
+      overlay->facenet_font_changed = TRUE;
+      break;
+    case PROP_FACENET_FONTCOLOR:
+      overlay->facenet_fontcolor = g_value_get_uint (value);
+      break;
+    case PROP_FACENET_FONTSIZE:
+      overlay->facenet_fontsize = g_value_get_int (value);
+      overlay->facenet_font_changed = TRUE;
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -568,11 +632,26 @@ gst_aml_overlay_get_property (GObject * object, guint prop_id,
     case PROP_WATERMARK_IMG_HEIGHT:
       g_value_set_int (value, overlay->watermark_img_height);
       break;
-    case PROP_DISABLE_FACERECT:
-      g_value_set_boolean (value, overlay->disable_facerect);
+    case PROP_NNRECT_SHOW:
+      g_value_set_boolean (value, overlay->nnrect_show);
       break;
-    case PROP_FACERECT_COLOR:
-      g_value_set_uint (value, overlay->facerect_color);
+    case PROP_NN_RECTCOLOR:
+      g_value_set_uint (value, overlay->nn_rectcolor);
+      break;
+    case PROP_FACENET_SHOW:
+      g_value_set_boolean (value, overlay->facenet_show);
+      break;
+    case PROP_FACENET_RECTCOLOR:
+      g_value_set_uint (value, overlay->facenet_rectcolor);
+      break;
+    case PROP_FACENET_FONTFILE:
+      g_value_set_string (value, overlay->facenet_fontfile);
+      break;
+    case PROP_FACENET_FONTCOLOR:
+      g_value_set_uint (value, overlay->facenet_fontcolor);
+      break;
+    case PROP_FACENET_FONTSIZE:
+      g_value_set_int (value, overlay->facenet_fontsize);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -636,21 +715,45 @@ gst_aml_overlay_set_caps (GstBaseTransform * base, GstCaps * in, GstCaps * out)
   return TRUE;
 }
 
-typedef struct Relative_DetectPoint {
-  float rel_left;
-  float rel_top;
-  float rel_right;
-  float rel_bottom;
-} RDetectPoint_t;
+struct RelativePos {
+  float x0;
+  float y0;
+  float x1;
+  float y1;
+};
 
-typedef struct _DetectResult {
-   int  detect_num;
-   RDetectPoint_t *pt;
-} DetectResult;
+struct NNResult {
+  int  detect_num;
+  struct RelativePos *pt;
+};
+
+struct FaceNetResult {
+  struct RelativePos pos;
+  char *info;
+};
 
 #define GST_EVENT_NN_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
-DetectResult gs_detect_res = {0, NULL};
+struct NNResult gs_nn_res = {0, NULL};
+struct FaceNetResult *gs_fn_res = NULL;
+
 gint nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
+
+static float
+change_precision (float f) {
+  float pf = (float)(((int)(f*100))/100.0);
+  if (pf < 0.0) pf = 0.0;
+  if (pf > 1.0) pf = 1.0;
+  return pf;
+}
+
+static void
+fix_rect_pos (struct RelativePos *pt) {
+  pt->x0 = change_precision (pt->x0 - 0.01);
+  pt->y0 = change_precision (pt->y0 - 0.01);
+  pt->x1 = change_precision (pt->x1 + 0.01);
+  pt->y1 = change_precision (pt->y1 + 0.01);
+}
+
 static gboolean
 gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
 {
@@ -659,13 +762,50 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
       {
         const GstStructure *resst = gst_event_get_structure (event);
         gboolean ret = TRUE;
+        if (gst_structure_has_name (resst, "facenet-detection")) {
+          GstMapInfo info;
+          const GValue *faceinfo = gst_structure_get_value (resst, "faceinfo");
+          GstBuffer *faceinfobuf = gst_value_get_buffer (faceinfo);
+          struct FaceNetResult *fr =
+            (struct FaceNetResult *)g_malloc (sizeof(struct FaceNetResult));
+          fr->info = NULL;
+
+          if (gst_buffer_map (faceinfobuf, &info, GST_MAP_READ)) {
+            size_t faceinfo_size = info.size - sizeof(struct RelativePos);
+            fr->info = faceinfo_size > 0 ? (char *) g_malloc (faceinfo_size) : NULL;
+            g_memmove (&fr->pos, info.data, sizeof(struct RelativePos));
+            fix_rect_pos (&fr->pos);
+            if (fr->info) {
+              g_memmove (fr->info, info.data + sizeof(struct RelativePos), faceinfo_size);
+            }
+            gst_buffer_unmap (faceinfobuf, &info);
+          } else {
+            if (fr->info) g_free (fr->info);
+            if (fr) g_free (fr);
+            fr = NULL;
+            ret = FALSE;
+          }
+
+          if (gs_fn_res) {
+            if (gs_fn_res->info) {
+              g_free (gs_fn_res->info);
+              gs_fn_res->info = NULL;
+            }
+            g_free (gs_fn_res);
+            gs_fn_res = NULL;
+          }
+          gs_fn_res = fr;
+          nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
+          gst_buffer_unref (faceinfobuf);
+          return ret;
+        }
         if (gst_structure_has_name (resst, "nn-detection")) {
           GstMapInfo info;
           const GValue *size = gst_structure_get_value (resst, "rectnum");
           const GValue *buf = gst_structure_get_value (resst, "rectbuf");
           gint detect_num = g_value_get_int (size);
           GstBuffer *resbuf = gst_value_get_buffer (buf);
-          RDetectPoint_t *pt = (RDetectPoint_t *)g_malloc (sizeof(RDetectPoint_t) * detect_num);
+          struct RelativePos *pt = (struct RelativePos *)g_malloc (sizeof(struct RelativePos) * detect_num);
           if (gst_buffer_map (resbuf, &info, GST_MAP_READ)) {
             g_memmove (pt, info.data, info.size);
             gst_buffer_unmap (resbuf, &info);
@@ -675,11 +815,15 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
             ret = FALSE;
           }
 
-          if (gs_detect_res.pt) {
-            g_free (gs_detect_res.pt);
+          if (gs_nn_res.pt) {
+            g_free (gs_nn_res.pt);
           }
-          gs_detect_res.pt = pt;
-          gs_detect_res.detect_num = detect_num;
+          for (gint i = 0; i < detect_num; i++) {
+            struct RelativePos *p = &pt[i];
+            fix_rect_pos (p);
+          }
+          gs_nn_res.pt = pt;
+          gs_nn_res.detect_num = detect_num;
           gst_buffer_unref (resbuf);
           nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
           return ret;
@@ -891,24 +1035,65 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
       overlay_draw_surface (overlay->watermark_img_surface,
           overlay->watermark_img_xpos, overlay->watermark_img_ypos);
     }
-    if (!overlay->disable_facerect) {
-      if (gs_detect_res.detect_num) {
-        for (int i = 0; i < gs_detect_res.detect_num; i++) {
-          RDetectPoint_t *pt = &gs_detect_res.pt[i];
+    if (overlay->nnrect_show) {
+      if (gs_nn_res.detect_num) {
+        for (gint i = 0; i < gs_nn_res.detect_num; i++) {
+          struct RelativePos *pt = &gs_nn_res.pt[i];
           overlay_draw_rect(
-              (int)(pt->rel_left * info->width),
-              (int)(pt->rel_top * info->height),
-              (int)((pt->rel_right - pt->rel_left) * info->width),
-              (int)((pt->rel_bottom - pt->rel_top) * info->height),
-              3, overlay->facerect_color);
+              (gint)(pt->x0 * info->width),
+              (gint)(pt->y0 * info->height),
+              (gint)((pt->x1 - pt->x0) * info->width),
+              (gint)((pt->y1 - pt->y0) * info->height),
+              5, overlay->nn_rectcolor);
         }
         if (nn_rect_delay_clear_frames == 0) {
-          gs_detect_res.detect_num = 0;
-          g_free(gs_detect_res.pt);
-          gs_detect_res.pt = NULL;
+          gs_nn_res.detect_num = 0;
+          g_free(gs_nn_res.pt);
+          gs_nn_res.pt = NULL;
         } else {
           nn_rect_delay_clear_frames --;
         }
+      }
+    }
+    if (overlay->facenet_show && gs_fn_res) {
+      struct RelativePos *pt = &gs_fn_res->pos;
+      overlay_draw_rect(
+          (gint)(pt->x0 * info->width),
+          (gint)(pt->y0 * info->height),
+          (gint)((pt->x1 - pt->x0) * info->width),
+          (gint)((pt->y1 - pt->y0) * info->height),
+          5, overlay->facenet_rectcolor);
+
+      // prepare facenet font
+      if (overlay->facenet_font == NULL
+          || overlay->facenet_font_changed) {
+        overlay->facenet_font_changed = FALSE;
+        if (overlay->facenet_font) {
+          overlay_destroy_font (overlay->facenet_font);
+        }
+        overlay->facenet_font = overlay_create_font (overlay->facenet_fontfile,
+            overlay->facenet_fontsize, 0);
+      }
+
+      if (gs_fn_res->info && strlen(gs_fn_res->info) > 0) {
+        gchar* txt = g_strdup (gs_fn_res->info);
+        gint x = (gint)(pt->x0 * info->width) + overlay->facenet_fontsize * 2;
+        gint y = (gint)(pt->y0 * info->height) + overlay->facenet_fontsize;
+        overlay->facenet_text_surface =
+          overlay_create_text_surface (txt, overlay->facenet_font, overlay->facenet_fontcolor, 0);
+        g_free(txt);
+        overlay_draw_surface (overlay->facenet_text_surface, x, y);
+        overlay_destroy_surface (overlay->facenet_text_surface);
+        overlay->facenet_text_surface = NULL;
+      }
+
+      if (nn_rect_delay_clear_frames == 0) {
+        if (gs_fn_res->info) g_free (gs_fn_res->info);
+        gs_fn_res->info = NULL;
+        g_free (gs_fn_res);
+        gs_fn_res = NULL;
+      } else {
+        nn_rect_delay_clear_frames --;
       }
     }
     overlay_destroy_inputbuffer();

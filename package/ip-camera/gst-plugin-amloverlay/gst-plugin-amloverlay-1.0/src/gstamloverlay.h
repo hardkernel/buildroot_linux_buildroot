@@ -79,7 +79,7 @@ struct _GstAmlOverlay {
   gboolean draw_clock;
   gboolean draw_pts;
   gboolean draw_outline;
-  gboolean disable_facerect;
+  gboolean nnrect_show;
   gchar* fontfile;
   gint fontsize;
   guint fontcolor;
@@ -97,9 +97,15 @@ struct _GstAmlOverlay {
   gint watermark_img_ypos;
   gint watermark_img_width;
   gint watermark_img_height;
-  guint facerect_color;
-  guint facetext_color;
-  gint facetext_size;
+  guint nn_rectcolor;
+
+  gboolean facenet_show;
+  gchar *facenet_fontfile;
+  guint facenet_fontcolor;
+  gint facenet_fontsize;
+  guint facenet_rectcolor;
+  void *facenet_font;
+  void *facenet_text_surface;
 
   GstVideoInfo info;
   gboolean is_info_set;
@@ -108,6 +114,7 @@ struct _GstAmlOverlay {
   gboolean watermark_text_font_changed;
   gboolean watermark_text_changed;
   gboolean watermark_img_changed;
+  gboolean facenet_font_changed;
 };
 
 struct _GstAmlOverlayClass {
