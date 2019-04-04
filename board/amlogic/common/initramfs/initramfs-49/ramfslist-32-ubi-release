@@ -87,7 +87,6 @@
 ./bin/mountpoint
 ./bin/setserial
 ./bin/pidof
-./bin/catv
 ./bin/sed
 ./bin/tar
 ./bin/date

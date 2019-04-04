@@ -1,50 +1,22 @@
-########################################################################
+################################################################################
 #
-#nghttp2
+# nghttp2
 #
-########################################################################
+################################################################################
 
-NGHTTP2_VERSION = 1.24.0
+NGHTTP2_VERSION = 1.32.0
 NGHTTP2_SITE = https://github.com/nghttp2/nghttp2/releases/download/v$(NGHTTP2_VERSION)
-NGHTTP2_SOURCE = nghttp2-$(NGHTTP2_VERSION).tar.bz2
-NGHTTP2_LICENSE = MIT_LICENSE
-NGHTTP2_LICENSE_FILES = LICENSE
+NGHTTP2_LICENSE = MIT
+NGHTTP2_LICENSE_FILES = COPYING
 NGHTTP2_INSTALL_STAGING = YES
-NGHTTP2_CFLAGS = \
+NGHTTP2_DEPENDENCIES = host-pkgconf
+NGHTTP2_CONF_OPTS = --enable-lib-only
 
-NGHTTP2_CONF_OPTS = \
-	--enable-lib-only2221
-	-Dccflags="$(NGHTTP2_CFLAGS)"
+define NGHTTP2_INSTALL_CLEAN_HOOK
+	# Remove fetch-ocsp-response script unused by library
+	$(Q)$(RM) -rf $(TARGET_DIR)/usr/share/nghttp2
+endef
 
-NGHTTP2_MAKE_ENV = \
-	CC="$(TARGET_CC)"
-	CFLAGS = "$(NGHTTP2_CFLAGS)" \
-	$(TARGET_MAKE_ENV)
-
-
-#define NGHTTP2_CONFIGURE_CMDS
-#	cd $(@D); \
-#	$(TARGET_CONFIGURE_ARGS) \
-#	$(TARGET_CONFIGURE_OPTS) \
-#	./configure
-#endef
-
-#define NGHTTP2_BUILD_CMDS
-#	$(@D)/configure -h
-#	$(NGHTTP2_MAKE_ENV) $(MAKE) -C $(@D)
-#endef
-
-#define NGHTTP2_INSTALL_STAGING_CMDS
-#	$(NGHTTP2_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR=$(STAGING_DIR) install
-#endef
-
-#define NGHTTP2_INSTALL_TARGET_CMDS
-#	$(NGHTTP2_MAKE_ENV) $(MAKE)	-C $(@D) DESTDIR=$(TARGET_DIR) install
-#endef
-
-#define NGHTTP2_CLEAN_CMDS
-#	$(NGHTTP2_MAKE_ENV) $(MAKE) -C $(@D) DESTDIR=$(STAGING_DIR) uninstall
-#	$(NGHTTP2_MAKE_ENV) $(MAKE) -C $(@D) clean
-#endef
+NGHTTP2_POST_INSTALL_TARGET_HOOKS += NGHTTP2_INSTALL_CLEAN_HOOK
 
 $(eval $(autotools-package))

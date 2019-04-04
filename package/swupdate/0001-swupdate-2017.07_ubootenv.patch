@@ -1,13 +1,26 @@
---- swupdate-2017.07/bootloader/none.c	2017-07-26 23:29:02.000000000 +0800
-+++ swupdate-2017.07/bootloader/none.c	2017-10-19 11:36:20.235382600 +0800
-@@ -19,24 +19,75 @@
+diff -rNu swupdate-2018.11-Orig/bootloader/none.c swupdate-2018.11/bootloader/none.c
+--- swupdate-2018.11-Orig/bootloader/none.c	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/bootloader/none.c	2019-03-21 17:00:27.125247590 +0800
+@@ -5,6 +5,8 @@
+  * SPDX-License-Identifier:     GPL-2.0-or-later
   */
  
++#if 0
++
  #include <unistd.h>
+ #include <string.h>
+ #include "bootloader.h"
+@@ -43,3 +45,78 @@
+ {
+ 	return dict_parse_script(&environment, filename);
+ }
++
++#else
++
++#include <unistd.h>
 +#include <stdio.h>
 +#include <string.h>
- #include "bootloader.h"
-+//#include "ubootenv.h"
++#include "bootloader.h"
 +
 +int bootloader_env_init()
 +{
@@ -15,29 +28,26 @@
 +	return 0;
 +}
 +
- int bootloader_env_set(const char __attribute__ ((__unused__)) *name,
- 			const char __attribute__ ((__unused__)) *value)
- {
++int bootloader_env_set(const char __attribute__ ((__unused__)) *name,
++			const char __attribute__ ((__unused__)) *value)
++{
 +	bootenv_update(name, value);
- 	return 0;
- }
- 
- int bootloader_env_unset(const char __attribute__ ((__unused__)) *name)
- {
++	return 0;
++}
++
++int bootloader_env_unset(const char __attribute__ ((__unused__)) *name)
++{
 +	bootenv_update(name, "");
- 	return 0;
- }
- 
- char *bootloader_env_get(const char __attribute__ ((__unused__)) *name)
- {
--	return NULL;
++	return 0;
++}
++
++char *bootloader_env_get(const char __attribute__ ((__unused__)) *name)
++{
 +    return bootenv_get(name);
-+	//return NULL;
- }
- 
- int bootloader_apply_list(const char __attribute__ ((__unused__)) *filename)
- {
--	return 0;
++}
++
++int bootloader_apply_list(const char __attribute__ ((__unused__)) *filename)
++{
 +	FILE *fp = NULL;
 +	int ret = 0;
 +	char *line = NULL, *key = NULL, *value = NULL;
@@ -77,10 +87,12 @@
 +	free(line);
 +
 +	return ret;
- }
---- swupdate-2017.07/core/swupdate.c	2017-07-26 23:29:02.000000000 +0800
-+++ swupdate-2017.07/core/swupdate.c	2017-10-19 16:43:29.526554324 +0800
-@@ -105,6 +105,7 @@
++}
++#endif
+diff -rNu swupdate-2018.11-Orig/core/swupdate.c swupdate-2018.11/core/swupdate.c
+--- swupdate-2018.11-Orig/core/swupdate.c	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/core/swupdate.c	2019-03-21 17:28:45.905297675 +0800
+@@ -104,6 +104,7 @@
  	{"webserver", required_argument, NULL, 'w'},
  #endif
  	{"check", no_argument, NULL, 'c'},
@@ -88,16 +100,15 @@
  	{"postupdate", required_argument, NULL, 'p'},
  	{NULL, 0, NULL, 0}
  };
-@@ -512,7 +513,7 @@
- #endif
+@@ -596,6 +597,7 @@
  	memset(main_options, 0, sizeof(main_options));
  	memset(image_url, 0, sizeof(image_url));
--	strcpy(main_options, "vhi:e:l:Lcf:p:");
-+	strcpy(main_options, "vhi:e:l:Lcrf:p:");
+ 	strcpy(main_options, "vhni:e:l:Lcf:p:o:N:");
++    strcat(main_options, "r:");
  #ifdef CONFIG_MTD
  	strcat(main_options, "b:");
  #endif
-@@ -669,6 +670,9 @@
+@@ -780,6 +782,9 @@
  		case 'c':
  			opt_c = 1;
  			break;
@@ -107,7 +118,7 @@
  		case 'p':
  			strncpy(swcfg.globals.postupdatecmd, optarg,
  				sizeof(swcfg.globals.postupdatecmd));
-@@ -791,6 +795,8 @@
+@@ -921,6 +926,8 @@
  	if(!get_hw_revision(&swcfg.hw))
  		printf("Running on %s Revision %s\n", swcfg.hw.boardname, swcfg.hw.revision);
  
@@ -116,9 +127,10 @@
  	print_registered_handlers();
  	if (swcfg.globals.syslog_enabled) {
  		if (syslog_init()) {
---- swupdate-2017.07/corelib/stream_interface.c	2017-07-26 23:29:02.000000000 +0800
-+++ swupdate-2017.07/corelib/stream_interface.c	2017-10-19 16:45:11.453204473 +0800
-@@ -83,6 +83,50 @@
+diff -rNu swupdate-2018.11-Orig/corelib/stream_interface.c swupdate-2018.11/corelib/stream_interface.c
+--- swupdate-2018.11-Orig/corelib/stream_interface.c	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/corelib/stream_interface.c	2019-03-21 16:38:31.369208798 +0800
+@@ -71,6 +71,50 @@
  
  static struct installer inst;
  
@@ -169,33 +181,10 @@
  static int extract_file_to_tmp(int fd, const char *fname, unsigned long *poffs)
  {
  	char output_file[MAX_IMAGE_FNAME];
-@@ -321,43 +365,61 @@
+@@ -363,6 +407,23 @@
  		mtd_cleanup();
  		scan_mtd_devices();
  #endif
--		/*
--		 * extract the meta data and relevant parts
--		 * (flash images) from the install image
--		 */
--		ret = extract_files(inst.fd, software);
--		close(inst.fd);
--
--		/* do carry out the installation (flash programming) */
--		if (ret == 0) {
--			TRACE("Valid image found: copying to FLASH");
--
--			/*
--			 * If an image is loaded, the install
--			 * must be successful. Set we have
--			 * initiated an update
--			 */
--			bootloader_env_set("recovery_status", "in_progress");
--
--			notify(RUN, RECOVERY_NO_ERROR, "Installation in progress");
--			ret = install_images(software, 0, 0);
--			if (ret != 0) {
--				bootloader_env_set("recovery_status", "failed");
--				notify(FAILURE, RECOVERY_ERROR, "Installation failed !");
 +		if (software->recovery_flag == 1) {
 +			unsigned long offset = 0;
 +			ret = extract_file_to_data(inst.fd, "software.swu", &offset);
@@ -203,69 +192,41 @@
 +				close(inst.fd);
 +				inst.last_install = SUCCESS;
 +				bootloader_env_set("upgrade_step", "3");
-+				notify(SUCCESS, RECOVERY_NO_ERROR, "SWUPDATE download successful !, reboot...");
++				notify(SUCCESS, RECOVERY_NO_ERROR, INFOLEVEL, "SWUPDATE download successful !, reboot...");
 +				umount("/data");
 +				system("reboot");
 +				sleep(5);
 +			} else {
 +				close(inst.fd);
- 				inst.last_install = FAILURE;
-+				notify(FAILURE, RECOVERY_ERROR, "Image download error. Not installing ...");
++				inst.last_install = FAILURE;
++				notify(FAILURE, RECOVERY_ERROR, ERRORLEVEL, "Image download error. Not installing ...");
 +			}
 +		} else {
-+			/*
-+		 	* extract the meta data and relevant parts
-+		 	* (flash images) from the install image
-+		 	*/
-+			ret = extract_files(inst.fd, software);
-+			close(inst.fd);
-+
-+			/* do carry out the installation (flash programming) */
-+			if (ret == 0) {
-+				TRACE("Valid image found: copying to FLASH");
- 
--			} else {
- 				/*
--				 * Clear the recovery variable to indicate to bootloader
--				 * that it is not required to start recovery again
-+				 * If an image is loaded, the install
-+				 * must be successful. Set we have
-+				 * initiated an update
- 				 */
--				bootloader_env_unset("recovery_status");
--				notify(SUCCESS, RECOVERY_NO_ERROR, "SWUPDATE successful !");
--				inst.last_install = SUCCESS;
-+				bootloader_env_set("recovery_status", "in_progress");
-+
-+				notify(RUN, RECOVERY_NO_ERROR, "Installation in progress");
-+				ret = install_images(software, 0, 0);
-+				if (ret != 0) {
-+					bootloader_env_set("recovery_status", "failed");
-+					notify(FAILURE, RECOVERY_ERROR, "Installation failed !");
-+					inst.last_install = FAILURE;
-+
-+				} else {
-+					/*
-+					 * Clear the recovery variable to indicate to bootloader
-+					 * that it is not required to start recovery again
-+					 */
-+					bootloader_env_unset("recovery_status");
-+					notify(SUCCESS, RECOVERY_NO_ERROR, "SWUPDATE successful !");
-+					inst.last_install = SUCCESS;
-+				}
-+			} else {
-+				inst.last_install = FAILURE;
-+				notify(FAILURE, RECOVERY_ERROR, "Image invalid or corrupted. Not installing ...");
- 			}
--		} else {
--			inst.last_install = FAILURE;
--			notify(FAILURE, RECOVERY_ERROR, "Image invalid or corrupted. Not installing ...");
+ 		/*
+ 		 * extract the meta data and relevant parts
+ 		 * (flash images) from the install image
+@@ -400,6 +461,7 @@
+ 		} else {
+ 			inst.last_install = FAILURE;
+ 			notify(FAILURE, RECOVERY_ERROR, ERRORLEVEL, "Image invalid or corrupted. Not installing ...");
++			}
  		}
  
  		swupdate_progress_end(inst.last_install);
---- swupdate-2017.07/include/swupdate.h	2017-07-26 23:29:02.000000000 +0800
-+++ swupdate-2017.07/include/swupdate.h	2017-10-19 11:46:14.158824900 +0800
-@@ -136,6 +136,7 @@
+diff -rNu swupdate-2018.11-Orig/include/bootloader.h swupdate-2018.11/include/bootloader.h
+--- swupdate-2018.11-Orig/include/bootloader.h	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/include/bootloader.h	2019-03-21 16:38:31.369208798 +0800
+@@ -53,4 +53,6 @@
+  */
+ int bootloader_apply_list(const char *script);
+ 
++int bootloader_env_init(void) ;
++
+ #endif
+diff -rNu swupdate-2018.11-Orig/include/swupdate.h swupdate-2018.11/include/swupdate.h
+--- swupdate-2018.11-Orig/include/swupdate.h	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/include/swupdate.h	2019-03-21 16:38:31.369208798 +0800
+@@ -134,6 +134,7 @@
  	struct proclist extprocs;
  	void *dgst;	/* Structure for signed images */
  	struct swupdate_global_cfg globals;

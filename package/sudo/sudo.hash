@@ -1,2 +1,4 @@
 # From: http://www.sudo.ws/download.html
-sha256 237e18e67c2ad59ecacfa4b7707198b09fcf84914621585a9bc670dcc31a52e0  sudo-1.8.19p2.tar.gz
+sha256 d863d29b6fc87bc784a3223350e2b28a2ff2c4738f0fb8f1c92bb38c3017e679  sudo-1.8.23.tar.gz
+# Locally calculated
+sha256 b6625a7b58e9469a7adfd1732960579a19fe84b3508030f9a31641283e2250b8  doc/LICENSE

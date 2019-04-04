@@ -13,10 +13,12 @@ GIFLIB_LICENSE_FILES = COPYING
 
 GIFLIB_BINS = \
 	gif2epsn gif2ps gif2rgb gif2x11 gifasm gifbg gifbuild gifburst gifclip \
-	gifclrmp gifcolor gifcomb gifcompose gifecho giffiltr giffix gifflip  \
-	gifhisto gifinfo gifinter gifinto gifovly gifpos gifrotat     \
+	gifclrmp gifcolor gifcomb gifcompose gifecho giffiltr giffix gifflip \
+	gifhisto gifinfo gifinter gifinto gifovly gifpos gifrotat \
 	gifrsize gifspnge giftext giftool gifwedge icon2gif raw2gif rgb2gif \
 	text2gif
+
+GIFLIB_CONF_ENV = ac_cv_prog_have_xmlto=no
 
 define GIFLIB_BINS_CLEANUP
 	rm -f $(addprefix $(TARGET_DIR)/usr/bin/,$(GIFLIB_BINS))

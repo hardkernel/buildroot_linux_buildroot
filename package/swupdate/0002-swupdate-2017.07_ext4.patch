@@ -1,6 +1,7 @@
---- swupdate-2017.07/handlers/Config.in	2017-07-26 23:29:02.000000000 +0800
-+++ swupdate-2017.07/handlers/Config.in	2017-11-07 11:10:33.896537225 +0800
-@@ -87,6 +87,14 @@
+diff -rNu swupdate-2018.11-Orig/handlers/Config.in swupdate-2018.11/handlers/Config.in
+--- swupdate-2018.11-Orig/handlers/Config.in	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/handlers/Config.in	2019-03-21 17:31:51.961303160 +0800
+@@ -99,6 +99,14 @@
  	  This is a simple handler that simply copies
  	  into the destination.
  
@@ -13,10 +14,22 @@
 +	  ext4 image into the destination.
 +
  config LUASCRIPTHANDLER
- 	bool "luascript"
+ 	bool "Lua Script"
  	depends on LUA
---- swupdate-2017.07/handlers/ext4_handler.c	1970-01-01 08:00:00.000000000 +0800
-+++ swupdate-2017.07/handlers/ext4_handler.c	2017-11-03 19:33:51.862707600 +0800
+diff -rNu swupdate-2018.11-Orig/handlers/Makefile swupdate-2018.11/handlers/Makefile
+--- swupdate-2018.11-Orig/handlers/Makefile	2018-12-05 22:03:06.000000000 +0800
++++ swupdate-2018.11/handlers/Makefile	2019-03-21 17:32:39.725304568 +0800
+@@ -14,6 +14,7 @@
+ obj-$(CONFIG_CFIHAMMING1)+= flash_hamming1_handler.o
+ obj-$(CONFIG_LUASCRIPTHANDLER) += lua_scripthandler.o
+ obj-$(CONFIG_RAW)	+= raw_handler.o
++obj-$(CONFIG_EXT4) += ext4_handler.o
+ obj-$(CONFIG_REMOTE_HANDLER) += remote_handler.o
+ obj-$(CONFIG_SHELLSCRIPTHANDLER) += shell_scripthandler.o
+ obj-$(CONFIG_SWUFORWARDER_HANDLER) += swuforward_handler.o
+diff -rNu swupdate-2018.11-Orig/handlers/ext4_handler.c swupdate-2018.11/handlers/ext4_handler.c
+--- swupdate-2018.11-Orig/handlers/ext4_handler.c	1970-01-01 08:00:00.000000000 +0800
++++ swupdate-2018.11/handlers/ext4_handler.c	2019-03-21 17:31:51.961303160 +0800
 @@ -0,0 +1,624 @@
 +/*
 + * (C) Copyright 2013
@@ -565,7 +578,7 @@
 +        return 0;
 +    }
 +
-+    dgst = swupdate_HASH_init();
++    dgst = swupdate_HASH_init(SHA_DEFAULT);
 +    if (!dgst) {
 +        return -1;
 +    }
@@ -640,15 +653,5 @@
 +__attribute__((constructor))
 +void ext4_handler(void)
 +{
-+    register_handler("ext4", install_ext4_image, NULL);
++    register_handler("ext4", install_ext4_image, IMAGE_HANDLER, NULL);
 +}
---- swupdate-2017.07/handlers/Makefile	2017-07-26 23:29:02.000000000 +0800
-+++ swupdate-2017.07/handlers/Makefile	2017-11-02 16:37:46.455606200 +0800
-@@ -7,6 +7,7 @@
- obj-$(CONFIG_CFI)	+= flash_handler.o
- obj-$(CONFIG_CFIHAMMING1)+= flash_hamming1_handler.o
- obj-$(CONFIG_RAW)	+= raw_handler.o
-+obj-$(CONFIG_EXT4)	+= ext4_handler.o
- obj-$(CONFIG_UBIVOL)	+= ubivol_handler.o
- obj-$(CONFIG_LUASCRIPTHANDLER) += lua_scripthandler.o
- obj-$(CONFIG_SHELLSCRIPTHANDLER) += shell_scripthandler.o

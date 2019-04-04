@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-JASPER_VERSION = 2.0.10
-JASPER_SITE = http://www.ece.uvic.ca/~frodo/jasper/software
+JASPER_VERSION = version-2.0.14
+JASPER_SITE = $(call github,mdadams,jasper,$(JASPER_VERSION))
 JASPER_INSTALL_STAGING = YES
-JASPER_LICENSE = JasPer License Version 2.0
+JASPER_LICENSE = JasPer-2.0
 JASPER_LICENSE_FILES = LICENSE
 JASPER_SUPPORTS_IN_SOURCE_BUILD = NO
 JASPER_CONF_OPTS = \

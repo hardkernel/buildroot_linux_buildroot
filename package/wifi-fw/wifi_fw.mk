@@ -424,8 +424,11 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/cypress/config/cyw43438/Wi-Fi/NB197SM.nvram_20180419_AZ.txt $(TARGET_DIR)/etc/wifi/cyw43438/;\
 		$(INSTALL) -D -m 0644 $(@D)/cypress/config/cyw43438/BT/BCM4343A1_001.002.009.0077.0352.hcd $(TARGET_DIR)/etc/bluetooth/cyw43438/; \
 		;; \
-esac;
-		$(INSTALL) -D -m 0755 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin
+	esac;
+		#Current wl is 64bit app, can't be installed to 32bit system
+		if [ -z "$(BR2_KERNEL_64_USERLAND_32)" ]; then \
+			$(INSTALL) -D -m 0755 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin; \
+		fi
 endef
 
 

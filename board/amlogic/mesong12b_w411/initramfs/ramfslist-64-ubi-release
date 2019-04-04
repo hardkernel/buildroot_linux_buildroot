@@ -87,7 +87,6 @@
 ./bin/mountpoint
 ./bin/setserial
 ./bin/pidof
-./bin/catv
 ./bin/sed
 ./bin/tar
 ./bin/date
@@ -154,7 +153,7 @@
 ./usr/lib/libglib-2.0.so.0
 ./usr/lib/libglib-2.0.so
 ./usr/lib/libblkid.so
-./usr/lib/libglib-2.0.so.0.5000.2
+./usr/lib/libglib-2.0.so.0.5600.3
 ./usr/lib/libuuid.so
 ./usr/bin
 ./usr/bin/xzcat

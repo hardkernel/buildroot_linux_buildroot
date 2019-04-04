@@ -87,7 +87,6 @@
 ./bin/mountpoint
 ./bin/setserial
 ./bin/pidof
-./bin/catv
 ./bin/sed
 ./bin/tar
 ./bin/date
@@ -256,8 +255,7 @@
 ./usr/bin/traceroute
 ./usr/lib32
 ./usr/sbin
-./usr/sbin/mkfs.ext4
-./usr/sbin/mkfs.ext4dev
+./sbin/mkfs.ext4
 ./usr/sbin/ether-wake
 ./usr/sbin/delgroup
 ./usr/sbin/fbset

@@ -4,8 +4,8 @@
 #
 ###########################################################
 
-KRB5_VERSION_MAJOR = 1.14
-KRB5_VERSION = $(KRB5_VERSION_MAJOR).4
+KRB5_VERSION_MAJOR = 1.17
+KRB5_VERSION = $(KRB5_VERSION_MAJOR)
 KRB5_SITE = http://web.mit.edu/kerberos/dist/krb5/$(KRB5_VERSION_MAJOR)
 KRB5_LICENSE = BSD-2c, others
 KRB5_LICENSE_FILES = NOTICE

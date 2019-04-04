@@ -1,7 +1,7 @@
 config BR2_PACKAGE_NGHTTP2
 	bool "nghttp2"
 	help
-		This is an implementation of the Hypertext Transfer Protocol version 2 in C.
-		The framing layer of HTTP/2 is implemented as a reusable C library. On top of
-	   	that, we have implemented anHTTP/2 client, server and proxy. We have also
-		developed load test andbenchmarking tools for HTTP/2 and SPDY.
+	  nghttp2 is an implementation of HTTP/2 and its header
+	  compression algorithm HPACK in C.
+
+	  https://nghttp2.org/

@@ -1,9 +1,10 @@
+comment "qt5wayland needs an OpenGL-capable backend"
+	depends on !BR2_PACKAGE_QT5_GL_AVAILABLE
+
 config BR2_PACKAGE_QT5WAYLAND
 	bool "qt5wayland"
-	select BR2_PACKAGE_LIBXKBCOMMON
-	select BR2_PACKAGE_XKEYBOARD_CONFIG
-	depends on BR2_PACKAGE_WAYLAND && BR2_PACKAGE_HAS_LIBEGL_WAYLAND
-	default y if BR2_PACKAGE_WAYLAND && BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+	depends on BR2_PACKAGE_QT5_GL_AVAILABLE
+	select BR2_PACKAGE_WAYLAND
 	help
 	  Qt is a cross-platform application and UI framework for
 	  developers using C++.
@@ -11,3 +12,13 @@ config BR2_PACKAGE_QT5WAYLAND
 	  This package corresponds to the qt5wayland module.
 
 	  http://qt.io
+
+if BR2_PACKAGE_QT5WAYLAND
+
+config BR2_PACKAGE_QT5WAYLAND_COMPOSITOR
+	bool "Enable compositor (experimental)"
+	help
+	  The compositor API is still experimental, and not built by
+	  default.
+
+endif

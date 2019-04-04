@@ -5,6 +5,9 @@
 ################################################################################
 
 REALTEK_BT_VERSION = 4.9
+ifeq ($(call qstrip, $(BR2_PACKAGE_REALTEK_BT_LOCAL_PATH)),)
+BR2_PACKAGE_REALTEK_BT_LOCAL_PATH = $(TOPDIR)/dummy
+endif
 REALTEK_BT_SITE = $(call qstrip,$(BR2_PACKAGE_REALTEK_BT_LOCAL_PATH))
 REALTEK_BT_SITE_METHOD = local
 

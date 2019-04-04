@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-PYTHON_PSUTIL_VERSION = 4.3.1
+PYTHON_PSUTIL_VERSION = 5.5.0
 PYTHON_PSUTIL_SOURCE = psutil-$(PYTHON_PSUTIL_VERSION).tar.gz
-PYTHON_PSUTIL_SITE = https://pypi.python.org/packages/78/cc/f267a1371f229bf16db6a4e604428c3b032b823b83155bd33cef45e49a53
+PYTHON_PSUTIL_SITE = https://files.pythonhosted.org/packages/6e/a0/833bcbcede5141cc5615e50c7cc5b960ce93d9c9b885fbe3b7d36e48a2d4
 PYTHON_PSUTIL_SETUP_TYPE = setuptools
-PYTHON_PSUTIL_LICENSE = BSD-3c
+PYTHON_PSUTIL_LICENSE = BSD-3-Clause
 PYTHON_PSUTIL_LICENSE_FILES = LICENSE
 
 $(eval $(python-package))

@@ -5,6 +5,9 @@
 ################################################################################
 
 MRVL_WIFIBT_VERSION = 4.9
+ifeq ($(call qstrip, $(BR2_PACKAGE_MRVL_WIFI_LOCAL_PATH)),)
+BR2_PACKAGE_MRVL_WIFI_LOCAL_PATH = $(TOPDIR)/dummy
+endif
 MRVL_WIFIBT_SITE = $(call qstrip,$(BR2_PACKAGE_MRVL_WIFI_LOCAL_PATH))
 MRVL_BT_LOCAL_PATH = $(call qstrip,$(BR2_PACKAGE_MRVL_BT_LOCAL_PATH))
 MRVL_FW_LOCAL_PATH = $(call qstrip,$(BR2_PACKAGE_MRVL_FW_LOCAL_PATH))

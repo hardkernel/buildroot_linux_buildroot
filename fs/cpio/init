@@ -198,4 +198,4 @@ fi
 
 #This will only be run if the exec above failed
 echo "Failed to switch root, dropping to a shell"
-exec /sbin/init
+exec /sbin/init "$@"

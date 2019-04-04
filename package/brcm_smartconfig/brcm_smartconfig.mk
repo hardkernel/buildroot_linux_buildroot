@@ -5,6 +5,9 @@
 ################################################################################
 
 BRCM_SMARTCONFIG_VERSION = 3.70
+ifeq ($(call qstrip, $(BR2_PACKAGE_BRCM_SMARTCONFIG_LOCAL_PATH)),)
+BR2_PACKAGE_BRCM_SMARTCONFIG_LOCAL_PATH = $(TOPDIR)/dummy
+endif
 BRCM_SMARTCONFIG_SITE = $(call qstrip,$(BR2_PACKAGE_BRCM_SMARTCONFIG_LOCAL_PATH))
 BRCM_SMARTCONFIG_SITE_METHOD = local
 

@@ -4,14 +4,14 @@
 #
 ################################################################################
 
-LTP_TESTSUITE_VERSION = 20170116
+LTP_TESTSUITE_VERSION = 20190115
 LTP_TESTSUITE_SOURCE = ltp-full-$(LTP_TESTSUITE_VERSION).tar.xz
 LTP_TESTSUITE_SITE = https://github.com/linux-test-project/ltp/releases/download/$(LTP_TESTSUITE_VERSION)
-LTP_TESTSUITE_LICENSE = GPLv2, GPLv2+
+LTP_TESTSUITE_LICENSE = GPL-2.0, GPL-2.0+
 LTP_TESTSUITE_LICENSE_FILES = COPYING
+
 LTP_TESTSUITE_CONF_OPTS += \
-	--with-open-posix-testsuite \
-	--with-realtime-testsuite
+	--with-realtime-testsuite --with-open-posix-testsuite
 
 ifeq ($(BR2_LINUX_KERNEL),y)
 LTP_TESTSUITE_DEPENDENCIES += linux
@@ -30,6 +30,13 @@ ifeq ($(BR2_PACKAGE_LIBCAP)$(BR2_PACKAGE_ATTR),yy)
 LTP_TESTSUITE_DEPENDENCIES += libcap
 else
 LTP_TESTSUITE_CONF_ENV += ac_cv_lib_cap_cap_compare=no
+endif
+
+# No explicit enable/disable options
+ifeq ($(BR2_PACKAGE_NUMACTL),y)
+LTP_TESTSUITE_DEPENDENCIES += numactl
+else
+LTP_TESTSUITE_CONF_ENV += have_numa_headers=no
 endif
 
 # ltp-testsuite uses <fts.h>, which isn't compatible with largefile
@@ -60,5 +67,12 @@ endef
 LTP_TESTSUITE_POST_PATCH_HOOKS += LTP_TESTSUITE_REMOVE_UNSUPPORTED
 endif
 
+# ldd command build system tries to build a shared library unconditionally.
+ifeq ($(BR2_STATIC_LIBS),y)
+define LTP_TESTSUITE_REMOVE_LDD
+	rm -rf $(@D)/testcases/commands/ldd
+endef
+LTP_TESTSUITE_POST_PATCH_HOOKS += LTP_TESTSUITE_REMOVE_LDD
+endif
 
 $(eval $(autotools-package))

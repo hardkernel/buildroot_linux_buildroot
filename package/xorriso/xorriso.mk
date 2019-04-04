@@ -4,10 +4,23 @@
 #
 ################################################################################
 
-XORRISO_VERSION = 1.4.2
+XORRISO_VERSION = 1.4.6
 XORRISO_SITE = $(BR2_GNU_MIRROR)/xorriso
-XORRISO_LICENSE = GPLv3+
+XORRISO_LICENSE = GPL-3.0+
 XORRISO_LICENSE_FILES = COPYING COPYRIGHT
+
+# 0001-use-sys-xattr.h.patch
+XORRISO_DEPENDENCIES = host-pkgconf
+HOST_XORRISO_DEPENDENCIES = host-pkgconf
+XORRISO_AUTORECONF = YES
+
+# Make autoreconf happy
+define XORRISO_NEWS
+	touch $(@D)/NEWS
+endef
+XORRISO_POST_PATCH_HOOKS += XORRISO_NEWS
+HOST_XORRISO_POST_PATCH_HOOKS += XORRISO_NEWS
+
 # Disable everything until we actually need those features, and add the correct
 # host libraries
 HOST_XORRISO_CONF_OPTS = \
@@ -18,17 +31,12 @@ HOST_XORRISO_CONF_OPTS = \
 	--disable-libedit \
 	--disable-libacl
 
+# libcdio doesn't make sense for Linux
+# http://lists.gnu.org/archive/html/bug-xorriso/2017-04/msg00004.html
+XORRISO_CONF_OPTS = --disable-libcdio
+
 ifeq ($(BR2_PACKAGE_LIBICONV),y)
 XORRISO_DEPENDENCIES += libiconv
-endif
-
-ifeq ($(BR2_PACKAGE_LIBCDIO),y)
-XORRISO_DEPENDENCIES += host-pkgconf libcdio
-XORRISO_CONF_OPTS += \
-	--enable-pkg-check-modules \
-	--enable-libcdio
-else
-XORRISO_CONF_OPTS += --disable-libcdio
 endif
 
 ifeq ($(BR2_PACKAGE_READLINE),y)

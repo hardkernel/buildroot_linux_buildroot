@@ -5,6 +5,9 @@
 ################################################################################
 
 QUALCOMM_WIFI_VERSION = 4.9
+ifeq ($(call qstrip, $(BR2_PACKAGE_QUALCOMM_WIFI_LOCAL_PATH)),)
+BR2_PACKAGE_QUALCOMM_WIFI_LOCAL_PATH = $(TOPDIR)/dummy
+endif
 QUALCOMM_WIFI_SITE = $(call qstrip,$(BR2_PACKAGE_QUALCOMM_WIFI_LOCAL_PATH))
 QUALCOMM_WIFI_SITE_METHOD = local
 
