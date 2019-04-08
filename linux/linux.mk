@@ -490,6 +490,8 @@ define LINUX_KCONFIG_FIXUP_CMDS
 	$(call KCONFIG_ENABLE_OPT,CONFIG_VT_CONSOLE_SLEEP,$(@D)/.config)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_HW_CONSOLE,$(@D)/.config)
 	$(call KCONFIG_SET_OPT,CONFIG_OVERLAY_FS,y,$(@D)/.config)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_SYSVIPC,$(@D)/.config)
+
 	# Get rid of unwanted configurations here
 	$(call KCONFIG_DISABLE_OPT,CONFIG_ANDROID_PARANOID_NETWORK,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_VT_HW_CONSOLE_BINDING,$(@D)/.config)
