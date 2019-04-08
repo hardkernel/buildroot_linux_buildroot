@@ -301,4 +301,26 @@ function function_stuff()
     choose_type $@
     lunch
 }
+
+function check_ccache()
+{
+	if [ ! -d $TARGET_OUTPUT_DIR/../ccache  ]; then
+		echo "CCACHE will be enabled if exist $TARGET_OUTPUT_DIR/../ccache"
+		return 0
+	fi
+
+	CFG_FILE=$TARGET_OUTPUT_DIR/.config
+	if [ ! -f $CFG_FILE ]; then
+		echo "Missing .config in your target folder"
+		return 1
+	fi
+	grep "BR2_CCACHE=y" $CFG_FILE && echo "Already patched" && exit 0
+	echo "BR2_CCACHE=y" >> $CFG_FILE
+	echo "BR2_CCACHE_DIR=\"$TARGET_OUTPUT_DIR/../ccache\"" >> $CFG_FILE
+	echo "BR2_CCACHE_INITIAL_SETUP=\"\"" >> $CFG_FILE
+	echo "BR2_CCACHE_USE_BASEDIR=y" >> $CFG_FILE
+    echo "CCACHE is enabled in $CFG_FILE"
+}
+
 function_stuff $DEFAULT_TARGET
+check_ccache || true
