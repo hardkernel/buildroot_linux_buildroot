@@ -46,8 +46,18 @@
             "encoding": "PCMU",
             "device": ""
         },
-        "face detection": {
-            "enabled": true
+        "nn": {
+            "detection": {
+                "enabled": true,
+                "model": "yoloface-v2"
+            },
+            "facenet": {
+                "enabled": true,
+                "db path": "",
+                "info string" : "name",
+                "threshold": 0.6,
+                "store-face": false
+            }
         },
         "overlay": {
             "time": {
@@ -90,8 +100,20 @@
                     "text": ""
                 }
             },
-            "face detection": {
-              "rect color": "0xffff00ff"
+            "nn": {
+                "detection": {
+                    "show": false,
+                    "rect color": "0xffff00ff"
+                },
+                "facenet": {
+                    "show": true,
+                    "font": {
+                        "color": "0x00ff80ff",
+                        "font file": "",
+                        "size": 32
+                    },
+                    "rect color": "0xff00ffff"
+                }
             }
         },
         "storage": {
