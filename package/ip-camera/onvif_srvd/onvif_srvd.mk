@@ -9,6 +9,7 @@ ONVIF_SRVD_VERSION = 4c61623b6d3388ae1506957e62c943c71cac8545
 ONVIF_SRVD_LICENSE = BSD 3-Clause
 #ONVIF_SRVD_LICENSE_FILES = COPYING
 ONVIF_SRVD_DEPENDENCIES = host-openssl openssl zlib
+ONVIF_SRVD_DEPENDENCIES += onvif_wsdd onvif_rtsp
 
 ONVIF_SRVD_SITE = $(call github,KoynovStas,onvif_srvd,$(ONVIF_SRVD_VERSION))
 
@@ -19,7 +20,7 @@ ONVIF_SRVD_INTERNAL_SITE = $(TOPDIR)/../vendor/amlogic/onvif/onvif_srvd
 
 define ONVIF_SRVD_COPY_SDK
 	mkdir -p $(@D)/SDK
-	cp -af $(DL_DIR)/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip $(@D)/SDK/gsoap.zip
+	cp -af $(ONVIF_SRVD_DL_DIR)/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip $(@D)/SDK/gsoap.zip
 endef
 ONVIF_SRVD_POST_EXTRACT_HOOKS += ONVIF_SRVD_COPY_SDK
 

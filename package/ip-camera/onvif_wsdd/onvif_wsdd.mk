@@ -18,7 +18,7 @@ ONVIF_WSDD_EXTRA_DOWNLOADS = https://sourceforge.net/projects/gsoap2/files/gsoap
 
 define ONVIF_WSDD_COPY_SDK
 	mkdir -p $(@D)/SDK
-	cp -af $(DL_DIR)/gsoap_$(ONVIF_WSDD_SDK_VERSION).zip $(@D)/SDK/gsoap.zip
+	cp -af $(ONVIF_WSDD_DL_DIR)/gsoap_$(ONVIF_WSDD_SDK_VERSION).zip $(@D)/SDK/gsoap.zip
 endef
 
 ONVIF_WSDD_POST_EXTRACT_HOOKS += ONVIF_WSDD_COPY_SDK
