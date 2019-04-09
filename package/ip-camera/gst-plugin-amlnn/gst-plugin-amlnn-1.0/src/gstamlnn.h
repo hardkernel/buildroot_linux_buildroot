@@ -59,6 +59,7 @@ struct _GstAmlNN {
 
   GstVideoInfo info;
   gboolean is_info_set;
+  gboolean b_model_set;
 
   GstPad *src_srcpad;
 };

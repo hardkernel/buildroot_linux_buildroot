@@ -75,7 +75,7 @@ gst_aml_detect_model_get_type (void)
 {
   static GType aml_detect_model_type = 0;
   static const GEnumValue aml_detect_model [] = {
-    {DET_YOLOFACE_V2, "nn-v2", "nn v2"},
+    {DET_YOLOFACE_V2, "yoloface-v2", "yoloface v2"},
     {DET_YOLO_V2, "yolo-v2", "yolo v2"},
     {DET_YOLO_V3, "yolo-v3", "yolo v3"},
     {DET_YOLO_TINY, "yolo-tiny", "yolo tiny"},
@@ -120,9 +120,9 @@ static void gst_aml_nn_set_property (GObject * object, guint prop_id,
 static void gst_aml_nn_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static gboolean gst_aml_nn_open (GstAmlNN * base);
+static gboolean gst_aml_nn_open (GstBaseSink * base);
 
-static gboolean gst_aml_nn_close (GstAmlNN * base);
+static gboolean gst_aml_nn_close (GstBaseSink * base);
 
 static void gst_aml_nn_finalize (GObject * object);
 
@@ -173,6 +173,11 @@ gst_aml_nn_class_init (GstAmlNNClass * klass)
       GST_DEBUG_FUNCPTR (gst_aml_nn_set_caps);
   GST_BASE_SINK_CLASS (klass)->get_caps =
       GST_DEBUG_FUNCPTR (gst_aml_nn_get_caps);
+
+  GST_BASE_SINK_CLASS (klass)->start =
+      GST_DEBUG_FUNCPTR (gst_aml_nn_open);
+  GST_BASE_SINK_CLASS (klass)->stop =
+      GST_DEBUG_FUNCPTR (gst_aml_nn_close);
 }
 
 /* initialize the new element
@@ -184,24 +189,23 @@ gst_aml_nn_init (GstAmlNN *filter)
   filter->is_info_set = FALSE;
   filter->model_type = DEFAULT_PROP_MODEL_TYPE;
   filter->src_srcpad = NULL;
+  filter->b_model_set = FALSE;
 
   g_cond_init (&filter->_cond);
   g_mutex_init (&filter->_mutex);
-  filter->_running = TRUE;
-  filter->_thread = g_thread_new ("detect process", detect_result_process, filter);
-
-  gst_aml_nn_open (filter);
 }
 
 static void
 change_model (GstAmlNN *filter, det_model_type type) {
   GST_ERROR_OBJECT (filter, "set model type = %d", type);
   if (type != filter->model_type) {
-    g_mutex_lock (&filter->_mutex);
-    det_release_model (filter->model_type);
-    det_set_model (type);
+    if (filter->b_model_set) {
+      g_mutex_lock (&filter->_mutex);
+      det_release_model (filter->model_type);
+      det_set_model (type);
+      g_mutex_unlock (&filter->_mutex);
+    }
     filter->model_type = type;
-    g_mutex_unlock (&filter->_mutex);
   }
 
 }
@@ -239,8 +243,12 @@ gst_aml_nn_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
-gst_aml_nn_open (GstAmlNN * filter)
+gst_aml_nn_open (GstBaseSink* sink)
 {
+  GstAmlNN *filter = GST_AMLNN (sink);
+
+  if (filter->b_model_set) return TRUE;
+
   det_set_log_config (DET_DEBUG_LEVEL_ERROR, DET_LOG_TERMINAL);
 
   if (filter->model_type == DET_BUTT) return FALSE;
@@ -252,16 +260,32 @@ gst_aml_nn_open (GstAmlNN * filter)
 
   det_get_model_size (filter->model_type,
       &filter->model_width, &filter->model_height, &filter->model_channel);
+  filter->b_model_set = TRUE;
+  filter->_running = TRUE;
+  filter->_thread = g_thread_new ("detect process", detect_result_process, filter);
   return TRUE;
 }
 
 static gboolean
-gst_aml_nn_close (GstAmlNN * filter)
+gst_aml_nn_close (GstBaseSink* sink)
 {
+  GstAmlNN *filter = GST_AMLNN (sink);
+
+  if (!filter->b_model_set) return TRUE;
+
+  filter->_running = FALSE;
+  g_mutex_lock (&filter->_mutex);
   if (det_release_model (filter->model_type) != DET_STATUS_OK) {
-    return FALSE;
+    GST_ERROR_OBJECT (filter, "failed to release nn detect model");
   }
   filter->model_type = DET_BUTT;
+  filter->b_model_set = FALSE;
+  g_cond_signal (&filter->_cond);
+  g_mutex_unlock (&filter->_mutex);
+  g_thread_join (filter->_thread);
+
+  filter->_thread = NULL;
+
   return TRUE;
 }
 
@@ -269,15 +293,6 @@ static void
 gst_aml_nn_finalize (GObject * object)
 {
   GstAmlNN *filter = GST_AMLNN (object);
-
-  gst_aml_nn_close (filter);
-
-  filter->_running = FALSE;
-  g_mutex_lock (&filter->_mutex);
-  g_cond_signal (&filter->_cond);
-  g_mutex_unlock (&filter->_mutex);
-  g_thread_join (filter->_thread);
-  filter->_thread = NULL;
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -308,11 +323,13 @@ gst_aml_nn_get_caps (GstBaseSink * base, GstCaps * filter)
   amlnn = GST_AMLNN (base);
   caps = gst_static_pad_template_get_caps (&sink_template);
 
-  caps = gst_caps_make_writable (caps);
-  gst_caps_set_simple(caps,
-      "width", G_TYPE_INT, amlnn->model_width,
-      "height", G_TYPE_INT, amlnn->model_height,
-      NULL);
+  if (amlnn->b_model_set) {
+    caps = gst_caps_make_writable (caps);
+    gst_caps_set_simple(caps,
+        "width", G_TYPE_INT, amlnn->model_width,
+        "height", G_TYPE_INT, amlnn->model_height,
+        NULL);
+  }
 
   if (filter != NULL) {
     GstCaps *icaps;
@@ -400,7 +417,8 @@ detect_result_process (void *data) {
     g_mutex_lock (&filter->_mutex);
     g_cond_wait (&filter->_cond, &filter->_mutex);
 
-    if (filter->model_type == DET_BUTT) {
+    if (filter->model_type == DET_BUTT
+        || filter->b_model_set == FALSE) {
       g_mutex_unlock (&filter->_mutex);
       continue;
     }
