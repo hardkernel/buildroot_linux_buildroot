@@ -26,12 +26,19 @@ software =
 		{
 			filename = "u-boot.bin.encrypt.usb.bl2";
 			device = "/dev/mtd0";
+			offset = "1792K";
 			type = "flash";
 		},
 		{
 			filename = "u-boot.bin.encrypt.usb.bl2";
 			device = "/dev/mtd0";
-			offset = "512K";
+			offset = "1536K";
+			type = "flash";
+		},
+		{
+			filename = "u-boot.bin.encrypt.usb.bl2";
+			device = "/dev/mtd0";
+			offset = "1280K";
 			type = "flash";
 		},
 		{
@@ -43,7 +50,24 @@ software =
 		{
 			filename = "u-boot.bin.encrypt.usb.bl2";
 			device = "/dev/mtd0";
-			offset = "1536K";
+			offset = "768K";
+			type = "flash";
+		},
+		{
+			filename = "u-boot.bin.encrypt.usb.bl2";
+			device = "/dev/mtd0";
+			offset = "512K";
+			type = "flash";
+		},
+		{
+			filename = "u-boot.bin.encrypt.usb.bl2";
+			device = "/dev/mtd0";
+			offset = "256K";
+			type = "flash";
+		},
+		{
+			filename = "u-boot.bin.encrypt.usb.bl2";
+			device = "/dev/mtd0";
 			type = "flash";
 		},
 		{
