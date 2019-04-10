@@ -123,9 +123,10 @@
           "reserved space size": 200
         },
         "image capture": {
-          "enabled": false,
-          "location": "",
-          "trigger": false
+          "enabled": true,
+          "location": "/tmp",
+          "trigger": false,
+          "imagefile": ""
         }
 
     },
