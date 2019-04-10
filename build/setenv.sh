@@ -8,6 +8,7 @@ BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
 DEFCONFIG_ARRAY=(
+    "mesontm2_ab311_release"
     "mesontl1_x301_32_release"
     "mesontl1_x301_release"
     "mesong12b_skt_release"
