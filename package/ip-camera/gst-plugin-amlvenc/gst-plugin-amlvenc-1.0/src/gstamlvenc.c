@@ -593,6 +593,11 @@ gst_amlvenc_finalize (GObject * object)
 
   gst_amlvenc_close_encoder (encoder);
 
+  if (vtable_aml) {
+    unload_v (vtable_aml);
+    vtable_aml = NULL;
+  }
+
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
