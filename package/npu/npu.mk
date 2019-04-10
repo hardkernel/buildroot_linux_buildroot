@@ -11,7 +11,7 @@ $(info ======>>>>>npu set compile path)
 $(info $(NPU_SITE))
 ARM_NPU_MODULE_DIR = kernel/amlogic/npu
 NPU_KO_INSTALL_DIR=$(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/kernel/amlogic/npu
-NPU_SO_INSTALL_DIR=$(TARGET_DIR)/lib64
+NPU_SO_INSTALL_DIR=$(TARGET_DIR)/lib
 NPU_DEPENDENCIES = linux
 
 ARM_NPU_DEP = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
@@ -30,21 +30,41 @@ define ARM_NPU_DEP_INSTALL_TARGET_CMDS
                 $(ARM_NPU_MODULE_DIR))
 endef
 
+ifeq ($(BR2_aarch64), y)
+$(info  set aarch64 so ------------>>>>$)
 NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/libGAL.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/libVSC.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libCLC.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libLLVM_viv.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libOpenCL.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libOpenVX.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libOpenVXU.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libNNVXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libNNVXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libOvx12VXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libOvx12VXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libovxlib.so $(NPU_SO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/libVivanteOpenCL.so $(NPU_SO_INSTALL_DIR);
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libGAL.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libVSC.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libCLC.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libLLVM_viv.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libOpenCL.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libOpenVX.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libOpenVXU.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libNNVXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libNNVXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libOvx12VXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libOvx12VXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libovxlib.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libVivanteOpenCL.so $(NPU_SO_INSTALL_DIR);
+else
+$(info  set arm so ------------>>>>$)
+NPU_INSTALL_TARGETS_CMDS = \
+	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libGAL.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libVSC.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libCLC.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libLLVM_viv.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libOpenCL.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libOpenVX.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libOpenVXU.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libNNVXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libNNVXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libOvx12VXCBinary_7d.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libOvx12VXCBinary_88.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libovxlib.so $(NPU_SO_INSTALL_DIR); \
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libVivanteOpenCL.so $(NPU_SO_INSTALL_DIR);
+endif
 path = 	$(@D)
 define NPU_BUILD_CMDS
 	cd $(@D);./aml_buildroot.sh $(KERNEL_ARCH) $(LINUX_DIR) $(TARGET_KERNEL_CROSS)

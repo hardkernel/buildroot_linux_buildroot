@@ -11,28 +11,27 @@ define AML_NN_DETECT_MTCNN_V1_BUILD_CMDS
     cd $(@D);
 endef
 
+ifeq ($(BR2_aarch64), y)
+AML_NN_DETECT_MTCNN_V1_INSTALL_TARGETS_CMDS = \
+    $(INSTALL) -D -m 0644 $(@D)/so/lib64/*  $(TARGET_DIR)/usr/lib/
+else
+AML_NN_DETECT_MTCNN_V1_INSTALL_TARGETS_CMDS = \
+    $(INSTALL) -D -m 0644 $(@D)/so/lib32/*  $(TARGET_DIR)/usr/lib/
+endif
 
 define AML_NN_DETECT_MTCNN_V1_INSTALL_TARGET_CMDS
+    $(AML_NN_DETECT_MTCNN_V1_INSTALL_TARGETS_CMDS)
     mkdir -p $(TARGET_DIR)/etc/nn_data
     mkdir -p $(TARGET_DIR)/etc/nn_data/config
-	mkdir -p $(TARGET_DIR)/etc/nn_data/config/BoxRegress
-	mkdir -p $(TARGET_DIR)/etc/nn_data/config/GenerateBoundingBox
-	mkdir -p $(TARGET_DIR)/etc/nn_data/config/libNNExt
-	mkdir -p $(TARGET_DIR)/etc/nn_data/config/NonMaxSuppression
-	mkdir -p $(TARGET_DIR)/etc/nn_data/config/OddEvenSort
-	mkdir -p $(TARGET_DIR)/etc/nn_data/config/rgbScale
-    $(INSTALL) -D -m 0644 $(@D)/so/*  $(TARGET_DIR)/usr/lib/
+    mkdir -p $(TARGET_DIR)/etc/nn_data/config/revA
+    mkdir -p $(TARGET_DIR)/etc/nn_data/config/revB
     $(INSTALL) -D -m 0644 $(@D)/nn_data/* $(TARGET_DIR)/etc/nn_data/
-	$(INSTALL) -D -m 0644 $(@D)/config/BoxRegress/* $(TARGET_DIR)/etc/nn_data/config/BoxRegress/
-	$(INSTALL) -D -m 0644 $(@D)/config/GenerateBoundingBox/* $(TARGET_DIR)/etc/nn_data/config/GenerateBoundingBox/
-	$(INSTALL) -D -m 0644 $(@D)/config/libNNExt/* $(TARGET_DIR)/etc/nn_data/config/libNNExt/
-	$(INSTALL) -D -m 0644 $(@D)/config/NonMaxSuppression/* $(TARGET_DIR)/etc/nn_data/config/NonMaxSuppression/
-	$(INSTALL) -D -m 0644 $(@D)/config/OddEvenSort/* $(TARGET_DIR)/etc/nn_data/config/OddEvenSort/
-	$(INSTALL) -D -m 0644 $(@D)/config/rgbScale/* $(TARGET_DIR)/etc/nn_data/config/rgbScale/
+    $(INSTALL) -D -m 0644 $(@D)/config/revA/* $(TARGET_DIR)/etc/nn_data/config/revA/
+    $(INSTALL) -D -m 0644 $(@D)/config/revB/* $(TARGET_DIR)/etc/nn_data/config/revB/
 endef
 
 define AML_NN_DETECT_MTCNN_V1_INSTALL_STAGING_CMDS
-    $(INSTALL) -D -m 0644 $(@D)/so/*  $(TARGET_DIR)/usr/lib/
+    $(AML_NN_DETECT_MTCNN_V1_INSTALL_TARGETS_CMDS)
 endef
 
 $(eval $(generic-package))
