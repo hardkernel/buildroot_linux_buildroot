@@ -34,6 +34,7 @@ DEFCONFIG_ARRAY=(
     "mesonaxg_s420_costdown_32_release"
     "mesonaxg_s400_sb_32_release"
     "mesonaxg_s400_sbr_32_release"
+    "mesonaxg_s400_sbravs_32_release"
     "mesonaxg_s400_32_release"
     "mesonaxg_s400_gva_32_release"
     "mesonaxg_s400_32_debug"
