@@ -40,7 +40,7 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 
 // TODO: Make this configurable inside SbPlayerCreate().
-const SbTimeMonotonic kUpdateInterval = 100 * kSbTimeMillisecond;
+const SbTimeMonotonic kUpdateInterval = 30 * kSbTimeMillisecond;
 
 class MonotonicSystemTimeProviderImpl : public MonotonicSystemTimeProvider {
   SbTimeMonotonic GetMonotonicNow() const override {

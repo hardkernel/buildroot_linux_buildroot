@@ -127,6 +127,7 @@ protected:
   bool isvideo;
   bool prerolled;
   FILE * dump_fp;
+  SbPlayerOutputMode output_mode_;
 
 #if defined(COBALT_WIDEVINE_OPTEE)
   SbTime last_pts_in_secure;
@@ -190,7 +191,6 @@ public:
   int bound_y;
   int bound_w;
   int bound_h;
-  SbPlayerOutputMode output_mode_;
   SbDecodeTargetGraphicsContextProvider *decode_target_graphics_context_provider_;
 
   bool InitIonVideo();

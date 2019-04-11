@@ -35,6 +35,7 @@ AmlAVCodec::AmlAVCodec()
     : eos_state(0), name("none: "), prerolled(false), feed_data_func(nullptr) {
   codec_param = (codec_para_t *)calloc(1, sizeof(codec_para_t));
   dump_fp = NULL;
+  output_mode_ = kSbPlayerOutputModeInvalid;
 }
 
 AmlAVCodec::~AmlAVCodec() {
@@ -60,6 +61,12 @@ AmlAVCodec::~AmlAVCodec() {
     if (dump_fp) {
       fclose(dump_fp);
       dump_fp = NULL;
+    }
+    if (output_mode_ == kSbPlayerOutputModeDecodeToTexture) {
+      amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
+      amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder amvideo");
+      amsysfs_set_sysfs_int( "/sys/module/amvdec_vp9/parameters/double_write_mode", 0);
+      amsysfs_set_sysfs_int( "/sys/module/am_vecm/parameters/customer_master_display_en", 0);
     }
   }
 }
@@ -199,6 +206,7 @@ void AmlAVCodec::AVSeek(SbTime seek_to_time) {
   buffer_full = false;
   log_last_append_time = 0LL;
   log_last_pts = 0LL;
+  eos_state = 0;
   CLOG(WARNING) << "seek to " << seek_to_time/1000000.0;
 }
 
@@ -228,10 +236,11 @@ SbTime AmlAVCodec::AVGetCurrentMediaTime(bool *is_playing,
 
 bool AmlAVCodec::WriteCodec(uint8_t *data, int size, bool *written) {
   int remain = size;
+  uint8_t *p = data;
   while (remain > 0) {
-    int writelen = codec_write(codec_param, data, remain);
+    int writelen = codec_write(codec_param, p, remain);
     if (writelen > 0) {
-      data += writelen;
+      p += writelen;
       remain -= writelen;
     } else if (errno == EAGAIN || errno == EINTR) {
       if (0 && remain == size) {
@@ -541,6 +550,7 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     SbDrmSystemPrivate::DecryptStatus decrypt_status =
         drm_system_->Decrypt(input_buffer);
     if (decrypt_status == SbDrmSystemPrivate::kRetry) {
+      buffer_full = false;
       *written = false;
       return true;
     }
@@ -664,9 +674,9 @@ void AmlAVCodec::AVSetVolume(double volume) {
     return;
   }
   CLOG(WARNING) << "AVSetVolume " << volume;
-  //if (!isvideo) {
-  //  codec_set_volume(codec_param, volume);
-  //}
+  if (!isvideo) {
+    codec_set_volume(codec_param, volume);
+  }
 }
 
 bool AmlAVCodec::AVIsEndOfStreamWritten() const {
@@ -848,10 +858,6 @@ AmlVideoRenderer::~AmlVideoRenderer() {
     CLOG(ERROR) << "clean up EGL resources";
     SbDecodeTargetRunInGlesContext(decode_target_graphics_context_provider_,
                                    &AmlVideoRenderer::ReleaseEGLResource, this);
-    amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
-    amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder amvideo");
-    amsysfs_set_sysfs_int("/sys/module/amvdec_vp9/parameters/double_write_mode", 0);
-    amsysfs_set_sysfs_int( "/sys/module/am_vecm/parameters/customer_master_display_en", 0);
   }
 #endif /* SB_HAS(GLES2) */
 }
@@ -884,9 +890,12 @@ void AmlVideoRenderer::SetBounds(int z_index, int x, int y, int width,
   }
   if ((bound_x != x) || (bound_y != y) || (bound_w != width) ||
       (bound_h != height)) {
-    codec_utils_set_video_position(x, y, width, height, 0);
-    CLOG(INFO) << "SetBounds z:" << z_index << " x:" << x << " y:" << y
-               << " w:" << width << " h:" << height;
+    char buf[128];
+    sprintf(buf, "%d %d %d %d", x, y, x+width, y+height);
+    amsysfs_set_sysfs_str("/sys/class/video/axis", buf);
+    //codec_utils_set_video_position(x, y, width, height, 0);
+    //CLOG(INFO) << "SetBounds z:" << z_index << " x:" << x << " y:" << y
+    //           << " w:" << width << " h:" << height;
     bound_x = x;
     bound_y = y;
     bound_w = width;
