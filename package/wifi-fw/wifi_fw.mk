@@ -426,7 +426,7 @@ $(Q) case "$(1)" in \
 		;; \
 	esac;
 		#Current wl is 64bit app, can't be installed to 32bit system
-		if [ -z "$(BR2_KERNEL_64_USERLAND_32)" ]; then \
+		if [ -z "$(BR2_KERNEL_64_USERLAND_32)" ] && [ -z "$(BR2_ARM_KERNEL_32)"  ]; then \
 			$(INSTALL) -D -m 0755 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin; \
 		fi
 endef
