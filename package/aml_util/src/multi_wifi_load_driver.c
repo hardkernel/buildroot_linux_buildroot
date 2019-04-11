@@ -28,6 +28,12 @@
 #define BROADCOM_KO_PATH     DEFAULT_KO_PATH
 #endif
 
+#ifdef CYPRESS_MODULES_PATH
+#define CYPRESS_KO_PATH     XSTR(CYPRESS_MODULES_PATH)
+#else
+#define CYPRESS_KO_PATH     DEFAULT_KO_PATH
+#endif
+
 #ifdef REALTEK_MODULES_PATH
 #define REALTEK_KO_PATH     XSTR(REALTEK_MODULES_PATH)
 #else
@@ -40,6 +46,12 @@
 #define BROADCOM_FIRMWARE_PATH     XSTR(BROADCOM_CONFIG_PATH)
 #else
 #define BROADCOM_FIRMWARE_PATH     DEFAULT_CONFIG_PATH
+#endif
+
+#ifdef CYPRESS_CONFIG_PATH
+#define CYPRESS_FIRMWARE_PATH     XSTR(CYPRESS_CONFIG_PATH)
+#else
+#define CYPRESS_FIRMWARE_PATH     DEFAULT_CONFIG_PATH
 #endif
 
 #ifdef MRVL_MODULES_PATH
@@ -165,6 +177,36 @@ static const dongle_info dongle_registerd[] = {
 		"bcm6234",
 		0x0
 	},
+#ifdef CYPRESS_WIFI_MODULE
+{
+	"a9bf",
+	"cywdhd",
+	"cywdhd.ko",
+	CYPRESS_KO_PATH,
+	.wifi_module_arg = {
+		.arg_type		= MODULE_ARG_FIRMWARE,
+		.firmware_path	= "cyw43455/cyw43455-7.45.100.13.bin",
+		.firmware_ap_path  = "cyw43455/cyw43455-7.45.100.13.bin",
+		.nvram_path 	= "cyw43455/bcm943457wlsagb_4L_170607_customer.txt",
+	},
+	"cyw43455",
+	0x0
+},
+{
+	"a9a6",
+	"cywdhd",
+	"cywdhd.ko",
+	CYPRESS_KO_PATH,
+	.wifi_module_arg = {
+		.arg_type		= MODULE_ARG_FIRMWARE,
+		.firmware_path	= "cyw43438/cyw43438-7.46.58.15.bin",
+		.firmware_ap_path  = "cyw43438/cyw43438-7.46.58.15.bin",
+		.nvram_path 	= "cyw43438/NB197SM.nvram_20180419_AZ.txt",
+	},
+	"cyw43438",
+	0x0
+},
+#else
 	{
 		"a9bf",
 		"dhd",
@@ -193,6 +235,7 @@ static const dongle_info dongle_registerd[] = {
 		"bcm6212",
 		0x0
 	},
+#endif
 	{
 		"4356",
 		"dhd",
@@ -331,10 +374,17 @@ static void get_module_arg(const module_arg *arg, char *str, int type)
 {
 	switch (arg->arg_type) {
 	case MODULE_ARG_FIRMWARE: {
+#ifdef CYPRESS_WIFI_MODULE
+		if (type == TYPE_AP)
+			sprintf(str, "firmware_path=%s/%s nvram_path=%s/%s", CYPRESS_FIRMWARE_PATH, arg->firmware_ap_path, CYPRESS_FIRMWARE_PATH, arg->nvram_path);
+		else
+			sprintf(str, "firmware_path=%s/%s nvram_path=%s/%s", CYPRESS_FIRMWARE_PATH, arg->firmware_path, CYPRESS_FIRMWARE_PATH, arg->nvram_path);
+#else
 		if (type == TYPE_AP)
 			sprintf(str, "firmware_path=%s/%s nvram_path=%s/%s", BROADCOM_FIRMWARE_PATH, arg->firmware_ap_path, BROADCOM_FIRMWARE_PATH, arg->nvram_path);
 		else
 			sprintf(str, "firmware_path=%s/%s nvram_path=%s/%s", BROADCOM_FIRMWARE_PATH, arg->firmware_path, BROADCOM_FIRMWARE_PATH, arg->nvram_path);
+#endif
 		break;
 	}
 	case MODULE_ARG_IFNAME: {

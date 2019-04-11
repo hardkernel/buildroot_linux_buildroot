@@ -233,13 +233,14 @@ wifi_setup()
 	echo "**  password=$password                      **"
 	echo "**********************************************"
 	wpa_cli set_network $id ssid \"$ssid\"
-	if [ "$password" = "NONE" ]; then
+	if [[ x"$password" == x || x"$password" == x"NONE" ]]; then
 		wpa_cli set_network $id key_mgmt NONE
 	else
 		wpa_cli set_network $id psk \"$password\"
 	fi
 	wpa_cli enable_network $id
-	check_state 10
+	wpa_cli reassociate $id
+	check_state 15
 	if [ $? -eq 0 ] ;then
 		echo "connect fail!!"
 		if [[ "${RTK_WIFI_FLAG}" == "TRUE" ]]

@@ -8,7 +8,7 @@ NAME2=aml_musicBox
 DAEMON2=/usr/bin/$NAME2
 PIDFILE2=/var/run/$NAME2.pid
 
-fw_path="/etc/bluetooth/cyw43438/BCM4343A1_001.002.009.0077.0352.hcd"
+fw_path="/etc/bluetooth/cypress.hcd"
 
 function set_btname()
 {
