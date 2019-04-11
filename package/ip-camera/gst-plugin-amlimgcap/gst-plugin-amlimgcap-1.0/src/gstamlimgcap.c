@@ -50,9 +50,11 @@ GST_DEBUG_CATEGORY_STATIC (gst_aml_imgcap_debug);
 /* Filter signals and args */
 enum
 {
-  /* FILL ME */
+  SIGNAL_CAPTURE_DONE,
   LAST_SIGNAL
 };
+
+static guint gst_amlimgcap_signals[LAST_SIGNAL] = { 0 };
 
 #define DEFAULT_PROP_QUALITY 80
 
@@ -111,16 +113,18 @@ gst_aml_imgcap_class_init (GstAmlImageCapClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
-  GstBaseTransformClass *gstbasetransform_class;
 
   gobject_class = (GObjectClass *) klass;
   gstelement_class = (GstElementClass *) klass;
-  gstbasetransform_class = (GstBaseTransformClass *)klass;
 
 
   gobject_class->set_property = gst_aml_imgcap_set_property;
   gobject_class->get_property = gst_aml_imgcap_get_property;
-  gstbasetransform_class->sink_event = gst_aml_imgcap_sink_event;
+
+  gst_amlimgcap_signals[SIGNAL_CAPTURE_DONE] = g_signal_new ("capture-done",
+      G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST,
+      0, NULL, NULL, NULL, G_TYPE_NONE, 2, G_TYPE_BOOLEAN, G_TYPE_STRING);
 
   g_object_class_install_property (gobject_class, PROP_QUALITY,
       g_param_spec_int ("quality", "Quality",
@@ -144,6 +148,9 @@ gst_aml_imgcap_class_init (GstAmlImageCapClass * klass)
 
   GST_BASE_TRANSFORM_CLASS (klass)->set_caps =
       GST_DEBUG_FUNCPTR (gst_aml_imgcap_set_caps);
+
+  GST_BASE_TRANSFORM_CLASS (klass)->sink_event =
+      GST_DEBUG_FUNCPTR (gst_aml_imgcap_sink_event);
 
 }
 
@@ -265,6 +272,8 @@ gst_aml_imgcap_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     write_JPEG_file (outbuf_info.data,
         info->width, info->height,
         imgcap->location, imgcap->quality);
+  g_signal_emit (imgcap, gst_amlimgcap_signals[SIGNAL_CAPTURE_DONE], 0,
+      TRUE, imgcap->location);
     gst_buffer_unmap (outbuf, &outbuf_info);
   }
 
