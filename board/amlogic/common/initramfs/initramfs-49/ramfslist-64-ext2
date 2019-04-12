@@ -40,6 +40,8 @@
 ./lib/libnss_dns-2.23.so
 ./lib/libc.so.6
 ./lib/libresolv.so.2
+./lib/libatomic.so.1
+./lib/libatomic.so.1.2.0
 ./init
 ./mnt
 ./bin

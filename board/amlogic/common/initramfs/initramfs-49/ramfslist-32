@@ -14,8 +14,6 @@
 ./lib/arm-linux-gnueabihf
 ./lib/ld-2.19-2014.05.so
 ./lib/ld-linux-armhf.so.3
-./lib/libatomic.so.1
-./lib/libatomic.so.1.1.0
 ./lib/libblkid.so.1
 ./lib/libblkid.so.1.1.0
 ./lib/libc-2.19-2014.05.so
@@ -41,6 +39,8 @@
 ./lib/libpthread.so.0
 ./lib/libresolv-2.19-2014.05.so
 ./lib/libresolv.so.2
+./lib/libatomic.so.1
+./lib/libatomic.so.1.2.0
 ./lib/librt-2.19-2014.05.so
 ./lib/librt.so.1
 ./lib/libsmartcols.so.1
