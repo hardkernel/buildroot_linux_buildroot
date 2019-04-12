@@ -42,11 +42,14 @@ endef
 
 ONVIF_WSDD_INSTALL_DIR = $(TARGET_DIR)/usr/bin/
 ONVIF_WSDD_SCRIPTS_INSTALL_DIR = $(TARGET_DIR)/etc/init.d
+ONVIF_WSDD_WSDL_INSTALL_DIR = $(TARGET_DIR)/etc/onvif/wsdl
 
 define ONVIF_WSDD_INSTALL_TARGET_CMDS
 	mkdir -p $(ONVIF_WSDD_INSTALL_DIR)
 	$(INSTALL) -D -m 755 $(ONVIF_WSDD_DIR)/wsdd            $(ONVIF_WSDD_INSTALL_DIR)/onvif_wsdd
 	$(INSTALL) -D -m 755 $(ONVIF_WSDD_DIR)/start_scripts/S90wsdd  $(ONVIF_WSDD_SCRIPTS_INSTALL_DIR)/S91onvif_wsdd
+	mkdir -p $(ONVIF_WSDD_WSDL_INSTALL_DIR)
+	cp -af $(ONVIF_WSDD_DIR)/wsdl/*.wsdl $(ONVIF_WSDD_WSDL_INSTALL_DIR)
 endef
 
 $(eval $(generic-package))

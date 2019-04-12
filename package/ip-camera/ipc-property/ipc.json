@@ -155,7 +155,7 @@
             ]
         },
         "network": {
-            "interface": "eth1",
+            "interface": "eth0",
             "port": "1000"
         },
         "scopes": [
@@ -170,7 +170,10 @@
                 "password": "admin",
                 "level": "Administrator"
             }
-        ]
+        ],
+        "wsdl": {
+          "path": "/etc/onvif/wsdl"
+        }
     },
     "rtsp": {
         "network": {
