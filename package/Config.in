@@ -43,6 +43,7 @@ endif
 	source "package/aml_nn_detect_library/Config.in"
 	source "package/aml_commonlib/Config.in"
 	source "package/aml_libion/Config.in"
+	source "package/aml_libge2d/Config.in"
 endmenu
 
 menu "Audio and video applications"
