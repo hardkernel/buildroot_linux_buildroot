@@ -32,7 +32,7 @@ static void
 _insert_data (sqlite3 *db, float *faceid, char* faceimg, int width, int height) {
   sqlite3_stmt* stmt = NULL;
 
-  sqlite3_prepare (db,
+  sqlite3_prepare_v2 (db,
       "CREATE TABLE IF NOT EXISTS `faceinfo` ("
       "`index` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
       "`uid`   INTEGER NOT NULL,"
@@ -43,7 +43,7 @@ _insert_data (sqlite3 *db, float *faceid, char* faceimg, int width, int height) 
   sqlite3_finalize (stmt);
   stmt = NULL;
 
-  sqlite3_prepare (db,
+  sqlite3_prepare_v2 (db,
       "CREATE TABLE IF NOT EXISTS `userinfo` ("
       "`uid`   INTEGER NOT NULL PRIMARY KEY UNIQUE,"
       "`name`  TEXT NOT NULL"
@@ -58,7 +58,7 @@ _insert_data (sqlite3 *db, float *faceid, char* faceimg, int width, int height) 
 
   if (szjpg == 0) { return; }
 
-  sqlite3_prepare (db,
+  sqlite3_prepare_v2 (db,
       "insert into faceinfo (`uid`, `faceid`, `faceimg`) values (0, ?, ?)",
       -1, &stmt, NULL);
   sqlite3_bind_blob (stmt, 1, (void *)faceid, sizeof(float) * 128, NULL);
@@ -118,11 +118,11 @@ int db_search_result (void *db, const float faceid[128],
   if (buf) buf[0] = '\0';
 
   // find the matched user id
-  rc = sqlite3_prepare (sdb,
+  rc = sqlite3_prepare_v2 (sdb,
       "SELECT `index`, `uid`, CalcDiff(`faceid`, ?) FROM faceinfo WHERE `uid` > 0",
       -1, &stmt, NULL);
   if (rc != SQLITE_OK) {
-    fprintf (stderr, "sqlite3_prepare. %s\n", sqlite3_errmsg(sdb));
+    fprintf (stderr, "sqlite3_prepare_v2. %s\n", sqlite3_errmsg(sdb));
     goto on_search_end;
   }
   rc = sqlite3_bind_blob (stmt, 1, (void *)faceid, sizeof(float) * 128, NULL);
@@ -160,10 +160,10 @@ int db_search_result (void *db, const float faceid[128],
   // get the detail info
   char sql[256] = {0};
   snprintf (sql, sizeof(sql), "SELECT %s FROM userinfo WHERE uid=?", format);
-  rc = sqlite3_prepare (sdb,
+  rc = sqlite3_prepare_v2 (sdb,
       sql, -1, &stmt, NULL);
   if (rc != SQLITE_OK) {
-    fprintf (stderr, "sqlite3_prepare. %s\n", sqlite3_errmsg(sdb));
+    fprintf (stderr, "sqlite3_prepare_v2. %s\n", sqlite3_errmsg(sdb));
     goto on_search_end;
   }
   rc = sqlite3_bind_int (stmt, 1, uid);

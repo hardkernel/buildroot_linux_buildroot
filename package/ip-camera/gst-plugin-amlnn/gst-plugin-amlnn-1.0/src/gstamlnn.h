@@ -43,7 +43,7 @@ typedef struct _GstAmlNN      GstAmlNN;
 typedef struct _GstAmlNNClass GstAmlNNClass;
 
 struct _GstAmlNN {
-  GstBaseSink element;
+  GstBaseTransform element;
   /* properties */
   det_model_type model_type;
 
@@ -61,11 +61,11 @@ struct _GstAmlNN {
   gboolean is_info_set;
   gboolean b_model_set;
 
-  GstPad *src_srcpad;
+  guint64 framenum;
 };
 
 struct _GstAmlNNClass {
-  GstBaseSinkClass parent_class;
+  GstBaseTransformClass parent_class;
 };
 
 GType gst_aml_nn_get_type (void);

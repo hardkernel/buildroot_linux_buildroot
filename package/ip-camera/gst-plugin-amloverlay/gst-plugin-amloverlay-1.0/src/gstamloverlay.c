@@ -54,7 +54,7 @@ enum
   LAST_SIGNAL
 };
 
-#define NN_DETECT_DELAY_FRAMES 3
+#define DETECT_DELAY_FRAMES 5
 
 #define DEFAULT_PROP_DRAW_CLOCK TRUE
 #define DEFAULT_PROP_DRAW_PTS FALSE
@@ -145,6 +145,31 @@ GST_STATIC_PAD_TEMPLATE (
       "format = (string) { RGB } ")
 );
 
+struct RelativePos {
+  float x0;
+  float y0;
+  float x1;
+  float y1;
+};
+
+struct NNResult {
+  struct listnode list;
+  guint64 frameidx;
+  gint detect_num;
+  struct RelativePos *pt;
+};
+
+struct FaceNetEventBuffer {
+  struct RelativePos pos;
+  char *info;
+};
+
+struct FaceNetResult {
+  struct listnode list;
+  guint64 frameidx;
+  struct FaceNetEventBuffer *data;
+};
+
 #define gst_aml_overlay_parent_class parent_class
 G_DEFINE_TYPE (GstAmlOverlay, gst_aml_overlay, GST_TYPE_BASE_TRANSFORM);
 
@@ -166,6 +191,9 @@ static gboolean gst_aml_overlay_set_caps (GstBaseTransform * base,
     GstCaps * in, GstCaps * out);
 
 static gboolean gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event);
+
+static void cleanup_nn_list (GstAmlOverlay *overlay);
+static void cleanup_facenet_list (GstAmlOverlay *overlay, guint64 frameidx);
 /* GObject vmethod implementations */
 
 #define GST_TYPE_AML_TEXT_OVERLAY_POS (gst_aml_text_overlay_pos_get_type())
@@ -200,17 +228,14 @@ gst_aml_overlay_class_init (GstAmlOverlayClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
-  GstBaseTransformClass *gstbasetransform_class;
 
   gobject_class = (GObjectClass *) klass;
   gstelement_class = (GstElementClass *) klass;
-  gstbasetransform_class = (GstBaseTransformClass *)klass;
 
 
   gobject_class->set_property = gst_aml_overlay_set_property;
   gobject_class->get_property = gst_aml_overlay_get_property;
   gobject_class->finalize = gst_aml_overlay_finalize;
-  gstbasetransform_class->sink_event = gst_aml_overlay_event;
 
   g_object_class_install_property (gobject_class, PROP_DRAW_CLOCK,
       g_param_spec_boolean ("draw-clock", "Draw-Clock",
@@ -374,6 +399,9 @@ gst_aml_overlay_class_init (GstAmlOverlayClass * klass)
 
   GST_BASE_TRANSFORM_CLASS (klass)->set_caps =
       GST_DEBUG_FUNCPTR (gst_aml_overlay_set_caps);
+
+  GST_BASE_TRANSFORM_CLASS (klass)->sink_event =
+      GST_DEBUG_FUNCPTR (gst_aml_overlay_event);
 
 }
 
@@ -659,32 +687,74 @@ gst_aml_overlay_get_property (GObject * object, guint prop_id,
   }
 }
 
+static void
+release_lists (GstAmlOverlay *overlay) {
+  cleanup_nn_list (overlay);
+  cleanup_facenet_list (overlay, 0);
+}
+
 static gboolean
 gst_aml_overlay_open (GstAmlOverlay * overlay)
 {
+  overlay->framenum = 0;
+  g_mutex_init (&overlay->nn_list_mutex);
+  list_init (&overlay->nn_list);
+  g_mutex_init (&overlay->facenet_list_mutex);
+  list_init (&overlay->facenet_list);
   return TRUE;
 }
+
+#define DESTROY_FONT(f) \
+  do { \
+    if (f) { \
+      overlay_destroy_font (f); \
+      f = NULL; \
+    } \
+  } while(0)
+
+#define DESTROY_SURFACE(s) \
+  do { \
+    if (s) { \
+      overlay_destroy_surface (s); \
+      s = NULL; \
+    } \
+  } while(0)
+
+#define FREE_STRING(s) \
+  do { \
+    if (s) { \
+      g_free (s); \
+      s = NULL; \
+    } \
+  } while(0)
 
 static gboolean
 gst_aml_overlay_close (GstAmlOverlay * overlay)
 {
-  if (overlay->clock_font) {
-    overlay_destroy_font (overlay->clock_font);
-    overlay->clock_font = overlay->pts_font = NULL;
-  }
-  if (overlay->watermark_font) {
-    overlay_destroy_font (overlay->watermark_font);
-    overlay->watermark_font = NULL;
-  }
-  if (overlay->watermark_text_surface) {
-    overlay_destroy_surface (overlay->watermark_text_surface);
-    overlay->watermark_text_surface = NULL;
-  }
-  if (overlay->watermark_img_surface) {
-    overlay_destroy_surface (overlay->watermark_img_surface);
-    overlay->watermark_img_surface = NULL;
-  }
+  DESTROY_FONT (overlay->clock_font);
+  overlay->pts_font = NULL;
+
+  DESTROY_SURFACE (overlay->clock_surface);
+
+  DESTROY_SURFACE (overlay->pts_surface);
+
+  DESTROY_FONT (overlay->watermark_font);
+  DESTROY_SURFACE (overlay->watermark_text_surface);
+  DESTROY_SURFACE (overlay->watermark_img_surface);
+
+  DESTROY_FONT (overlay->facenet_font);
+
+  DESTROY_SURFACE (overlay->facenet_text_surface);
+
   overlay_deinit();
+
+  FREE_STRING (overlay->fontfile);
+  FREE_STRING (overlay->watermark_text);
+  FREE_STRING (overlay->watermark_fontfile);
+  FREE_STRING (overlay->watermark_img);
+  FREE_STRING (overlay->facenet_fontfile);
+
+  release_lists (overlay);
   return TRUE;
 }
 
@@ -715,29 +785,6 @@ gst_aml_overlay_set_caps (GstBaseTransform * base, GstCaps * in, GstCaps * out)
   return TRUE;
 }
 
-struct RelativePos {
-  float x0;
-  float y0;
-  float x1;
-  float y1;
-};
-
-struct NNResult {
-  int  detect_num;
-  struct RelativePos *pt;
-};
-
-struct FaceNetResult {
-  struct RelativePos pos;
-  char *info;
-};
-
-#define GST_EVENT_NN_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
-struct NNResult gs_nn_res = {0, NULL};
-struct FaceNetResult *gs_fn_res = NULL;
-
-gint nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
-
 static float
 change_precision (float f) {
   float pf = (float)(((int)(f*100))/100.0);
@@ -754,21 +801,54 @@ fix_rect_pos (struct RelativePos *pt) {
   pt->y1 = change_precision (pt->y1 + 0.01);
 }
 
+static void
+cleanup_nn_list (GstAmlOverlay *overlay) {
+  struct listnode *pos, *q;
+  if (!list_empty (&overlay->nn_list)) {
+    list_for_each_safe (pos, q, &overlay->nn_list) {
+      struct NNResult *im =
+        list_entry (pos, struct NNResult, list);
+      list_remove (pos);
+      if (im->pt) g_free (im->pt);
+      g_free (im);
+    }
+  }
+}
+
+static void
+cleanup_facenet_list (GstAmlOverlay *overlay, guint64 frameidx) {
+  struct listnode *pos, *q;
+  if (!list_empty (&overlay->facenet_list)) {
+    list_for_each_safe (pos, q, &overlay->facenet_list) {
+      struct FaceNetResult *im =
+        list_entry (pos, struct FaceNetResult, list);
+      if (frameidx < im->frameidx ||
+          frameidx - im->frameidx > 1) {
+        list_remove (pos);
+        if (im->data->info) g_free (im->data->info);
+        if (im->data) g_free (im->data);
+        g_free (im);
+      }
+    }
+  }
+}
+
 static gboolean
 gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
 {
+  GstAmlOverlay *overlay = GST_AMLOVERLAY (base);
   switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_NN_DETECTED:
+    case GST_EVENT_CUSTOM_DOWNSTREAM_OOB:
       {
         const GstStructure *resst = gst_event_get_structure (event);
-        gboolean ret = TRUE;
         if (gst_structure_has_name (resst, "facenet-detection")) {
           GstMapInfo info;
+          const GValue *idx = gst_structure_get_value (resst, "idx");
           const GValue *faceinfo = gst_structure_get_value (resst, "faceinfo");
+          guint64 frameidx = g_value_get_uint64 (idx);
           GstBuffer *faceinfobuf = gst_value_get_buffer (faceinfo);
-          struct FaceNetResult *fr =
-            (struct FaceNetResult *)g_malloc (sizeof(struct FaceNetResult));
-          fr->info = NULL;
+          struct FaceNetEventBuffer *fr =
+            (struct FaceNetEventBuffer *)g_malloc (sizeof(struct FaceNetEventBuffer));
 
           if (gst_buffer_map (faceinfobuf, &info, GST_MAP_READ)) {
             size_t faceinfo_size = info.size - sizeof(struct RelativePos);
@@ -780,29 +860,33 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
             }
             gst_buffer_unmap (faceinfobuf, &info);
           } else {
-            if (fr->info) g_free (fr->info);
             if (fr) g_free (fr);
             fr = NULL;
-            ret = FALSE;
           }
 
-          if (gs_fn_res) {
-            if (gs_fn_res->info) {
-              g_free (gs_fn_res->info);
-              gs_fn_res->info = NULL;
-            }
-            g_free (gs_fn_res);
-            gs_fn_res = NULL;
+          if (fr) {
+            struct FaceNetResult *new_result =
+              (struct FaceNetResult *)g_malloc (sizeof (struct FaceNetResult));
+            new_result->frameidx = frameidx;
+            new_result->data = fr;
+            list_init (&new_result->list);
+            g_mutex_lock (&overlay->facenet_list_mutex);
+            // cleanup the old entries
+            cleanup_facenet_list (overlay, frameidx);
+            // add newest entries
+            list_add_tail (&overlay->facenet_list, &new_result->list);
+            g_mutex_unlock (&overlay->facenet_list_mutex);
           }
-          gs_fn_res = fr;
-          nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
-          gst_buffer_unref (faceinfobuf);
-          return ret;
+
+          gst_event_unref (event);
+          return FALSE;
         }
         if (gst_structure_has_name (resst, "nn-detection")) {
           GstMapInfo info;
+          const GValue *idx = gst_structure_get_value (resst, "idx");
           const GValue *size = gst_structure_get_value (resst, "rectnum");
           const GValue *buf = gst_structure_get_value (resst, "rectbuf");
+          guint64 frameidx = g_value_get_uint64 (idx);
           gint detect_num = g_value_get_int (size);
           GstBuffer *resbuf = gst_value_get_buffer (buf);
           struct RelativePos *pt = (struct RelativePos *)g_malloc (sizeof(struct RelativePos) * detect_num);
@@ -812,21 +896,28 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
           } else {
             g_free (pt);
             pt = NULL;
-            ret = FALSE;
           }
 
-          if (gs_nn_res.pt) {
-            g_free (gs_nn_res.pt);
+          if (pt) {
+            for (gint i = 0; i < detect_num; i++) {
+              struct RelativePos *p = &pt[i];
+              fix_rect_pos (p);
+            }
+            struct NNResult *new_result = (struct NNResult *)g_malloc (sizeof(struct NNResult));
+            new_result->detect_num = detect_num;
+            new_result->frameidx = frameidx;
+            new_result->pt = pt;
+            list_init (&new_result->list);
+            g_mutex_lock (&overlay->nn_list_mutex);
+            // cleanup the old entries
+            cleanup_nn_list (overlay);
+            // add newest entries
+            list_add_tail (&overlay->nn_list, &new_result->list);
+            g_mutex_unlock (&overlay->nn_list_mutex);
           }
-          for (gint i = 0; i < detect_num; i++) {
-            struct RelativePos *p = &pt[i];
-            fix_rect_pos (p);
-          }
-          gs_nn_res.pt = pt;
-          gs_nn_res.detect_num = detect_num;
-          gst_buffer_unref (resbuf);
-          nn_rect_delay_clear_frames = NN_DETECT_DELAY_FRAMES;
-          return ret;
+
+          gst_event_unref (event);
+          return FALSE;
         }
       }
       break;
@@ -953,14 +1044,16 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     return GST_FLOW_NOT_NEGOTIATED;
   }
 
+  overlay->framenum ++;
+
   GstVideoInfo *info = &overlay->info;
   GstMapInfo outbuf_info;
   if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ | GST_MAP_WRITE)) {
     overlay_init();
     overlay_create_inputbuffer (outbuf_info.data, info->width, info->height);
     if (overlay->draw_clock || overlay->draw_pts) {
-      if (overlay->clock_font == NULL
-          || overlay->font_changed) {
+      if (overlay->clock_font == NULL ||
+          overlay->font_changed) {
         overlay->font_changed = FALSE;
         if (overlay->clock_font) {
           overlay_destroy_font (overlay->clock_font);
@@ -1000,16 +1093,17 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
       }
     }
     if (strlen (overlay->watermark_text) > 0) {
-      if (overlay->watermark_font == NULL
-          || overlay->watermark_text_font_changed) {
+      if (overlay->watermark_font == NULL ||
+          overlay->watermark_text_font_changed) {
         if (overlay->watermark_font) {
           overlay_destroy_font (overlay->watermark_font);
         }
         overlay->watermark_font = overlay_create_font (overlay->watermark_fontfile,
             overlay->watermark_fontsize, 0);
       }
-      if (overlay->watermark_text_surface == NULL
-          || overlay->watermark_text_changed || overlay->watermark_text_font_changed) {
+      if (overlay->watermark_text_surface == NULL ||
+          overlay->watermark_text_changed ||
+          overlay->watermark_text_font_changed) {
         if (overlay->watermark_text_surface) {
           overlay_destroy_surface (overlay->watermark_text_surface);
         }
@@ -1023,8 +1117,8 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
     }
 
     if (strlen (overlay->watermark_img) > 0) {
-      if (overlay->watermark_img_surface == NULL
-          || overlay->watermark_img_changed) {
+      if (overlay->watermark_img_surface == NULL ||
+          overlay->watermark_img_changed) {
         overlay->watermark_img_changed = FALSE;
         if (overlay->watermark_img_surface) {
           overlay_destroy_surface (overlay->watermark_img_surface);
@@ -1036,65 +1130,71 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
           overlay->watermark_img_xpos, overlay->watermark_img_ypos);
     }
     if (overlay->nnrect_show) {
-      if (gs_nn_res.detect_num) {
-        for (gint i = 0; i < gs_nn_res.detect_num; i++) {
-          struct RelativePos *pt = &gs_nn_res.pt[i];
-          overlay_draw_rect(
-              (gint)(pt->x0 * info->width),
-              (gint)(pt->y0 * info->height),
-              (gint)((pt->x1 - pt->x0) * info->width),
-              (gint)((pt->y1 - pt->y0) * info->height),
-              5, overlay->nn_rectcolor);
-        }
-        if (nn_rect_delay_clear_frames == 0) {
-          gs_nn_res.detect_num = 0;
-          g_free(gs_nn_res.pt);
-          gs_nn_res.pt = NULL;
-        } else {
-          nn_rect_delay_clear_frames --;
+      g_mutex_lock (&overlay->nn_list_mutex);
+      if (!list_empty (&overlay->nn_list)) {
+        struct listnode *pos;
+        list_for_each (pos, &overlay->nn_list) {
+          struct NNResult *im =
+            list_entry (pos, struct NNResult, list);
+          if (im->frameidx >= overlay->framenum ||
+              overlay->framenum - im->frameidx < DETECT_DELAY_FRAMES) {
+            for (gint i = 0; i < im->detect_num; i++) {
+              struct RelativePos *pt = &im->pt[i];
+              overlay_draw_rect(
+                  (gint)(pt->x0 * info->width),
+                  (gint)(pt->y0 * info->height),
+                  (gint)((pt->x1 - pt->x0) * info->width),
+                  (gint)((pt->y1 - pt->y0) * info->height),
+                  5, overlay->nn_rectcolor);
+            }
+          }
         }
       }
+      g_mutex_unlock (&overlay->nn_list_mutex);
     }
-    if (overlay->facenet_show && gs_fn_res) {
-      struct RelativePos *pt = &gs_fn_res->pos;
-      overlay_draw_rect(
-          (gint)(pt->x0 * info->width),
-          (gint)(pt->y0 * info->height),
-          (gint)((pt->x1 - pt->x0) * info->width),
-          (gint)((pt->y1 - pt->y0) * info->height),
-          5, overlay->facenet_rectcolor);
-
-      // prepare facenet font
-      if (overlay->facenet_font == NULL
-          || overlay->facenet_font_changed) {
-        overlay->facenet_font_changed = FALSE;
-        if (overlay->facenet_font) {
-          overlay_destroy_font (overlay->facenet_font);
+    if (overlay->facenet_show) {
+      g_mutex_lock (&overlay->facenet_list_mutex);
+      if (!list_empty (&overlay->facenet_list)) {
+        // prepare facenet font
+        if (overlay->facenet_font == NULL ||
+            overlay->facenet_font_changed) {
+          overlay->facenet_font_changed = FALSE;
+          if (overlay->facenet_font) {
+            overlay_destroy_font (overlay->facenet_font);
+          }
+          overlay->facenet_font = overlay_create_font (overlay->facenet_fontfile,
+              overlay->facenet_fontsize, 0);
         }
-        overlay->facenet_font = overlay_create_font (overlay->facenet_fontfile,
-            overlay->facenet_fontsize, 0);
-      }
+        struct listnode *pos;
+        list_for_each (pos, &overlay->facenet_list) {
+          struct FaceNetResult *im =
+            list_entry (pos, struct FaceNetResult, list);
+          if (im->frameidx >= overlay->framenum ||
+              overlay->framenum - im->frameidx < DETECT_DELAY_FRAMES) {
+            struct RelativePos *pt = &im->data->pos;
+            overlay_draw_rect(
+                (gint)(pt->x0 * info->width),
+                (gint)(pt->y0 * info->height),
+                (gint)((pt->x1 - pt->x0) * info->width),
+                (gint)((pt->y1 - pt->y0) * info->height),
+                5, overlay->facenet_rectcolor);
 
-      if (gs_fn_res->info && strlen(gs_fn_res->info) > 0) {
-        gchar* txt = g_strdup (gs_fn_res->info);
-        gint x = (gint)(pt->x0 * info->width) + overlay->facenet_fontsize * 2;
-        gint y = (gint)(pt->y0 * info->height) + overlay->facenet_fontsize;
-        overlay->facenet_text_surface =
-          overlay_create_text_surface (txt, overlay->facenet_font, overlay->facenet_fontcolor, 0);
-        g_free(txt);
-        overlay_draw_surface (overlay->facenet_text_surface, x, y);
-        overlay_destroy_surface (overlay->facenet_text_surface);
-        overlay->facenet_text_surface = NULL;
-      }
 
-      if (nn_rect_delay_clear_frames == 0) {
-        if (gs_fn_res->info) g_free (gs_fn_res->info);
-        gs_fn_res->info = NULL;
-        g_free (gs_fn_res);
-        gs_fn_res = NULL;
-      } else {
-        nn_rect_delay_clear_frames --;
+            if (im->data->info && strlen(im->data->info) > 0) {
+              gchar* txt = g_strdup (im->data->info);
+              gint x = (gint)(pt->x0 * info->width) + overlay->facenet_fontsize * 2;
+              gint y = (gint)(pt->y0 * info->height) + overlay->facenet_fontsize;
+              overlay->facenet_text_surface =
+                overlay_create_text_surface (txt, overlay->facenet_font, overlay->facenet_fontcolor, 0);
+              g_free(txt);
+              overlay_draw_surface (overlay->facenet_text_surface, x, y);
+              overlay_destroy_surface (overlay->facenet_text_surface);
+              overlay->facenet_text_surface = NULL;
+            }
+          }
+        }
       }
+      g_mutex_unlock (&overlay->facenet_list_mutex);
     }
     overlay_destroy_inputbuffer();
     gst_buffer_unmap (outbuf, &outbuf_info);

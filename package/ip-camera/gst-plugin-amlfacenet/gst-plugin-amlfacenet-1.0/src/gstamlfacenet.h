@@ -51,7 +51,7 @@ struct _GstAmlFacenetThreadInfo {
 };
 
 struct _GstAmlFacenet {
-  GstBaseSink element;
+  GstBaseTransform element;
   /* properties */
   gchar *string_format;
   gchar *dbfile;
@@ -73,18 +73,22 @@ struct _GstAmlFacenet {
   GstVideoInfo info;
   gboolean is_info_set;
 
-  GstPad *src_srcpad;
-
   void *db_handle;
 
   struct listnode face_list;
   struct listnode facenet_ilist;
   struct listnode facenet_rlist;
 
+  gboolean is_facenet_proceeding;
+  guint64 framenum;
+
+  GMutex nn_event_list_mutex;
+  struct listnode nn_event_list;
+
 };
 
 struct _GstAmlFacenetClass {
-  GstBaseSinkClass parent_class;
+  GstBaseTransformClass parent_class;
 };
 
 GType gst_aml_facenet_get_type (void);

@@ -1,5 +1,5 @@
 override CFLAGS := -DARM
-override CFLAGS += -g -fPIC
+override CFLAGS += -O2 -fPIC
 override LDFLAGS := -lm -lrt -shared
 INC = -I./include -I./libge2d -I.
 TARGET = libvphevcodec.so
