@@ -8,9 +8,11 @@ mkdir -p /run/network
 
 case "$1" in
   start)
+    {
 	printf "Starting network: "
 	/sbin/ifup -a
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
+    }&
 	;;
   stop)
 	printf "Stopping network: "
