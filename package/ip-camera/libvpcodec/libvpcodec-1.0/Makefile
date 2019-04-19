@@ -1,5 +1,5 @@
 override CFLAGS := -DARM
-override CFLAGS += -g -fPIC
+override CFLAGS += -O2 -fPIC
 override LDFLAGS := -lm -lrt -shared
 INC = -I./include -I./enc/gx_enc_fast -I.
 TARGET = libvpcodec.so

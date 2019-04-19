@@ -58,32 +58,38 @@ struct RelativePos {
 
 struct FaceInput {
   struct listnode list;
+  guint64 frameidx;
   struct RelativePos pos;
-  const char *faceimg;
+  char *faceimg;
 };
 
 struct FaceNetInput {
   struct listnode list;
+  guint64 frameidx;
   struct RelativePos pos;
-  const char *faceimg;
+  char *faceimg;
 };
 
 struct FaceNetResult {
   struct listnode list;
+  guint64 frameidx;
   struct RelativePos pos;
-  const char *faceimg;
+  char *faceimg;
   float result[128];
 };
 
 struct FaceNetDBResult {
+  guint64 frameidx;
   struct RelativePos pos;
   char *info;
 };
 
-typedef struct NNResult {
+struct NNResult {
+  struct listnode list;
+  guint64 frameidx;
   int  detect_num;
   struct RelativePos *pt;
-} NNResult_t;
+};
 
 
 #define DEFAULT_PROP_MODEL_TYPE DET_FACENET
@@ -123,27 +129,40 @@ GST_STATIC_PAD_TEMPLATE (
       "format = (string) { RGB } ")
     );
 
+static GstStaticPadTemplate src_template =
+GST_STATIC_PAD_TEMPLATE (
+  "src",
+  GST_PAD_SRC,
+  GST_PAD_ALWAYS,
+  GST_STATIC_CAPS ("video/x-raw, "
+      "framerate = (fraction) [0/1, MAX], "
+      "width = (int) [ 1, MAX ], " "height = (int) [ 1, MAX ], "
+      "format = (string) { RGB } ")
+);
+
 #define gst_aml_facenet_parent_class parent_class
-G_DEFINE_TYPE (GstAmlFacenet, gst_aml_facenet, GST_TYPE_BASE_SINK);
+G_DEFINE_TYPE (GstAmlFacenet, gst_aml_facenet, GST_TYPE_BASE_TRANSFORM);
 
 static void gst_aml_facenet_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_aml_facenet_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static gboolean gst_aml_facenet_open (GstBaseSink * base);
+static gboolean gst_aml_facenet_open (GstBaseTransform * base);
 
-static gboolean gst_aml_facenet_close (GstBaseSink * base);
+static gboolean gst_aml_facenet_close (GstBaseTransform * base);
 
 static void gst_aml_facenet_finalize (GObject * object);
 
-static GstFlowReturn gst_aml_facenet_render (GstBaseSink * base,
+static GstFlowReturn gst_aml_facenet_transform_ip (GstBaseTransform * base,
     GstBuffer * outbuf);
 
-static gboolean gst_aml_facenet_set_caps (GstBaseSink * base,
-    GstCaps * caps);
+static gboolean gst_aml_facenet_set_caps (GstBaseTransform * base,
+    GstCaps * incaps, GstCaps * outcaps);
 
-static gboolean gst_aml_facenet_event(GstBaseSink * base, GstEvent *event);
+static gboolean gst_aml_facenet_event(GstBaseTransform * base, GstEvent *event);
+
+static void cleanup_nn_event_list (GstAmlFacenet *filter, guint64 frameidx);
 
 static gpointer facenet_input_process (void *data);
 static gpointer facenet_result_process (void *data);
@@ -194,20 +213,23 @@ gst_aml_facenet_class_init (GstAmlFacenetClass * klass)
       "Jemy Zhang <jun.zhang@amlogic.com>");
 
   gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&src_template));
+
+  gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&sink_template));
 
-  GST_BASE_SINK_CLASS (klass)->render =
-    GST_DEBUG_FUNCPTR (gst_aml_facenet_render);
+  GST_BASE_TRANSFORM_CLASS (klass)->transform_ip =
+    GST_DEBUG_FUNCPTR (gst_aml_facenet_transform_ip);
 
-  GST_BASE_SINK_CLASS (klass)->set_caps =
+  GST_BASE_TRANSFORM_CLASS (klass)->set_caps =
     GST_DEBUG_FUNCPTR (gst_aml_facenet_set_caps);
 
-  GST_BASE_SINK_CLASS (klass)->start =
+  GST_BASE_TRANSFORM_CLASS (klass)->start =
     GST_DEBUG_FUNCPTR (gst_aml_facenet_open);
-  GST_BASE_SINK_CLASS (klass)->stop =
+  GST_BASE_TRANSFORM_CLASS (klass)->stop =
     GST_DEBUG_FUNCPTR (gst_aml_facenet_close);
 
-  GST_BASE_SINK_CLASS (klass)->event =
+  GST_BASE_TRANSFORM_CLASS (klass)->sink_event =
     GST_DEBUG_FUNCPTR (gst_aml_facenet_event);
 }
 
@@ -254,12 +276,13 @@ gst_aml_facenet_init (GstAmlFacenet *filter)
 {
   filter->is_info_set = FALSE;
   filter->model_type = DEFAULT_PROP_MODEL_TYPE;
-  filter->src_srcpad = NULL;
   filter->db_handle = NULL;
   filter->dbfile = g_strdup (DEFAULT_PROP_DBPATH);
   filter->string_format = g_strdup (DEFAULT_PROP_FORMAT);
   filter->b_store_face = DEFAULT_PROP_STORE_FACE;
   filter->threshold = DEFAULT_PROP_THRESHOLD;
+  filter->is_facenet_proceeding = FALSE;
+  filter->framenum = 0;
 
   list_init (&filter->face_list);
   list_init (&filter->facenet_ilist);
@@ -270,6 +293,9 @@ gst_aml_facenet_init (GstAmlFacenet *filter)
   thread_init (&filter->procinfo_facenet_result);
   thread_init (&filter->procinfo_facenet_db);
   thread_init (&filter->procinfo_grabface);
+
+  list_init (&filter->nn_event_list);
+  g_mutex_init (&filter->nn_event_list_mutex);
 
 }
 
@@ -335,11 +361,10 @@ gst_aml_facenet_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
-gst_aml_facenet_open (GstBaseSink * sink)
+gst_aml_facenet_open (GstBaseTransform * base)
 {
-  GstAmlFacenet *filter = GST_AMLFACENET (sink);
+  GstAmlFacenet *filter = GST_AMLFACENET (base);
 
-  frmcrop_init ();
   open_facenet_db (filter);
 
   det_set_log_config (DET_DEBUG_LEVEL_ERROR, DET_LOG_TERMINAL);
@@ -362,10 +387,44 @@ gst_aml_facenet_open (GstBaseSink * sink)
   return TRUE;
 }
 
+static void
+release_lists (GstAmlFacenet *filter) {
+  struct listnode *pos, *q;
+  if (!list_empty (&filter->face_list)) {
+    list_for_each_safe (pos, q, &filter->face_list) {
+      struct FaceInput *im =
+        list_entry (pos, struct FaceInput, list);
+      list_remove (pos);
+      if (im->faceimg) g_free (im->faceimg);
+      g_free (im);
+    }
+  }
+  if (!list_empty (&filter->facenet_ilist)) {
+    list_for_each_safe (pos, q, &filter->facenet_ilist) {
+      struct FaceNetInput *im =
+        list_entry (pos, struct FaceNetInput, list);
+      list_remove (pos);
+      if (im->faceimg) g_free (im->faceimg);
+      g_free (im);
+    }
+  }
+  if (!list_empty (&filter->facenet_rlist)) {
+    list_for_each_safe (pos, q, &filter->facenet_ilist) {
+      struct FaceNetResult *im =
+        list_entry (pos, struct FaceNetResult, list);
+      list_remove (pos);
+      if (im->faceimg) g_free (im->faceimg);
+      g_free (im);
+    }
+  }
+
+  cleanup_nn_event_list (filter, 0);
+}
+
 static gboolean
-gst_aml_facenet_close (GstBaseSink * sink)
+gst_aml_facenet_close (GstBaseTransform * base)
 {
-  GstAmlFacenet *filter = GST_AMLFACENET (sink);
+  GstAmlFacenet *filter = GST_AMLFACENET (base);
 
   filter->_running = FALSE;
 
@@ -387,26 +446,36 @@ gst_aml_facenet_close (GstBaseSink * sink)
   db_deinit (filter->db_handle);
   filter->db_handle = NULL;
   frmcrop_deinit ();
+  release_lists (filter);
 
   return TRUE;
 }
+
+#define FREE_STRING(s) \
+  do { \
+    if (s) { \
+      g_free (s); \
+      s = NULL; \
+    } \
+  } while(0)
 
 static void
 gst_aml_facenet_finalize (GObject * object)
 {
   GstAmlFacenet *filter = GST_AMLFACENET (object);
-
+  FREE_STRING (filter->dbfile);
+  FREE_STRING (filter->string_format);
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 
 static gboolean
-gst_aml_facenet_set_caps (GstBaseSink * base, GstCaps * caps)
+gst_aml_facenet_set_caps (GstBaseTransform * base, GstCaps * incaps, GstCaps * outcaps)
 {
   GstAmlFacenet *filter = GST_AMLFACENET (base);
   GstVideoInfo info;
 
-  if (!gst_video_info_from_caps (&info, caps))
+  if (!gst_video_info_from_caps (&info, incaps))
   {
     GST_ERROR_OBJECT (base, "caps are invalid");
     return FALSE;
@@ -416,22 +485,38 @@ gst_aml_facenet_set_caps (GstBaseSink * base, GstCaps * caps)
   return TRUE;
 }
 
-/* GstBaseSink vmethod implementations */
-#define GST_EVENT_NN_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
+static void
+cleanup_nn_event_list (GstAmlFacenet *filter, guint64 frameidx) {
+  struct listnode *pos, *q;
+  if (!list_empty (&filter->nn_event_list)) {
+    list_for_each_safe (pos, q, &filter->nn_event_list) {
+      struct NNResult *im =
+        list_entry (pos, struct NNResult, list);
+      if (frameidx < im->frameidx ||
+          frameidx - im->frameidx > 1) {
+        list_remove (pos);
+        if (im->pt) g_free (im->pt);
+        g_free (im);
+      }
+    }
+  }
+}
 
-NNResult_t gs_detect_res = {0, NULL};
+/* GstBaseTransform vmethod implementations */
 static gboolean
-gst_aml_facenet_event (GstBaseSink * base, GstEvent *event)
+gst_aml_facenet_event (GstBaseTransform * base, GstEvent *event)
 {
+  GstAmlFacenet *filter = GST_AMLFACENET (base);
   switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_NN_DETECTED:
+    case GST_EVENT_CUSTOM_DOWNSTREAM_OOB:
       {
         const GstStructure *resst = gst_event_get_structure (event);
-        gboolean ret = TRUE;
         if (gst_structure_has_name (resst, "nn-detection")) {
           GstMapInfo info;
+          const GValue *idx = gst_structure_get_value (resst, "idx");
           const GValue *size = gst_structure_get_value (resst, "rectnum");
           const GValue *buf = gst_structure_get_value (resst, "rectbuf");
+          guint64 frameidx = g_value_get_uint64 (idx);
           gint detect_num = g_value_get_int (size);
           GstBuffer *resbuf = gst_value_get_buffer (buf);
           struct RelativePos *pt = (struct RelativePos *)g_malloc (sizeof(struct RelativePos) * detect_num);
@@ -441,74 +526,59 @@ gst_aml_facenet_event (GstBaseSink * base, GstEvent *event)
           } else {
             g_free (pt);
             pt = NULL;
-            ret = FALSE;
           }
 
-          if (gs_detect_res.pt) {
-            g_free (gs_detect_res.pt);
+          if (pt) {
+            struct NNResult *new_result = (struct NNResult *)g_malloc (sizeof(struct NNResult));
+            new_result->detect_num = detect_num;
+            new_result->frameidx = frameidx;
+            new_result->pt = pt;
+            list_init (&new_result->list);
+            g_mutex_lock (&filter->nn_event_list_mutex);
+            // add newest entries
+            list_add_tail (&filter->nn_event_list, &new_result->list);
+            g_mutex_unlock (&filter->nn_event_list_mutex);
           }
-          gs_detect_res.pt = pt;
-          gs_detect_res.detect_num = detect_num;
-          gst_buffer_unref (resbuf);
-          return ret;
+
+          //gst_event_unref (event);
+          //return FALSE;
         }
       }
       break;
     default:
       break;
   }
-  return GST_BASE_SINK_CLASS(parent_class)->event (base, event);
+  return GST_BASE_TRANSFORM_CLASS(parent_class)->sink_event (base, event);
 
-}
-
-static GstPad *
-find_source_pad (GstBaseSink * base) {
-  GstElement *parent = gst_element_get_parent(&base->element);
-  GstBin *bin = GST_BIN_CAST (parent);
-  GstIterator *iter;
-  GstPad *srcpad = NULL;
-  GValue data = {0,};
-  if (bin) {
-    iter = gst_bin_iterate_sources (bin);
-    if (gst_iterator_next (iter, &data) == GST_ITERATOR_OK) {
-      GstElement *e = g_value_get_object (&data);
-      srcpad = gst_element_get_static_pad (e, "src");
-      gst_object_unref (e);
-      g_value_unset (&data);
-    }
-    gst_iterator_free (iter);
-    gst_object_unref (parent);
-  }
-  return srcpad;
 }
 
 static void
-push_result (GstAmlFacenet *filter, struct FaceNetDBResult *result)
+push_result (GstBaseTransform *base, struct FaceNetDBResult *result)
 {
   GstMapInfo info;
-
-  if (filter->src_srcpad == NULL) filter->src_srcpad = find_source_pad (&filter->element);
-  if (filter->src_srcpad == NULL) return;
 
   int res_size = sizeof (result->pos);
   int info_size = result->info ? strlen(result->info) + 1 : 0;
 
   GstBuffer *resbuf = gst_buffer_new_allocate (NULL, res_size + info_size, NULL);
-  if (!gst_buffer_map (resbuf, &info, GST_MAP_WRITE)) {
-    return;
+  if (gst_buffer_map (resbuf, &info, GST_MAP_WRITE)) {
+    g_memmove (info.data, &result->pos, res_size);
+    g_memmove (info.data + res_size, result->info, info_size);
+    gst_buffer_unmap (resbuf, &info);
+
+    GstStructure *resst = gst_structure_new ("facenet-detection",
+        "idx", G_TYPE_UINT64, result->frameidx,
+        "faceinfo", GST_TYPE_BUFFER, resbuf,
+        NULL);
+
+    GstEvent *facenet_detect_event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
+        resst);
+
+    gst_element_send_event (&base->element, facenet_detect_event);
   }
 
-  g_memmove (info.data, &result->pos, res_size);
-  g_memmove (info.data + res_size, result->info, info_size);
-  gst_buffer_unmap (resbuf, &info);
-  GstStructure *resst = gst_structure_new ("facenet-detection",
-      "faceinfo", GST_TYPE_BUFFER, resbuf,
-      NULL);
+  gst_buffer_unref (resbuf);
 
-  GstEvent *facenet_detect_event = gst_event_new_custom (GST_EVENT_NN_DETECTED,
-      resst);
-
-  gst_pad_push_event (filter->src_srcpad, facenet_detect_event);
 }
 
 static gpointer
@@ -537,21 +607,28 @@ facenet_db_process (void *data) {
 #define FACE_INFO_BUFSIZE 1024
     char *buf = (char *) g_malloc (FACE_INFO_BUFSIZE);
     struct FaceNetDBResult result;
+
+    result.frameidx = item->frameidx;
     result.pos = item->pos;
     result.info = NULL;
     g_mutex_lock (&filter->procinfo_facenet_db.mutex);
-    if (db_search_result(filter->db_handle, item->result,
+    GST_INFO_OBJECT (filter, "looking up db");
+    int rc = db_search_result(filter->db_handle, item->result,
           filter->b_store_face ? item->faceimg : NULL,
           filter->model_width, filter->model_height,
-          filter->string_format, buf, FACE_INFO_BUFSIZE) == 0) {
-      result.info = buf;
-    }
+          filter->string_format, buf, FACE_INFO_BUFSIZE);
+    GST_INFO_OBJECT (filter, "looking up db done");
     g_mutex_unlock (&filter->procinfo_facenet_db.mutex);
 
-    push_result (filter, &result);
-    g_free (buf);
-    g_free (item);
+    if (rc == 0) {
+      result.info = buf;
+    }
 
+    push_result (&filter->element, &result);
+
+    g_free (buf);
+    if (item->faceimg) g_free (item->faceimg);
+    g_free (item);
   }
 
   return NULL;
@@ -580,7 +657,10 @@ facenet_result_process (void *data) {
     struct FaceNetInput *item =
       list_entry (node, struct FaceNetInput, list);
 
+    GST_INFO_OBJECT (filter, "waiting for result");
     det_status_t rc = det_get_result(&result, filter->model_type);
+    GST_INFO_OBJECT (filter, "result got");
+    filter->is_facenet_proceeding = FALSE;
     g_mutex_unlock (&filter->procinfo_facenet.mutex);
 
     if (rc == DET_STATUS_OK) {
@@ -588,15 +668,19 @@ facenet_result_process (void *data) {
       // add result to list
       struct FaceNetResult *newitem =
         (struct FaceNetResult*) g_malloc (sizeof (struct FaceNetResult));
+
+      newitem->frameidx = item->frameidx;
       newitem->pos = item->pos;
       newitem->faceimg = item->faceimg;
       g_memmove (newitem->result, result.facenet_result, sizeof(newitem->result));
+
       list_init (&newitem->list);
       list_add_tail (&filter->facenet_rlist, &newitem->list);
 
       g_cond_signal (&filter->procinfo_facenet_result.cond);
       g_mutex_unlock (&filter->procinfo_facenet_result.mutex);
     }
+    g_free (item);
 
   }
 
@@ -614,7 +698,8 @@ facenet_input_process (void *data) {
       g_cond_wait (&filter->procinfo_grabface.cond, &filter->procinfo_grabface.mutex);
     }
 
-    if (list_empty (&filter->face_list)) {
+    if (list_empty (&filter->face_list) ||
+        filter->is_facenet_proceeding) {
       g_mutex_unlock (&filter->procinfo_grabface.mutex);
       continue;
     }
@@ -633,23 +718,16 @@ facenet_input_process (void *data) {
     im.channel = filter->model_channel;
 
     if (g_mutex_trylock (&filter->procinfo_facenet.mutex)) {
-      // >> temp fix facenet detection
-      // remove unprocessed face
-      if (!list_empty (&filter->facenet_ilist)) {
-        struct listnode *pos, *q;
-        list_for_each_safe (pos, q, &filter->facenet_ilist) {
-          struct FaceNetInput *im =
-            list_entry (pos, struct FaceNetInput, list);
-          list_remove (pos);
-          g_free (im);
-        }
-      }
-      // <<
       if (det_set_input (im, filter->model_type) == DET_STATUS_OK) {
+        filter->is_facenet_proceeding = TRUE;
+
         struct FaceNetInput *newitem =
           (struct FaceNetInput*) g_malloc (sizeof (struct FaceNetInput));
+
+        newitem->frameidx = item->frameidx;
         newitem->pos = item->pos;
         newitem->faceimg = item->faceimg;
+
         list_init (&newitem->list);
         list_add_tail (&filter->facenet_ilist, &newitem->list);
 
@@ -657,6 +735,7 @@ facenet_input_process (void *data) {
         g_mutex_unlock (&filter->procinfo_facenet.mutex);
       }
     }
+
     g_free (item);
   }
 
@@ -667,7 +746,7 @@ facenet_input_process (void *data) {
 /* this function does the actual processing
 */
 static GstFlowReturn
-gst_aml_facenet_render (GstBaseSink * base, GstBuffer * outbuf)
+gst_aml_facenet_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
 {
   GstAmlFacenet *filter = GST_AMLFACENET (base);
 
@@ -679,15 +758,33 @@ gst_aml_facenet_render (GstBaseSink * base, GstBuffer * outbuf)
     return GST_FLOW_NOT_NEGOTIATED;
   }
 
-  GstVideoInfo *info = &filter->info;
-  GstMapInfo outbuf_info;
+  filter->framenum ++;
 
-  if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
-    if (gs_detect_res.detect_num) {
-      for (int i = 0; i < gs_detect_res.detect_num; i++) {
-        struct RelativePos *pos = &gs_detect_res.pt[i];
+  g_mutex_lock (&filter->nn_event_list_mutex);
+  // cleanup the old entries
+  cleanup_nn_event_list (filter, filter->framenum);
+
+  if (list_empty (&filter->nn_event_list)) {
+    g_mutex_unlock (&filter->nn_event_list_mutex);
+    return GST_FLOW_OK;
+  }
+
+  struct listnode *node = list_head (&filter->nn_event_list);
+  list_remove (node);
+  g_mutex_unlock (&filter->nn_event_list_mutex);
+
+  struct NNResult *item =
+    list_entry (node, struct NNResult, list);
+
+  if (item->detect_num > 0) {
+    GstVideoInfo *info = &filter->info;
+    GstMapInfo outbuf_info;
+    if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
+      for (int i = 0; i < item->detect_num; i++) {
+        struct RelativePos *pos = &item->pt[i];
         struct FaceInput *newitem =
           (struct FaceInput *) g_malloc (sizeof(struct FaceInput));
+        newitem->frameidx = filter->framenum;
         newitem->pos = *pos;
 
         int x0, y0, x1, y1;
@@ -695,6 +792,8 @@ gst_aml_facenet_render (GstBaseSink * base, GstBuffer * outbuf)
         y0 = (int)(pos->y0 * info->height);
         x1 = (int)(pos->x1 * info->width);
         y1 = (int)(pos->y1 * info->height);
+
+        frmcrop_init ();
 
         newitem->faceimg = frmcrop_begin (outbuf_info.data,
             info->width, info->height, x0, y0, x1, y1,
@@ -712,12 +811,12 @@ gst_aml_facenet_render (GstBaseSink * base, GstBuffer * outbuf)
 
       }
       frmcrop_end ();
-      gs_detect_res.detect_num = 0;
-      g_free(gs_detect_res.pt);
-      gs_detect_res.pt = NULL;
+      gst_buffer_unmap (outbuf, &outbuf_info);
     }
-    gst_buffer_unmap (outbuf, &outbuf_info);
   }
+
+  if (item->pt) g_free (item->pt);
+  g_free (item);
 
   return GST_FLOW_OK;
 }

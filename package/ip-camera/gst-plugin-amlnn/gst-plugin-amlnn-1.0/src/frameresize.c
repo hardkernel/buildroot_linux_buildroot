@@ -63,27 +63,28 @@ CreateOutputSurface (int width, int height) {
 
 }
 
-static char*
-CropBlt (int x0, int y0, int x1, int y1, int ow, int oh) {
+static const char*
+StretchBlit (int w, int h) {
+  if (dfb == NULL
+      || input_surface == NULL
+      || output_surface == NULL) {
+    return NULL;
+  }
+
   DFBRectangle src, dst;
   const char* outbuf = NULL;
   int outpitch = 0;
 
-  src.x = x0 < x1 ? x0 : x1;
-  src.y = y0 < y1 ? y0 : y1;
-  src.w = x0 < x1 ? x1 - x0 : x0 - x1;
-  src.h = y0 < y1 ? y1 - y0 : y0 - y1;
-
   dst.x = 0; dst.y = 0;
-  dst.w = ow;
-  dst.h = oh;
+  dst.w = w;
+  dst.h = h;
 
   DFBCHECK(output_surface->StretchBlit(output_surface,
-        input_surface, &src, &dst));
+        input_surface, NULL, &dst));
 
   DFBCHECK(output_surface->Lock(output_surface, DSLF_READ, (void **)&outbuf, &outpitch));
 
-  size_t bufsize = oh * outpitch;
+  size_t bufsize = h * outpitch;
   char* retbuf = (char *) malloc (bufsize);
   if (retbuf) {
     memcpy (retbuf, outbuf, bufsize);
@@ -110,26 +111,30 @@ DestroyOutputSurface() {
   }
 }
 
-void frmcrop_init () {
+void frameresize_init () {
   Init ();
 }
 
-void frmcrop_deinit() {
+void frameresize_deinit() {
   DestroyInputSurface ();
   DestroyOutputSurface ();
   Deinit ();
 }
 
-char *frmcrop_begin (const char* input, int iw, int ih,
-    int x0, int y0, int x1, int y1, int ow, int oh) {
+const char *
+frameresize_begin (const char* input,
+    int iw, int ih, int ow, int oh) {
   CreateInputSurface (input, iw, ih);
   CreateOutputSurface (ow, oh);
-  return CropBlt (x0, y0, x1, y1, ow, oh);
+  return StretchBlit (ow, oh);
 }
 
-void frmcrop_end () {
+void frameresize_end (const char *buf) {
   DestroyInputSurface ();
   DestroyOutputSurface ();
+  if (buf) {
+    free (buf);
+  }
 }
 
 

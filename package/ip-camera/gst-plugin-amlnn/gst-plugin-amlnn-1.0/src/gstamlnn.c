@@ -42,6 +42,8 @@
 #include <gst/controller/controller.h>
 #include <gmodule.h>
 
+#include "frameresize.h"
+
 #include "gstamlnn.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_aml_nn_debug);
@@ -112,28 +114,37 @@ GST_STATIC_PAD_TEMPLATE (
       "format = (string) { RGB } ")
 );
 
+static GstStaticPadTemplate src_template =
+GST_STATIC_PAD_TEMPLATE (
+  "src",
+  GST_PAD_SRC,
+  GST_PAD_ALWAYS,
+  GST_STATIC_CAPS ("video/x-raw, "
+      "framerate = (fraction) [0/1, MAX], "
+      "width = (int) [ 1, MAX ], " "height = (int) [ 1, MAX ], "
+      "format = (string) { RGB } ")
+);
+
+
 #define gst_aml_nn_parent_class parent_class
-G_DEFINE_TYPE (GstAmlNN, gst_aml_nn, GST_TYPE_BASE_SINK);
+G_DEFINE_TYPE (GstAmlNN, gst_aml_nn, GST_TYPE_BASE_TRANSFORM);
 
 static void gst_aml_nn_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_aml_nn_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static gboolean gst_aml_nn_open (GstBaseSink * base);
+static gboolean gst_aml_nn_open (GstBaseTransform * base);
 
-static gboolean gst_aml_nn_close (GstBaseSink * base);
+static gboolean gst_aml_nn_close (GstBaseTransform * base);
 
 static void gst_aml_nn_finalize (GObject * object);
 
-static GstFlowReturn gst_aml_nn_render (GstBaseSink * base,
+static GstFlowReturn gst_aml_nn_transform_ip (GstBaseTransform * base,
     GstBuffer * outbuf);
 
-static gboolean gst_aml_nn_set_caps (GstBaseSink * base,
-    GstCaps * caps);
-
-static GstCaps * gst_aml_nn_get_caps (GstBaseSink * base,
-    GstCaps * filter);
+static gboolean gst_aml_nn_set_caps (GstBaseTransform * base,
+    GstCaps * incaps, GstCaps * outcaps);
 
 static gpointer detect_result_process (void *data);
 /* GObject vmethod implementations */
@@ -164,19 +175,20 @@ gst_aml_nn_class_init (GstAmlNNClass * klass)
     "Jemy Zhang <jun.zhang@amlogic.com>");
 
   gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&src_template));
+
+  gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&sink_template));
 
-  GST_BASE_SINK_CLASS (klass)->render =
-      GST_DEBUG_FUNCPTR (gst_aml_nn_render);
+  GST_BASE_TRANSFORM_CLASS (klass)->transform_ip =
+      GST_DEBUG_FUNCPTR (gst_aml_nn_transform_ip);
 
-  GST_BASE_SINK_CLASS (klass)->set_caps =
+  GST_BASE_TRANSFORM_CLASS (klass)->set_caps =
       GST_DEBUG_FUNCPTR (gst_aml_nn_set_caps);
-  GST_BASE_SINK_CLASS (klass)->get_caps =
-      GST_DEBUG_FUNCPTR (gst_aml_nn_get_caps);
 
-  GST_BASE_SINK_CLASS (klass)->start =
+  GST_BASE_TRANSFORM_CLASS (klass)->start =
       GST_DEBUG_FUNCPTR (gst_aml_nn_open);
-  GST_BASE_SINK_CLASS (klass)->stop =
+  GST_BASE_TRANSFORM_CLASS (klass)->stop =
       GST_DEBUG_FUNCPTR (gst_aml_nn_close);
 }
 
@@ -188,7 +200,6 @@ gst_aml_nn_init (GstAmlNN *filter)
 {
   filter->is_info_set = FALSE;
   filter->model_type = DEFAULT_PROP_MODEL_TYPE;
-  filter->src_srcpad = NULL;
   filter->b_model_set = FALSE;
 
   g_cond_init (&filter->_cond);
@@ -243,11 +254,14 @@ gst_aml_nn_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
-gst_aml_nn_open (GstBaseSink* sink)
+gst_aml_nn_open (GstBaseTransform* sink)
 {
   GstAmlNN *filter = GST_AMLNN (sink);
 
+  filter->framenum = 0;
+
   if (filter->b_model_set) return TRUE;
+
 
   det_set_log_config (DET_DEBUG_LEVEL_ERROR, DET_LOG_TERMINAL);
 
@@ -267,17 +281,19 @@ gst_aml_nn_open (GstBaseSink* sink)
 }
 
 static gboolean
-gst_aml_nn_close (GstBaseSink* sink)
+gst_aml_nn_close (GstBaseTransform* sink)
 {
   GstAmlNN *filter = GST_AMLNN (sink);
 
   if (!filter->b_model_set) return TRUE;
 
+  GST_INFO_OBJECT (filter, "closing, waiting for lock");
   filter->_running = FALSE;
   g_mutex_lock (&filter->_mutex);
   if (det_release_model (filter->model_type) != DET_STATUS_OK) {
     GST_ERROR_OBJECT (filter, "failed to release nn detect model");
   }
+  GST_INFO_OBJECT (filter, "model released");
   filter->model_type = DET_BUTT;
   filter->b_model_set = FALSE;
   g_cond_signal (&filter->_cond);
@@ -286,25 +302,26 @@ gst_aml_nn_close (GstBaseSink* sink)
 
   filter->_thread = NULL;
 
+  frameresize_deinit ();
+  filter->is_info_set = FALSE;
+
   return TRUE;
 }
 
 static void
 gst_aml_nn_finalize (GObject * object)
 {
-  GstAmlNN *filter = GST_AMLNN (object);
-
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 
 static gboolean
-gst_aml_nn_set_caps (GstBaseSink * base, GstCaps * caps)
+gst_aml_nn_set_caps (GstBaseTransform * base, GstCaps * incaps, GstCaps * outcaps)
 {
   GstAmlNN *filter = GST_AMLNN (base);
   GstVideoInfo info;
 
-  if (!gst_video_info_from_caps (&info, caps))
+  if (!gst_video_info_from_caps (&info, incaps))
   {
     GST_ERROR_OBJECT (base, "caps are invalid");
     return FALSE;
@@ -314,69 +331,15 @@ gst_aml_nn_set_caps (GstBaseSink * base, GstCaps * caps)
   return TRUE;
 }
 
-static GstCaps *
-gst_aml_nn_get_caps (GstBaseSink * base, GstCaps * filter)
-{
-  GstAmlNN *amlnn;
-  GstCaps *caps;
-
-  amlnn = GST_AMLNN (base);
-  caps = gst_static_pad_template_get_caps (&sink_template);
-
-  if (amlnn->b_model_set) {
-    caps = gst_caps_make_writable (caps);
-    gst_caps_set_simple(caps,
-        "width", G_TYPE_INT, amlnn->model_width,
-        "height", G_TYPE_INT, amlnn->model_height,
-        NULL);
-  }
-
-  if (filter != NULL) {
-    GstCaps *icaps;
-
-    icaps = gst_caps_intersect(caps, filter);
-    gst_caps_unref(caps);
-    caps = icaps;
-  }
-  return caps;
-}
-
-/* GstBaseSink vmethod implementations */
-#define GST_EVENT_NN_DETECTED GST_EVENT_MAKE_TYPE(80, GST_EVENT_TYPE_DOWNSTREAM | GST_EVENT_TYPE_SERIALIZED)
-
-static GstPad *
-find_source_pad (GstBaseSink * base) {
-  GstElement *parent = gst_element_get_parent(&base->element);
-  GstBin *bin = GST_BIN_CAST (parent);
-  GstIterator *iter;
-  GstPad *srcpad = NULL;
-  GValue data = {0,};
-  if (bin) {
-    iter = gst_bin_iterate_sources (bin);
-    if (gst_iterator_next (iter, &data) == GST_ITERATOR_OK) {
-      GstElement *e = g_value_get_object (&data);
-      srcpad = gst_element_get_static_pad (e, "src");
-      gst_object_unref (e);
-      g_value_unset (&data);
-    }
-    gst_iterator_free (iter);
-    gst_object_unref (parent);
-  }
-  return srcpad;
-}
-
+/* GstBaseTransform vmethod implementations */
 static void
-push_result (GstBaseSink * base, DetectResult *result)
+push_result (GstBaseTransform * base, DetectResult *result, guint64 framenum)
 {
   GstMapInfo info;
-  GstAmlNN *filter = GST_AMLNN (base);
   int i;
 
   if (result->detect_num <= 0) return;
   if (result->point[0].type != DET_RECTANGLE_TYPE) return;
-
-  if (filter->src_srcpad == NULL) filter->src_srcpad = find_source_pad (base);
-  if (filter->src_srcpad == NULL) return;
 
   int res_size = result->detect_num * sizeof (RDetectPoint_t);
   RDetectPoint_t *pres = (RDetectPoint_t *)g_malloc (res_size);
@@ -390,22 +353,22 @@ push_result (GstBaseSink * base, DetectResult *result)
   }
 
   GstBuffer *resbuf = gst_buffer_new_allocate (NULL, res_size, NULL);
-  if (!gst_buffer_map (resbuf, &info, GST_MAP_WRITE)) {
-    if (pres) g_free (pres);
-    return;
+  if (gst_buffer_map (resbuf, &info, GST_MAP_WRITE)) {
+    g_memmove (info.data, pres, res_size);
+    gst_buffer_unmap (resbuf, &info);
+    GstStructure *resst = gst_structure_new ("nn-detection",
+        "idx", G_TYPE_UINT64, framenum,
+        "rectnum", G_TYPE_INT, result->detect_num,
+        "rectbuf", GST_TYPE_BUFFER, resbuf,
+        NULL);
+
+    GstEvent *nn_detect_event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
+        resst);
+
+    gst_element_send_event (&base->element, nn_detect_event);
   }
-
-  g_memmove (info.data, pres, res_size);
-  gst_buffer_unmap (resbuf, &info);
-  GstStructure *resst = gst_structure_new ("nn-detection",
-      "rectnum", G_TYPE_INT, result->detect_num,
-      "rectbuf", GST_TYPE_BUFFER, resbuf,
-      NULL);
-
-  GstEvent *nn_detect_event = gst_event_new_custom (GST_EVENT_NN_DETECTED,
-      resst);
-
-  gst_pad_push_event (filter->src_srcpad, nn_detect_event);
+  gst_buffer_unref (resbuf);
+  g_free (pres);
 }
 
 static gpointer
@@ -423,11 +386,20 @@ detect_result_process (void *data) {
       continue;
     }
 
-    if (det_get_result(&result, filter->model_type) == DET_STATUS_OK) {
-      push_result (&filter->element, &result);
+    GST_INFO_OBJECT (filter, "waiting for result");
+    det_status_t rc = det_get_result(&result, filter->model_type);
+    GST_INFO_OBJECT (filter, "result got");
+    g_mutex_unlock (&filter->_mutex);
+
+    if (rc == DET_STATUS_OK) {
+      // check running status to avoid async problem after long time delay
+      if (filter->_running) {
+        push_result (&filter->element, &result, filter->framenum);
+      } else {
+        GST_INFO_OBJECT (filter, "thread exiting, push event abort");
+      }
     }
 
-    g_mutex_unlock (&filter->_mutex);
   }
 
   return NULL;
@@ -437,31 +409,32 @@ detect_result_process (void *data) {
 /* this function does the actual processing
  */
 static GstFlowReturn
-gst_aml_nn_render (GstBaseSink * base, GstBuffer * outbuf)
+gst_aml_nn_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
 {
   GstAmlNN *filter = GST_AMLNN (base);
 
   if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_TIMESTAMP (outbuf)))
     gst_object_sync_values (GST_OBJECT (filter), GST_BUFFER_TIMESTAMP (outbuf));
 
+
   if (!filter->is_info_set) {
     GST_ELEMENT_ERROR (base, CORE, NEGOTIATION, (NULL), ("unknown format"));
     return GST_FLOW_NOT_NEGOTIATED;
   }
 
+  filter->framenum ++;
+
   GstVideoInfo *info = &filter->info;
   GstMapInfo outbuf_info;
-  if (info->width != filter->model_width
-      || info->height != filter->model_height) {
-    return GST_FLOW_OK;
-  }
 
-  if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
-    if (g_mutex_trylock (&filter->_mutex)) {
-      if (info->width == filter->model_width
-          && info->height == filter->model_height) {
+  if (g_mutex_trylock (&filter->_mutex)) {
+    if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
+      frameresize_init ();
+      const char *frm = frameresize_begin (outbuf_info.data,
+          info->width, info->height, filter->model_width, filter->model_height);
+      if (frm) {
         input_image_t im;
-        im.data = outbuf_info.data;
+        im.data = frm;
         im.pixel_format = PIX_FMT_RGB888;
         im.width = filter->model_width;
         im.height = filter->model_height;
@@ -469,10 +442,11 @@ gst_aml_nn_render (GstBaseSink * base, GstBuffer * outbuf)
         if (det_set_input (im, filter->model_type) == DET_STATUS_OK) {
           g_cond_signal (&filter->_cond);
         }
+        frameresize_end (frm);
       }
-      g_mutex_unlock (&filter->_mutex);
+      gst_buffer_unmap (outbuf, &outbuf_info);
     }
-    gst_buffer_unmap (outbuf, &outbuf_info);
+    g_mutex_unlock (&filter->_mutex);
   }
 
   return GST_FLOW_OK;

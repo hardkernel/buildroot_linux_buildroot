@@ -24,6 +24,7 @@
 
 #include <gst/gst.h>
 #include <gst/base/gstbasetransform.h>
+#include "list.h"
 
 G_BEGIN_DECLS
 
@@ -115,6 +116,13 @@ struct _GstAmlOverlay {
   gboolean watermark_text_changed;
   gboolean watermark_img_changed;
   gboolean facenet_font_changed;
+
+  guint64 framenum;
+
+  GMutex nn_list_mutex;
+  struct listnode nn_list;
+  GMutex facenet_list_mutex;
+  struct listnode facenet_list;
 };
 
 struct _GstAmlOverlayClass {
