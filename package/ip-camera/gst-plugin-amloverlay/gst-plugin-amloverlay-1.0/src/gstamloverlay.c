@@ -426,7 +426,7 @@ gst_aml_overlay_init (GstAmlOverlay *overlay)
   overlay->clock_pos = DEFAULT_PROP_CLOCK_POS;
   overlay->pts_pos = DEFAULT_PROP_PTS_POS;
 
-  overlay->fontfile = DEFAULT_PROP_FONT_FILE;
+  overlay->fontfile = g_strdup(DEFAULT_PROP_FONT_FILE);
   overlay->fontsize = DEFAULT_PROP_FONT_SIZE;
   overlay->fontcolor = DEFAULT_PROP_FONT_COLOR;
   overlay->bgcolor = DEFAULT_PROP_FONT_BGCOLOR;
