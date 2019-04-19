@@ -890,10 +890,10 @@ void AmlVideoRenderer::SetBounds(int z_index, int x, int y, int width,
   }
   if ((bound_x != x) || (bound_y != y) || (bound_w != width) ||
       (bound_h != height)) {
-    char buf[128];
-    sprintf(buf, "%d %d %d %d", x, y, x+width, y+height);
-    amsysfs_set_sysfs_str("/sys/class/video/axis", buf);
-    //codec_utils_set_video_position(x, y, width, height, 0);
+    //char buf[128];
+    //sprintf(buf, "%d %d %d %d", x, y, x+width, y+height);
+    //amsysfs_set_sysfs_str("/sys/class/video/axis", buf);
+    codec_utils_set_video_position(x, y, width, height, 0);
     //CLOG(INFO) << "SetBounds z:" << z_index << " x:" << x << " y:" << y
     //           << " w:" << width << " h:" << height;
     bound_x = x;
