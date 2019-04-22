@@ -118,11 +118,15 @@ struct _GstAmlOverlay {
   gboolean facenet_font_changed;
 
   guint64 framenum;
+  gint delay_clear_frame;
 
   GMutex nn_list_mutex;
   struct listnode nn_list;
   GMutex facenet_list_mutex;
   struct listnode facenet_list;
+
+  guint timer_nn_list_clean;
+  guint timer_facenet_list_clean;
 };
 
 struct _GstAmlOverlayClass {

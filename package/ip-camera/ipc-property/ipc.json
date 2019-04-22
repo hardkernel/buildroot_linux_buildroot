@@ -49,7 +49,7 @@
         "nn": {
             "detection": {
                 "enabled": true,
-                "model": "yoloface-v2"
+                "model": "mtcnn-v1"
             },
             "facenet": {
                 "enabled": true,
@@ -108,11 +108,11 @@
                 "facenet": {
                     "show": true,
                     "font": {
-                        "color": "0x00ff80ff",
+                        "color": "0xffff00ff",
                         "font file": "",
-                        "size": 32
+                        "size": 24
                     },
-                    "rect color": "0xff00ffff"
+                    "rect color": "0xf0f0f0ff"
                 }
             }
         },

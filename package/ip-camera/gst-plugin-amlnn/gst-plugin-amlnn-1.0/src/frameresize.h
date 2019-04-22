@@ -3,7 +3,7 @@
 
 void frameresize_init ();
 void frameresize_deinit();
-const char *frameresize_begin (const char* input,
+char* frameresize_begin (char* input,
     int iw, int ih, int ow, int oh);
-void frameresize_end (const char *buf);
+void frameresize_end (char *buf);
 #endif /* _FRAMERESIZE_H */

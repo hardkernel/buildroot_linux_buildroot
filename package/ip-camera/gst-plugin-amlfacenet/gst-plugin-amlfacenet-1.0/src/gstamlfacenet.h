@@ -53,6 +53,7 @@ struct _GstAmlFacenetThreadInfo {
 struct _GstAmlFacenet {
   GstBaseTransform element;
   /* properties */
+  gint max_detnum;
   gchar *string_format;
   gchar *dbfile;
   gfloat threshold;
@@ -64,10 +65,7 @@ struct _GstAmlFacenet {
   gint model_height;
   gint model_channel;
 
-  GstAmlFacenetThreadInfo procinfo_grabface;
   GstAmlFacenetThreadInfo procinfo_facenet;
-  GstAmlFacenetThreadInfo procinfo_facenet_result;
-  GstAmlFacenetThreadInfo procinfo_facenet_db;;
   gboolean _running;
 
   GstVideoInfo info;
@@ -76,10 +74,7 @@ struct _GstAmlFacenet {
   void *db_handle;
 
   struct listnode face_list;
-  struct listnode facenet_ilist;
-  struct listnode facenet_rlist;
 
-  gboolean is_facenet_proceeding;
   guint64 framenum;
 
   GMutex nn_event_list_mutex;

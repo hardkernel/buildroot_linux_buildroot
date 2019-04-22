@@ -214,6 +214,8 @@ change_model (GstAmlNN *filter, det_model_type type) {
       g_mutex_lock (&filter->_mutex);
       det_release_model (filter->model_type);
       det_set_model (type);
+      det_get_model_size (type,
+          &filter->model_width, &filter->model_height, &filter->model_channel);
       g_mutex_unlock (&filter->_mutex);
     }
     filter->model_type = type;
@@ -258,7 +260,9 @@ gst_aml_nn_open (GstBaseTransform* sink)
 {
   GstAmlNN *filter = GST_AMLNN (sink);
 
+  filter->framerate = 30;
   filter->framenum = 0;
+  filter->next_detect_framenum = 0;
 
   if (filter->b_model_set) return TRUE;
 
@@ -328,6 +332,8 @@ gst_aml_nn_set_caps (GstBaseTransform * base, GstCaps * incaps, GstCaps * outcap
   }
   filter->info = info;
   filter->is_info_set = TRUE;
+  filter->framerate = filter->info.fps_d == 0 ? 0 :
+    filter->info.fps_n / filter->info.fps_d;
   return TRUE;
 }
 
@@ -388,7 +394,9 @@ detect_result_process (void *data) {
 
     GST_INFO_OBJECT (filter, "waiting for result");
     det_status_t rc = det_get_result(&result, filter->model_type);
-    GST_INFO_OBJECT (filter, "result got");
+    filter->next_detect_framenum = filter->framenum +
+      (result.detect_num > 8 ? 8 : result.detect_num) * 20 * filter->framerate / 1000;
+    GST_INFO_OBJECT (filter, "result got, set next expect framenum: %lu", filter->next_detect_framenum);
     g_mutex_unlock (&filter->_mutex);
 
     if (rc == DET_STATUS_OK) {
@@ -424,17 +432,24 @@ gst_aml_nn_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
 
   filter->framenum ++;
 
+  if (filter->next_detect_framenum > 0 &&
+      filter->framenum < filter->next_detect_framenum) {
+    GST_INFO_OBJECT (base, "skip waiting for next frame, current frame %lu, expected %lu",
+        filter->framenum, filter->next_detect_framenum);
+    return GST_FLOW_OK;
+  }
+
   GstVideoInfo *info = &filter->info;
   GstMapInfo outbuf_info;
 
   if (g_mutex_trylock (&filter->_mutex)) {
     if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
       frameresize_init ();
-      const char *frm = frameresize_begin (outbuf_info.data,
+      char *frm = frameresize_begin ((char *)outbuf_info.data,
           info->width, info->height, filter->model_width, filter->model_height);
       if (frm) {
         input_image_t im;
-        im.data = frm;
+        im.data = (unsigned char*)frm;
         im.pixel_format = PIX_FMT_RGB888;
         im.width = filter->model_width;
         im.height = filter->model_height;

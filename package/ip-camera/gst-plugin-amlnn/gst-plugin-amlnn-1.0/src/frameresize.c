@@ -33,7 +33,7 @@ static void Deinit () {
 }
 
 static void
-CreateInputSurface (const char* buf, int width, int height) {
+CreateInputSurface (char* buf, int width, int height) {
   if (input_surface) return;
 
   DFBSurfaceDescription dsc;
@@ -63,7 +63,7 @@ CreateOutputSurface (int width, int height) {
 
 }
 
-static const char*
+static char*
 StretchBlit (int w, int h) {
   if (dfb == NULL
       || input_surface == NULL
@@ -71,7 +71,7 @@ StretchBlit (int w, int h) {
     return NULL;
   }
 
-  DFBRectangle src, dst;
+  DFBRectangle dst;
   const char* outbuf = NULL;
   int outpitch = 0;
 
@@ -121,15 +121,14 @@ void frameresize_deinit() {
   Deinit ();
 }
 
-const char *
-frameresize_begin (const char* input,
+char* frameresize_begin (char* input,
     int iw, int ih, int ow, int oh) {
   CreateInputSurface (input, iw, ih);
   CreateOutputSurface (ow, oh);
   return StretchBlit (ow, oh);
 }
 
-void frameresize_end (const char *buf) {
+void frameresize_end (char *buf) {
   DestroyInputSurface ();
   DestroyOutputSurface ();
   if (buf) {

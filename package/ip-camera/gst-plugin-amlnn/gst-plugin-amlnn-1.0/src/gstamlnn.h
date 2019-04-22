@@ -61,7 +61,9 @@ struct _GstAmlNN {
   gboolean is_info_set;
   gboolean b_model_set;
 
+  gint framerate;
   guint64 framenum;
+  guint64 next_detect_framenum;
 };
 
 struct _GstAmlNNClass {

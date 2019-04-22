@@ -54,7 +54,7 @@ enum
   LAST_SIGNAL
 };
 
-#define DETECT_DELAY_FRAMES 5
+#define DETECT_RESULT_KEEP_MS 200
 
 #define DEFAULT_PROP_DRAW_CLOCK TRUE
 #define DEFAULT_PROP_DRAW_PTS FALSE
@@ -81,10 +81,10 @@ enum
 #define DEFAULT_PROP_NN_RECTCOLOR 0xffff00ff
 
 #define DEFAULT_PROP_FACENET_SHOW TRUE
-#define DEFAULT_PROP_FACENET_FONTCOLOR 0x00ff80ff
+#define DEFAULT_PROP_FACENET_FONTCOLOR 0xffff00ff
 #define DEFAULT_PROP_FACENET_FONTFILE "/usr/share/directfb-1.7.7/decker.ttf"
-#define DEFAULT_PROP_FACENET_FONTSIZE 32
-#define DEFAULT_PROP_FACENET_RECTCOLOR 0xff00ffff
+#define DEFAULT_PROP_FACENET_FONTSIZE 24
+#define DEFAULT_PROP_FACENET_RECTCOLOR 0xf0f0f0ff
 
 enum
 {
@@ -697,6 +697,8 @@ static gboolean
 gst_aml_overlay_open (GstAmlOverlay * overlay)
 {
   overlay->framenum = 0;
+  overlay->timer_nn_list_clean = 0;
+  overlay->timer_facenet_list_clean = 0;
   g_mutex_init (&overlay->nn_list_mutex);
   list_init (&overlay->nn_list);
   g_mutex_init (&overlay->facenet_list_mutex);
@@ -754,6 +756,15 @@ gst_aml_overlay_close (GstAmlOverlay * overlay)
   FREE_STRING (overlay->watermark_img);
   FREE_STRING (overlay->facenet_fontfile);
 
+  if (overlay->timer_nn_list_clean) {
+    g_source_remove (overlay->timer_nn_list_clean);
+    overlay->timer_nn_list_clean = 0;
+  }
+  if (overlay->timer_facenet_list_clean) {
+    g_source_remove (overlay->timer_facenet_list_clean);
+    overlay->timer_facenet_list_clean = 0;
+  }
+
   release_lists (overlay);
   return TRUE;
 }
@@ -782,6 +793,7 @@ gst_aml_overlay_set_caps (GstBaseTransform * base, GstCaps * in, GstCaps * out)
   }
   overlay->info = in_info;
   overlay->is_info_set = TRUE;
+
   return TRUE;
 }
 
@@ -822,8 +834,7 @@ cleanup_facenet_list (GstAmlOverlay *overlay, guint64 frameidx) {
     list_for_each_safe (pos, q, &overlay->facenet_list) {
       struct FaceNetResult *im =
         list_entry (pos, struct FaceNetResult, list);
-      if (frameidx < im->frameidx ||
-          frameidx - im->frameidx > 1) {
+      if (frameidx != im->frameidx) {
         list_remove (pos);
         if (im->data->info) g_free (im->data->info);
         if (im->data) g_free (im->data);
@@ -831,6 +842,26 @@ cleanup_facenet_list (GstAmlOverlay *overlay, guint64 frameidx) {
       }
     }
   }
+}
+
+static gboolean
+timeout_cleanup_nn_list (GstAmlOverlay *overlay) {
+  g_mutex_lock (&overlay->nn_list_mutex);
+  overlay->timer_nn_list_clean = 0;
+
+  cleanup_nn_list (overlay);
+  g_mutex_unlock (&overlay->nn_list_mutex);
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+timeout_cleanup_facenet_list (GstAmlOverlay *overlay) {
+  g_mutex_lock (&overlay->facenet_list_mutex);
+  overlay->timer_facenet_list_clean = 0;
+
+  cleanup_facenet_list (overlay, 0);
+  g_mutex_unlock (&overlay->facenet_list_mutex);
+  return G_SOURCE_REMOVE;
 }
 
 static gboolean
@@ -843,10 +874,15 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
         const GstStructure *resst = gst_event_get_structure (event);
         if (gst_structure_has_name (resst, "facenet-detection")) {
           GstMapInfo info;
-          const GValue *idx = gst_structure_get_value (resst, "idx");
-          const GValue *faceinfo = gst_structure_get_value (resst, "faceinfo");
-          guint64 frameidx = g_value_get_uint64 (idx);
-          GstBuffer *faceinfobuf = gst_value_get_buffer (faceinfo);
+          const GValue *gval;
+          gval = gst_structure_get_value (resst, "faceindex");
+          gint faceindex = g_value_get_int (gval);
+          gval = gst_structure_get_value (resst, "totalfaces");
+          gint totalfaces = g_value_get_int (gval);
+          gval = gst_structure_get_value (resst, "frameid");
+          guint64 frameidx = g_value_get_uint64 (gval);
+          gval = gst_structure_get_value (resst, "faceinfo");
+          GstBuffer *faceinfobuf = gst_value_get_buffer (gval);
           struct FaceNetEventBuffer *fr =
             (struct FaceNetEventBuffer *)g_malloc (sizeof(struct FaceNetEventBuffer));
 
@@ -871,11 +907,20 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
             new_result->data = fr;
             list_init (&new_result->list);
             g_mutex_lock (&overlay->facenet_list_mutex);
+            if (overlay->timer_facenet_list_clean) {
+              g_source_remove (overlay->timer_facenet_list_clean);
+            }
             // cleanup the old entries
-            cleanup_facenet_list (overlay, frameidx);
+            if (faceindex == totalfaces) {
+              cleanup_facenet_list (overlay, frameidx);
+            }
             // add newest entries
             list_add_tail (&overlay->facenet_list, &new_result->list);
             g_mutex_unlock (&overlay->facenet_list_mutex);
+
+            overlay->timer_facenet_list_clean =
+              g_timeout_add (DETECT_RESULT_KEEP_MS,
+                  (GSourceFunc) timeout_cleanup_facenet_list, (gpointer) overlay);
           }
 
           gst_event_unref (event);
@@ -909,11 +954,17 @@ gst_aml_overlay_event (GstBaseTransform * base, GstEvent *event)
             new_result->pt = pt;
             list_init (&new_result->list);
             g_mutex_lock (&overlay->nn_list_mutex);
+            if (overlay->timer_nn_list_clean) {
+              g_source_remove (overlay->timer_nn_list_clean);
+            }
             // cleanup the old entries
             cleanup_nn_list (overlay);
             // add newest entries
             list_add_tail (&overlay->nn_list, &new_result->list);
             g_mutex_unlock (&overlay->nn_list_mutex);
+            overlay->timer_nn_list_clean =
+              g_timeout_add (DETECT_RESULT_KEEP_MS,
+                  (GSourceFunc) timeout_cleanup_nn_list, (gpointer) overlay);
           }
 
           gst_event_unref (event);
@@ -1136,17 +1187,14 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
         list_for_each (pos, &overlay->nn_list) {
           struct NNResult *im =
             list_entry (pos, struct NNResult, list);
-          if (im->frameidx >= overlay->framenum ||
-              overlay->framenum - im->frameidx < DETECT_DELAY_FRAMES) {
-            for (gint i = 0; i < im->detect_num; i++) {
-              struct RelativePos *pt = &im->pt[i];
-              overlay_draw_rect(
-                  (gint)(pt->x0 * info->width),
-                  (gint)(pt->y0 * info->height),
-                  (gint)((pt->x1 - pt->x0) * info->width),
-                  (gint)((pt->y1 - pt->y0) * info->height),
-                  5, overlay->nn_rectcolor);
-            }
+          for (gint i = 0; i < im->detect_num; i++) {
+            struct RelativePos *pt = &im->pt[i];
+            overlay_draw_rect(
+                (gint)(pt->x0 * info->width),
+                (gint)(pt->y0 * info->height),
+                (gint)((pt->x1 - pt->x0) * info->width),
+                (gint)((pt->y1 - pt->y0) * info->height),
+                5, overlay->nn_rectcolor);
           }
         }
       }
@@ -1169,28 +1217,25 @@ gst_aml_overlay_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
         list_for_each (pos, &overlay->facenet_list) {
           struct FaceNetResult *im =
             list_entry (pos, struct FaceNetResult, list);
-          if (im->frameidx >= overlay->framenum ||
-              overlay->framenum - im->frameidx < DETECT_DELAY_FRAMES) {
-            struct RelativePos *pt = &im->data->pos;
-            overlay_draw_rect(
-                (gint)(pt->x0 * info->width),
-                (gint)(pt->y0 * info->height),
-                (gint)((pt->x1 - pt->x0) * info->width),
-                (gint)((pt->y1 - pt->y0) * info->height),
-                5, overlay->facenet_rectcolor);
+          struct RelativePos *pt = &im->data->pos;
+          overlay_draw_rect(
+              (gint)(pt->x0 * info->width),
+              (gint)(pt->y0 * info->height),
+              (gint)((pt->x1 - pt->x0) * info->width),
+              (gint)((pt->y1 - pt->y0) * info->height),
+              5, overlay->facenet_rectcolor);
 
 
-            if (im->data->info && strlen(im->data->info) > 0) {
-              gchar* txt = g_strdup (im->data->info);
-              gint x = (gint)(pt->x0 * info->width) + overlay->facenet_fontsize * 2;
-              gint y = (gint)(pt->y0 * info->height) + overlay->facenet_fontsize;
-              overlay->facenet_text_surface =
-                overlay_create_text_surface (txt, overlay->facenet_font, overlay->facenet_fontcolor, 0);
-              g_free(txt);
-              overlay_draw_surface (overlay->facenet_text_surface, x, y);
-              overlay_destroy_surface (overlay->facenet_text_surface);
-              overlay->facenet_text_surface = NULL;
-            }
+          if (im->data->info && strlen(im->data->info) > 0) {
+            gchar* txt = g_strdup (im->data->info);
+            gint x = (gint)(pt->x0 * info->width) + 2;
+            gint y = (gint)(pt->y0 * info->height) + 2;
+            overlay->facenet_text_surface =
+              overlay_create_text_surface (txt, overlay->facenet_font, overlay->facenet_fontcolor, 0);
+            g_free(txt);
+            overlay_draw_surface (overlay->facenet_text_surface, x, y);
+            overlay_destroy_surface (overlay->facenet_text_surface);
+            overlay->facenet_text_surface = NULL;
           }
         }
       }

@@ -58,27 +58,16 @@ struct RelativePos {
 
 struct FaceInput {
   struct listnode list;
+  gint face_idx;   // face index
+  gint total_faces; // total faces in this frame
   guint64 frameidx;
   struct RelativePos pos;
   char *faceimg;
-};
-
-struct FaceNetInput {
-  struct listnode list;
-  guint64 frameidx;
-  struct RelativePos pos;
-  char *faceimg;
-};
-
-struct FaceNetResult {
-  struct listnode list;
-  guint64 frameidx;
-  struct RelativePos pos;
-  char *faceimg;
-  float result[128];
 };
 
 struct FaceNetDBResult {
+  gint face_idx;
+  gint total_faces;
   guint64 frameidx;
   struct RelativePos pos;
   char *info;
@@ -163,10 +152,9 @@ static gboolean gst_aml_facenet_set_caps (GstBaseTransform * base,
 static gboolean gst_aml_facenet_event(GstBaseTransform * base, GstEvent *event);
 
 static void cleanup_nn_event_list (GstAmlFacenet *filter, guint64 frameidx);
+static void cleanup_face_list (GstAmlFacenet *filter, guint64 frameidx);
 
-static gpointer facenet_input_process (void *data);
-static gpointer facenet_result_process (void *data);
-static gpointer facenet_db_process (void *data);
+static gpointer facenet_process (void *data);
 /* GObject vmethod implementations */
 
 /* initialize the amlfacenet's class */
@@ -258,13 +246,13 @@ thread_join (GstAmlFacenetThreadInfo *t) {
 static void
 open_facenet_db (GstAmlFacenet *filter) {
   if (filter->dbfile[0] == '\0') return;
-  g_mutex_lock (&filter->procinfo_facenet_db.mutex);
+  g_mutex_lock (&filter->procinfo_facenet.mutex);
   if (filter->db_handle) {
     db_deinit (filter->db_handle);
   }
   filter->db_handle = db_init (filter->dbfile);
   db_set_threshold (filter->threshold);
-  g_mutex_unlock (&filter->procinfo_facenet_db.mutex);
+  g_mutex_unlock (&filter->procinfo_facenet.mutex);
 }
 
 
@@ -281,18 +269,11 @@ gst_aml_facenet_init (GstAmlFacenet *filter)
   filter->string_format = g_strdup (DEFAULT_PROP_FORMAT);
   filter->b_store_face = DEFAULT_PROP_STORE_FACE;
   filter->threshold = DEFAULT_PROP_THRESHOLD;
-  filter->is_facenet_proceeding = FALSE;
   filter->framenum = 0;
 
   list_init (&filter->face_list);
-  list_init (&filter->facenet_ilist);
-  list_init (&filter->facenet_rlist);
-
 
   thread_init (&filter->procinfo_facenet);
-  thread_init (&filter->procinfo_facenet_result);
-  thread_init (&filter->procinfo_facenet_db);
-  thread_init (&filter->procinfo_grabface);
 
   list_init (&filter->nn_event_list);
   g_mutex_init (&filter->nn_event_list_mutex);
@@ -380,44 +361,14 @@ gst_aml_facenet_open (GstBaseTransform * base)
       &filter->model_width, &filter->model_height, &filter->model_channel);
 
   filter->_running = TRUE;
-  filter->procinfo_facenet.thread = g_thread_new ("facenet set input", facenet_input_process, filter);
-  filter->procinfo_facenet_result.thread = g_thread_new ("facenet wait result", facenet_result_process, filter);
-  filter->procinfo_facenet_db.thread = g_thread_new ("facenet search db", facenet_db_process, filter);
+  filter->procinfo_facenet.thread = g_thread_new ("facenet_process", facenet_process, filter);
 
   return TRUE;
 }
 
 static void
 release_lists (GstAmlFacenet *filter) {
-  struct listnode *pos, *q;
-  if (!list_empty (&filter->face_list)) {
-    list_for_each_safe (pos, q, &filter->face_list) {
-      struct FaceInput *im =
-        list_entry (pos, struct FaceInput, list);
-      list_remove (pos);
-      if (im->faceimg) g_free (im->faceimg);
-      g_free (im);
-    }
-  }
-  if (!list_empty (&filter->facenet_ilist)) {
-    list_for_each_safe (pos, q, &filter->facenet_ilist) {
-      struct FaceNetInput *im =
-        list_entry (pos, struct FaceNetInput, list);
-      list_remove (pos);
-      if (im->faceimg) g_free (im->faceimg);
-      g_free (im);
-    }
-  }
-  if (!list_empty (&filter->facenet_rlist)) {
-    list_for_each_safe (pos, q, &filter->facenet_ilist) {
-      struct FaceNetResult *im =
-        list_entry (pos, struct FaceNetResult, list);
-      list_remove (pos);
-      if (im->faceimg) g_free (im->faceimg);
-      g_free (im);
-    }
-  }
-
+  cleanup_face_list (filter, 0);
   cleanup_nn_event_list (filter, 0);
 }
 
@@ -428,15 +379,9 @@ gst_aml_facenet_close (GstBaseTransform * base)
 
   filter->_running = FALSE;
 
-  thread_release (&filter->procinfo_facenet_db);
-  thread_release (&filter->procinfo_facenet_result);
   thread_release (&filter->procinfo_facenet);
-  thread_release (&filter->procinfo_grabface);
 
-  thread_join (&filter->procinfo_facenet_db);
-  thread_join (&filter->procinfo_facenet_result);
   thread_join (&filter->procinfo_facenet);
-  thread_join (&filter->procinfo_grabface);
 
   if (det_release_model (filter->model_type) != DET_STATUS_OK) {
     return FALSE;
@@ -492,8 +437,7 @@ cleanup_nn_event_list (GstAmlFacenet *filter, guint64 frameidx) {
     list_for_each_safe (pos, q, &filter->nn_event_list) {
       struct NNResult *im =
         list_entry (pos, struct NNResult, list);
-      if (frameidx < im->frameidx ||
-          frameidx - im->frameidx > 1) {
+      if (frameidx != im->frameidx) {
         list_remove (pos);
         if (im->pt) g_free (im->pt);
         g_free (im);
@@ -535,6 +479,8 @@ gst_aml_facenet_event (GstBaseTransform * base, GstEvent *event)
             new_result->pt = pt;
             list_init (&new_result->list);
             g_mutex_lock (&filter->nn_event_list_mutex);
+            // cleanup the old entries
+            cleanup_nn_event_list (filter, frameidx);
             // add newest entries
             list_add_tail (&filter->nn_event_list, &new_result->list);
             g_mutex_unlock (&filter->nn_event_list_mutex);
@@ -567,7 +513,9 @@ push_result (GstBaseTransform *base, struct FaceNetDBResult *result)
     gst_buffer_unmap (resbuf, &info);
 
     GstStructure *resst = gst_structure_new ("facenet-detection",
-        "idx", G_TYPE_UINT64, result->frameidx,
+        "faceindex", G_TYPE_INT, result->face_idx,
+        "totalfaces", G_TYPE_INT, result->total_faces,
+        "frameid", G_TYPE_UINT64, result->frameidx,
         "faceinfo", GST_TYPE_BUFFER, resbuf,
         NULL);
 
@@ -581,132 +529,41 @@ push_result (GstBaseTransform *base, struct FaceNetDBResult *result)
 
 }
 
-static gpointer
-facenet_db_process (void *data) {
-  GstAmlFacenet *filter = (GstAmlFacenet *)data;
-  // set database
-
-  while (filter->_running) {
-    g_mutex_lock (&filter->procinfo_facenet_result.mutex);
-    if (list_empty (&filter->facenet_rlist)) {
-      g_cond_wait (&filter->procinfo_facenet_result.cond, &filter->procinfo_facenet_result.mutex);
+static void
+cleanup_face_list (GstAmlFacenet *filter, guint64 frameidx) {
+  struct listnode *pos, *q;
+  if (!list_empty (&filter->face_list)) {
+    list_for_each_safe (pos, q, &filter->face_list) {
+      struct FaceInput *im =
+        list_entry (pos, struct FaceInput, list);
+      if (frameidx != im->frameidx) {
+        list_remove (pos);
+        if (im->faceimg) free (im->faceimg);
+        g_free (im);
+      }
     }
-
-    if (list_empty (&filter->facenet_rlist)) {
-      g_mutex_unlock (&filter->procinfo_facenet_result.mutex);
-      continue;
-    }
-
-    struct listnode *node = list_head (&filter->facenet_rlist);
-    list_remove (node);
-    g_mutex_unlock (&filter->procinfo_facenet_result.mutex);
-
-    struct FaceNetResult *item =
-      list_entry (node, struct FaceNetResult, list);
-
-#define FACE_INFO_BUFSIZE 1024
-    char *buf = (char *) g_malloc (FACE_INFO_BUFSIZE);
-    struct FaceNetDBResult result;
-
-    result.frameidx = item->frameidx;
-    result.pos = item->pos;
-    result.info = NULL;
-    g_mutex_lock (&filter->procinfo_facenet_db.mutex);
-    GST_INFO_OBJECT (filter, "looking up db");
-    int rc = db_search_result(filter->db_handle, item->result,
-          filter->b_store_face ? item->faceimg : NULL,
-          filter->model_width, filter->model_height,
-          filter->string_format, buf, FACE_INFO_BUFSIZE);
-    GST_INFO_OBJECT (filter, "looking up db done");
-    g_mutex_unlock (&filter->procinfo_facenet_db.mutex);
-
-    if (rc == 0) {
-      result.info = buf;
-    }
-
-    push_result (&filter->element, &result);
-
-    g_free (buf);
-    if (item->faceimg) g_free (item->faceimg);
-    g_free (item);
   }
-
-  return NULL;
-
 }
 
 static gpointer
-facenet_result_process (void *data) {
-  DetectResult result;
+facenet_process (void *data) {
   GstAmlFacenet *filter = (GstAmlFacenet *)data;
 
   while (filter->_running) {
     g_mutex_lock (&filter->procinfo_facenet.mutex);
-    if (list_empty (&filter->facenet_ilist)) {
+
+    if (list_empty (&filter->face_list)) {
       g_cond_wait (&filter->procinfo_facenet.cond, &filter->procinfo_facenet.mutex);
     }
 
-    if (list_empty (&filter->facenet_ilist)) {
-      g_mutex_unlock (&filter->procinfo_facenet.mutex);
-      continue;
-    }
-
-    struct listnode *node = list_head (&filter->facenet_ilist);
-    list_remove (node);
-
-    struct FaceNetInput *item =
-      list_entry (node, struct FaceNetInput, list);
-
-    GST_INFO_OBJECT (filter, "waiting for result");
-    det_status_t rc = det_get_result(&result, filter->model_type);
-    GST_INFO_OBJECT (filter, "result got");
-    filter->is_facenet_proceeding = FALSE;
-    g_mutex_unlock (&filter->procinfo_facenet.mutex);
-
-    if (rc == DET_STATUS_OK) {
-      g_mutex_lock (&filter->procinfo_facenet_result.mutex);
-      // add result to list
-      struct FaceNetResult *newitem =
-        (struct FaceNetResult*) g_malloc (sizeof (struct FaceNetResult));
-
-      newitem->frameidx = item->frameidx;
-      newitem->pos = item->pos;
-      newitem->faceimg = item->faceimg;
-      g_memmove (newitem->result, result.facenet_result, sizeof(newitem->result));
-
-      list_init (&newitem->list);
-      list_add_tail (&filter->facenet_rlist, &newitem->list);
-
-      g_cond_signal (&filter->procinfo_facenet_result.cond);
-      g_mutex_unlock (&filter->procinfo_facenet_result.mutex);
-    }
-    g_free (item);
-
-  }
-
-  return NULL;
-}
-
-static gpointer
-facenet_input_process (void *data) {
-  GstAmlFacenet *filter = (GstAmlFacenet *)data;
-
-  while (filter->_running) {
-    g_mutex_lock (&filter->procinfo_grabface.mutex);
-
     if (list_empty (&filter->face_list)) {
-      g_cond_wait (&filter->procinfo_grabface.cond, &filter->procinfo_grabface.mutex);
-    }
-
-    if (list_empty (&filter->face_list) ||
-        filter->is_facenet_proceeding) {
-      g_mutex_unlock (&filter->procinfo_grabface.mutex);
+      g_mutex_unlock (&filter->procinfo_facenet.mutex);
       continue;
     }
 
     struct listnode *node = list_head (&filter->face_list);
     list_remove (node);
-    g_mutex_unlock (&filter->procinfo_grabface.mutex);
+    g_mutex_unlock (&filter->procinfo_facenet.mutex);
 
     struct FaceInput *item =
       list_entry (node, struct FaceInput, list);
@@ -717,25 +574,43 @@ facenet_input_process (void *data) {
     im.height = filter->model_height;
     im.channel = filter->model_channel;
 
-    if (g_mutex_trylock (&filter->procinfo_facenet.mutex)) {
-      if (det_set_input (im, filter->model_type) == DET_STATUS_OK) {
-        filter->is_facenet_proceeding = TRUE;
-
-        struct FaceNetInput *newitem =
-          (struct FaceNetInput*) g_malloc (sizeof (struct FaceNetInput));
-
-        newitem->frameidx = item->frameidx;
-        newitem->pos = item->pos;
-        newitem->faceimg = item->faceimg;
-
-        list_init (&newitem->list);
-        list_add_tail (&filter->facenet_ilist, &newitem->list);
-
-        g_cond_signal (&filter->procinfo_facenet.cond);
-        g_mutex_unlock (&filter->procinfo_facenet.mutex);
-      }
+    det_status_t rc = det_set_input (im, filter->model_type);
+    if (rc != DET_STATUS_OK) {
+      goto continue_loop;
     }
 
+    DetectResult fn_res;
+    rc = det_get_result(&fn_res, filter->model_type);
+    if (rc != DET_STATUS_OK) {
+      goto continue_loop;
+    }
+
+    struct FaceNetDBResult db_result;
+
+    db_result.face_idx = item->face_idx;
+    db_result.total_faces = item->total_faces;
+    db_result.frameidx = item->frameidx;
+    db_result.pos = item->pos;
+    db_result.info = NULL;
+
+#define FACE_INFO_BUFSIZE 1024
+    char *buf = (char *) g_malloc (FACE_INFO_BUFSIZE);
+    int db_ret = db_search_result(filter->db_handle, fn_res.facenet_result,
+        filter->b_store_face ? item->faceimg : NULL,
+        filter->model_width, filter->model_height,
+        filter->string_format, buf, FACE_INFO_BUFSIZE);
+
+    if (db_ret == 0) {
+      db_result.info = buf;
+    }
+
+    if (filter->_running) {
+      push_result (&filter->element, &db_result);
+    }
+    if (buf) g_free(buf);
+
+continue_loop:
+    if (item->faceimg) free (item->faceimg);
     g_free (item);
   }
 
@@ -761,8 +636,6 @@ gst_aml_facenet_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
   filter->framenum ++;
 
   g_mutex_lock (&filter->nn_event_list_mutex);
-  // cleanup the old entries
-  cleanup_nn_event_list (filter, filter->framenum);
 
   if (list_empty (&filter->nn_event_list)) {
     g_mutex_unlock (&filter->nn_event_list_mutex);
@@ -773,45 +646,46 @@ gst_aml_facenet_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
   list_remove (node);
   g_mutex_unlock (&filter->nn_event_list_mutex);
 
+
   struct NNResult *item =
     list_entry (node, struct NNResult, list);
 
   if (item->detect_num > 0) {
-    GstVideoInfo *info = &filter->info;
-    GstMapInfo outbuf_info;
-    if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
-      for (int i = 0; i < item->detect_num; i++) {
-        struct RelativePos *pos = &item->pt[i];
-        struct FaceInput *newitem =
-          (struct FaceInput *) g_malloc (sizeof(struct FaceInput));
-        newitem->frameidx = filter->framenum;
-        newitem->pos = *pos;
+    if (g_mutex_trylock (&filter->procinfo_facenet.mutex)) {
+      if (list_empty (&filter->face_list)) {
+        GstVideoInfo *info = &filter->info;
+        GstMapInfo outbuf_info;
+        if (gst_buffer_map (outbuf, &outbuf_info, GST_MAP_READ)) {
+          int det_num = item->detect_num;
+          for (int i = 0; i < det_num; i++) {
+            struct RelativePos *pos = &item->pt[i];
+            struct FaceInput *newitem =
+              (struct FaceInput *) g_malloc (sizeof(struct FaceInput));
+            newitem->frameidx = filter->framenum;
+            newitem->pos = *pos;
+            newitem->face_idx = i + 1;
+            newitem->total_faces = det_num;
 
-        int x0, y0, x1, y1;
-        x0 = (int)(pos->x0 * info->width);
-        y0 = (int)(pos->y0 * info->height);
-        x1 = (int)(pos->x1 * info->width);
-        y1 = (int)(pos->y1 * info->height);
+            int x0, y0, x1, y1;
+            x0 = (int)(pos->x0 * info->width);
+            y0 = (int)(pos->y0 * info->height);
+            x1 = (int)(pos->x1 * info->width);
+            y1 = (int)(pos->y1 * info->height);
 
-        frmcrop_init ();
+            frmcrop_init ();
 
-        newitem->faceimg = frmcrop_begin (outbuf_info.data,
-            info->width, info->height, x0, y0, x1, y1,
-            filter->model_width, filter->model_height);
-        list_init (&newitem->list);
-
-        if (g_mutex_trylock (&filter->procinfo_grabface.mutex)) {
-          list_add_tail (&filter->face_list, &newitem->list);
-          g_cond_signal (&filter->procinfo_grabface.cond);
-          g_mutex_unlock (&filter->procinfo_grabface.mutex);
-        } else {
-          g_free (newitem->faceimg);
-          g_free (newitem);
+            newitem->faceimg = frmcrop_begin (outbuf_info.data,
+                info->width, info->height, x0, y0, x1, y1,
+                filter->model_width, filter->model_height);
+            list_init (&newitem->list);
+            list_add_tail (&filter->face_list, &newitem->list);
+          }
+          frmcrop_end ();
+          gst_buffer_unmap (outbuf, &outbuf_info);
         }
-
+        g_cond_signal (&filter->procinfo_facenet.cond);
       }
-      frmcrop_end ();
-      gst_buffer_unmap (outbuf, &outbuf_info);
+      g_mutex_unlock (&filter->procinfo_facenet.mutex);
     }
   }
 
