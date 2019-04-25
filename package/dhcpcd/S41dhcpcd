@@ -11,15 +11,8 @@ PIDFILE=/var/run/dhcpcd.pid
 
 case "$1" in
   start)
-    {
-        while [ $(ps | grep "S40network start" | wc -l) -gt 1 ];
-        do
-            echo "$0 is waiting for S40network to be ready"
-            usleep 200000
-        done
 	echo "Starting dhcpcd..."
 	start-stop-daemon -S -x "$DAEMON" -p "$PIDFILE" -- -f "$CONFIG"
-    }&
 	;;
   stop)
 	echo "Stopping dhcpcd..."
