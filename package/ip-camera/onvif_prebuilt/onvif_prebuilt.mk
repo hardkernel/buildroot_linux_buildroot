@@ -31,6 +31,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	mkdir -p $(ONVIF_PREBUILT_DIRECTORY)/usr/lib/gstreamer-1.0/
 
 	cp -a $(TARGET_DIR)/etc/ipc.json $(ONVIF_PREBUILT_DIRECTORY)/etc/
+	cp -a $(TARGET_DIR)/etc/onvif    $(ONVIF_PREBUILT_DIRECTORY)/etc/
 	cp -a $(TARGET_DIR)/etc/init.d/S80ipc-property-service $(ONVIF_PREBUILT_DIRECTORY)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_rtsp $(ONVIF_PREBUILT_DIRECTORY)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_srvd $(ONVIF_PREBUILT_DIRECTORY)/etc/init.d/
@@ -48,6 +49,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlnn.so $(ONVIF_PREBUILT_DIRECTORY)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamloverlay.so $(ONVIF_PREBUILT_DIRECTORY)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvenc.so $(ONVIF_PREBUILT_DIRECTORY)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlfacenet.so $(ONVIF_PREBUILT_DIRECTORY)/usr/lib/gstreamer-1.0/
 
 	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH).tgz -C $(ONVIF_PREBUILT_SITE) $(ONVIF_ARCH)
 endef
