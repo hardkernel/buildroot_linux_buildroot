@@ -244,13 +244,13 @@ void *overlay_create_image_surface(const char* img, int width, int height) {
 
   if (provider == NULL) return NULL;
 
-  if (width == -1 || height == -1) {
-    DFBCHECK (provider->GetSurfaceDescription (provider, &desc));
-  } else {
+  if (width >0 && height > 0) {
     desc.flags = DSDESC_PIXELFORMAT | DSDESC_WIDTH | DSDESC_HEIGHT;
     desc.pixelformat = DSPF_ARGB;
     desc.width = width;
     desc.height = height;
+  } else {
+    DFBCHECK (provider->GetSurfaceDescription (provider, &desc));
   }
   DFBCHECK (dfb->CreateSurface (dfb, &desc, &img_surface));
   DFBCHECK (provider->RenderTo (provider, img_surface, NULL));
