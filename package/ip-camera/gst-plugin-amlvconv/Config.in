@@ -1,0 +1,5 @@
+config BR2_PACKAGE_GST_PLUGIN_AMLVCONV
+	bool "Amlogic gstream1 video convert/resize plugin"
+	select BR2_PACKAGE_AML_LIBGE2D
+	help
+	  gstreamer 1.0 plugins
