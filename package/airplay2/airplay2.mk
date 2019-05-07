@@ -24,10 +24,6 @@ AIRPLAY2_LOCAL_SRC = $(wildcard $(TOPDIR)/../vendor/amlogic/airplayv2/airplayv2)
 AIRPLAY2_LOCAL_PREBUILT = $(wildcard $(TOPDIR)/../vendor/amlogic/airplayv2/airplayv2_prebuilt)
 AIRPLAY2_PREBUILT_DIRECTORY = $(call qstrip,$(BR2_ARCH)).$(call qstrip,$(BR2_GCC_TARGET_ABI)).$(call qstrip,$(BR2_GCC_TARGET_FLOAT_ABI))
 
-ifeq ($(or $(AIRPLAY2_LOCAL_SRC),$(AIRPLAY2_LOCAL_PREBUILT)),)
-$(error Neither AIRPLAY2_LOCAL_SRC nor AIRPLAY2_LOCAL_PREBUILT exists)
-endif
-
 ifneq ($(AIRPLAY2_LOCAL_SRC),)
 AIRPLAY2_SITE=$(AIRPLAY2_LOCAL_SRC)
 define AIRPLAY2_BUILD_CMDS
