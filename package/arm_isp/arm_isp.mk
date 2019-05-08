@@ -57,8 +57,10 @@ endef
 
 ifeq ($(BR2_aarch64), y)
 ARM_ISP_SERVER_BIN = $(@D)/lib/lib64/iv009_isp_64.elf
-else
+else ifeq ($(BR2_ARM_KERNEL_32), y)
 ARM_ISP_SERVER_BIN = $(@D)/lib/lib32/iv009_isp_32.elf
+else
+ARM_ISP_SERVER_BIN = $(@D)/lib/lib32_64/iv009_isp_u32_k64.elf
 endif
 
 define ARM_ISP_INSTALL_TARGET_CMDS
