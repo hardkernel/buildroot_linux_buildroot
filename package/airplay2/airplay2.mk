@@ -23,6 +23,7 @@ AIRPLAY2_MAKE_OPTS += EXT_INCLUDES="-I$(STAGING_DIR)/usr/include/alsa -I$(STAGIN
 AIRPLAY2_LOCAL_SRC = $(wildcard $(TOPDIR)/../vendor/amlogic/airplayv2/airplayv2)
 AIRPLAY2_LOCAL_PREBUILT = $(wildcard $(TOPDIR)/../vendor/amlogic/airplayv2/airplayv2_prebuilt)
 AIRPLAY2_PREBUILT_DIRECTORY = $(call qstrip,$(BR2_ARCH)).$(call qstrip,$(BR2_GCC_TARGET_ABI)).$(call qstrip,$(BR2_GCC_TARGET_FLOAT_ABI))
+AIRPLAY2_SITE=$(AIRPLAY2_LOCAL_PREBUILT)
 
 ifneq ($(AIRPLAY2_LOCAL_SRC),)
 AIRPLAY2_SITE=$(AIRPLAY2_LOCAL_SRC)
