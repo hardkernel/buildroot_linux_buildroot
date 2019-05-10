@@ -160,9 +160,15 @@
         },
         "scopes": [
             "onvif://www.onvif.org/name/TestDev",
-            "onvif://www.onvif.org/location/Unknowx",
+            "onvif://www.onvif.org/location/Unknown",
+            "onvif://www.onvif.org/hardware/w411",
             "onvif://www.onvif.org/Profile/Streaming",
-            "onvif://www.onvif.org/Profile/S"
+            "onvif://www.onvif.org/type/video_encoder",
+            "onvif://www.onvif.org/type/audio_encoder",
+            "onvif://www.onvif.org/type/NetworkVideoTransmitter",
+            "onvif://www.onvif.org/Profile/S",
+            "onvif://www.onvif.org/Profile/G",
+            "onvif://www.onvif.org/Profile/T"
         ],
         "users": [
             {
