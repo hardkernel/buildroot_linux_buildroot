@@ -122,6 +122,7 @@ endif
 
 define AMLOGIC_LIBDRM_ADD
 	cp -af $(TOPDIR)/../vendor/amlogic/libdrm_amlogic/meson_drm.h $(STAGING_DIR)/usr/include/libdrm/
+	cp -af $(TOPDIR)/../vendor/amlogic/libdrm_amlogic/drm_fourcc.h $(STAGING_DIR)/usr/include/libdrm/
 endef
 
 LIBDRM_POST_INSTALL_STAGING_HOOKS += AMLOGIC_LIBDRM_ADD
