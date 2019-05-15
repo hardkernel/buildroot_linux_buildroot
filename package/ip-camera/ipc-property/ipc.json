@@ -52,6 +52,12 @@
             "encoding": "PCMU",
             "device": ""
         },
+        "substream": {
+            "enabled": false,
+            "bitrate": 500,
+            "codec": "h265",
+            "resolution": "704x576"
+        },
         "nn": {
             "detection": {
                 "enabled": true,
@@ -191,7 +197,8 @@
         "network": {
             "address": "0.0.0.0",
             "port": 554,
-            "route": "/live.sdp"
+            "route": "/live.sdp",
+            "subroute": "/sub.sdp"
         },
         "auth": {
             "username": "",
