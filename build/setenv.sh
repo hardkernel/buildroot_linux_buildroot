@@ -9,6 +9,8 @@ BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
 DEFCONFIG_ARRAY=(
     "mesontm2_ab311_release"
+    "mesonsm1_ac200_32_release"
+    "mesonsm1_ac213_32_release"
     "mesontl1_x301_32_release"
     "mesontl1_x301_release"
     "mesong12b_skt_release"
