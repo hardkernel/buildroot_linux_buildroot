@@ -65,6 +65,12 @@ if [ -f $1/etc/init.d/S44bluetooth ]; then
 	sed -i '/while [ $cnt -lt 10 ]/,/done/d' $1/etc/init.d/S44bluetooth
 fi
 
+# Change S82airplay2 to fit for this project
+echo "change /etc/init.d/S82airplay2 to fit for this project"
+if [ -f $1/etc/init.d/S82airplay2 ] ; then
+	sed -i 's/OPTIONS=.*/OPTIONS=\"-D dmixer_avs_auto --ipc-client \/tmp\/homeapp_airplay --mfi-proxy 192.168.11.11 --mfi-port 50001\"/' $1/etc/init.d/S82airplay2
+fi
+
 # Switch asound.conf
 rm -frv $1/etc/asound.conf
 mv $1/etc/asound.conf_avs $1/etc/asound.conf
