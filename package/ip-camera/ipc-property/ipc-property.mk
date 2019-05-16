@@ -5,7 +5,7 @@
 #############################################################
 
 IPC_PROPERTY_VERSION = 1.0
-IPC_PROPERTY_SITE = $(TOPDIR)/../vendor/amlogic/onvif/ipc_property
+IPC_PROPERTY_SITE = $(TOPDIR)/../vendor/amlogic/ipc/ipc_property
 IPC_PROPERTY_SITE_METHOD = local
 IPC_PROPERTY_DEPENDENCIES = ipc-property-json
 IPC_PROPERTY_INSTALL_STAGING = YES

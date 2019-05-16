@@ -5,7 +5,7 @@
 #############################################################
 
 ONVIF_ARCH=arm64
-ONVIF_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/onvif/onvif_prebuilt
+ONVIF_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_prebuilt
 ONVIF_PREBUILT_SITE_METHOD = local
 ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_ARCH)/
 

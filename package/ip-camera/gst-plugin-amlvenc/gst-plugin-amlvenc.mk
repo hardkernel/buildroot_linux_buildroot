@@ -5,7 +5,7 @@
 ################################################################################
 
 GST_PLUGIN_AMLVENC_VERSION = 1.0
-GST_PLUGIN_AMLVENC_SITE = $(GST_PLUGIN_AMLVENC_PKGDIR)/gst-plugin-amlvenc-$(GST_PLUGIN_AMLVENC_VERSION)
+GST_PLUGIN_AMLVENC_SITE = $(TOPDIR)/../vendor/amlogic/ipc/ipc_plugins/gst-plugin-amlvenc-$(GST_PLUGIN_AMLVENC_VERSION)
 GST_PLUGIN_AMLVENC_SITE_METHOD = local
 GST_PLUGIN_AMLVENC_LICENSE = LGPL
 GST_PLUGIN_AMLVENC_INSTALL_STAGING = YES

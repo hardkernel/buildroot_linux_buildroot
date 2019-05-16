@@ -5,7 +5,7 @@
 ################################################################################
 
 GST_PLUGIN_AMLIMGCAP_VERSION = 1.0
-GST_PLUGIN_AMLIMGCAP_SITE = $(GST_PLUGIN_AMLIMGCAP_PKGDIR)/gst-plugin-amlimgcap-$(GST_PLUGIN_AMLIMGCAP_VERSION)
+GST_PLUGIN_AMLIMGCAP_SITE = $(TOPDIR)/../vendor/amlogic/ipc/ipc_plugins/gst-plugin-amlimgcap-$(GST_PLUGIN_AMLIMGCAP_VERSION)
 GST_PLUGIN_AMLIMGCAP_SITE_METHOD = local
 GST_PLUGIN_AMLIMGCAP_LICENSE = LGPL
 GST_PLUGIN_AMLIMGCAP_INSTALL_STAGING = YES

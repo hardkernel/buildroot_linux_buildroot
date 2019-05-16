@@ -16,7 +16,7 @@ ONVIF_SRVD_SITE = $(call github,KoynovStas,onvif_srvd,$(ONVIF_SRVD_VERSION))
 ONVIF_SRVD_SDK_VERSION = 2.8.65
 ONVIF_SRVD_EXTRA_DOWNLOADS = https://sourceforge.net/projects/gsoap2/files/gsoap-2.8/gsoap_$(ONVIF_SRVD_SDK_VERSION).zip
 
-ONVIF_SRVD_INTERNAL_SITE = $(TOPDIR)/../vendor/amlogic/onvif/onvif_srvd
+ONVIF_SRVD_INTERNAL_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_srvd
 
 define ONVIF_SRVD_COPY_SDK
 	mkdir -p $(@D)/SDK
