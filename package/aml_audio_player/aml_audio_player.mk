@@ -6,7 +6,7 @@
 #
 #############################################################
 AML_AUDIO_PLAYER_VERSION = 1.0
-AML_AUDIO_PLAYER_SITE = $(TOPDIR)/package/aml_audio_player/src
+AML_AUDIO_PLAYER_SITE = $(TOPDIR)/../vendor/amlogic/aml_audio_player
 AML_AUDIO_PLAYER_SITE_METHOD = local
 AML_AUDIO_PLAYER_DEPENDENCIES = ffmpeg
 
