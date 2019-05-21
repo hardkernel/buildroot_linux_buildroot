@@ -56,6 +56,8 @@ menu "amlogic"
 endmenu
 
 menu "Audio and video applications"
+    source "package/aamp/Config.in"
+    source "package/aampabr/Config.in"
 	source "package/arm_isp/Config.in"
 	source "package/media_modules/Config.in"
 	source "../multimedia/Config.in"
@@ -396,6 +398,11 @@ endif
 	source "package/weston/Config.in"
 	source "package/wpe-launcher/Config.in"
 	source "package/x11r7/Config.in"
+    source "package/westeros/Config.in"
+    source "package/westeros-simplebuffer/Config.in"
+    source "package/westeros-simpleshell/Config.in"
+    source "package/westeros-soc/Config.in"
+    source "package/westeros-sink/Config.in"
 
 comment "X applications"
 	depends on BR2_PACKAGE_XORG7
@@ -1543,6 +1550,7 @@ menu "Logging"
 endmenu
 
 menu "Multimedia"
+    source "package/libdash/Config.in"
 	source "package/bitstream/Config.in"
 	source "package/kvazaar/Config.in"
 	source "package/libaacs/Config.in"
