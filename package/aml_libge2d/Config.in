@@ -1,0 +1,5 @@
+config BR2_PACKAGE_AML_LIBGE2D
+    bool "GE2D library"
+    select BR2_PACKAGE_AML_LIBION
+    help
+        Support AML GE2D library
