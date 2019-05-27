@@ -49,6 +49,8 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamloverlay.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvenc.so       $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlfacenet.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
 
 	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH).tgz -C $(@D) $(ONVIF_ARCH)
 endef
