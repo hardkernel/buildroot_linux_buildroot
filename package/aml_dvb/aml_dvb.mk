@@ -20,6 +20,7 @@ endef
 define AML_DVB_INSTALL_STAGING_CMDS
 	$(INSTALL) -D -m 0644 $(@D)/am_adp/libam_adp.so $(STAGING_DIR)/usr/lib/
 	cp -rf $(@D)/include/am_adp $(STAGING_DIR)/usr/include/
+	cp -rf $(@D)/include/am_mw  $(STAGING_DIR)/usr/include/
 endef
 
 define AML_DVB_CLEAN_CMDS
