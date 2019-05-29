@@ -16,6 +16,12 @@ pcm.microphone {
     device 3
 }
 
+pcm.avs_input {
+    type hw
+    card 0
+    device 5
+}
+
 pcm.dmixer_avs_auto {
     type plug
     slave.pcm "dmixer_avs_plug"
@@ -50,7 +56,7 @@ pcm.halaudio {
 }
 
 pcm.avs_48K {
-		type rate
+    type rate
     slave.pcm "2to8"
     slave.rate 48000
     converter "samplerate"
