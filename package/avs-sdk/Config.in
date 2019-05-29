@@ -25,3 +25,6 @@ config BR2_AVS_DSPC
 config BR2_PACKAGE_DISPLAYCARD_AML_IMP
         bool "enable avs displaycard ."
         default n
+
+config BR2_AVS_CLIENT_API
+        bool "enable client api support"
