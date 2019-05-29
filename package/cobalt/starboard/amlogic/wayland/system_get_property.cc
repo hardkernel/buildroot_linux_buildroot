@@ -93,11 +93,17 @@ bool SbSystemGetProperty(SbSystemPropertyId property_id,
 
   switch (property_id) {
     case kSbSystemPropertyBrandName:
+      return CopyStringAndTestIfSuccess(out_value, value_length, "SDKTeam");
     case kSbSystemPropertyChipsetModelNumber:
+      return CopyStringAndTestIfSuccess(out_value, value_length, "S905x");
     case kSbSystemPropertyFirmwareVersion:
+      return CopyStringAndTestIfSuccess(out_value, value_length, "P212");
     case kSbSystemPropertyModelName:
+      return CopyStringAndTestIfSuccess(out_value, value_length, "Reference");
     case kSbSystemPropertyModelYear:
+      return CopyStringAndTestIfSuccess(out_value, value_length, "2019");
     case kSbSystemPropertyNetworkOperatorName:
+      return CopyStringAndTestIfSuccess(out_value, value_length, "Amlogic");
     case kSbSystemPropertySpeechApiKey:
       return false;
 

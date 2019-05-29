@@ -3,7 +3,7 @@
 # Cobalt
 #
 #############################################################
-COBALT_VERSION = 19.lts.3.194831
+COBALT_VERSION = 19.lts.5.205289
 
 ifeq ($(BR2_aarch64), y)
 COBALT_TOOLCHAIN_DEPENDENCIES = browser_toolchain_gcc-linaro-aarch64

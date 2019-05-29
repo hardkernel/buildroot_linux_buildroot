@@ -17,6 +17,5 @@
 #include "starboard/log.h"
 
 SbSystemConnectionType SbSystemGetConnectionType() {
-  SB_NOTIMPLEMENTED();
-  return kSbSystemConnectionTypeUnknown;
+  return kSbSystemConnectionTypeWired;
 }

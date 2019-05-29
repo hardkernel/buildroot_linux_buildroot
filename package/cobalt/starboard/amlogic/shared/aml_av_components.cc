@@ -372,7 +372,7 @@ static bool AddVP9Header(uint8_t *buf, int dsize, std::vector<uint8_t> & data)
     }
     // VP9 decoder may not work for a small frame, padding to 4K bytes
     if (data.size() < 1023 * 4) {
-      data.insert(data.end(), 1023 * 4 - data.size(), 0x55);
+      data.insert(data.end(), 1023 * 4 - data.size(), 0x00);
       const uint8_t padding[] = {0, 0, 1, 0xff};
       data.insert(data.end(), padding, padding + 4);
     }
