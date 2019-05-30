@@ -80,3 +80,12 @@ rm -frv $1/etc/init.d/S42wifi
 rm -frv $1/etc/init.d/S40network
 rm -frv $1/etc/init.d/S41inetd
 
+
+# Change the /etc/default_audioservice.conf
+# The input list should match pure soundbar project
+sed -i 'N;/\n.*USB/!P;D' $1/etc/default_audioservice.conf
+sed -i '/USB/,/}],/{//!d}' $1/etc/default_audioservice.conf
+sed -i '/USB/d' $1/etc/default_audioservice.conf
+sed -i 's/GVA/BT/' $1/etc/default_audioservice.conf
+sed -i 's/66563/66562/' $1/etc/default_audioservice.conf
+
