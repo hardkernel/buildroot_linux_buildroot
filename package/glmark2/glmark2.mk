@@ -26,8 +26,6 @@ endif
 ifeq ($(BR2_PACKAGE_HAS_LIBEGL)$(BR2_PACKAGE_HAS_LIBGLES),yy)
 ifeq ($(BR2_PACKAGE_MESA3D),y) 
 GLMARK2_FLAVORS += drm-glesv2
-else
-GLMARK2_FLAVORS += x11-glesv2
 endif
 endif
 

@@ -47,6 +47,19 @@ config BR2_PACKAGE_WESTON_DRM
 comment "DRM compositor needs an OpenGL EGL backend provided by mesa3d"
 	depends on !BR2_PACKAGE_MESA3D_OPENGL_EGL
 
+if BR2_PACKAGE_WESTON_DRM
+
+config BR2_PACKAGE_WESTON_DRM_HELPER
+	bool "Meson DRM compositor helper framework"
+	select BR2_PACKAGE_MESON_DISPLAY
+	select BR2_PACKAGE_MESON_WESTON_DRM_HELPER
+	help
+	  This enable meson weston drm helper framework, which allows
+	  weston through the ipc with ipc client.
+
+endif
+
+
 config BR2_PACKAGE_WESTON_FBDEV
 	bool "fbdev compositor"
 
