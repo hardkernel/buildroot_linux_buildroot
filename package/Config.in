@@ -44,6 +44,8 @@ endif
 	source "package/aml_commonlib/Config.in"
 	source "package/aml_libion/Config.in"
 	source "package/aml_libge2d/Config.in"
+	source "package/libvpcodec/Config.in"
+	source "package/libvphevcodec/Config.in"
 endmenu
 
 menu "Audio and video applications"

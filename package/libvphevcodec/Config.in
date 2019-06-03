@@ -1,5 +1,6 @@
 config BR2_PACKAGE_LIBVPHEVCODEC
 	bool "amlogic h265 video encoder"
+	select BR2_PACKAGE_AML_LIBGE2D
 	help
 	  h265 video encoder library
 
