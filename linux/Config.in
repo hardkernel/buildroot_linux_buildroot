@@ -366,6 +366,11 @@ config BR2_LINUX_KERNEL_IMAGE_LOADADDR
 	help
 	specify a kernel load address when building the uImage
 
+config BR2_LINUX_KERNEL_BOOTIMAGE_OFFSET
+	string "Kernel offset in BootImage"
+	help
+	specify a kernel offset when making bootimage
+
 config BR2_LINUX_KERNEL_UIMAGE_LOADADDR
 	string "load address (for 3.7+ multi-platform image)"
 	depends on BR2_arm || BR2_armeb

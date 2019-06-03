@@ -8,8 +8,9 @@ BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
 DEFCONFIG_ARRAY=(
-    "mesona1_ad401_release"
-    "mesona1_ad401_32_release"
+    "mesona1_ad401_a6432_release"
+    "mesona1_ad401_a32_release"
+    "mesona1_ad409_skt_a32_release"
     "mesontm2_ab311_release"
     "mesontm2_ab311_32_release"
     "mesonsm1_ac200_32_release"
