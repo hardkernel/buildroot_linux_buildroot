@@ -7,8 +7,6 @@ ifeq ($(BR2_PACKAGE_NPU_LOCAL),y)
 BR2_PACKAGE_NPU_LOCAL_PATH=$(TOPDIR)/../hardware/aml-4.9/npu/nanoq
 NPU_SITE = $(call qstrip,$(BR2_PACKAGE_NPU_LOCAL_PATH))
 NPU_SITE_METHOD = local
-$(info ======>>>>>npu set compile path)
-$(info $(NPU_SITE))
 ARM_NPU_MODULE_DIR = kernel/amlogic/npu
 NPU_KO_INSTALL_DIR=$(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/kernel/amlogic/npu
 NPU_SO_INSTALL_DIR=$(TARGET_DIR)/lib
@@ -31,7 +29,6 @@ define ARM_NPU_DEP_INSTALL_TARGET_CMDS
 endef
 
 ifeq ($(BR2_aarch64), y)
-$(info  set aarch64 so ------------>>>>$)
 NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libGAL.so $(NPU_SO_INSTALL_DIR); \
@@ -48,7 +45,6 @@ NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libovxlib.so $(NPU_SO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/libVivanteOpenCL.so $(NPU_SO_INSTALL_DIR);
 else
-$(info  set arm so ------------>>>>$)
 NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \
 	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/libGAL.so $(NPU_SO_INSTALL_DIR); \
