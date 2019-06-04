@@ -12,7 +12,7 @@ if [ -f /etc/meson_egl.conf ];then
 fi
 if [ $MESON_EGL == "wayland_drm" ];then
     NAME=openvt
-    START_PARAMTERS="-vf -c 4 -- /usr/bin/weston-launch --tty=4 -- --config=/etc/aml-weston.ini --log=/tmp/weston.log"
+    START_PARAMTERS="-vf -c 4 -- /usr/bin/weston-launch --tty=/dev/tty4 -u root -- --backend=drm-backend.so --config=/etc/aml-weston.ini --log=/tmp/weston.log"
 else
     NAME=weston
     START_PARAMTERS="--config=/etc/aml-weston.ini --backend=fbdev-backend.so --tty=1 --device=/dev/fb0 --idle-time=0 --log=/tmp/weston.log"
