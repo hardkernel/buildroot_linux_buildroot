@@ -68,7 +68,7 @@ define ROOTFS-OTA-SWU-PACK-UBI
 	$(BINARIES_DIR)/ota_package_create.sh
 endef
 else
-define ROOTFS-OTA-SWU-PACK-UBIFS
+define ROOTFS-OTA-SWU-PACK-UBI
 	$(INSTALL) -m 0755 $(RECOVERY_OTA_DIR)/../swu/* $(BINARIES_DIR)/
 	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description
 	$(INSTALL) -m 0644 $(RECOVERY_OTA_DIR)/sw-description-nand-increment$(RECOVERY_ENC_FLAG) $(BINARIES_DIR)/sw-description-increment
