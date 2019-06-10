@@ -542,9 +542,6 @@ include boot/common.mk
 include linux/linux.mk
 include fs/common.mk
 include ../multimedia/multimedia.mk
-include ../vendor/amlogic/external/platinum/platinum.mk
-include ../vendor/amlogic/system_control/system_control.mk
-include ../vendor/amlogic/audioservice/audioservice.mk
 
 # If using a br2-external tree, the BR2_EXTERNAL_$(NAME)_PATH variables
 # are also present in the .config file. Since .config is included after

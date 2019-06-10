@@ -29,15 +29,11 @@ menu "amlogic"
 	source "package/helloworld/Config.in"
 	source "package/vccktest/Config.in"
 	source "package/aml_usb_config/Config.in"
-if BR2_PACKAGE_AML_WITH_SYSTEM_CONTROL
-	source "../vendor/amlogic/system_control/Config.in"
-endif
+	source "package/system_control/Config.in"
     source "package/bt_setup/Config.in"
 	source "package/assistant-sdk/Config.in"
 	source "package/mdnsresponder/Config.in"
-if BR2_PACKAGE_AML_WITH_AUDIOSERVICE
-	source "../vendor/amlogic/audioservice/Config.in"
-endif
+	source "package/audioservice/Config.in"
 	source "package/aml_dvb/Config.in"
 	source "package/aml_zvbi/Config.in"
 	source "package/aml_nn_detect_library/Config.in"
@@ -52,9 +48,7 @@ menu "Audio and video applications"
 	source "package/arm_isp/Config.in"
 	source "package/media_modules/Config.in"
 	source "../multimedia/Config.in"
-if BR2_PACKAGE_AML_WITH_EXTERNAL_PLATINUM
-	source "../vendor/amlogic/external/platinum/Config.in"
-endif
+	source "package/platinum/Config.in"
 	source "package/ledring/Config.in"
 	source "package/aml_speaker_process/Config.in"
 	source "package/aml_audio_player/Config.in"

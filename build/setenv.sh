@@ -320,7 +320,7 @@ function check_ccache()
 		echo "Missing .config in your target folder"
 		return 1
 	fi
-	grep "BR2_CCACHE=y" $CFG_FILE && echo "Already patched" && exit 0
+	grep "BR2_CCACHE=y" $CFG_FILE && echo "Already patched" && return 0
 	echo "BR2_CCACHE=y" >> $CFG_FILE
 	echo "BR2_CCACHE_DIR=\"$TARGET_OUTPUT_DIR/../ccache\"" >> $CFG_FILE
 	echo "BR2_CCACHE_INITIAL_SETUP=\"\"" >> $CFG_FILE
