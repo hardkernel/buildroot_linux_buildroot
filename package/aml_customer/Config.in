@@ -42,27 +42,3 @@ config BR2_PACKAGE_AML_STRIP_KERNEL_SET_OPT_LIST
 	  Please add project specified new kernel options value which is not covered by buildroot by default
 endif
 
-config BR2_PACKAGE_AML_WITH_SYSTEM_CONTROL
-	bool  "Have source code of system_control"
-	default n
-	help
-	  Only eanble it when project have source code of system_control
-
-config BR2_PACKAGE_AML_WITH_HALAUDIO
-	bool  "Have source code of aml_halaudio"
-	default n
-	help
-	  Only eanble it when project have source code of aml_halaudio
-
-config BR2_PACKAGE_AML_WITH_AUDIOSERVICE
-	bool  "Have source code of audioservice"
-	default n
-	help
-	  Only eanble it when project have source code of audioservice
-
-config BR2_PACKAGE_AML_WITH_EXTERNAL_PLATINUM
-	bool  "Have source code of external platinum"
-	default n
-	help
-	  Only eanble it when project have source code of external platinum
-
