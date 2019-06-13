@@ -648,9 +648,10 @@ STRIP_FIND_CMD = \
 	-print0
 
 # Special stripping (only debugging symbols) for libpthread and ld-*.so.
+# and for kernel driver
 STRIP_FIND_SPECIAL_LIBS_CMD = \
 	$(STRIP_FIND_COMMON_CMD) \
-	\( -name 'ld-*.so*' -o -name 'libpthread*.so*' \) \
+	\( -name 'ld-*.so*' -o -name 'libpthread*.so*' -o -name '*.ko' \) \
 	-print0
 
 ifeq ($(BR2_ECLIPSE_REGISTER),y)
