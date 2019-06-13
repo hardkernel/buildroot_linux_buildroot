@@ -637,7 +637,7 @@ void AmlAVCodec::AVCheckDecoderEos() {
       rp_freeze_time = now + kSbTimeMillisecond * 100;
     } else if (now > rp_freeze_time) {
       if ((bufstat.data_len <= 0x100) ||
-          (now > rp_freeze_time + kSbTimeMillisecond * 400)) {
+          (now > rp_freeze_time + kSbTimeMillisecond * 5000)) {
         SbLogFormatF("%sbuffer freeze, size:%x datalen:%x free:%x rp:%x wp:%x\n",
             name.c_str(), bufstat.size, bufstat.data_len, bufstat.free_len,
             bufstat.read_pointer, bufstat.write_pointer);
