@@ -38,25 +38,27 @@ usb_net_ipconfig()
 }
 
 function start_usbgadget(){
-        #sleep 6
-	#cat /proc/device-tree/amlogic-dt-id  | grep "skt"
-	#if [ $? -eq 0 ]
-	#then
-	        usb_dir=/sys/kernel/config/usb_gadget/amlogic
-		if [ ! -d ${usb_dir} ]
-		then
-                    usb_rndis_init
-		    echo "usb rndis start..."
-		    usb_adbd_init
-		    echo "usb abdd start..."
-	            sleep 2
-                echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
-                usb_net_ipconfig
-		echo "------------------------------------"
-		echo "usb rndis & adb start: OK!"
-		echo "------------------------------------"
-		fi
-	#fi
+    #sleep 6
+    #cat /proc/device-tree/amlogic-dt-id  | grep "skt"
+    #if [ $? -eq 0 ]
+    #then
+    usb_dir=/sys/kernel/config/usb_gadget/amlogic
+    if [ ! -d ${usb_dir} ]
+    then
+    {
+        usb_rndis_init
+        echo "usb rndis start..."
+        usb_adbd_init
+        echo "usb abdd start..."
+        sleep 5
+        echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
+        usb_net_ipconfig
+        echo "------------------------------------"
+        echo "usb rndis & adb start: OK!"
+        echo "------------------------------------"
+    }&
+    fi
+    #fi
 }
 
 case "$1" in

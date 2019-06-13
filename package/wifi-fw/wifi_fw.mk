@@ -321,7 +321,7 @@ $(Q) case "$(1)" in \
 	AP6236) \
 		mkdir -p $(TARGET_DIR)/etc/wifi/6212; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/6212/; \
-		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/nvram*.txt $(TARGET_DIR)/etc/wifi/6212/nvram.txt; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/nvram*.txt $(TARGET_DIR)/etc/wifi/6212/nvram_ap6236.txt; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/BCM43430B0.hcd; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/config.txt $(TARGET_DIR)/etc/wifi/6212/; \
 		;; \
@@ -439,7 +439,6 @@ $(Q) case "$(1)" in \
 endef
 
 
-ifeq ($(BR2_LINUX_KERNEL_VERSION),"amlogic-4.9-dev")
 define WIFI_FW_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/bluetooth
 	$(foreach mod, $(WIFI_MODULE),
@@ -447,7 +446,6 @@ define WIFI_FW_INSTALL_TARGET_CMDS
 		$(info $(mod) will be loaded...............)
 	)
 endef
-endif #amlogic-4.9-dev
 
 ifeq ($(WIFI_MODULE),qca9377)
 define WIFI_FW_INSTALL_TARGET_CMDS
