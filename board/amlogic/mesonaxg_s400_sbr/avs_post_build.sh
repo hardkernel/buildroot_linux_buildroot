@@ -27,13 +27,13 @@
 #fi
 
 # Change the ALSA device for BT
-#if [ -f $1/etc/alsa_bsa.conf ] ; then
-#	textexist=$(cat $1/etc/alsa_bsa.conf | grep 2to8)
-#	# echo "textexist = $textexist"
-#	if [ -z "$textexist" ] ; then
-#		sed -i 's/dmixer_avs_auto/default/g' $1/etc/alsa_bsa.conf
-#	fi
-#fi
+if [ -f $1/etc/alsa_bsa.conf ] ; then
+	textexist=$(cat $1/etc/alsa_bsa.conf | grep 2to8)
+	# echo "textexist = $textexist"
+	if [ -z "$textexist" ] ; then
+		sed -i 's/dmixer_avs_auto/music_vol/g' $1/etc/alsa_bsa.conf
+	fi
+fi
 
 # MCU6350 gpio interrupt config
 echo "Start to change /etc/init.d/S90audioservice to support mcu6350"

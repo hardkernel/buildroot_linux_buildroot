@@ -34,7 +34,7 @@ if [ -f $1/etc/alsa_bsa.conf ] ; then
 	textexist=$(cat $1/etc/alsa_bsa.conf | grep 2to8)
 	# echo "textexist = $textexist"
 	if [ -z "$textexist" ] ; then
-		sed -i 's/dmixer_avs_auto/default/g' $1/etc/alsa_bsa.conf
+		sed -i 's/dmixer_avs_auto/music_vol/g' $1/etc/alsa_bsa.conf
 	fi
 fi
 
@@ -86,9 +86,9 @@ rm -frv $1/etc/init.d/S41inetd
 
 # Change the /etc/default_audioservice.conf
 # The input list should match pure soundbar project
-sed -i 'N;/\n.*USB/!P;D' $1/etc/default_audioservice.conf
-sed -i '/USB/,/}],/{//!d}' $1/etc/default_audioservice.conf
-sed -i '/USB/d' $1/etc/default_audioservice.conf
-sed -i 's/GVA/BT/' $1/etc/default_audioservice.conf
+sed -i 'N;/\n.*\"name\":\t\"USB\"/!P;D' $1/etc/default_audioservice.conf
+sed -i '/\"name\":\t\"USB\"/,/}],/{//!d}' $1/etc/default_audioservice.conf
+sed -i '/\"name\":\t\"USB\"/d' $1/etc/default_audioservice.conf
+sed -i 's/\"name\":\t\"GVA\"/\"name\":\t\"BT\"/' $1/etc/default_audioservice.conf
 sed -i 's/66563/66562/' $1/etc/default_audioservice.conf
 

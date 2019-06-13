@@ -78,6 +78,20 @@ pcm.2to8 {
     ttable.1.7 0.707
 }
 
+pcm.music_vol {
+    type softvol
+    slave.pcm "dmixer_avs_plug"
+    control.name "music_vol"
+    control.card 0
+}
+
+pcm.notify_vol {
+    type softvol
+    slave.pcm "dmixer_avs_plug"
+    control.name "notify_vol"
+    control.card 0
+}
+
 pcm.48K {
     type rate
     slave.pcm "halaudio"
