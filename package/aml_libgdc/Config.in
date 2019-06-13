@@ -1,0 +1,5 @@
+config BR2_PACKAGE_AML_LIBGDC
+    bool "GDC library"
+    select BR2_PACKAGE_AML_LIBION
+    help
+        Support AML GDC library
