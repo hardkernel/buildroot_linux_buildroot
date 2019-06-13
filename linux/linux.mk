@@ -407,9 +407,6 @@ define LINUX_KCONFIG_FIXUP_CMDS
 	$(LINUX_FIXUP_CONFIG_ENDIANNESS)
         $(if $(BR2_arm)$(BR2_armeb),
                 $(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config))
-	$(if $(BR2_PACKAGE_WAYLAND)$(BR2_PACKAGE_AML_MINIGBM),
-		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM,$(@D)/.config)
-		$(call KCONFIG_ENABLE_OPT,CONFIG_DRM_MESON,$(@D)/.config))
 	$(if $(BR2_TARGET_ROOTFS_CPIO),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config))
         # As the kernel gets compiled before root filesystems are
