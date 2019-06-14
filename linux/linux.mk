@@ -231,6 +231,7 @@ LINUX_DTS_NAME += $(call qstrip,$(BR2_LINUX_KERNEL_INTREE_DTS_NAME))
 LINUX_DTS_NAME += $(basename $(filter %.dts,$(notdir $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH)))))
 
 LINUX_DTBS = $(addsuffix .dtb,$(LINUX_DTS_NAME))
+AML_DTBS=$(patsubst amlogic/%,%,$(LINUX_DTBS))
 LINUX_DTDS = $(addsuffix .dtd,$(LINUX_DTS_NAME))
 
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
@@ -535,15 +536,15 @@ endef
 define LINUX_INSTALL_DTB
 	# dtbs moved from arch/<ARCH>/boot to arch/<ARCH>/boot/dts since 3.8-rc1
 	cp $(addprefix \
-		$(LINUX_ARCH_PATH)/boot/$(if $(wildcard \
-		$(addprefix $(LINUX_ARCH_PATH)/boot/dts/amlogic/,$(LINUX_DTBS))),dts/amlogic/),$(LINUX_DTBS)) \
+		$(LINUX_ARCH_PATH)/boot/$(if $(wildcard $(addprefix \
+		$(LINUX_ARCH_PATH)/boot/dts/amlogic/,$(AML_DTBS))),dts/amlogic/),$(AML_DTBS)) \
 		$(BINARIES_DIR)/
 endef
 define LINUX_INSTALL_DTB_TARGET
 	# dtbs moved from arch/<ARCH>/boot to arch/<ARCH>/boot/dts since 3.8-rc1
 	cp $(addprefix \
-		$(LINUX_ARCH_PATH)/boot/$(if $(wildcard \
-		$(addprefix $(LINUX_ARCH_PATH)/boot/dts/amlogic/,$(LINUX_DTBS))),dts/amlogic/),$(LINUX_DTBS)) \
+		$(LINUX_ARCH_PATH)/boot/$(if $(wildcard $(addprefix \
+		$(LINUX_ARCH_PATH)/boot/dts/amlogic/,$(AML_DTBS))),dts/amlogic/),$(AML_DTBS)) \
 		$(TARGET_DIR)/boot/
 endef
 else #BR2_LINUX_KERNEL_AMLOGIC_DTD
