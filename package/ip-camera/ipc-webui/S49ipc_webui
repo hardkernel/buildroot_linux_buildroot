@@ -1,0 +1,39 @@
+#! /bin/sh
+#
+# ipc_webui
+#
+
+CHOWN=/bin/chown
+OPTS="-R www-data /var/www/ipc-webui"
+
+start() {
+  echo "Start setting ipc-webui ownership ..."
+  $CHOWN $OPTS
+}
+
+stop() {
+  echo "Don't have to do anything."
+}
+
+restart() {
+  stop
+  start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
+
