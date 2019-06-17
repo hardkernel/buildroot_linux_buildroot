@@ -40,6 +40,12 @@
             },
             "ircut": true
         },
+        "gdc":{
+            "enabled": false,
+            "config-file": "",
+            "input-resolution": "1920x1080",
+            "output-resolution": "1920x1080"
+        },
         "backchannel": {
             "enabled": false,
             "clock rate": 8000,
