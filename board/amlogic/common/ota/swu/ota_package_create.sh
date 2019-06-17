@@ -1,6 +1,10 @@
 #!/bin/bash
+#set -x
 CONTAINER_VER="1.0"
 PRODUCT_NAME="aml-software"
+#This is new path from buildroot-2019.02
+OTA_SRC_PATH=../build/buildroot-fs/cpio/target_ota
+
 cd ${BINARIES_DIR}
 
 source ota-package-filelist
@@ -10,8 +14,8 @@ rm $TARGET_OTA_NAME $TARGET_OTA_NAME.zip -rf
 mkdir $TARGET_OTA_NAME
 cp $HASH_FILES $TARGET_OTA_NAME
 rm $TARGET_OTA_NAME/rootfs.*
-tar -C ../target_ota -czf $TARGET_OTA_NAME/rootfs.tgz .
-rm ../target_ota -rf
+tar -C $OTA_SRC_PATH -czf $TARGET_OTA_NAME/rootfs.tgz .
+rm $OTA_SRC_PATH -rf
 
 cp sw-description-increment $TARGET_OTA_NAME/sw-description
 
