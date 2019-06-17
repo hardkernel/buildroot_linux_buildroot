@@ -132,6 +132,7 @@ BR2_PACKAGE_MTD_UBINIZE=y
 BR2_PACKAGE_AML_HIFI4=y
 BR2_PACKAGE_AML_HIFI4_BUILD_OPTION="a1_a113l_ad409_hifi4a"
 
+#-----------------------For WiFi & BT----------------------------------#
 #For BT
 BR2_PACKAGE_AML_BRCM_BSA=y
 #BR2_PACKAGE_SBC=y
@@ -146,7 +147,31 @@ BR2_PACKAGE_WIFI_FW_CUSTOM_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/wif
 BR2_PACKAGE_WIFI_FW_WIFI_MODULE="AP6236"
 BR2_PACKAGE_FAAD2=y
 
-#For Debug
+BR2_PACKAGE_DHD_PRIV=y
+BR2_PACKAGE_BRCMAP6XXX=y
+BR2_PACKAGE_BRCMAP6XXX_LOCAL=y
+BR2_PACKAGE_BRCMAP6XXX_STANDALONE=y
+BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION="q-amlogic"
+BR2_PACKAGE_BRCMAP6XXX_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/wifi/broadcom/drivers/ap6xxx"
+BR2_PACKAGE_BRCMAP6XXX_SDIO_VERSION="bcmdhd.100.10.315.x"
+#BR2_PACKAGE_BRCMAP6XXX_USB_VERSION="bcmdhd-usb.1.363.110.17.x"
+BR2_PACKAGE_BRCM_SMARTCONFIG=y
+BR2_PACKAGE_BRCM_SMARTCONFIG_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/wifi/bcm_ampak/tools/easySetupTarget"
+
+BR2_PACKAGE_WPA_SUPPLICANT=y
+BR2_PACKAGE_WPA_SUPPLICANT_CLI=y
+BR2_PACKAGE_IW=y
+BR2_PACKAGE_DHCPCD=y
+
+#-----------For Debug Purpose--------------------------------------------------#
+BR2_PACKAGE_PROCRANK_LINUX=y
+BR2_PACKAGE_LSOF=y
+BR2_PACKAGE_DROPBEAR=y
+BR2_PACKAGE_DROPBEAR_CLIENT=y
+BR2_PACKAGE_DROPBEAR_SMALL=y
+BR2_PACKAGE_STRACE=y
+
+#-----------For ADB Feature----------------------------------------------------#
 BR2_PACKAGE_ANDROID_TOOLS=y
 BR2_PACKAGE_ANDROID_TOOLS_FASTBOOT_GOOD_KERNEL_HEADERS=y
 BR2_PACKAGE_ANDROID_TOOLS_ADBD=y
@@ -156,35 +181,15 @@ BR2_PACKAGE_AML_UTIL=y
 BR2_PACKAGE_UTIL_LINUX_BINARIES=y
 BR2_PACKAGE_OPENSSL=y
 
-BR2_PACKAGE_BRCMAP6XXX=y
-BR2_PACKAGE_BRCMAP6XXX_LOCAL=y
-BR2_PACKAGE_BRCMAP6XXX_STANDALONE=y
-BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION="q-amlogic"
-BR2_PACKAGE_BRCMAP6XXX_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/wifi/broadcom/drivers/ap6xxx"
-BR2_PACKAGE_BRCMAP6XXX_SDIO_VERSION="bcmdhd.100.10.315.x"
-#BR2_PACKAGE_BRCMAP6XXX_USB_VERSION="bcmdhd-usb.1.363.110.17.x"
-BR2_PACKAGE_DHCPCD=y
-BR2_PACKAGE_DHD_PRIV=y
-BR2_PACKAGE_BRCM_SMARTCONFIG=y
-BR2_PACKAGE_BRCM_SMARTCONFIG_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/wifi/bcm_ampak/tools/easySetupTarget"
-BR2_PACKAGE_AML_UTIL=y
-
-
-#----------Just for pass compile----------------#
-##For WiFi, without wpa_supplicant/iw/wpa_cli, ramfile.list will report error.
-BR2_PACKAGE_WPA_SUPPLICANT=y
-BR2_PACKAGE_WPA_SUPPLICANT_CLI=y
-BR2_PACKAGE_IW=y
-
-#For SWUpdate, without swupdate, recovery.img will be generate
+#For SWUpdate, without swupdate, recovery.img not will be generate
 BR2_PACKAGE_AML_UBOOTENV=y
 BR2_PACKAGE_AML_BOOTLOADER_MESSAGE=y
+
+#-----------For SWUpdate Feature------------------------------------------------#
 BR2_PACKAGE_SWUPDATE=y
 BR2_PACKAGE_SWUPDATE_CONFIG="package/swupdate/swupdate.config"
 
-BR2_PACKAGE_DBUS=y
-BR2_PACKAGE_DBUS_GLIB=y
-
+#-----------------------For AML Audio Player--------------------------------#
 BR2_PACKAGE_AML_AUDIO_PLAYER=y
 # FFMPEG for USBPlayer, audio only
 #
