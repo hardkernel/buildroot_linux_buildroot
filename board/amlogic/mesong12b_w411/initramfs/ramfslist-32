@@ -54,8 +54,6 @@
 ./lib/librt.so.1
 ./lib/libsmartcols.so.1
 ./lib/libsmartcols.so.1.1.0
-./lib/libthread_db-1.0.so
-./lib/libthread_db.so.1
 ./lib/libutil-2.23.so
 ./lib/libutil.so.1
 ./lib/libuuid.so.1
