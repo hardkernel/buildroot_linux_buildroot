@@ -510,6 +510,12 @@ config BR2_RECOVERY_OTA_DIR
 	help
 	  amlogic recovery configure directories"
 
+config BR2_RECOVERY_OTA_RAMDISK_DIR
+	string "amlogic recovery RAMDISK configure directories"
+	default ""
+	help
+	  amlogic recovery RAMDISK configure directories"
+
 config BR2_ROOTFS_UPGRADE_DIR_OVERLAY
          string "amlogic p231 upgrade configure directories"
          default ""

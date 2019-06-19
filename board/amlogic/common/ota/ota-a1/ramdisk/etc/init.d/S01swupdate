@@ -1,0 +1,95 @@
+#!/bin/sh
+
+#get data ubi number
+data_mtd_number=$(cat /proc/mtd | grep  -E "data" | awk -F : '{print $1}' | grep -o '[0-9]\+')
+
+
+if [ ${data_mtd_number} = ""]; then
+    echo "can not get data mtd number, maybe emmc device......"
+    mount -t ext4 /dev/data /mnt
+else
+    echo "get data mtd number, now mount data partition......"
+    ubiattach /dev/ubi_ctrl -m ${data_mtd_number}
+    mount -t ubifs /dev/ubi0_0 /mnt
+fi
+
+if [ -f "/mnt/software.swu" ]; then
+    echo "find software.swu in data, now start update......"
+    if [ -f "/proc/inand" ]; then
+        swupdate -l 6 -k /etc/swupdate-public.pem -i /mnt/software.swu
+    else
+        swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -i /mnt/software.swu
+    fi
+    if [ $? != 0 ]; then
+        echo "swupdate software.swu from data failed!"
+        umount /mnt
+    else
+        echo "swupdate software.swu from data sucess!"
+        rm /mnt/software.swu
+        umount /mnt
+        sync
+        sleep 2
+        reboot
+        echo "swupdate reboot now!"
+    fi
+elif [ -f "/mnt/swupdate/enable-network-ota" ]; then
+    source /mnt/swupdate/apply_info.sh /mnt
+    /mnt/swupdate/start_wifi.sh
+    for i in 'seq 1 30'
+    do
+        ping -c 1 $SWUPDATE_OTA_SERVER
+        if [ $? == 0 ]; then
+            NETWORK_READY=1
+            break;
+        fi
+    done
+    if [ -n $NETWORK_READY ]; then
+        if [ -f "/proc/inand" ]; then
+            swupdate -l 6 -k /etc/swupdate-public.pem -D
+        else
+            swupdate -l 6 -b "0 1 2 3 4" -k /etc/swupdate-public.pem -D
+        fi
+        if [ $? == 0 ]; then
+            echo "swupdate software.swu from url sucess!"
+            rm -fr /mnt/swupdate
+            umount /mnt
+            sync
+            sleep 2
+            reboot
+            echo "swupdate reboot now!"
+        else
+            echo "swupdate software.swu from url failed!"
+        fi
+    else
+        echo "no software.swu found in usb device"
+        #execute swupdate for clear misc, no need into recovery after reboot
+        swupdate -h
+    fi
+else
+	#wait for usb device
+	echo "can not find software.swu in data, now find usb device......"
+	sleep 5
+	if [ -f "/media/software.swu" ]; then
+		if [ -f "/proc/inand" ]; then
+			swupdate -l 6 -k /etc/swupdate-public.pem -i /media/software.swu
+		else
+			swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -i /media/software.swu
+		fi
+		if [ $? != 0 ]; then
+			echo "swupdate software.swu from usb failed!"
+			umount /media
+		else
+			echo "swupdate software.swu from usb sucess!"
+			umount /media
+			sync
+			sleep 2
+			reboot
+			echo "swupdate reboot now!"
+		fi
+	else
+		echo "no software.swu found in usb device"
+		#execute swupdate for clear misc, no need into recovery after reboot
+		swupdate
+		umount /media
+	fi
+fi

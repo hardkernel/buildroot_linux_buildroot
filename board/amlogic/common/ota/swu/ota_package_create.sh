@@ -15,7 +15,6 @@ mkdir $TARGET_OTA_NAME
 cp $HASH_FILES $TARGET_OTA_NAME
 rm $TARGET_OTA_NAME/rootfs.*
 tar -C $OTA_SRC_PATH -czf $TARGET_OTA_NAME/rootfs.tgz .
-rm $OTA_SRC_PATH -rf
 
 cp sw-description-increment $TARGET_OTA_NAME/sw-description
 

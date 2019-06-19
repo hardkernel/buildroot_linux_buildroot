@@ -5,14 +5,15 @@ software =
 	partitions: (
 		{
 			name = "rootfs";
-			size = 157286400;
-			device = "mtd6";
+			size = 61865984;
+			device = "mtd5";
 		}
 	);
 	images: (
 		{
 			filename = "rootfs.ubifs";
 			volume = "rootfs";
+            installed-directly = true;
 		},
 		{
 			filename = "dtb.img";
@@ -20,7 +21,7 @@ software =
 		},
 		{
 			filename = "boot.img";
-			device = "/dev/mtd5";
+			device = "/dev/mtd4";
 			type = "flash";
 		},
 		{

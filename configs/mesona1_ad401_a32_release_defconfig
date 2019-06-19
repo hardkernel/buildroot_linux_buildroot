@@ -42,6 +42,7 @@ BR2_ROOTFS_OVERLAY="board/amlogic/mesona1_ad401/rootfs/"
 BR2_ROOTFS_UPGRADE_DIR="board/amlogic/common/upgrade/upgrade-a1/"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(TOPDIR)/board/amlogic/mesona1_ad401/post_build.sh"
 BR2_RECOVERY_OTA_DIR="board/amlogic/common/ota/ota-a1/"
+BR2_RECOVERY_OTA_RAMDISK_DIR="board/amlogic/common/ota/ota-a1/ramdisk/"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_LOCAL_VERSION_VALUE="amlogic-4.19-dev"
 BR2_LINUX_KERNEL_CUSTOM_LOCAL=y

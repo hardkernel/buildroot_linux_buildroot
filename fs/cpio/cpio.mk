@@ -34,6 +34,10 @@ ifneq ($(BR2_TARGET_ROOTFS_INITRAMFS_LIST),"")
 ifeq ($(BR2_PACKAGE_SWUPDATE),y)
 ifneq ($(BR2_PACKAGE_SWUPDATE_AB_SUPPORT),"absystem")
 ifneq ($(RECOVERY_OTA_DIR),)
+RECOVERY_OTA_RAMDISK_DIR := $(patsubst "%",%,$(BR2_RECOVERY_OTA_RAMDISK_DIR))
+ifeq ($(RECOVERY_OTA_RAMDISK_DIR),)
+RECOVERY_OTA_RAMDISK_DIR=$(RECOVERY_OTA_DIR)/../ramdisk/
+endif
 define ROOTFS_CPIO_CMD
 	cd $(TARGET_DIR) && cat $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) | cpio --quiet -o -H newc > $@
 	cd -
@@ -41,7 +45,7 @@ define ROOTFS_CPIO_CMD
 	rm $(TARGET_DIR)_ota -fr
 	cp $(TARGET_DIR) $(TARGET_DIR)_recovery -fr
 	cp $(TARGET_DIR) $(TARGET_DIR)_ota -fr
-	cp -rf $(RECOVERY_OTA_DIR)/../ramdisk/* $(TARGET_DIR)_recovery
+	cp -rf $(RECOVERY_OTA_RAMDISK_DIR)/* $(TARGET_DIR)_recovery
 	cp $(TOPDIR)/$(BR2_TARGET_ROOTFS_INITRAMFS_LIST) $(HOST_DIR)/bin/ramfslist-recovery
 	cat $(RECOVERY_OTA_DIR)/ramfslist-recovery-need >> $(HOST_DIR)/bin/ramfslist-recovery
 	cd $(TARGET_DIR)_recovery && cat $(HOST_DIR)/bin/ramfslist-recovery | cpio --quiet -o -H newc > $(BINARIES_DIR)/recovery.cpio
