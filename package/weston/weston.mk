@@ -89,6 +89,10 @@ else
 WESTON_CONF_OPTS += --disable-drm-compositor
 endif
 
+ifeq ($(BR2_PACKAGE_WESTON_DRM_FIX_UI_SIZE),y)
+WESTON_CONF_OPTS += --enable-drm-fix-ui-size
+endif
+
 ifeq ($(BR2_PACKAGE_WESTON_X11),y)
 WESTON_CONF_OPTS += \
 	--enable-x11-compositor \

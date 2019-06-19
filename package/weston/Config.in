@@ -104,6 +104,11 @@ config BR2_PACKAGE_WESTON_DEMO_CLIENTS
 	help
 	  This enables the installation of Weston's demo clients.
 
+config BR2_PACKAGE_WESTON_DRM_FIX_UI_SIZE
+	bool "Use fixed ui size on differ display mode"
+	help
+	  Use fixed ui size on differ display mode.
+
 source "package/weston/weston-daemon/Config.in"
 
 endif
