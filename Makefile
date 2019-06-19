@@ -648,11 +648,17 @@ STRIP_FIND_CMD = \
 	-print0
 
 # Special stripping (only debugging symbols) for libpthread and ld-*.so.
-# and for kernel driver
 STRIP_FIND_SPECIAL_LIBS_CMD = \
 	$(STRIP_FIND_COMMON_CMD) \
-	\( -name 'ld-*.so*' -o -name 'libpthread*.so*' -o -name '*.ko' \) \
+	\( -name 'ld-*.so*' -o -name 'libpthread*.so*' \) \
 	-print0
+
+# Kernel module stripping
+STRIP_FIND_KERNEL_MODULE_CMD = \
+	$(STRIP_FIND_COMMON_CMD) \
+	\( -name '*.ko' \) \
+	-print0
+
 
 ifeq ($(BR2_ECLIPSE_REGISTER),y)
 define TOOLCHAIN_ECLIPSE_REGISTER
@@ -771,6 +777,7 @@ endif
 	rmdir $(TARGET_DIR)/usr/share 2>/dev/null || true
 	$(STRIP_FIND_CMD) | xargs -0 $(STRIPCMD) 2>/dev/null || true
 	$(STRIP_FIND_SPECIAL_LIBS_CMD) | xargs -0 -r $(STRIPCMD) $(STRIP_STRIP_DEBUG) 2>/dev/null || true
+	$(STRIP_FIND_KERNEL_MODULE_CMD) | xargs -0 -r $(KSTRIPCMD) $(STRIP_STRIP_DEBUG) 2>/dev/null || true
 
 	test -f $(TARGET_DIR)/etc/ld.so.conf && \
 		{ echo "ERROR: we shouldn't have a /etc/ld.so.conf file"; exit 1; } || true
