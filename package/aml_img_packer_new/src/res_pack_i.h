@@ -17,7 +17,7 @@
 #include <dirent.h>
 
 #define MAX_PATH    512 
-#define min(a, b)   ((a) > (b) ? (b) : (a))
+#define MIN(a, b)   ((a) > (b) ? (b) : (a))
 #else   
 //For windows platform
 #include <windows.h>

@@ -400,7 +400,7 @@ int res_img_unpack(const char* const path_src, const char* const unPackDirPath, 
                 for(unsigned itemTotalReadLen = 0; itemTotalReadLen < thisItemBodyOccupySz; )
                 {
                         const unsigned leftLen = thisItemBodyOccupySz - itemTotalReadLen;
-                        const unsigned thisReadSz = min(leftLen, ITEM_READ_BUF_SZ);
+                        const unsigned thisReadSz = MIN(leftLen, ITEM_READ_BUF_SZ);
 
                         unsigned actualReadSz = fread(itemReadBuf, 1, thisReadSz, fdResImg);
                         if(thisReadSz != actualReadSz){
