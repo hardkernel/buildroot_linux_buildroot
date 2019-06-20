@@ -13,6 +13,7 @@ ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
 #We will only apply onvif prebuilt packages, so we need to make sure the original package's dependency can meet.
 ONVIF_PREBUILT_DEPENDENCIES = openssl zlib  gstreamer1 gst1-plugins-base gst1-plugins-good gst1-rtsp-server libjpeg
 ONVIF_PREBUILT_DEPENDENCIES += directfb sqlite libvpcodec libvphevcodec aml_nn_detect aml_libge2d aml_libgdc
+ONVIF_PREBUILT_DEPENDENCIES += nginx php
 define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)
 	cp -av $(ONVIF_PREBUILT_DIRECTORY)/*  $(TARGET_DIR)/
@@ -30,6 +31,8 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	mkdir -p $(@D)/$(ONVIF_ARCH)/etc/init.d/
 	mkdir -p $(@D)/$(ONVIF_ARCH)/usr/bin
 	mkdir -p $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
+	mkdir -p $(@D)/$(ONVIF_ARCH)/var/www
+	mkdir -p $(@D)/$(ONVIF_ARCH)/etc/nginx
 
 	cp -a $(TARGET_DIR)/etc/ipc.json                       $(@D)/$(ONVIF_ARCH)/etc/
 	cp -a $(TARGET_DIR)/etc/onvif                          $(@D)/$(ONVIF_ARCH)/etc/
@@ -37,6 +40,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_rtsp           $(@D)/$(ONVIF_ARCH)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_srvd           $(@D)/$(ONVIF_ARCH)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_wsdd           $(@D)/$(ONVIF_ARCH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S49ipc_webui            $(@D)/$(ONVIF_ARCH)/etc/init.d/
 
 	cp -a $(TARGET_DIR)/usr/bin/onvif_rtsp                 $(@D)/$(ONVIF_ARCH)/usr/bin/
 	cp -a $(TARGET_DIR)/usr/bin/onvif_srvd                 $(@D)/$(ONVIF_ARCH)/usr/bin/
@@ -52,6 +56,9 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlfacenet.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
+
+	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf    			$(@D)/$(ONVIF_ARCH)/etc/nginx
+	cp -a $(TARGET_DIR)/var/www/ipc-webui    				$(@D)/$(ONVIF_ARCH)/var/www
 
 	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH).tgz -C $(@D) $(ONVIF_ARCH)
 endef
