@@ -24,6 +24,7 @@ endif
 ifeq ($(BR2_PACKAGE_ONVIF_GENERATE_PREBUILT),y)
 #We will package the onvif prebuitl pacakge, so we need to wait for onvif libraries/binraries ready, here we list the onvif binraies.
 ONVIF_PREBUILT_DEPENDENCIES = onvif_srvd
+ONVIF_PREBUILT_DEPENDENCIES = ipc-webui
 define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	rm    -fr $(@D)/$(ONVIF_ARCH)/
 	mkdir -p $(@D)/$(ONVIF_ARCH)/

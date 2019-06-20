@@ -40,6 +40,7 @@ config BR2_PACKAGE_ONVIF_APPLY_PREBUILT
 config BR2_PACKAGE_ONVIF_GENERATE_PREBUILT
 	bool "Generate ONVIF prebuilt"
     depends on BR2_PACKAGE_ONVIF_SRVD
+	select BR2_PACKAGE_IPC_WEBUI
 
 	help
 	  Generate ONVIF prebuilt package
