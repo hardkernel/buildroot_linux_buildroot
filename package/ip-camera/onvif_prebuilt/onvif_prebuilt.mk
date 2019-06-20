@@ -12,6 +12,7 @@ ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_ARCH)/
 ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
 #We will only apply onvif prebuilt packages, so we need to make sure the original package's dependency can meet.
 ONVIF_PREBUILT_DEPENDENCIES = openssl zlib  gstreamer1 gst1-plugins-base gst1-plugins-good gst1-rtsp-server libjpeg
+ONVIF_PREBUILT_DEPENDENCIES += directfb sqlite libvpcodec libvphevcodec aml_nn_detect aml_libge2d aml_libgdc
 define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)
 	cp -av $(ONVIF_PREBUILT_DIRECTORY)/*  $(TARGET_DIR)/
