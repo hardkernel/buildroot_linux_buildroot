@@ -127,8 +127,7 @@ endif
 ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_ODROID_C2)),y)
 	UBOOT_BINS := fip/u-boot.bin
 else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
-	#UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl  build/u-boot.bin.sd.bin build/u-boot.bin.encrypt build/u-boot.bin.encrypt.efuse build/u-boot.bin.encrypt.sd.bin build/u-boot.bin.encrypt.usb.bl2 build/u-boot.bin.encrypt.usb.tpl
-	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl  build/u-boot.bin.sd.bin
+	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl  build/u-boot.bin.sd.bin build/u-boot.bin.encrypt build/u-boot.bin.encrypt.efuse build/u-boot.bin.encrypt.sd.bin build/u-boot.bin.encrypt.usb.bl2 build/u-boot.bin.encrypt.usb.tpl
 else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
 	UBOOT_BINS := build/u-boot.bin
 else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
@@ -333,8 +332,13 @@ endef
 define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/u-boot.bin $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.sd.bin $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt $(BINARIES_DIR)/
+	test -f $(@D)/build/u-boot.bin.encrypt.efuse && cp -dpf $(@D)/build/u-boot.bin.encrypt.efuse $(BINARIES_DIR)/ || echo "Potential error: Missing file: $(@D)/build/u-boot.bin.encrypt.efuse" 
 	cp -dpf $(@D)/build/u-boot.bin.usb.bl2 $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.usb.tpl $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.usb.bl2 $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.usb.tpl $(BINARIES_DIR)/
+	cp -dpf $(@D)/build/u-boot.bin.encrypt.sd.bin $(BINARIES_DIR)/
 	$(INSTALL) -m 0755 $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))/aml_encrypt_$(BR2_TARGET_UBOOT_PLATFORM) $(HOST_DIR)/usr/bin
 endef
 UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
@@ -417,7 +421,7 @@ endif
 
 define UBOOT_INSTALL_IMAGES_CMDS
 	$(foreach f,$(UBOOT_BINS), \
-			cp -dpf $(@D)/$(f) $(BINARIES_DIR)/
+		test -f $(@D)/$(f) && cp -dpf $(@D)/$(f) $(BINARIES_DIR)/ || echo "Potential error: Missing $(@D)/$(f)"
 	)
 	$(if $(BR2_TARGET_UBOOT_FORMAT_NAND),
 		cp -dpf $(@D)/u-boot.sb $(BINARIES_DIR))
