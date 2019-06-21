@@ -1,0 +1,11 @@
+config BR2_PACKAGE_AML_HIFI4
+	bool "AML hifi4 DSP"
+	help
+	  Amlogic HiFi4 DSP
+
+config BR2_PACKAGE_AML_HIFI4_BUILD_OPTION
+    string "AML hifi4 build option"
+    depends on BR2_PACKAGE_AML_HIFI4
+    help
+      the branch of amlogic customer
+

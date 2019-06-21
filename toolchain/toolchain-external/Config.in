@@ -35,6 +35,7 @@ source "toolchain/toolchain-external/toolchain-external-linaro-arm-preinstalled/
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-4dot9-201405-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-6dot2-201702-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-7dot3-201805-preinstalled/Config.in"
+source "toolchain/toolchain-external/toolchain-external-linaro-armv8-7dot3-201805-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-codesourcery-arm/Config.in"
 
 # ARM big-endian
@@ -145,6 +146,7 @@ source "toolchain/toolchain-external/toolchain-external-linaro-arm-preinstalled/
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-4dot9-201405-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-6dot2-201702-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-linaro-arm-7dot3-201805-preinstalled/Config.in.options"
+source "toolchain/toolchain-external/toolchain-external-linaro-armv8-7dot3-201805-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-codesourcery-arm/Config.in.options"
 
 # ARM big-endian

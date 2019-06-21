@@ -333,7 +333,7 @@ define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/u-boot.bin $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.sd.bin $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.encrypt $(BINARIES_DIR)/
-	cp -dpf $(@D)/build/u-boot.bin.encrypt.efuse $(BINARIES_DIR)/
+	test -f $(@D)/build/u-boot.bin.encrypt.efuse && cp -dpf $(@D)/build/u-boot.bin.encrypt.efuse $(BINARIES_DIR)/ || echo "Potential error: Missing file: $(@D)/build/u-boot.bin.encrypt.efuse"
 	cp -dpf $(@D)/build/u-boot.bin.usb.bl2 $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.usb.tpl $(BINARIES_DIR)/
 	cp -dpf $(@D)/build/u-boot.bin.encrypt.usb.bl2 $(BINARIES_DIR)/
@@ -421,7 +421,7 @@ endif
 
 define UBOOT_INSTALL_IMAGES_CMDS
 	$(foreach f,$(UBOOT_BINS), \
-			cp -dpf $(@D)/$(f) $(BINARIES_DIR)/
+		test -f $(@D)/$(f) && cp -dpf $(@D)/$(f) $(BINARIES_DIR)/ || echo "Potential error: Missing $(@D)/$(f)"
 	)
 	$(if $(BR2_TARGET_UBOOT_FORMAT_NAND),
 		cp -dpf $(@D)/u-boot.sb $(BINARIES_DIR))

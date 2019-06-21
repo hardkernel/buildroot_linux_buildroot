@@ -43,6 +43,7 @@ menu "amlogic"
 	source "package/aml_libgdc/Config.in"
 	source "package/libvpcodec/Config.in"
 	source "package/libvphevcodec/Config.in"
+	source "package/aml_hifi4/Config.in"
 endmenu
 
 menu "Audio and video applications"
