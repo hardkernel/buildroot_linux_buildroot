@@ -86,7 +86,7 @@ public:
   SbTime GetCurrentMediaTime(bool *is_playing, bool *is_eos_played, bool* is_underflow) override {
     return AVGetCurrentMediaTime(is_playing, is_eos_played);
   }
-  int GetNumFramesBuffered();
+  int GetNumFramesBuffered(bool dump=false);
   const static int MAX_NUM_FRAMES = 300;
   const static int PREROLL_NUM_FRAMES = 100;
 

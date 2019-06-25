@@ -24,7 +24,7 @@
 #define THIRD_PARTY_STARBOARD_AMLOGIC_SHARED_CONFIGURATION_PUBLIC_H_
 
 #ifndef SB_API_VERSION
-#define SB_API_VERSION SB_EXPERIMENTAL_API_VERSION
+#define SB_API_VERSION 10
 #endif
 
 // --- System Header Configuration -------------------------------------------
@@ -195,7 +195,7 @@
 // If this is not required (e.g. SB_MUST_FREQUENTLY_FLIP_DISPLAY_BUFFER is set
 // to 0), then optimizations where the display buffer is not flipped if the
 // scene hasn't changed are enabled.
-#define SB_MUST_FREQUENTLY_FLIP_DISPLAY_BUFFER 0
+#define SB_MUST_FREQUENTLY_FLIP_DISPLAY_BUFFER 1
 
 // --- I/O Configuration -----------------------------------------------------
 

@@ -226,6 +226,15 @@ SbTime AmlAVCodec::AVGetCurrentMediaTime(bool *is_playing,
     CLOG(ERROR) << "failed to get pts";
   } else {
     retpts = (uint32_t)pts * kSbTimeMillisecond / 90;
+    static const SbTime max_aml_pts_value = 0x100000000LL * kSbTimeMillisecond / 90;
+    SbTime unwrap_pts = retpts + pts_sb / max_aml_pts_value * max_aml_pts_value;
+    if (unwrap_pts - pts_sb > max_aml_pts_value / 2) {
+      // unwrap_pts is far more than pts_sb, this means pts_sb has just exceed n*max_aml_pts_value,
+      // while aml pts is near max_aml_pts_value
+      retpts = unwrap_pts - max_aml_pts_value;
+    } else {
+      retpts = unwrap_pts;
+    }
     if (retpts < pts_seek_to) {
       CLOG(WARNING) << "pts " << retpts / 1000000.0 << " < seektopts " << pts_seek_to / 1000000.0;
       retpts = pts_seek_to;
@@ -425,7 +434,13 @@ void AmlAVCodec::CopyClearBufferToSecure(InputBuffer *input_buffer) {
 
 bool AmlAVCodec::IsSampleInSecureBuffer(InputBuffer *input_buffer)
 {
-    return (last_pts_in_secure==input_buffer->timestamp());
+    drminfo_t *drminfo = (drminfo_t *)input_buffer->data();
+    int size = input_buffer->size();
+    return ((last_pts_in_secure == input_buffer->timestamp()) &&
+            (drminfo->drm_level == DRM_LEVEL1) &&
+            (((size == sizeof(drminfo_t)) && (drminfo->drm_hasesdata == 0)) ||
+             ((size > sizeof(drminfo_t)) && (drminfo->drm_hasesdata == 1) &&
+              (drminfo->drm_pktsize + sizeof(drminfo_t) == size))));
 }
 
 static struct {
@@ -521,21 +536,24 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
     const char *encrypted = input_buffer->drm_info() ? "enc" : "clr";
     log_last_append_time = now + log_time_interval;
     log_last_pts = input_buffer->timestamp() + log_time_interval;
-    int pts;
-    if (isvideo)
-      pts = codec_get_vpts(codec_param);
-    else
-      pts = codec_get_apts(codec_param);
-    SbTime ptssb = (uint32_t)pts * kSbTimeMillisecond / 90;
+    int pts = isvideo ? codec_get_vpts(codec_param) : codec_get_apts(codec_param);
+    SbTime ptsaml = (uint32_t)pts * kSbTimeMillisecond / 90;
+    SbTime ptssb = AVGetCurrentMediaTime(NULL, NULL);
+    int num_buffered = num_frame_pts;
+    if (ptssb != kSbTimeMax) {
+      num_buffered = std::count_if(frame_pts.begin(), frame_pts.end(),
+          std::bind(std::greater<SbTime>(), std::placeholders::_1, ptssb));
+    }
     char pqinfo[256];
     if (frame_pts.empty())
       sprintf(pqinfo, "empty");
     else
       sprintf(pqinfo, "%.6f,%.6f num:%d", frame_pts.front() / 1000000.0,
-              frame_pts.back() / 1000000.0, num_frame_pts);
+              frame_pts.back() / 1000000.0, num_buffered);
     CLOG(INFO) << "write " << encrypted << " sample size:" << size
                << " pts:" << input_buffer->timestamp() / 1000000.0
-               << " cur:" << ptssb / 1000000.0 << " buf:" << bufstat.data_len
+               << " cur:" << ptsaml / 1000000.0
+               << " unwrap:" << ptssb / 1000000.0 << " buf:" << bufstat.data_len
                << "/" << bufstat.size << " ptsq:" << pqinfo;
   }
   if (bufstat.free_len < size + 1024 * 32) {
@@ -602,21 +620,41 @@ bool AmlAVCodec::AVWriteSample(const scoped_refptr<InputBuffer> &input_buffer,
   return success;
 }
 
-int AmlAVCodec::GetNumFramesBuffered() {
-  int pts;
-  if (buffer_full || eos_state || !codec_param)
+int AmlAVCodec::GetNumFramesBuffered(bool dump) {
+  if (buffer_full || eos_state || !codec_param) {
+    if (dump) {
+      CLOG(INFO) << "full:" << buffer_full << " eos:" << eos_state << " codec_param:" << (void *)codec_param;
+    }
     return MAX_NUM_FRAMES;
-  if (isvideo)
-    pts = codec_get_vpts(codec_param);
-  else
-    pts = codec_get_apts(codec_param);
-  if (pts != -1) {
-    SbTime ptssb = (uint32_t)pts * kSbTimeMillisecond / 90;
-    int num = std::count_if(frame_pts.begin(), frame_pts.end(),
-        std::bind(std::greater<SbTime>(), std::placeholders::_1, ptssb));
-    return num;
   }
-  return MAX_NUM_FRAMES;
+  SbTime pts = AVGetCurrentMediaTime(NULL, NULL);
+  int num_buffered = MAX_NUM_FRAMES;
+  if (pts != kSbTimeMax) {
+    num_buffered = std::count_if( frame_pts.begin(), frame_pts.end(),
+        std::bind(std::greater<SbTime>(), std::placeholders::_1, pts));
+  }
+  if (dump) {
+    struct buf_status bufstat;
+    int codec_pts;
+    if (isvideo) {
+      codec_get_vbuf_state(codec_param, &bufstat);
+      codec_pts = codec_get_vpts(codec_param);
+    } else {
+      codec_get_abuf_state(codec_param, &bufstat);
+      codec_pts = codec_get_apts(codec_param);
+    }
+    SbTime ptsaml = (uint32_t)codec_pts * kSbTimeMillisecond / 90;
+    char pqinfo[256];
+    if (frame_pts.empty())
+      sprintf(pqinfo, "empty num:%d", num_buffered);
+    else
+      sprintf(pqinfo, "%.6f,%.6f num:%d", frame_pts.front() / 1000000.0,
+              frame_pts.back() / 1000000.0, num_buffered);
+    CLOG(INFO) << "feed:" << pts_sb / 1000000.0 << " cur:" << ptsaml / 1000000.0
+               << " unwrap:" << pts / 1000000.0 << " buf:" << bufstat.data_len
+               << "/" << bufstat.size << " ptsq:" << pqinfo;
+  }
+  return num_buffered;
 }
 
 void AmlAVCodec::AVCheckDecoderEos() {

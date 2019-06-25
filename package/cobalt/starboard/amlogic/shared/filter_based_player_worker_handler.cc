@@ -505,8 +505,10 @@ void FilterBasedPlayerWorkerHandler::Update() {
       if (!underflow_pause) {
         if ((nframe_video < 30) || (nframe_audio < 30)) {
           SB_LOG(WARNING) << "buffer underflow, audio:" << nframe_audio << " video:" << nframe_video;
+          if (audio_renderer_) audio_renderer_->GetNumFramesBuffered(true);
           GetMediaTimeProvider()->Pause();
           if (video_renderer_) {
+            video_renderer_->GetNumFramesBuffered(true);
             video_renderer_->Pause();
           }
           underflow_pause = true;
