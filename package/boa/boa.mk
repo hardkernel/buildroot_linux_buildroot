@@ -10,6 +10,8 @@ BOA_LICENSE = GPL-2.0+
 BOA_LICENSE_FILES = COPYING
 BOA_EXTER_FILE = $(TOPDIR)/package/boa
 
+BOA_CONF_ENV=CFLAGS+=-DINET6
+
 define BOA_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 755 $(@D)/src/boa $(TARGET_DIR)/usr/sbin/boa
 	$(INSTALL) -D -m 755 $(@D)/src/boa_indexer $(TARGET_DIR)/usr/lib/boa/boa_indexer
