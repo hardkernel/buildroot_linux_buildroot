@@ -189,6 +189,8 @@ BR2_PACKAGE_AML_BOOTLOADER_MESSAGE=y
 #-----------For SWUpdate Feature------------------------------------------------#
 BR2_PACKAGE_SWUPDATE=y
 BR2_PACKAGE_SWUPDATE_CONFIG="package/swupdate/swupdate.config"
+#We dont need to install website for swupdate, as A1 use direct OTA feature, not WebUi Update
+#BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE=y 
 
 #-----------------------For AML Audio Player--------------------------------#
 BR2_PACKAGE_AML_AUDIO_PLAYER=y
@@ -232,11 +234,6 @@ BR2_PACKAGE_AVAHI_DAEMON=y
 BR2_PACKAGE_AVAHI_AUTOIPD=y
 BR2_PACKAGE_AVAHI_LIBDNSSD_COMPATIBILITY=y
 
-#
-#alsa speaker process
-#
-##BR2_PACKAGE_AML_SPEAKER_PROCESS=y
-
 BR2_PACKAGE_CURL=y
 BR2_PACKAGE_LIBCURL=y
 BR2_PACKAGE_LIBCURL_MBEDTLS=y
@@ -266,4 +263,20 @@ BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_ID3DEMUX=y
 
 BR2_PACKAGE_AVS_SDK=y
 BR2_AVS_DSPC=y
+
+#----------------------------Web UI_Feature------------------------------------#
+BR2_PACKAGE_WEB_UI_WIFI=y
+
+#----------------------------Spotify Feature-----------------------------------#
+BR2_PACKAGE_LIBRESPOT_SYNC=y
+
+##----------------------------Legacy Airplay Feature----------------------------#
+BR2_PACKAGE_DBUS=y
+BR2_PACKAGE_LIBSOXR=y
+BR2_PACKAGE_SHAIRPORT_SYNC=y
+
+##----------------------------DLNA Feature--------------------------------------#
+BR2_PACKAGE_UPNP_APP=y
+BR2_PACKAGE_NETCHECK=y
+BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SOUPHTTPSRC=y
 
