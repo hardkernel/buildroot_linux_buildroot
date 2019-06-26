@@ -59,6 +59,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
 
 	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf    			$(@D)/$(ONVIF_ARCH)/etc/nginx
+	cp -a $(TARGET_DIR)/etc/php.ini    						$(@D)/$(ONVIF_ARCH)/etc/php.ini
 	cp -a $(TARGET_DIR)/var/www/ipc-webui    				$(@D)/$(ONVIF_ARCH)/var/www
 
 	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH).tgz -C $(@D) $(ONVIF_ARCH)
