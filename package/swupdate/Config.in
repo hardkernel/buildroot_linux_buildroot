@@ -49,6 +49,12 @@ config BR2_PACKAGE_SWUPDATE_CONFIG
 	  I you wish to use your own modified swupdate configuration
 	  file specify the config file location with this option.
 
+config BR2_PACKAGE_SWUPDATE_DOWNLOAD
+	bool "swupdate download OTA image"
+	default n
+	help
+	  Download the OTA image during swupdate process.
+
 config BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE
 	bool "install default website"
 	default y

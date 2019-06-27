@@ -218,6 +218,7 @@ BR2_PACKAGE_AML_BOOTLOADER_MESSAGE=y
 
 #-----------For SWUpdate Feature------------------------------------------------#
 BR2_PACKAGE_SWUPDATE=y
+BR2_PACKAGE_SWUPDATE_DOWNLOAD=y
 BR2_PACKAGE_SWUPDATE_CONFIG="package/swupdate/swupdate.config"
 #We dont need to install website for swupdate, as A1 use direct OTA feature, not WebUi Update
 #BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE=y 
