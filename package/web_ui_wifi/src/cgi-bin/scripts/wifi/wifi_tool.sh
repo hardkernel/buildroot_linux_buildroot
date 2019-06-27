@@ -30,14 +30,21 @@ PIDFILE4=/var/run/${NAME4}-wlan0.pid
 ##################################################################################################
 rtk_support()
 {
-	wifi_chip_id_vendor="/sys/bus/mmc/devices/sdio:0001/sdio:0001:1/vendor"
-	wifi_chip_id=`cat ${wifi_chip_id_vendor}`
-	case "${wifi_chip_id}" in
-		0x024c|0x0271)
-		RTK_WIFI_FLAG="TRUE"
-		;;
-	esac
+#wifi_power 2 will print "inf=xxx0" if success
+inf=`wifi_power 2 | awk -F = '{print $2}'`
+if [ "${inf}" = "" ];then
+dir="/sys/bus/mmc/devices/sdio0:0001/sdio0:0001:1/"
+else
+dir="/sys/bus/mmc/devices/${inf}:0001/${inf}:0001:1/"
+fi
 
+wifi_device_id=`cat "${dir}/device"`
+wifi_vendor_id=`cat "${dir}/vendor"`
+#AP6236 & qca9377 & rtk start single mode
+if [ ${wifi_device_id} = 0xa9a6 -o ${wifi_vendor_id} = 0x024c -o ${wifi_vendor_id} = 0x0271 ]
+then
+        RTK_WIFI_FLAG="TRUE"
+fi
 }
 
 #stop wifi

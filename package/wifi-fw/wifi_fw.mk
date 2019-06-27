@@ -261,6 +261,7 @@ endif
 endif
 
 
+ifeq ($(BR2_LINUX_KERNEL_VERSION),"amlogic-4.9-dev")
 define INSTALL_WIFI_MODULE
 $(Q) case "$(1)" in \
 		bcm40181) \
@@ -438,7 +439,21 @@ $(Q) case "$(1)" in \
 			$(INSTALL) -D -m 0755 $(@D)/bcm_ampak/tools/wl $(TARGET_DIR)/usr/bin; \
 		fi
 endef
+endif
 
+ifeq ($(BR2_LINUX_KERNEL_VERSION),"amlogic-4.19-dev")
+define INSTALL_WIFI_MODULE
+$(Q) case "$(1)" in \
+	AP6236) \
+		mkdir -p $(TARGET_DIR)/etc/wifi/6212; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/*.bin $(TARGET_DIR)/etc/wifi/6212/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/Wi-Fi/nvram*.txt $(TARGET_DIR)/etc/wifi/6212/nvram_ap6236.txt; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6236/BT/*.hcd $(TARGET_DIR)/etc/bluetooth/BCM43430B0.hcd; \
+		;; \
+esac;
+
+endef
+endif
 
 define WIFI_FW_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/etc/bluetooth
