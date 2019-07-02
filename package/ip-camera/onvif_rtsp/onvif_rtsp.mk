@@ -7,7 +7,7 @@
 ONVIF_RTSP_VERSION = 0.1
 ONVIF_RTSP_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_rtsp
 ONVIF_RTSP_SITE_METHOD = local
-ONVIF_RTSP_DEPENDENCIES = gst1-plugins-base gst1-plugins-good gst1-rtsp-server gst1-libav gstreamer1
+ONVIF_RTSP_DEPENDENCIES = gst1-plugins-base gst1-plugins-good gst1-plugins-bad gst1-rtsp-server gst1-libav gstreamer1
 ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlvenc gst-plugin-amloverlay gst-plugin-amlimgcap
 ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlnn gst-plugin-amlfacenet
 ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlvconv
