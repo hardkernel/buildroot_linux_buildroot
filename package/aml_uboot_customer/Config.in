@@ -1,6 +1,7 @@
 config BR2_PACKAGE_AML_UBOOT_CUSTOMER
 	bool "amlogic uboot customer"
 	help
+        amlogic uboot customer
 
 config BR2_PACKAGE_AML_UBOOT_CUSTOMER_GIT_VERSION
     string "amlogic uboot customer branch"
