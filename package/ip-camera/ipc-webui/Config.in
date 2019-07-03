@@ -6,6 +6,7 @@ config BR2_PACKAGE_IPC_WEBUI
   select BR2_PACKAGE_PHP_SAPI_FPM
   select BR2_PACKAGE_PHP_EXT_SQLITE
   select BR2_PACKAGE_PHP_EXT_JSON
+  select BR2_PACKAGE_NODEJS
 
   help
      include ipc webui

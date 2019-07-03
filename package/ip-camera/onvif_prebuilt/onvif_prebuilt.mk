@@ -14,7 +14,7 @@ ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
 ONVIF_PREBUILT_DEPENDENCIES = openssl zlib libjpeg directfb sqlite
 ONVIF_PREBUILT_DEPENDENCIES += gstreamer1 gst1-plugins-base gst1-plugins-good gst1-plugins-bad gst1-rtsp-server
 ONVIF_PREBUILT_DEPENDENCIES += libvpcodec libvphevcodec aml_nn_detect aml_libge2d aml_libgdc
-ONVIF_PREBUILT_DEPENDENCIES += nginx php
+ONVIF_PREBUILT_DEPENDENCIES += nginx php nodejs
 define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)
 	cp -av $(ONVIF_PREBUILT_DIRECTORY)/*  $(TARGET_DIR)/
@@ -38,7 +38,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 
 	cp -a $(TARGET_DIR)/etc/ipc.json                       $(@D)/$(ONVIF_ARCH)/etc/
 	cp -a $(TARGET_DIR)/etc/onvif                          $(@D)/$(ONVIF_ARCH)/etc/
-	cp -a $(TARGET_DIR)/etc/init.d/S80ipc-property-service $(@D)/$(ONVIF_ARCH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S45ipc-property-service $(@D)/$(ONVIF_ARCH)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_rtsp           $(@D)/$(ONVIF_ARCH)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_srvd           $(@D)/$(ONVIF_ARCH)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_wsdd           $(@D)/$(ONVIF_ARCH)/etc/init.d/
