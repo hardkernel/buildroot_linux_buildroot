@@ -185,26 +185,17 @@ function get_target_board_type() {
 }
 
 function get_build_config() {
-	TARGET=$1
-	RESULT1="$(echo $TARGET | cut -d '_' -f 3)"
-	RESULT2="$(echo $TARGET | cut -d '_' -f 4)"
-	RESULT3="$(echo $TARGET | cut -d '_' -f 5)"
-	if [[ $RESULT1 = "debug" ]]; then
-		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [[ $RESULT1 = "release" ]]; then
-		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [[ $RESULT2 = "debug" ]]; then
-		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [[ $RESULT2 = "release" ]]; then
-		echo "${DEFCONFIG_ARRAY[$index]}"
-	elif [[ $RESULT3 = "release" ]]; then
-		echo "${DEFCONFIG_ARRAY[$index]}"
-	else
-		echo "${DEFCONFIG_ARRAY[$index]}_release"
-	fi
-
-
+    TARGET=$1
+    RESULT=${TARGET##*_}
+    if [[ $RESULT = "debug" ]]; then
+        echo "${DEFCONFIG_ARRAY[$index]}"
+    elif [[ $RESULT = "release" ]]; then
+        echo "${DEFCONFIG_ARRAY[$index]}"
+    else
+        echo "${DEFCONFIG_ARRAY[$index]}_release"
+    fi
 }
+
 function get_target_build_type() {
 	TARGET=$1
 	TYPE="$(echo $TARGET | cut -d '_' -f 1)"
