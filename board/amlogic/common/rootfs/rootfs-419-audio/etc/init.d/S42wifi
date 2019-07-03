@@ -176,18 +176,32 @@ $MULTI_WIFI station 1
 #$MULTI_WIFI ap 1
 #fi
 mkdir -p /etc/wifi
-wifi_chip_id_vendor="/sys/bus/mmc/devices/mmc0:0001/mmc0:0001:1/vendor"
-wifi_chip_id=`cat ${wifi_chip_id_vendor}`
-case "${wifi_chip_id}" in
-	0x02d0)
-		wifi_setup both
-		;;
-	#we use qca9377 same with rtk temperary
-	0x024c|0x0271)
-		RTK_WIFI_FLAG="TRUE"
-		wifi_rtk
-		;;
-esac
+#wifi_power 2 will print "inf=xxx0" if success
+inf=`wifi_power 2 | awk -F = '{print $2}'`
+if [ "${inf}" = "" ];then
+dir="/sys/bus/mmc/devices/sdio0:0001/sdio0:0001:1/"
+else
+dir="/sys/bus/mmc/devices/${inf}:0001/${inf}:0001:1/"
+fi
+
+wifi_device_id=`cat "${dir}/device"`
+#AP6236 start single mode, as rtk modules
+if [ ${wifi_device_id} = 0xa9a6 ];then
+        RTK_WIFI_FLAG="TRUE"
+        wifi_rtk
+else
+		wifi_vendor_id=`cat "${dir}/vendor"`
+        case "${wifi_vendor_id}" in
+                0x02d0)
+                        wifi_setup both
+                        ;;
+                #we use qca9377 same with rtk temperary
+                0x024c|0x0271)
+                        RTK_WIFI_FLAG="TRUE"
+                        wifi_rtk
+                        ;;
+        esac
+fi
 }
 
 case "$1" in
