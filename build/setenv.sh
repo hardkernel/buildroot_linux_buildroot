@@ -51,6 +51,7 @@ DEFCONFIG_ARRAY=(
     "mesonaxg_s400_release"
     "mesonaxg_s400_32_emmc"
     "mesonaxg_s400_emmc"
+    "mesonaxg_s400_32_emmc_k5.1_release"
     "mesonaxg_s410_32_release"
     "mesonaxg_s420_32_debug"
     "mesonaxg_s420_a3232_debug"
