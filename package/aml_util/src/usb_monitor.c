@@ -9,56 +9,68 @@
 #define USB_STATE_FILE     "/sys/class/android_usb/android0/state"
 #define USB_CONFIG_ADB_CMD     "echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC"
 #define USB_CONFIG_ADB_UDC     "/sys/kernel/config/usb_gadget/amlogic/UDC"
+#define USB_CONFIG_ADB_UDC_VAL_FILE     "/etc/adb_udc_file"
 #define ERROR_GET_CONTENT  -1
 #define ERROR_USB_CONFIG_ADB  -2
 #define SUCCESS            0
 
 int UDC_config()
 {
-	char UdcValue[] = "ff400000.dwc2_a";
-	char UdcValue_check[MIN_SIZE] = {0};
-	FILE *fp = fopen(USB_CONFIG_ADB_UDC, "wb");
-	if (fp != NULL)
-	{
-		//printf("udc config data!\n");
-		if ( fputs(UdcValue, fp) < 0)
-		{
-			printf("udc config data failure\n");
-		}
-		sync();
-	}
-	fclose(fp);
-	fp = NULL;
+    char UdcValue[128] = "ff400000.dwc2_a";
+    char UdcValue_check[MIN_SIZE] = {0};
+    FILE *fp = NULL;
+    fp = fopen(USB_CONFIG_ADB_UDC_VAL_FILE, "r");
+    if (fp != NULL)
+    {
+        fgets(UdcValue, 128, fp);
+        fclose(fp);
+    }
+    fp = NULL;
+
+    fp = fopen(USB_CONFIG_ADB_UDC, "wb");
+    if (fp != NULL)
+    {
+        //printf("udc config data!\n");
+        if ( fputs(UdcValue, fp) < 0)
+            printf("udc config data failure\n");
+        sync();
+        fclose(fp);
+    }
+    fp = NULL;
+    return 0;
 }
 
 int usb_configure()
 {
-	/*open android0 state node*/
-	char FileName[MIN_SIZE] = {0};
-	int flag = -1;
-	FILE *fp = fopen(USB_STATE_FILE, "r");
-	if (fp != NULL)
-	{
-		if (fgets(FileName, MIN_SIZE, fp) == NULL)
-		{
-			printf("get android0 state  content failure!\n");
-			fclose(fp);
-			return  ERROR_GET_CONTENT;
-		}
-		//printf("content: %s\n", FileName);
-	}
-
-	flag = strncmp("DISCONNECTED", (const char*)FileName, 12);
-	if (flag == 0) {
-		UDC_config();
-		//system("echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC");
-		fclose(fp);
-		return SUCCESS;
-		//printf("config usb successfull!\n");
-	}
-		fclose(fp);
-		fp = NULL;
-		return ERROR_USB_CONFIG_ADB;
+    /*open android0 state node*/
+    char FileName[MIN_SIZE] = {0};
+    int flag = -1, ret = -1;
+    FILE *fp = fopen(USB_STATE_FILE, "r");
+    if (fp != NULL)
+    {
+        if (fgets(FileName, MIN_SIZE, fp) == NULL)
+        {
+            printf("get android0 state  content failure!\n");
+            fclose(fp);
+            ret = ERROR_GET_CONTENT;
+        }
+        else
+        {
+            //printf("content: %s\n", FileName);
+            if(!strncmp("DISCONNECTED", (const char*)FileName, 12))
+            {
+                UDC_config();
+                //system("echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC");
+                ret = SUCCESS;
+                //printf("config usb successfull!\n");
+            }
+        }
+        fclose(fp);
+    }
+    else
+        ret = ERROR_USB_CONFIG_ADB;
+    fp = NULL;
+    return ret;
 }
 
 int main(void)
