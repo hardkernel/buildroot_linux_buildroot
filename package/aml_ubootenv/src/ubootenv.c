@@ -154,10 +154,15 @@ int read_bootenv() {
     if (ret == (int)ENV_PARTITIONS_SIZE) {
         crc_calc = crc32(0,(uint8_t *)env_data.data, ENV_SIZE);
         if (crc_calc != *(env_data.crc)) {
-            ERROR("[ubootenv] CRC Check ERROR save_crc=%08x,calc_crc = %08x \n",
-                *env_data.crc, crc_calc);
-            close(fd);
-            return -3;
+            ENV_PARTITIONS_SIZE = 0x2000;
+            ENV_SIZE = ENV_PARTITIONS_SIZE - 4;
+            crc_calc = crc32(0,(uint8_t *)env_data.data, ENV_SIZE);
+            if (crc_calc != *(env_data.crc)) {
+                ERROR("[ubootenv] CRC Check ERROR save_crc=%08x,calc_crc = %08x \n",
+                    *env_data.crc, crc_calc);
+                close(fd);
+                return -3;
+            }
         }
         attr = env_parse_attribute();
         if (attr == NULL) {
