@@ -41,28 +41,32 @@ powerStateChange()
 
 volumeUpAction()
 {
-    local volumeMax=`amixer sget "Master"|grep "Limits:"|awk '{print $4}'`
-    local volumeCurrent=`amixer sget "Master" |grep "Mono:" |awk '{print $2}'`
+    amixer_vol_ctrl=`amixer controls | grep "DAC Digital Playback Volume"` > /dev/null
+    vol_ctrl_id=${amixer_vol_ctrl%%,*}
+    local volumeMax=`amixer cget "$vol_ctrl_id" | grep "type=" |awk -F, '{print $5}' | awk -F= '{print $2}'`
+    local volumeCurrent=`amixer cget "$vol_ctrl_id" | grep ": values=" |awk -F, '{print $2}'`
     if [ $volumeCurrent -le $volumeMax ];then
-        let volumeCurrent+=10
+        let volumeCurrent+=1
         echo "$volumeCurrent"
         if [ $volumeCurrent -ge $volumeMax ];then
             volumeCurrent=$volumeMax
         fi
-        amixer sset "Master" $volumeCurrent
+        amixer cset "$vol_ctrl_id" $volumeCurrent,$volumeCurrent
     fi
 }
 
 volumeDownAction()
 {
-    local volumeMin=`amixer sget "Master" |grep "Limits:" |awk '{print $2}'`
-    local volumeCurrent=`amixer sget "Master" |grep "Mono:" |awk '{print $2}'`
+    amixer_vol_ctrl=`amixer controls | grep "DAC Digital Playback Volume"` > /dev/null
+    vol_ctrl_id=${amixer_vol_ctrl%%,*}
+    local volumeMin=`amixer cget "$vol_ctrl_id" | grep "type=" |awk -F, '{print $4}' | awk -F= '{print $2}'`
+    local volumeCurrent=`amixer cget "$vol_ctrl_id" | grep ": values=" |awk -F, '{print $2}'`
     if [ $volumeCurrent -ge $volumeMin ];then
-        let volumeCurrent-=10
+        let volumeCurrent-=1
         if [ $volumeCurrent -lt $volumeMin ];then
             volumeCurrent=$volumeMin
         fi
-        amixer sset "Master" $volumeCurrent
+        amixer cset "$vol_ctrl_id" $volumeCurrent,$volumeCurrent
     fi
 }
 
@@ -108,6 +112,8 @@ case $1 in
     "VolumeDown") volumeDownAction ;;
     "longpressWifiConfig") wifiSmartConfig ;;
     "WifiConfig")  ble_wifi_setup ;;
+    "Mute")  echo "Please link Mute key with player" ;;
+    "Play")  echo "Please link Play Key with Player" ;;
     *) echo "no function to add this case: $1" ;;
 esac
 
