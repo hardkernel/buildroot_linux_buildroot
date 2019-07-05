@@ -18,7 +18,7 @@ if [ -f "/mnt/software.swu" ]; then
     if [ -f "/proc/inand" ]; then
         swupdate -l 6 -k /etc/swupdate-public.pem -i /mnt/software.swu
     else
-        swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -i /mnt/software.swu
+        swupdate -l 6 -b "0 1 2 3 4" -k /etc/swupdate-public.pem -i /mnt/software.swu
     fi
     if [ $? != 0 ]; then
         echo "swupdate software.swu from data failed!"
@@ -73,7 +73,7 @@ else
 		if [ -f "/proc/inand" ]; then
 			swupdate -l 6 -k /etc/swupdate-public.pem -i /media/software.swu
 		else
-			swupdate -l 6 -b "0 1 2 3 4 5" -k /etc/swupdate-public.pem -i /media/software.swu
+			swupdate -l 6 -b "0 1 2 3 4" -k /etc/swupdate-public.pem -i /media/software.swu
 		fi
 		if [ $? != 0 ]; then
 			echo "swupdate software.swu from usb failed!"
