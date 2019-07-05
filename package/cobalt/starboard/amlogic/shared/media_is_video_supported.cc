@@ -17,7 +17,51 @@
 #include "starboard/configuration.h"
 #include "starboard/media.h"
 #include "starboard/string.h"
+#include "starboard/log.h"
 #include <stdlib.h>
+#include <string>
+#include <map>
+
+namespace {
+struct SupportedVideoCaps {
+  struct VideoCaps {
+    int64_t bitrate;
+    int width;
+    int height;
+    int fps;
+  };
+  std::map<std::string, VideoCaps> all_caps;
+
+  VideoCaps *GetVideoCap(SbMediaVideoCodec video_codec, bool decode_to_texture) {
+    std::string name = "none";
+    if (decode_to_texture) name = "vr";
+    else if (video_codec == kSbMediaVideoCodecVp9) name = "vp9";
+    else if (video_codec == kSbMediaVideoCodecH264) name = "h264";
+    auto it = all_caps.find(name);
+    return it != all_caps.end() ? (&it->second) : NULL;
+  }
+
+  void InitVideoCap(void) {
+      const char *env = getenv("COBALT_SUPPORTED_VIDEO_CAPS");
+      if (!env) env = "vp9:3840x2160@60<0,h264:3840x2160@30<0,vr:1920x1080@30<0,hdr:3840x2160@30<0";
+      SB_LOG(INFO) << "InitVideoCap from string \"" << env << "\"";
+      while (true) {
+          char codec[32];
+          int64_t bitrate;
+          int width, height, fps, len = 0;
+          if (sscanf(env, "%31[^:]:%dx%d@%d<%lld%n", codec, &width, &height, &fps, &bitrate, &len) != 5) {
+              SB_LOG(INFO) << "failed to get video caps \"" << env << "\"";
+              break;
+          }
+          bitrate = bitrate ? bitrate : SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND;
+          all_caps[codec] = {bitrate, width, height, fps};
+          SB_LOG(INFO) << "add video cap " << codec << ":" << width << "x" << height << "@" << fps << "<" << bitrate;
+          env += len;
+          if (*env++ == '\0') break;
+      }
+  }
+};
+} // namespace
 
 SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
                                        int frame_width,
@@ -25,35 +69,13 @@ SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
                                        int64_t bitrate,
                                        int fps,
                                        bool decode_to_texture_required) {
-#if 0
-  if (decode_to_texture_required) {
-    // There is no Creator CI20 360 video implementation.
-    return false;
+  static SupportedVideoCaps * supported_caps = nullptr;
+  if (supported_caps == nullptr) {
+    supported_caps = new SupportedVideoCaps;
+    supported_caps->InitVideoCap();
   }
-#endif
-  if (video_codec == kSbMediaVideoCodecVp9) {
-    static int vp9_supported = -1;
-    if (vp9_supported == -1) {
-      const char *env = getenv("COBALT_DISABLE_VP9");
-      if (env && ((SbStringCompareAll(env, "1") == 0) ||
-                  (SbStringCompareAll(env, "yes") == 0) ||
-                  (SbStringCompareAll(env, "true") == 0)))
-        vp9_supported = 0;
-      else
-        vp9_supported = 1;
-    }
-    if (vp9_supported == 0) return false;
-  }
-  int max_supported_width = 3840;
-  int max_supported_height = 2160;
-  int max_supported_fps = 60;
-  if (decode_to_texture_required) {
-      max_supported_width = 1920;
-      max_supported_height = 1080;
-      max_supported_fps = 30;
-  }
-  return (video_codec == kSbMediaVideoCodecH264 ||
-          video_codec == kSbMediaVideoCodecVp9) &&
-         frame_width <= max_supported_width && frame_height <= max_supported_height &&
-         bitrate <= SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND && fps <= max_supported_fps;
+  SupportedVideoCaps::VideoCaps *caps = supported_caps->GetVideoCap(video_codec, decode_to_texture_required);
+  return (caps != NULL) && frame_width <= caps->width &&
+         frame_height <= caps->height && bitrate <= caps->bitrate &&
+         fps <= caps->fps;
 }
