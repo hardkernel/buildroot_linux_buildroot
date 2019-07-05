@@ -11,6 +11,8 @@ endef
 define AML_HIFI4_INSTALL_TARGET_CMDS
 	pushd $(@D); \
 	$(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/;\
+	mkdir -p $(TARGET_DIR)/usr/dsp/;\
+	$(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(TARGET_DIR)/usr/dsp/;\
 	popd
 endef
 
