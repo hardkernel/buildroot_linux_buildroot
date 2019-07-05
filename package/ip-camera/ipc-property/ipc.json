@@ -136,6 +136,7 @@
         },
         "image capture": {
           "enabled": true,
+          "quality": 80,
           "location": "/tmp",
           "trigger": false,
           "imagefile": ""
