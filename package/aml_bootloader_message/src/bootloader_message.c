@@ -123,6 +123,30 @@ int get_mtd_by_name(char *name) {
     return -1;
 }
 
+int get_mtd_size(char *mtdname) {
+    int fd = 0;
+    int ret = 0;
+    mtd_info_t meminfo;
+
+    //open mtd device
+    fd = open(mtdname, O_RDWR);
+    if (fd < 0) {
+        printf("open %s failed!\n", mtdname);
+        return -1;
+    }
+
+        //get meminfo
+    ret = ioctl(fd, MEMGETINFO, &meminfo);
+    if (ret < 0) {
+        printf("get MEMGETINFO failed!\n");
+        close(fd);
+        return -1;
+    }
+    close(fd);
+
+    return meminfo.size;
+}
+
 int nand_erase(const char *devicename, const int offset, const int len) {
     int fd;
     int ret = 0;
@@ -256,12 +280,21 @@ int nand_read(const char *device_name, const int mtd_offset,
 
     //if offset in a bad block, get next good block
     blockstart = offset & ~(meminfo.erasesize - 1);
-    if (offset != blockstart) {
-        unsigned int tmp;
-        tmp = next_good_eraseblock(fd, &meminfo, blockstart);
-        if (tmp != blockstart) {
-            offset = tmp;
-        }
+    offset = next_good_eraseblock(fd, &meminfo, blockstart);
+    printf("nand read find good block offset:%d\n", offset);
+    if (offset >= limit) {
+        printf("offset(%d) over limit(%d)\n", offset, limit);
+        close(fd);
+        free(tmp);
+        return -1;
+    }
+
+    ret = lseek(fd, offset, SEEK_SET);
+    if (ret < 0) {
+        printf("lseek(%d) failed\n", offset);
+        close(fd);
+        free(tmp);
+        return -1;
     }
 
     size = read(fd, tmp, meminfo.writesize);
@@ -322,18 +355,27 @@ int nand_write(const char *device_name, const int mtd_offset,
         return -1;
     }
 
-    //if offset in a bad block, get next good block
+    //get next good block
     blockstart = offset & ~(meminfo.erasesize - 1);
-    if (offset != blockstart) {
-        unsigned int tmp;
-        tmp = next_good_eraseblock(fd, &meminfo, blockstart);
-        if (tmp != blockstart) {
-            offset = tmp;
-        }
+    offset = next_good_eraseblock(fd, &meminfo, blockstart);
+    printf("nand write find good block offset:%d\n", offset);
+    if (offset >= limit) {
+        printf("offset(%d) over limit(%d)\n", offset, limit);
+        close(fd);
+        free(tmp);
+        return -1;
     }
 
     memcpy(tmp, data, len);
     memset(tmp+len, 0, meminfo.writesize - len);
+
+    ret = lseek(fd, offset, SEEK_SET);
+    if (ret < 0) {
+        printf("lseek(%d) failed\n", offset);
+        close(fd);
+        free(tmp);
+        return -1;
+    }
 
     size = write(fd, tmp, meminfo.writesize);
     if (size != meminfo.writesize) {
@@ -375,7 +417,7 @@ static int get_bootloader_message_mtd(struct bootloader_message *out) {
 
     printf("buff:%s\n", buff);
     memset(&temp, 0, sizeof(temp));
-    ret = nand_read(buff, 0, &temp, sizeof(temp));
+    ret = nand_read(buff, 0, (char *)&temp, sizeof(struct bootloader_message));
     if (ret < 0) {
         printf("nand_read failed!\n");
         return -1;
@@ -387,6 +429,7 @@ static int get_bootloader_message_mtd(struct bootloader_message *out) {
 
 static int set_bootloader_message_mtd(struct bootloader_message *in) {
     int ret = 0;
+    int misc_size = 0;
     int mtd = get_mtd_by_name("misc");
     if (mtd < 0) {
         printf("get misc mtd num failed!\n");
@@ -397,13 +440,19 @@ static int set_bootloader_message_mtd(struct bootloader_message *in) {
     sprintf(buff, "%s%d", "/dev/mtd", mtd);
 
     printf("buff:%s\n", buff);
-    ret =nand_erase(buff, 0, sizeof(*in));
+    misc_size = get_mtd_size(buff);
+    if (misc_size < 0) {
+        printf("get %s size failed!\n", buff);
+        return -1;
+    }
+
+    ret =nand_erase(buff, 0, misc_size);
     if (ret < 0) {
         printf("nand_erase failed!\n");
         return -1;
     }
 
-    ret = nand_write(buff, 0, in, sizeof(*in));
+    ret = nand_write(buff, 0, (char *)in, sizeof(struct bootloader_message));
     if (ret < 0) {
         printf("nand_read failed!\n");
         return -1;
