@@ -1,6 +1,16 @@
 #!/bin/sh
 #
 
+curvol_file=/etc/current_volume
+
+function resume_volume()
+{
+    amixer_vol_ctrl=`amixer controls | grep "DAC Digital Playback Volume"` > /dev/null
+    vol_ctrl_id=${amixer_vol_ctrl%%,*}
+    echo "Resume volume: `cat $curvol_file`"
+    amixer cset "$vol_ctrl_id" `cat $curvol_file`
+}
+
 function init_asound(){
 	sleep 2
 	cat /proc/device-tree/amlogic-dt-id | grep v03
@@ -20,6 +30,7 @@ function init_asound(){
 case "$1" in
   start)
 	  init_asound &
+      resume_volume
 	;;
   *)
 	echo "Usage: $0 {start}"

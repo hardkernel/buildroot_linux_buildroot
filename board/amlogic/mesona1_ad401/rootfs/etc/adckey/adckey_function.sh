@@ -3,6 +3,7 @@
 powerStateFile="/sys/power/state"
 powerResumeFlag="/etc/adckey/powerState"
 wake_lockFile="/sys/power/wake_lock"
+curvol_file="/etc/current_volume"
 
 wait_wake_lock()
 {
@@ -52,6 +53,7 @@ volumeUpAction()
             volumeCurrent=$volumeMax
         fi
         amixer cset "$vol_ctrl_id" $volumeCurrent,$volumeCurrent
+        echo "$volumeCurrent,$volumeCurrent" > $curvol_file
     fi
 }
 
@@ -67,6 +69,7 @@ volumeDownAction()
             volumeCurrent=$volumeMin
         fi
         amixer cset "$vol_ctrl_id" $volumeCurrent,$volumeCurrent
+        echo "$volumeCurrent,$volumeCurrent" > $curvol_file
     fi
 }
 
