@@ -96,6 +96,9 @@ AML_DTBS=$(patsubst amlogic/%,%,$(LINUX_DTBS))
 define AML_MKBOOTIMG
 	@$(call MESSAGE,"Generating boot image")
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset $(LINUX_KERNEL_BOOTIMAGE_OFFSET) --cmdline "$(KERNEL_BOOTARGS)" --ramdisk $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/$(AML_DTBS) --output $(BINARIES_DIR)/boot.img
+	echo "buildroot/linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset $(LINUX_KERNEL_BOOTIMAGE_OFFSET) --cmdline \"$(KERNEL_BOOTARGS)\" --ramdisk $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/$(AML_DTBS) --output $(BINARIES_DIR)/boot.img" > $(BINARIES_DIR)/mk_bootimg.sh
+	sed -i '1s/^/#!\/bin\/sh\n\n/' $(BINARIES_DIR)/mk_bootimg.sh
+	chmod a+x $(BINARIES_DIR)/mk_bootimg.sh
 	cp $(BINARIES_DIR)/$(AML_DTBS) $(BINARIES_DIR)/dtb.img -rf
 	if [ "$(BR2_PACKAGE_SWUPDATE)" = "y" ] && [ "$(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)" != "absystem" ]; then  \
 	gzip -9 -c $(BINARIES_DIR)/recovery.cpio > $(BINARIES_DIR)/recovery.cpio.gz; \
@@ -121,6 +124,9 @@ define AML_MKBOOTIMG
 	gzip $(BINARIES_DIR)/dtb.img
 	mv $(BINARIES_DIR)/dtb.img.gz $(BINARIES_DIR)/dtb.img
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset $(LINUX_KERNEL_BOOTIMAGE_OFFSET) --cmdline "$(KERNEL_BOOTARGS)" --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/boot.img
+	echo "buildroot/linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset $(LINUX_KERNEL_BOOTIMAGE_OFFSET) --cmdline \"$(KERNEL_BOOTARGS)\" --ramdisk  $(BINARIES_DIR)/$(ROOTFS_CPIO) --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/boot.img" > $(BINARIES_DIR)/mk_bootimg.sh
+	sed -i '1s/^/#!\/bin\/sh\n\n/' $(BINARIES_DIR)/mk_bootimg.sh
+	chmod a+x $(BINARIES_DIR)/mk_bootimg.sh
 	if [ "$(BR2_PACKAGE_SWUPDATE)" = "y" ] && [ "$(BR2_PACKAGE_SWUPDATE_AB_SUPPORT)" != "absystem" ]; then  \
 	gzip -9 -c $(BINARIES_DIR)/recovery.cpio > $(BINARIES_DIR)/recovery.cpio.gz; \
 	linux/mkbootimg --kernel $(LINUX_IMAGE_PATH) --base 0x0 --kernel_offset $(LINUX_KERNEL_BOOTIMAGE_OFFSET) --cmdline "$(KERNEL_BOOTARGS)" --ramdisk  $(BINARIES_DIR)/recovery.cpio.gz --second $(BINARIES_DIR)/dtb.img --output $(BINARIES_DIR)/recovery.img; \
