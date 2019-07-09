@@ -46,7 +46,7 @@ define BLUEZ_ALSA_LIB_INSTALL_CMD
 	$(INSTALL) -D -m 0755 $(STAGING_DIR)/usr/lib/alsa-lib/*.so $(TARGET_DIR)/usr/lib/alsa-lib
 endef
 
-BLUEZ_ALSA_CONF_OPTS = --enable-debug --disable-payloadcheck --prefix=$(TARGET_DIR)/usr
+BLUEZ_ALSA_CONF_OPTS = --enable-debug --disable-payloadcheck --prefix=$(TARGET_DIR)/usr --sysconfdir=$(TARGET_DIR)/etc
 BLUEZ_ALSA_POST_INSTALL_TARGET_HOOKS += BLUEZ_ALSA_LIB_INSTALL_CMD
 
 $(eval $(autotools-package))
