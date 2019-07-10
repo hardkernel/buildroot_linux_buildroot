@@ -11,6 +11,7 @@ menu "Target packages"
 	source "package/slt/Config.in"
 
 menu "amlogic"
+	source "package/aml_libs_nf/Config.in"
 	source "package/aml_customer/Config.in"
 	source "package/aml_util/Config.in"
 	source "package/aml_pdm_mic_test/Config.in"
