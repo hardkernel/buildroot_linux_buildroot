@@ -38,6 +38,15 @@ config BR2_KERNEL_TOOLCHAIN_LINARO_AARCH64_201702
           Toolchain for the AArch64 architecture, from
           http://www.linaro.org/engineering/armv8/
 
+config BR2_KERNEL_TOOLCHAIN_LINARO_AARCH64_201805
+        bool "Linaro AArch64 2018.05"
+        depends on BR2_HOSTARCH = "x86_64"
+	depends on BR2_KERNEL_ARCH="arm64"
+        depends on !BR2_STATIC_LIBS
+        help
+          Toolchain for the AArch64 architecture, from
+          http://www.linaro.org/engineering/armv8/
+
 config BR2_KERNEL_TOOLCHAIN_CODESOURCERY_AARCH64
         bool "CodeSourcery AArch64 2014.05"
         depends on BR2_HOSTARCH = "x86_64" || BR2_HOSTARCH = "x86"
@@ -88,6 +97,7 @@ config BR2_KERNEL_TOOLCHAIN_PREFIX
         string
         default "aarch64-linux-gnu"      if BR2_KERNEL_TOOLCHAIN_LINARO_AARCH64_201408
         default "aarch64-linux-gnu"      if BR2_KERNEL_TOOLCHAIN_LINARO_AARCH64_201702
+        default "aarch64-linux-gnu"      if BR2_KERNEL_TOOLCHAIN_LINARO_AARCH64_201805
         default "aarch64-linux-gnu"      if BR2_KERNEL_TOOLCHAIN_CODESOURCERY_AARCH64
         default "arm-linux-gnueabihf"	 if BR2_KERNEL_TOOLCHAIN_LINARO_ARM_201405
         default "arm-linux-gnueabihf"    if BR2_KERNEL_TOOLCHAIN_LINARO_ARM_201702

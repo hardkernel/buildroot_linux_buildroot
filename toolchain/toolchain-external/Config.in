@@ -18,6 +18,7 @@ source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-4dot9/Con
 source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-4dot9-201408-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-6dot2-201702-preinstalled/Config.in"
+source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-7dot3-201805-preinstalled/Config.in"
 source "toolchain/toolchain-external/toolchain-external-codesourcery-aarch64/Config.in"
 
 # Aarch64 big-endian
@@ -129,6 +130,7 @@ source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-4dot9/Con
 source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-4dot9-201408-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-6dot2-201702-preinstalled/Config.in.options"
+source "toolchain/toolchain-external/toolchain-external-linaro-aarch64-7dot3-201805-preinstalled/Config.in.options"
 source "toolchain/toolchain-external/toolchain-external-codesourcery-aarch64/Config.in.options"
 
 # Aarch64 big-endian
