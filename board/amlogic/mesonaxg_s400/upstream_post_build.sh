@@ -11,12 +11,12 @@ rm -frv $1/etc/wifi
 rm -frv $1/etc/init.d/S81spotify
 rm -frv $1/etc/init.d/S42wifi
 
-rm -frv $1/etc/init.d/S4*
+rm -frv $1/etc/init.d/S48avs
+rm -frv $1/etc/init.d/S49ntp
 rm -frv $1/etc/init.d/S5*
 
 rm -frv $1/etc/init.d/S8*
 rm -frv $1/etc/init.d/S7*
-rm -frv $1/etc/init.d/S10mdev
 
 
 
