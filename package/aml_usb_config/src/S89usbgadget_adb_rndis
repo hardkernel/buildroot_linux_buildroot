@@ -29,7 +29,7 @@ usb_adbd_init()
 	mount -t functionfs adb /dev/usb-ffs/adb
 	ln -s /sys/kernel/config/usb_gadget/amlogic/functions/ffs.adb /sys/kernel/config/usb_gadget/amlogic/configs/amlogic.1/ffs.adb
 	/usr/bin/adbd &
-	/usr/bin/usb_monitor &
+#	/usr/bin/usb_monitor &
 }
 
 usb_net_ipconfig()
@@ -52,6 +52,8 @@ function start_usbgadget(){
         echo "usb abdd start..."
         sleep 5
         echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
+        #As usb_monitor will write UDC file, must move usb_monitor after the script written to UDC
+	    /usr/bin/usb_monitor &
         usb_net_ipconfig
         echo "------------------------------------"
         echo "usb rndis & adb start: OK!"
