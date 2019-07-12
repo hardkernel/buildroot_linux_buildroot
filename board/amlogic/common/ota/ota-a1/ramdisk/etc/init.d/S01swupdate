@@ -3,6 +3,8 @@
 #get data ubi number
 data_mtd_number=$(cat /proc/mtd | grep  -E "data" | awk -F : '{print $1}' | grep -o '[0-9]\+')
 
+SWUPDATE_PATH=/mnt/swupdate/
+OTA_FILE_FLAG=$SWUPDATE_PATH/enable-network-ota
 
 if [ ${data_mtd_number} = ""]; then
     echo "can not get data mtd number, maybe emmc device......"
@@ -27,43 +29,90 @@ if [ -f "/mnt/software.swu" ]; then
         echo "swupdate software.swu from data sucess!"
         rm /mnt/software.swu
         umount /mnt
+        urlmisc clean
         sync
         sleep 2
         reboot
         echo "swupdate reboot now!"
     fi
-elif [ -f "/mnt/swupdate/enable-network-ota" ]; then
-    source /mnt/swupdate/apply_info.sh /mnt
-    /mnt/swupdate/start_wifi.sh
-    for i in 'seq 1 30'
+elif [ -f "$OTA_FILE_FLAG" ]; then
+    source $SWUPDATE_PATH/apply_info.sh /mnt
+    $SWUPDATE_PATH/start_wifi.sh
+    wait_time=90
+    ping_time=0
+    while [ $ping_time -lt $wait_time ]
     do
-        ping -c 1 $SWUPDATE_OTA_SERVER
-        if [ $? == 0 ]; then
-            NETWORK_READY=1
-            break;
-        fi
+        echo "Tried $ping_time seconds"
+        ping_output=$(ping -c 1 $SWUPDATE_OTA_SERVER 2>&1)
+        ping_result=$?
+        echo "ping return result: $ping_result"
+        case $ping_result in
+            0)
+                NETWORK_READY=1
+                wget --spider -q `cat $OTA_FILE_FLAG`
+                if [ $? == 0 ]; then
+                    OTA_PACKAGE_READY=1
+                fi
+                break;
+                ;;
+            *)
+                if echo $ping_output | grep "Network is unreachable" ; then
+                    echo "Network is unreachable, cost 1 second"
+                    sleep 1
+                    let ping_time++
+                else
+                    let ping_time=ping_time+10
+                    echo "Ping failed, this will cost 10 second"
+                fi
+                ;;
+        esac
     done
-    if [ -n $NETWORK_READY ]; then
+
+    #Here we detect network is ready
+    #Here we detect if the OTA package exist or not
+    if [ -n "$NETWORK_READY" ] && [ -n "$OTA_PACKAGE_READY" ]; then
         if [ -f "/proc/inand" ]; then
             swupdate -l 6 -k /etc/swupdate-public.pem -D
         else
             swupdate -l 6 -b "0 1 2 3 4" -k /etc/swupdate-public.pem -D
         fi
-        if [ $? == 0 ]; then
-            echo "swupdate software.swu from url sucess!"
-            rm -fr /mnt/swupdate
-            umount /mnt
-            sync
-            sleep 2
-            reboot
-            echo "swupdate reboot now!"
-        else
-            echo "swupdate software.swu from url failed!"
-        fi
+        swupdate_result=$?
+        echo "swupdate return result: $swupdate_result"
+        case $swupdate_result in
+            0)
+                echo "swupdate software.swu from url sucess!"
+                ;;
+            10)
+                echo "swupdate software.swu from url failed, need retry!"
+                keep_recovery=1
+                ;;
+            *)
+                echo "swupdate software.swu from url failed, return to normal system!"
+                ;;
+        esac
     else
-        echo "no software.swu found in usb device"
-        #execute swupdate for clear misc, no need into recovery after reboot
-        swupdate -h
+        if [ -z "$NETWORK_READY" ]; then
+            echo "Network is not ready, reboot to normal system"
+        else
+            if [ -z "$OTA_PACKAGE_READY" ]; then
+                echo "OTA_PACKAGE is not ready, reboot to normal system"
+            else
+                echo "Should not come here, please debug ASAP."
+            fi
+        fi
+        echo "Clean up recovery flag in misc partition, then reboot to normal system"
+    fi
+
+    if [ -z "$keep_recovery" ]; then
+        urlmisc clean
+        rm -fr $SWUPDATE_PATH
+    fi
+    sync
+    umount /mnt
+
+    read -t 5 -p "Rebooting...^-^..."
+    if [ $? != 0 ]; then
+        reboot -f
     fi
 else
 	#wait for usb device
@@ -81,6 +130,7 @@ else
 		else
 			echo "swupdate software.swu from usb sucess!"
 			umount /media
+            urlmisc clean
 			sync
 			sleep 2
 			reboot
