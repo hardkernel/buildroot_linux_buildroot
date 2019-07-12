@@ -4,7 +4,7 @@
 #
 ################################################################################
 ifeq ($(BR2_PACKAGE_NPU_LOCAL),y)
-BR2_PACKAGE_NPU_LOCAL_PATH=$(TOPDIR)/../hardware/aml-4.9/npu/nanoq
+#BR2_PACKAGE_NPU_LOCAL_PATH=$(TOPDIR)/../hardware/aml-4.9/npu/nanoq
 NPU_SITE = $(call qstrip,$(BR2_PACKAGE_NPU_LOCAL_PATH))
 NPU_SITE_METHOD = local
 ARM_NPU_MODULE_DIR = kernel/amlogic/npu
