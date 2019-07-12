@@ -18,5 +18,12 @@ rm -frv $1/etc/init.d/S5*
 rm -frv $1/etc/init.d/S8*
 rm -frv $1/etc/init.d/S7*
 
+# install usb automount in mdev
+textexist=$(cat $1/etc/mdev.conf | grep upstream_automount)
+# echo "textexist = $textexist"
+if [ -z "$textexist" ] ; then
+	sed -i '$a# mount USB automatically' $1/etc/mdev.conf
+	sed -i '$asd[a-z].*   root:root 660 */etc/upstream_automount' $1/etc/mdev.conf
+fi
 
 
