@@ -41,7 +41,7 @@ fi
 wifi_device_id=`cat "${dir}/device"`
 wifi_vendor_id=`cat "${dir}/vendor"`
 #AP6236 & qca9377 & rtk start single mode
-if [ ${wifi_device_id} = 0xa9a6 -o ${wifi_vendor_id} = 0x024c -o ${wifi_vendor_id} = 0x0271 ]
+if [  ${wifi_vendor_id} = 0x024c -o ${wifi_vendor_id} = 0x0271 ]
 then
         RTK_WIFI_FLAG="TRUE"
 fi
@@ -83,7 +83,6 @@ uninstall_rtk_driver()
 
 hostapd_conf_pre()
 {
-    hostapd_conf $1
     hostapd /etc/hostapd_temp.conf -e /etc/entropy.bin &
     ifconfig $1 192.168.2.1
     DONE=`start-stop-daemon -S -m -p $PIDFILE3  -x $DAEMON3  -- -i$1  --dhcp-option=3,192.168.2.1 --dhcp-range=192.168.2.50,192.168.2.200,12h -p100`

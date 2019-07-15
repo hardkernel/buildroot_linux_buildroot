@@ -118,7 +118,8 @@ if [ $? -eq 0 ]; then
 	then
 		DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
 		#iw wlan0 interface add wlan1 type managed
-		#hostapd_conf_pre wlan1
+		dhd_priv isam_init mode sta-ap
+		hostapd_conf_pre wlan1
 	elif [[ "$1" == "station" ]]
 	then
 		DONE=`start-stop-daemon -S -m -p $PIDFILE1 -b -x $DAEMON1 -- -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf`
@@ -185,23 +186,17 @@ dir="/sys/bus/mmc/devices/${inf}:0001/${inf}:0001:1/"
 fi
 
 wifi_device_id=`cat "${dir}/device"`
-#AP6236 start single mode, as rtk modules
-if [ ${wifi_device_id} = 0xa9a6 ];then
-        RTK_WIFI_FLAG="TRUE"
-        wifi_rtk
-else
-		wifi_vendor_id=`cat "${dir}/vendor"`
-        case "${wifi_vendor_id}" in
-                0x02d0)
-                        wifi_setup both
-                        ;;
-                #we use qca9377 same with rtk temperary
-                0x024c|0x0271)
-                        RTK_WIFI_FLAG="TRUE"
-                        wifi_rtk
-                        ;;
-        esac
-fi
+wifi_vendor_id=`cat "${dir}/vendor"`
+case "${wifi_vendor_id}" in
+	0x02d0)
+		wifi_setup both
+		;;
+	#we use qca9377 same with rtk temperary
+	0x024c|0x0271)
+		RTK_WIFI_FLAG="TRUE"
+		wifi_rtk
+		;;
+esac
 }
 
 case "$1" in
