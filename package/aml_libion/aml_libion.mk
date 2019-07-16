@@ -1,8 +1,10 @@
 #
 # aml_libion
 #
+ifneq ($(BR2_PACKAGE_AML_LIBION_LOCAL_PATH),)
+
 AML_LIBION_VERSION = 1.0
-AML_LIBION_SITE = $(TOPDIR)/../hardware/aml-4.9/amlogic/libion
+AML_LIBION_SITE := $(call qstrip,$(BR2_PACKAGE_AML_LIBION_LOCAL_PATH))
 AML_LIBION_SITE_METHOD = local
 AML_LIBION_INSTALL_STAGING := YES
 
@@ -25,4 +27,5 @@ define AML_LIBION_INSTALL_CLEAN_CMDS
     $(MAKE) CC=$(TARGET_CXX) -C $(@D) clean
 endef
 
+endif
 $(eval $(generic-package))

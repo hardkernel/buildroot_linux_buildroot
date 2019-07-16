@@ -69,7 +69,7 @@ BR2_RECOVERY_OTA_DIR="board/amlogic/common/ota/ota-c1/"
 
 #-------------------------NPU-------------------------------#
 ##
-##BR2_PACKAGE_NPU=y
+BR2_PACKAGE_NPU=y
 BR2_PACKAGE_NPU_VERSION=""
 BR2_PACKAGE_NPU_GIT_URL=""
 BR2_PACKAGE_NPU_CUSTOM_TARBALL_LOCATION=""
@@ -79,7 +79,7 @@ BR2_PACKAGE_NPU_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/npu/nanoq"
 
 #-------------------------ISP-------------------------------#
 ##
-##BR2_PACKAGE_ARM_ISP=y
+BR2_PACKAGE_ARM_ISP=y
 BR2_PACKAGE_ARM_ISP_VERSION="amlogic-4.19-dev"
 BR2_PACKAGE_ARM_ISP_LOCAL=y
 BR2_PACKAGE_ARM_ISP_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/amlogic/arm_isp"
@@ -87,7 +87,7 @@ BR2_PACKAGE_ARM_ISP_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/amlogic/arm_isp"
 
 #-------------------------NN Detect-------------------------------#
 ##
-##BR2_PACKAGE_AML_NN_DETECT=y
+BR2_PACKAGE_AML_NN_DETECT=y
 BR2_PACKAGE_AML_NN_DETECT_LIBRARY=y
 BR2_PACKAGE_AML_NN_DETECT_MTCNN_V1=y
 BR2_PACKAGE_AML_NN_DETECT_YOLOFACE=y
@@ -95,7 +95,7 @@ BR2_PACKAGE_AML_NN_FACENET=y
 
 
 #-------------------------Media Modules-------------------------------#
-##BR2_PACKAGE_MEDIA_MODULES=y
+BR2_PACKAGE_MEDIA_MODULES=y
 BR2_PACKAGE_MEDIA_MODULES_STANDALONE=y
 BR2_PACKAGE_MEDIA_MODULES_LOCAL=y
 BR2_PACKAGE_MEDIA_MODULES_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/amlogic/media_modules"
@@ -300,6 +300,22 @@ BR2_PACKAGE_HAS_UDEV=y
 BR2_PACKAGE_MTDEV=y
 BR2_PACKAGE_LIBEVDEV=y
 
+#-------------------------RTOS-Depends------------------------------#
+BR2_PACKAGE_AML_RTOS=y
+BR2_PACKAGE_AML_RTOS_LOCAL_PATH="$(TOPDIR)/../vendor/amlogic/rtos/c1"
+BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION="c1_c308x_ae409"
+BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION="c1_c308x_ae400_hifi4a"
+BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION="c1_c308x_ae400_hifi4b"
+BR2_PACKAGE_AML_RTOS_DSPA_INSTALL=y
+BR2_PACKAGE_AML_RTOS_DSPB_INSTALL=y
+
+
+#-------------------------IPC-Depends------------------------------#
+BR2_PACKAGE_AML_LIBGE2D_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/libge2d"
+BR2_PACKAGE_AML_LIBGDC_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/libgdc"
+BR2_PACKAGE_AML_LIBION_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/libion"
+BR2_PACKAGE_LIBVPCODEC_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/libencoder/h264"
+BR2_PACKAGE_LIBVPHEVCODEC_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/libencoder/h265"
 
 #-------------------------IPC-------------------------------#
 ##

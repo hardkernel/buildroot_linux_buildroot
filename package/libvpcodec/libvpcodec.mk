@@ -4,8 +4,10 @@
 #
 ################################################################################
 
+ifneq ($(BR2_PACKAGE_LIBVPCODEC_LOCAL_PATH),)
+
 LIBVPCODEC_VERSION = 1.0
-LIBVPCODEC_SITE = $(TOPDIR)/../hardware/aml-4.9/amlogic/libencoder/h264
+LIBVPCODEC_SITE := $(call qstrip,$(BR2_PACKAGE_LIBVPCODEC_LOCAL_PATH))
 LIBVPCODEC_SITE_METHOD = local
 LIBVPCODEC_DEPENDENCIES =
 LIBVPCODEC_LICENSE = LGPL
@@ -31,4 +33,5 @@ define LIBVPCODEC_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/$(LIBVPCODEC_BUILD_DIR)/libvpcodec.so $(TARGET_DIR)/usr/lib/
 endef
 
+endif
 $(eval $(generic-package))
