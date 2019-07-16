@@ -94,6 +94,10 @@ cp $(TOPDIR)/package/avs-sdk/S48avs $(TARGET_DIR)/etc/init.d
 cp $(TOPDIR)/package/avs-sdk/avs_moniter.sh $(TARGET_DIR)/etc/init.d
 mkdir -p $(TARGET_DIR)/var/www/cgi-bin
 cp $(TOPDIR)/package/avs-sdk/cgi-bin/* $(TARGET_DIR)/var/www/cgi-bin/
+if [ "$(BR2_PACKAGE_AVAHI)" == "n" ] || [ -z "$(BR2_PACKAGE_AVAHI)" ]; then \
+	$(INSTALL) -D -m 755 $(TOPDIR)/package/avs-sdk/avs_mdns.sh \
+		$(TARGET_DIR)/etc/init.d; \
+fi
 endef
 AVS_SDK_POST_INSTALL_TARGET_HOOKS += AVS_SDK_POST_INSTALL_TARGET
 
