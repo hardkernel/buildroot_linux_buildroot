@@ -4,8 +4,10 @@
 #
 ################################################################################
 
+ifneq ($(BR2_PACKAGE_AML_LIBGDC_LOCAL_PATH),)
+
 AML_LIBGDC_VERSION:= 1.0.0
-AML_LIBGDC_SITE:=$(TOPDIR)/../hardware/aml-4.9/amlogic/libgdc
+AML_LIBGDC_SITE := $(call qstrip,$(BR2_PACKAGE_AML_LIBGDC_LOCAL_PATH))
 AML_LIBGDC_SITE_METHOD:=local
 AML_LIBGDC_DEPENDENCIES = aml_libion
 AML_LIBGDC_INSTALL_STAGING:=YES
@@ -30,4 +32,5 @@ define AML_LIBGDC_INSTALL_CLEAN_CMDS
     $(MAKE) CC=$(TARGET_CC) -C $(@D) clean
 endef
 
+endif
 $(eval $(generic-package))

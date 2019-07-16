@@ -4,8 +4,10 @@
 #
 ################################################################################
 
+ifneq ($(BR2_PACKAGE_LIBVPHEVCODEC_LOCAL_PATH),)
+
 LIBVPHEVCODEC_VERSION = 1.0
-LIBVPHEVCODEC_SITE = $(TOPDIR)/../hardware/aml-4.9/amlogic/libencoder/h265
+LIBVPHEVCODEC_SITE := $(call qstrip,$(BR2_PACKAGE_LIBVPHEVCODEC_LOCAL_PATH))
 LIBVPHEVCODEC_SITE_METHOD = local
 LIBVPHEVCODEC_DEPENDENCIES = aml_libge2d
 LIBVPHEVCODEC_LICENSE = LGPL
@@ -31,4 +33,5 @@ define LIBVPHEVCODEC_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/$(LIBVPHEVCODEC_BUILD_DIR)/libvphevcodec.so $(TARGET_DIR)/usr/lib/
 endef
 
+endif
 $(eval $(generic-package))

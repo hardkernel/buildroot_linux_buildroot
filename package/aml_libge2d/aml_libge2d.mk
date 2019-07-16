@@ -4,8 +4,10 @@
 #
 ################################################################################
 
+ifneq ($(BR2_PACKAGE_AML_LIBGE2D_LOCAL_PATH),)
+
 AML_LIBGE2D_VERSION:= 1.0.0
-AML_LIBGE2D_SITE:=$(TOPDIR)/../hardware/aml-4.9/amlogic/libge2d
+AML_LIBGE2D_SITE := $(call qstrip,$(BR2_PACKAGE_AML_LIBGE2D_LOCAL_PATH))
 AML_LIBGE2D_SITE_METHOD:=local
 AML_LIBGE2D_DEPENDENCIES = aml_libion
 AML_LIBGE2D_INSTALL_STAGING:=YES
@@ -32,4 +34,5 @@ define AML_LIBGE2D_INSTALL_CLEAN_CMDS
     $(MAKE) CC=$(TARGET_CC) -C $(@D) clean
 endef
 
+endif
 $(eval $(generic-package))
