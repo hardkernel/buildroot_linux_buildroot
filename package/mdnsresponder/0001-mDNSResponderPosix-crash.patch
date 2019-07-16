@@ -1,0 +1,12 @@
+diff -Nur mDNSResponder-878.200.35/mDNSPosix/Responder.c mDNSResponder-878.200.35.ori/mDNSPosix/Responder.c
+--- mDNSResponder-878.200.35/mDNSPosix/Responder.c	2019-07-16 18:36:39.185689116 +0800
++++ mDNSResponder-878.200.35.ori/mDNSPosix/Responder.c	2019-07-16 18:19:37.048150720 +0800
+@@ -432,8 +432,6 @@
+     if (thisServ == NULL) {
+         status = mStatus_NoMemoryErr;
+     }
+-    else
+-        memset((void*)thisServ, 0, sizeof(*thisServ));
+     if (status == mStatus_NoError) {
+         MakeDomainLabelFromLiteralString(&name,  richTextName);
+         MakeDomainNameFromDNSNameString(&type, serviceType);
