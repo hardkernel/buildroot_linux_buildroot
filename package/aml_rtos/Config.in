@@ -9,6 +9,12 @@ config BR2_PACKAGE_AML_RTOS_LOCAL_PATH
 	help
 	aml rtos local path
 
+config BR2_PACKAGE_AML_RTOS_PREBUILT_PATH
+	string "amlogic RTOS prebuilt path"
+	depends on BR2_PACKAGE_AML_RTOS
+	help
+	aml rtos prebuilt path
+
 config BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION
     string "AML RTOS ARM build option"
     depends on BR2_PACKAGE_AML_RTOS
