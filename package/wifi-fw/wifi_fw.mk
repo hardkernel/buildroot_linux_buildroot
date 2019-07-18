@@ -457,6 +457,13 @@ $(Q) case "$(1)" in \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6398/BT/BCM4359C0SR2.hcd $(TARGET_DIR)/etc/bluetooth/; \
 		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/config.txt $(TARGET_DIR)/etc/wifi/AP6398/; \
 		;; \
+	AP6201) \
+		mkdir -p $(TARGET_DIR)/etc/wifi/AP6201; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6201/Wi-Fi/clm_bcm43013b0.blob      $(TARGET_DIR)/etc/wifi/AP6201/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6201/Wi-Fi/fw_bcm43013b0_apsta.bin  $(TARGET_DIR)/etc/wifi/AP6201/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6201/Wi-Fi/fw_bcm43013b0.bin        $(TARGET_DIR)/etc/wifi/AP6201/; \
+		$(INSTALL) -D -m 0644 $(@D)/bcm_ampak/config/AP6201/Wi-Fi/nvram_ap6201.txt         $(TARGET_DIR)/etc/wifi/AP6201/; \
+		;; \
 esac;
 
 endef

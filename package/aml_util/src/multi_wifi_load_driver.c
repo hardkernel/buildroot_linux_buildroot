@@ -136,6 +136,20 @@ static const dongle_info dongle_registerd[] = {
 		0x0
 	},
 	{
+		"a804",
+		"dhd",
+		"dhd.ko",
+		BROADCOM_KO_PATH,
+		.wifi_module_arg = {
+			.arg_type       = MODULE_ARG_FIRMWARE,
+			.firmware_path  = "AP6201/fw_bcm43013b0.bin",
+			.firmware_ap_path  = "AP6201/fw_bcm43013b0_apsta.bin",
+			.nvram_path     = "AP6201/nvram_ap6201.txt",
+		},
+		"ap6201",
+		0x0
+	},
+	{
 		"4354",
 		"dhd",
 		"dhd.ko",
