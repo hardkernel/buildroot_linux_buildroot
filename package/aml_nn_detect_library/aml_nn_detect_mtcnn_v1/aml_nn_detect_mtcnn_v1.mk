@@ -23,17 +23,23 @@ endif
 
 define AML_NN_DETECT_MTCNN_V1_INSTALL_TARGET_CMDS
     $(AML_NN_DETECT_MTCNN_V1_INSTALL_TARGETS_CMDS)
-    mkdir -p $(TARGET_DIR)/etc/nn_data
-    mkdir -p $(TARGET_DIR)/etc/nn_data/config
-    mkdir -p $(TARGET_DIR)/etc/nn_data/config/revA
-    mkdir -p $(TARGET_DIR)/etc/nn_data/config/revB
-    mkdir -p $(TARGET_DIR)/etc/nn_data/config/sm1
-    mkdir -p $(TARGET_DIR)/etc/nn_data/config/sdk/nnvxc_kernels
+	if [ $(BR2_PACKAGE_AML_SOC_FAMILY_NAME) = "G12B" ]; then \
+		mkdir -p $(TARGET_DIR)/etc/nn_data/config/revA; \
+		mkdir -p $(TARGET_DIR)/etc/nn_data/config/revB; \
+		$(INSTALL) -D -m 0644 $(CONFIG_PATH)/revA/* $(TARGET_DIR)/etc/nn_data/config/revA/; \
+		$(INSTALL) -D -m 0644 $(CONFIG_PATH)/revB/* $(TARGET_DIR)/etc/nn_data/config/revB/; \
+	fi
+	if [ $(BR2_PACKAGE_AML_SOC_FAMILY_NAME) = "SM1" ]; then \
+		mkdir -p $(TARGET_DIR)/etc/nn_data/config/sm1; \
+		$(INSTALL) -D -m 0644 $(CONFIG_PATH)/sm1/* $(TARGET_DIR)/etc/nn_data/config/sm1/; \
+	fi
+	if [ $(BR2_PACKAGE_AML_SOC_FAMILY_NAME) = "C1" ]; then \
+		mkdir -p $(TARGET_DIR)/etc/nn_data/config/a1; \
+		$(INSTALL) -D -m 0644 $(CONFIG_PATH)/a1/* $(TARGET_DIR)/etc/nn_data/config/a1/; \
+	fi
+	mkdir -p $(TARGET_DIR)/etc/nn_data/config/sdk/nnvxc_kernels
     mkdir -p $(TARGET_DIR)/etc/nn_data/config/sdk/include/CL
     $(INSTALL) -D -m 0644 $(@D)/nn_data/* $(TARGET_DIR)/etc/nn_data/
-    $(INSTALL) -D -m 0644 $(CONFIG_PATH)/revA/* $(TARGET_DIR)/etc/nn_data/config/revA/
-    $(INSTALL) -D -m 0644 $(CONFIG_PATH)/revB/* $(TARGET_DIR)/etc/nn_data/config/revB/
-    $(INSTALL) -D -m 0644 $(CONFIG_PATH)/sm1/* $(TARGET_DIR)/etc/nn_data/config/sm1/
     $(INSTALL) -D -m 0644 $(@D)/config/sdk/include/CL/* $(TARGET_DIR)/etc/nn_data/config/sdk/include/CL/
     $(INSTALL) -D -m 0644 $(@D)/config/sdk/nnvxc_kernels/* $(TARGET_DIR)/etc/nn_data/config/sdk/nnvxc_kernels/
 endef
