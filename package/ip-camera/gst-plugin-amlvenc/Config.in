@@ -1,6 +1,15 @@
 config BR2_PACKAGE_GST_PLUGIN_AMLVENC
 	bool "gstream1 plugin amlogic x264/x265 encoder"
-	select BR2_PACKAGE_LIBVPCODEC
-	select BR2_PACKAGE_LIBVPHEVCODEC
 	help
 	  gstreamer 1.0 plugins
+
+if BR2_PACKAGE_GST_PLUGIN_AMLVENC
+config BR2_PACKAGE_GST_PLUGIN_AMLVENC_USE_MULTIENC
+	bool "venc plugin with multi-encoder library"
+	default n
+	help
+		check if use multi-encoder library
+	select BR2_PACKAGE_LIBVPCODEC if !BR2_PACKAGE_GST_PLUGIN_AMLVENC_USE_MULTIENC
+	select BR2_PACKAGE_LIBVPHEVCODEC if !BR2_PACKAGE_GST_PLUGIN_AMLVENC_USE_MULTIENC
+	select BR2_PACKAGE_LIBMULTIENC if BR2_PACKAGE_GST_PLUGIN_AMLVENC_USE_MULTIENC
+endif
