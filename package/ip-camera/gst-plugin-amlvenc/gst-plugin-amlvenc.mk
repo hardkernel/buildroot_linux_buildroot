@@ -9,12 +9,23 @@ GST_PLUGIN_AMLVENC_SITE = $(TOPDIR)/../vendor/amlogic/ipc/ipc_plugins/gst-plugin
 GST_PLUGIN_AMLVENC_SITE_METHOD = local
 GST_PLUGIN_AMLVENC_LICENSE = LGPL
 GST_PLUGIN_AMLVENC_INSTALL_STAGING = YES
-#GST_PLUGIN_AMLVENC_LICENSE_FILES =
+GST_PLUGIN_AMLVENC_LICENSE_FILES = COPYING
+
+define GST_PLUGIN_AMLVENC_SYNC_COMMON_SRC
+	rsync -avz $(GST_PLUGIN_AMLVENC_SITE)/../common/ $(@D)/src/
+endef
+GST_PLUGIN_AMLVENC_POST_RSYNC_HOOKS += GST_PLUGIN_AMLVENC_SYNC_COMMON_SRC
 
 define GST_PLUGIN_AMLVENC_RUN_AUTOGEN
 	cd $(@D) && PATH=$(BR_PATH) ./autogen.sh
 endef
 GST_PLUGIN_AMLVENC_POST_PATCH_HOOKS += GST_PLUGIN_AMLVENC_RUN_AUTOGEN
-GST_PLUGIN_AMLVENC_DEPENDENCIES += host-automake host-autoconf host-libtool gstreamer1 gst1-plugins-base libvpcodec libvphevcodec
+GST_PLUGIN_AMLVENC_DEPENDENCIES += host-automake host-autoconf host-libtool gstreamer1 gst1-plugins-base
+ifeq ($(BR2_PACKAGE_GST_PLUGIN_AMLVENC_USE_MULTIENC), y)
+GST_PLUGIN_AMLVENC_DEPENDENCIES += libmultienc
+GST_PLUGIN_AMLVENC_CONF_OPTS += --with-libmultienc
+else
+GST_PLUGIN_AMLVENC_DEPENDENCIES += libvpcodec libvphevcodec
+endif
 
 $(eval $(autotools-package))
