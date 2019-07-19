@@ -72,19 +72,21 @@ elif [ -f "$OTA_FILE_FLAG" ]; then
     #Here we detect if the OTA package exist or not
     if [ -n "$NETWORK_READY" ] && [ -n "$OTA_PACKAGE_READY" ]; then
         if [ -f "/proc/inand" ]; then
-            swupdate -l 6 -k /etc/swupdate-public.pem -D
+            swupdate -l 6 -k /etc/swupdate-public.pem -D "-t 60"
         else
-            swupdate -l 6 -b "0 1 2 3 4" -k /etc/swupdate-public.pem -D
+            swupdate -l 6 -b "0 1 2 3 4" -k /etc/swupdate-public.pem -D "-t 60"
         fi
         swupdate_result=$?
         echo "swupdate return result: $swupdate_result"
         case $swupdate_result in
             0)
                 echo "swupdate software.swu from url sucess!"
+                rm -f $SWUPDATE_PATH/swupdate_retry
                 ;;
             10)
                 echo "swupdate software.swu from url failed, need retry!"
                 keep_recovery=1
+                touch $SWUPDATE_PATH/swupdate_retry
                 ;;
             *)
                 echo "swupdate software.swu from url failed, return to normal system!"
@@ -103,9 +105,15 @@ elif [ -f "$OTA_FILE_FLAG" ]; then
         echo "Clean up recovery flag in misc partition, then reboot to normal system"
     fi
 
-    if [ -z "$keep_recovery" ]; then
-        urlmisc clean
-        rm -fr $SWUPDATE_PATH
+    if [ -f $SWUPDATE_PATH/swupdate_retry ]; then
+        echo "Because upgrade already in progress, We will try util upgrade OK."
+        echo "We will not clean up anything,becaue they are still needed by next trying."
+    else
+        if [ -z "$keep_recovery" ]; then
+            echo "Clean up recovery settings, will NOT enter recovery on next boot."
+            urlmisc clean
+            rm -fr $SWUPDATE_PATH
+        fi
     fi
     sync
     umount /mnt
