@@ -44,6 +44,7 @@ menu "amlogic"
 	source "package/aml_libgdc/Config.in"
 	source "package/libvpcodec/Config.in"
 	source "package/libvphevcodec/Config.in"
+	source "package/libmultienc/Config.in"
 	source "package/aml_rtos/Config.in"
 endmenu
 
