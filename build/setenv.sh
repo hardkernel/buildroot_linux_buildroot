@@ -8,102 +8,76 @@ BUILDROOT_DIR=$LOCAL_DIR/buildroot
 BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 
 DEFCONFIG_ARRAY=(
+    "==========In Maintaining======================"
+
     "mesonc1_ae400_a64_release"
     "mesonc1_ae409_skt_a64_release"
+
     "mesona1_ad401_a32_release"
     "mesona1_ad409_skt_a32_release"
-    "mesontm2_ab311_release"
+
     "mesontm2_ab311_32_release"
+    "mesontm2_ab311_release"
+
     "mesonsm1_ac200_32_release"
     "mesonsm1_ac213_32_release"
+
     "mesontl1_x301_32_release"
     "mesontl1_x301_release"
+
     "mesong12b_skt_release"
+    "mesong12b_w400_32_release"
     "mesong12b_w400_release"
     "mesong12b_w400_s922x_release"
-    "mesong12b_w400_32_release"
-    "mesong12b_w400_wayland_release"
-    "mesong12b_w400_32_wayland_release"
-    "mesong12b_w400_vccktest_release"
-    "mesong12b_w400_vccktest_32_release"
-    "mesong12b_w411_release"
     "mesong12b_w411_32_release"
+    "mesong12b_w411_release"
+
+    "mesong12a_u200_32_release"
+    "mesong12a_u211_32_release"
+
+    "mesongxl_p212_32_kernel49"
+    "mesongxl_p212_kernel49"
+    "mesongxl_p212_tdk_32_kernel49"
+    "mesongxl_p230_32_kernel49"
+    "mesongxl_p231_32_kernel49"
+    "mesongxl_p241_32_kernel49"
+
+    "mesonaxg_s400_32_emmc"
+    "mesonaxg_s400_32_emmc_k5.1_release"
+    "mesonaxg_s400_32_release"
+    "mesonaxg_s400_sbr_32_release"
+    "mesonaxg_s400_sbravs_32_release"
+    "mesonaxg_s420_32_release"
+
+    "==========Out Of Maintain==============="
+
+    "mesonaxg_a113d_skt"
+    "mesonaxg_a113d_skt_32"
+    "mesonaxg_a113x_skt"
+    "mesonaxg_a113x_skt_32"
+    "mesonaxg_s400_emmc"
+    "mesonaxg_s400_gva_32_release"
+    "mesonaxg_s400_release"
+    "mesonaxg_s420_gva_32_release"
+    "mesonaxg_s420_release"
     "mesong12a_skt_32_release"
     "mesong12a_skt_release"
-    "mesong12a_u200_32_release"
     "mesong12a_u200_release"
     "mesong12a_u200_vccktest_32_release"
     "mesong12a_u200_vccktest_release"
-    "mesong12a_u211_32_release"
     "mesong12a_u211_release"
     "mesong12a_u212_32_release"
     "mesong12a_u212_release"
+    "mesong12b_w400_32_wayland_release"
+    "mesong12b_w400_vccktest_32_release"
+    "mesong12b_w400_vccktest_release"
+    "mesong12b_w400_wayland_release"
+    "mesongxl_p230_kernel49"
+    "mesongxl_p231_kernel49"
+    "mesongxl_p241_kernel49"
     "txlx_t962e_r321_32_release"
     "txlx_t962e_r321_release"
-    "mesonaxg_s420_costdown_32_release"
-    "mesonaxg_s400_sb_32_release"
-    "mesonaxg_s400_sbr_32_release"
-    "mesonaxg_s400_sbravs_32_release"
-    "mesonaxg_s400_32_release"
-    "mesonaxg_s400_gva_32_release"
-    "mesonaxg_s400_32_debug"
-    "mesonaxg_s400_a3232_debug"
-    "mesonaxg_s400_debug"
-    "mesonaxg_s400_release"
-    "mesonaxg_s400_32_emmc"
-    "mesonaxg_s400_emmc"
-    "mesonaxg_s400_32_emmc_k5.1_release"
-    "mesonaxg_s410_32_release"
-    "mesonaxg_s420_32_debug"
-    "mesonaxg_s420_a3232_debug"
-    "mesonaxg_s420_gva_32_release"
-    "mesonaxg_s420_32_release"
-    "mesonaxg_s420_debug"
-    "mesonaxg_s420_release"
-    "mesonaxg_a113x_skt_32"
-    "mesonaxg_a113x_skt"
-    "mesonaxg_a113d_skt_32"
-    "mesonaxg_a113d_skt"
-    "mesongxl_p400_32_kernel49"
-    "mesongxl_p400_kernel49"
-    "mesongxl_p401_32_kernel49"
-    "mesongxl_p401_kernel49"
-    "mesongxl_p212_tdk_32_kernel49"
-    "mesongxl_p212_32_kernel49"
-    "mesongxl_p212_kernel49"
-    "mesongxl_p230_32_kernel49"
-    "mesongxl_p230_kernel49"
-    "mesongxl_p231_32_kernel49"
-    "mesongxl_p231_kernel49"
-    "mesongxl_p241_32_kernel49"
-    "mesongxl_p241_kernel49"
-    "mesongxm_q200_32_kernel49"
-    "mesongxm_q200_kernel49"
-    "meson8b_m200_kernel49"
-    "mesongxl_p400"
-    "mesongxl_p400_32"
-    "mesongxl_p401"
-    "mesongxl_p401_32"
-    "mesongxb_p200"
-    "mesongxb_p200_32"
-    "mesongxb_p201"
-    "mesongxb_p201_32"
-    "mesongxl_p212"
-    "mesongxl_p212_32"
-    "mesongxl_p230"
-    "mesongxl_p230_32"
-    "mesongxl_p231"
-    "mesongxl_p231_32"
-    "mesongxl_p241"
-    "mesongxl_p241_32"
-    "mesongxm_q200"
-    "mesongxm_q200_32"
-    "meson8_k200"
-    "meson8_k200b"
-    "meson8b_m200"
-    "meson8b_m201"
-    "meson8m2_n200"
-    "meson8b_m400")
+)
 
 DEFCONFIG_ARRAY_LEN=${#DEFCONFIG_ARRAY[@]}
 
@@ -126,58 +100,56 @@ done
 
 function choose_info()
 {
-    echo
-    echo "You're building on Linux"
-    echo "Lunch menu...pick a combo:"
-    i=0
-    while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
-    do
-        if [ -n "$FILTER" ] && [ -z "$(echo ${DEFCONFIG_ARRAY[$i]} | grep "$FILTER")" ]; then
-            #the build configuration did contain the specified string, hide it to user
-            let i++
-            continue
-        fi
+  echo
+  echo "You're building on Linux"
+  echo "Lunch menu...pick a combo:"
+  i=1
+  while [[ $i -le $DEFCONFIG_ARRAY_LEN ]]
+  do
+    if [ -n "$FILTER" ] && [ -z "$(echo ${DEFCONFIG_ARRAY[$i]} | grep "$FILTER")" ]; then
+      #the build configuration did contain the specified string, hide it to user
+      let i++
+      continue
+    fi
 
-        if [[ ${DEFCONFIG_ARRAY[$i]} =~ "debug" ]]; then
-            echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}"
-        elif [[ ${DEFCONFIG_ARRAY[$i]} =~ "release" ]]; then
-            echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}"
-        else
-            echo "$((${i}+1)). ${DEFCONFIG_ARRAY[$i]}_release"
-        fi
-        let i++
-    done
-    echo
+    if [[ ${DEFCONFIG_ARRAY[$i]} =~ "debug" ]]; then
+      echo "$((${i})). ${DEFCONFIG_ARRAY[$i]}"
+    elif [[ ${DEFCONFIG_ARRAY[$i]} =~ "release" ]]; then
+      echo "$((${i})). ${DEFCONFIG_ARRAY[$i]}"
+    elif [[ ${DEFCONFIG_ARRAY[$i]} =~ "====" ]]; then
+      echo "${DEFCONFIG_ARRAY[$i]}"
+    else
+      echo "$((${i})). ${DEFCONFIG_ARRAY[$i]}_release"
+    fi
+    let i++
+  done
+  echo
 }
 
 function get_index() {
-	if [ $# -eq 0 ]; then
-		return 0
-	fi
+  if [ $# -eq 0 ]; then
+    return 0
+  fi
 
-	i=0
-	while [[ $i -lt $DEFCONFIG_ARRAY_LEN ]]
-	do
-		if [[ "${DEFCONFIG_ARRAY[$i]}" =~ "debug" ]]; then
-			if [ $1 = "${DEFCONFIG_ARRAY[$i]}" ]; then
-				let i++
-				return ${i}
-			fi
-		else if [[ "${DEFCONFIG_ARRAY[$i]}" =~ "release" ]]; then
-			if [ $1 = "${DEFCONFIG_ARRAY[$i]}" ]; then
-                                let i++
-                                return ${i}
-                        fi
-		else
-			if [ $1 = "${DEFCONFIG_ARRAY[$i]}_release" ]; then
-				let i++
-				return ${i}
-			fi
-		fi
-		fi
-		let i++
-	done
-	return 0
+  i=1
+  while [[ $i -le $DEFCONFIG_ARRAY_LEN ]]
+  do
+    if [[ "${DEFCONFIG_ARRAY[$i]}" =~ "debug" ]]; then
+      if [ $1 = "${DEFCONFIG_ARRAY[$i]}" ]; then
+        return ${i}
+      fi
+    elif [[ "${DEFCONFIG_ARRAY[$i]}" =~ "release" ]]; then
+      if [ $1 = "${DEFCONFIG_ARRAY[$i]}" ]; then
+        return ${i}
+      fi
+    else
+      if [ $1 = "${DEFCONFIG_ARRAY[$i]}_release" ]; then
+        return ${i}
+      fi
+    fi
+    let i++
+  done
+  return 0
 }
 
 function get_target_board_type() {
@@ -247,7 +219,7 @@ function choose_type()
 
 		if [ -n "`echo $ANSWER | sed -n '/^[0-9][0-9]*$/p'`" ]; then
 			if [ $ANSWER -le $DEFCONFIG_ARRAY_LEN ] && [ $ANSWER -gt 0 ]; then
-				index=$((${ANSWER}-1))
+				index=$((${ANSWER}))
 				TARGET_BUILD_CONFIG=`get_build_config ${DEFCONFIG_ARRAY[$index]}`
 				TARGET_DIR_NAME="${DEFCONFIG_ARRAY[$index]}"
 				TARGET_BUILD_TYPE=`get_target_build_type ${DEFCONFIG_ARRAY[$index]}`
@@ -261,7 +233,7 @@ function choose_type()
 			get_index $ANSWER
 			ANSWER=$?
 			if [ $ANSWER -gt 0 ]; then
-				index=$((${ANSWER}-1))
+				index=$((${ANSWER}))
 				TARGET_BUILD_CONFIG=`get_build_config ${DEFCONFIG_ARRAY[$index]}`
 				TARGET_DIR_NAME="${DEFCONFIG_ARRAY[$index]}"
 				TARGET_BUILD_TYPE=`get_target_build_type ${DEFCONFIG_ARRAY[$index]}`
