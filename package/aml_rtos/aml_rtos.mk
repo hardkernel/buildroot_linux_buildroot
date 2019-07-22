@@ -36,6 +36,8 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 		mkdir -p $(TARGET_DIR)/usr/dsp/; \
 		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootB.bin $(TARGET_DIR)/usr/dsp/;\
 	fi
+	$(TARGET_MAKE_ENV) CC=$(TARGET_CC) CXX=$(TARGET_CXX) \
+    $(MAKE) -C $(AML_RTOS_PKGDIR)/src install
 endef
 
 endif
@@ -59,6 +61,8 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 		mkdir -p $(TARGET_DIR)/usr/dsp/; \
 		$(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(TARGET_DIR)/usr/dsp/;\
 	fi
+	$(TARGET_MAKE_ENV) CC=$(TARGET_CC) CXX=$(TARGET_CXX) \
+    $(MAKE) -C $(AML_RTOS_PKGDIR)/src install
 endef
 
 endif
