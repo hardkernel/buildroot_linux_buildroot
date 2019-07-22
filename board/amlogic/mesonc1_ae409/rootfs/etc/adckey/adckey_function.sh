@@ -36,31 +36,20 @@ powerStateChange()
 
 volumeUpAction()
 {
-    local volumeMax=`amixer sget "5707_A Master"|grep "Limits:"|awk '{print $4}'`
-    local volumeCurrent=`amixer sget "5707_A Master" |grep "Mono:" |awk '{print $2}'`
-    if [ $volumeCurrent -le $volumeMax ];then
-        let volumeCurrent+=10
-        echo "$volumeCurrent"
-        if [ $volumeCurrent -ge $volumeMax ];then
-            volumeCurrent=$volumeMax
-        fi
-        amixer sset "5707_A Master" $volumeCurrent
-        amixer sset "5707_B Master" $volumeCurrent
-    fi
+    /etc/system_volume.sh vol-up 10
 }
 
 volumeDownAction()
 {
-    local volumeMin=`amixer sget "5707_A Master" |grep "Limits:" |awk '{print $2}'`
-    local volumeCurrent=`amixer sget "5707_A Master" |grep "Mono:" |awk '{print $2}'`
-    if [ $volumeCurrent -ge $volumeMin ];then
-        let volumeCurrent-=10
-        if [ $volumeCurrent -lt $volumeMin ];then
-            volumeCurrent=$volumeMin
-        fi
-        amixer sset "5707_A Master" $volumeCurrent
-        amixer sset "5707_B Master" $volumeCurrent
-    fi
+    /etc/system_volume.sh vol-down 10
+}
+
+DoFactoryReset()
+{
+    rm /data/* -fr
+    sync
+    echo "Rebooting...^-^..."
+    reboot -f
 }
 
 wifiSmartConfig()
@@ -100,11 +89,12 @@ bsa_ble_service()
 }
 
 case $1 in
-    "power") powerStateChange ;;
+    "Power") powerStateChange ;;
     "VolumeUp") volumeUpAction ;;
     "VolumeDown") volumeDownAction ;;
     "longpressWifiConfig") wifiSmartConfig ;;
     "WifiConfig")  ble_wifi_setup ;;
+    "longpressUpdate") DoFactoryReset ;;
     *) echo "no function to add this case: $1" ;;
 esac
 
