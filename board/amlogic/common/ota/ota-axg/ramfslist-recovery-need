@@ -14,3 +14,4 @@
 ./lib/libdl.so.2
 ./lib/libdl-2.23.so
 ./usr/bin/swupdate
+./usr/bin/urlmisc
