@@ -1,4 +1,4 @@
-defaults.pcm.rate_converter "samplerate_best"
+defaults.pcm.rate_converter "speexrate_medium"
 
 pcm.!default{
     type plug
@@ -47,7 +47,6 @@ pcm.dmixer_avs_plug {
     type rate
     slave.pcm "2to8"
     slave.rate 48000
-    converter "samplerate"
 }
 
 pcm.halaudio {
@@ -59,7 +58,6 @@ pcm.avs_48K {
     type rate
     slave.pcm "2to8"
     slave.rate 48000
-    converter "samplerate"
 }
 
 pcm.2to8 {
@@ -96,20 +94,17 @@ pcm.48K {
     type rate
     slave.pcm "halaudio"
     slave.rate 48000
-    converter "samplerate"
 }
 
 pcm.2ch_48K {
     type rate
     slave.pcm "halaudio"
     slave.rate 48000
-    converter "samplerate"
 }
 pcm.8ch_48K {
     type rate
     slave.pcm "halaudio"
     slave.rate 48000
-    converter "samplerate"
 }
 
 
