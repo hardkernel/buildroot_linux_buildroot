@@ -30,11 +30,11 @@ endef
 define AML_RTOS_INSTALL_TARGET_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/usr/dsp/; \
-		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootA.bin $(TARGET_DIR)/usr/dsp/;\
+		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootA.bin $(TARGET_DIR)/lib/firmware/;\
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/usr/dsp/; \
-		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootB.bin $(TARGET_DIR)/usr/dsp/;\
+		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootB.bin $(TARGET_DIR)/lib/firmware/;\
 	fi
 	$(TARGET_MAKE_ENV) CC=$(TARGET_CC) CXX=$(TARGET_CXX) \
     $(MAKE) -C $(AML_RTOS_PKGDIR)/src install
@@ -55,11 +55,11 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 	test -f $(@D)/dspbootB.bin && $(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(BINARIES_DIR)/
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/usr/dsp/; \
-		$(INSTALL) -D -m 644 $(@D)/dspbootA.bin $(TARGET_DIR)/usr/dsp/;\
+		$(INSTALL) -D -m 644 $(@D)/dspbootA.bin $(TARGET_DIR)/lib/firmware/;\
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/usr/dsp/; \
-		$(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(TARGET_DIR)/usr/dsp/;\
+		$(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(TARGET_DIR)/lib/firmware/;\
 	fi
 	$(TARGET_MAKE_ENV) CC=$(TARGET_CC) CXX=$(TARGET_CXX) \
     $(MAKE) -C $(AML_RTOS_PKGDIR)/src install
