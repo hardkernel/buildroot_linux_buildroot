@@ -4,10 +4,20 @@
 #
 #############################################################
 
-ONVIF_ARCH=arm64
+ifeq ($(BR2_aarch64),y)
+ONVIF_ARCH = arm64
+else
+ONVIF_ARCH = arm32
+endif
+
+ifneq ($(BR2_PACKAGE_AML_SOC_FAMILY_NAME), "")
+ONVIF_SOC_NAME = $(strip $(BR2_PACKAGE_AML_SOC_FAMILY_NAME))
+endif
+
+ONVIF_SUB_PATH=$(ONVIF_ARCH)/$(ONVIF_SOC_NAME)
 ONVIF_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_prebuilt
 ONVIF_PREBUILT_SITE_METHOD = local
-ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_ARCH)/
+ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_SUB_PATH)
 
 ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
 #We will only apply onvif prebuilt packages, so we need to make sure the original package's dependency can meet.
@@ -27,43 +37,43 @@ ifeq ($(BR2_PACKAGE_ONVIF_GENERATE_PREBUILT),y)
 ONVIF_PREBUILT_DEPENDENCIES = onvif_srvd
 ONVIF_PREBUILT_DEPENDENCIES += ipc-webui
 define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
-	rm    -fr $(@D)/$(ONVIF_ARCH)/
-	mkdir -p $(@D)/$(ONVIF_ARCH)/
+	rm    -fr $(@D)/$(ONVIF_SUB_PATH)/
+	mkdir -p $(@D)/$(ONVIF_SUB_PATH)/
 
-	mkdir -p $(@D)/$(ONVIF_ARCH)/etc/init.d/
-	mkdir -p $(@D)/$(ONVIF_ARCH)/usr/bin
-	mkdir -p $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	mkdir -p $(@D)/$(ONVIF_ARCH)/var/www
-	mkdir -p $(@D)/$(ONVIF_ARCH)/etc/nginx
+	mkdir -p $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
+	mkdir -p $(@D)/$(ONVIF_SUB_PATH)/usr/bin
+	mkdir -p $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	mkdir -p $(@D)/$(ONVIF_SUB_PATH)/var/www
+	mkdir -p $(@D)/$(ONVIF_SUB_PATH)/etc/nginx
 
-	cp -a $(TARGET_DIR)/etc/ipc.json                       $(@D)/$(ONVIF_ARCH)/etc/
-	cp -a $(TARGET_DIR)/etc/onvif                          $(@D)/$(ONVIF_ARCH)/etc/
-	cp -a $(TARGET_DIR)/etc/init.d/S45ipc-property-service $(@D)/$(ONVIF_ARCH)/etc/init.d/
-	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_rtsp           $(@D)/$(ONVIF_ARCH)/etc/init.d/
-	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_srvd           $(@D)/$(ONVIF_ARCH)/etc/init.d/
-	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_wsdd           $(@D)/$(ONVIF_ARCH)/etc/init.d/
-	cp -a $(TARGET_DIR)/etc/init.d/S49ipc_webui            $(@D)/$(ONVIF_ARCH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/ipc.json                       $(@D)/$(ONVIF_SUB_PATH)/etc/
+	cp -a $(TARGET_DIR)/etc/onvif                          $(@D)/$(ONVIF_SUB_PATH)/etc/
+	cp -a $(TARGET_DIR)/etc/init.d/S45ipc-property-service $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_rtsp           $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_srvd           $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_wsdd           $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S49ipc_webui            $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
 
-	cp -a $(TARGET_DIR)/usr/bin/onvif_rtsp                 $(@D)/$(ONVIF_ARCH)/usr/bin/
-	cp -a $(TARGET_DIR)/usr/bin/onvif_srvd                 $(@D)/$(ONVIF_ARCH)/usr/bin/
-	cp -a $(TARGET_DIR)/usr/bin/onvif_wsdd                 $(@D)/$(ONVIF_ARCH)/usr/bin/
-	cp -a $(TARGET_DIR)/usr/bin/ipc-property               $(@D)/$(ONVIF_ARCH)/usr/bin/
-	cp -a $(TARGET_DIR)/usr/bin/ipc-property-service       $(@D)/$(ONVIF_ARCH)/usr/bin/
+	cp -a $(TARGET_DIR)/usr/bin/onvif_rtsp                 $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
+	cp -a $(TARGET_DIR)/usr/bin/onvif_srvd                 $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
+	cp -a $(TARGET_DIR)/usr/bin/onvif_wsdd                 $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
+	cp -a $(TARGET_DIR)/usr/bin/ipc-property               $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
+	cp -a $(TARGET_DIR)/usr/bin/ipc-property-service       $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
 
-	cp -a $(TARGET_DIR)/usr/lib/libipc-property.so                   $(@D)/$(ONVIF_ARCH)/usr/lib/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlimgcap.so     $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlnn.so         $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamloverlay.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvenc.so       $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlfacenet.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so    $(@D)/$(ONVIF_ARCH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/libipc-property.so                   $(@D)/$(ONVIF_SUB_PATH)/usr/lib/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlimgcap.so     $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlnn.so         $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamloverlay.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvenc.so       $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlfacenet.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 
-	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf    			$(@D)/$(ONVIF_ARCH)/etc/nginx
-	cp -a $(TARGET_DIR)/etc/php.ini    						$(@D)/$(ONVIF_ARCH)/etc/php.ini
-	cp -a $(TARGET_DIR)/var/www/ipc-webui    				$(@D)/$(ONVIF_ARCH)/var/www
+	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf    			$(@D)/$(ONVIF_SUB_PATH)/etc/nginx
+	cp -a $(TARGET_DIR)/etc/php.ini    						$(@D)/$(ONVIF_SUB_PATH)/etc/php.ini
+	cp -a $(TARGET_DIR)/var/www/ipc-webui    				$(@D)/$(ONVIF_SUB_PATH)/var/www
 
-	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH).tgz -C $(@D) $(ONVIF_ARCH)
+	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH)-$(ONVIF_SOC_NAME).tgz -C $(@D) $(ONVIF_SUB_PATH)
 endef
 
 endif
