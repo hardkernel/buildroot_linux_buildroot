@@ -36,6 +36,7 @@
 extern char *optarg;
 extern int optind, opterr, optopt;
 int lopt;
+char dspname[32];
 
 static struct option longOpts[] = {
 	{ "load", no_argument, NULL, 'l' },
@@ -62,7 +63,7 @@ void showUsage() {
 	printf(" -r, --reset               		reset command\n");
 	printf(" -S, --start               		set dsp clk and power on ,reset\n");
 	printf(" -s, --stop 				stop dsp\n");
-	printf(" -d, --dsp=DSPNAME          		The dspname, which is as same as /dev/xxx.\n");
+	printf(" -d, --dsp=DSPNAME          		The dspname, hifi4a or hifi4b\n");
 	printf(" -f, --firmware=FILE_NAME   		The file name for downloaded file.\n");
 	printf(" -a, --addr=address         		The address which used for dsp start \n");
 	printf(" --test-1=N                 		Test 1\n");
@@ -119,22 +120,24 @@ bool dsp_dev_is_exist(struct hifi4dsp_info_t *info)
 	return 1;
 }
 
+
 bool dsp_firmware_is_exist(struct hifi4dsp_info_t *info)
 {
 	int ret = -1;
 	const char *pathname;
 	char path[256];
 	int fd;
+
 	strcpy(path, "/lib/firmware/");
-	strcat(path, info->fw_name);	
+	strcat(path, info->fw_name);
 	if(strlen(info->fw_name)==0)
 	{
 		printf("param error: invalid dsp firmware (info->fw_name=NULL)\n");
 		return 0;
 	}
 
-	//sprintf(path, "/lib/firmware/%s", info->fw_name);
-	sprintf(path, "/usr/dsp/%s", info->fw_name);
+	sprintf(path, "/lib/firmware/%s", info->fw_name);
+
 	printf(" info->fw_name:%s", path);
 	pathname=path;
 
@@ -147,22 +150,25 @@ bool dsp_firmware_is_exist(struct hifi4dsp_info_t *info)
 	return 1;
 }
 
+
 int dsp_load(struct hifi4dsp_info_t *info)
 {
 	int err=0;
+
 	if(false == dsp_dev_is_exist(info))
 		err -= 1;
 
-	strcpy(info->fw_name, "dspboot.bin");
+	//if(strlen(info->fw_name)==0)
+	if (strcmp(info->fw_name, "\0") == 0)
+		strcpy(info->fw_name, "dspaboot.bin");
 
-	printf("dsp load : begin to test firmware \n");
 	if(false == dsp_firmware_is_exist(info))
 		err -= 1;
 	if(err<0)
 		return err;
-	msleep(200);
 	return dsp_ctl(info, HIFI4DSP_LOAD);
 }
+
 int dsp_reset(struct hifi4dsp_info_t *info)
 {
 	int err=0;
@@ -298,19 +304,34 @@ int dsp_cmd_parse(int argc, char **argv, struct hifi4dsp_info_t *info)
 			debug_pr("option=r, value=%s\n", optarg);
 		break;
 		case 'd':	/*dsp id*/
-			cmd |= 0x1;
-			sscanf(optarg, "%d", &(info->id));
+			//cmd |= 0x1;
+			cmd |= 0x10;
+			//sscanf(optarg, "%d", &(info->id));
+			//info->id = optarg[1] - '0';
+			strcpy(dspname, optarg);
+			printf("dspname:%s \n",dspname);
+			if (strcmp(dspname, "hifi4a") == 0)
+				info->id = 0;
+			else if (strcmp(dspname, "hifi4b") == 0)
+				info->id = 1;
+			else
+			{
+				printf("#########wrong dsp name######### \n"
+				         "please input : hifi4a or hifi4b \n");
+				showUsage();
+				return 0;
+			}
 			debug_pr("option=d, value=%s, info.id=%d\n", optarg, info->id);
 		break;
 
 		case 'f': /*firwmare name*/
-			cmd |= 0x2;
+			cmd |= 0x20;
 			strcpy((info->fw_name), optarg);
 			debug_pr("option=f, value=%s, info->fw_name=%s\n", optarg, info->fw_name);
 		break;
 
 		case 'a': /*address*/
-			cmd |= 0x4;
+			cmd |= 0x40;
 			sscanf(optarg, "%x", &(info->phy_addr));
 			debug_pr("option=a, value=%s, info.phy_addr=0x%x\n", optarg, info->phy_addr);
 		break;
