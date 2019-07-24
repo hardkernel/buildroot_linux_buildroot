@@ -33,6 +33,9 @@ pcm.dmixer_avs {
     slave {
         pcm "hw:0,2"
         channels 8
+        format S32_LE
+        period_size 1024
+        buffer_size 8192
     }
 }
 
