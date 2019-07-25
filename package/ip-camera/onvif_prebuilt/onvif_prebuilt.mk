@@ -14,7 +14,7 @@ ifneq ($(BR2_PACKAGE_AML_SOC_FAMILY_NAME), "")
 ONVIF_SOC_NAME = $(strip $(BR2_PACKAGE_AML_SOC_FAMILY_NAME))
 endif
 
-ONVIF_SUB_PATH=$(ONVIF_ARCH)/$(ONVIF_SOC_NAME)
+ONVIF_SUB_PATH = $(ONVIF_SOC_NAME)/$(ONVIF_ARCH)
 ONVIF_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_prebuilt
 ONVIF_PREBUILT_SITE_METHOD = local
 ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_SUB_PATH)
@@ -66,14 +66,14 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamloverlay.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvenc.so       $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlfacenet.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
-	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so    $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so      $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so        $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 
-	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf    			$(@D)/$(ONVIF_SUB_PATH)/etc/nginx
-	cp -a $(TARGET_DIR)/etc/php.ini    						$(@D)/$(ONVIF_SUB_PATH)/etc/php.ini
-	cp -a $(TARGET_DIR)/var/www/ipc-webui    				$(@D)/$(ONVIF_SUB_PATH)/var/www
+	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf       $(@D)/$(ONVIF_SUB_PATH)/etc/nginx
+	cp -a $(TARGET_DIR)/etc/php.ini                $(@D)/$(ONVIF_SUB_PATH)/etc/php.ini
+	cp -a $(TARGET_DIR)/var/www/ipc-webui          $(@D)/$(ONVIF_SUB_PATH)/var/www
 
-	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_ARCH)-$(ONVIF_SOC_NAME).tgz -C $(@D) $(ONVIF_SUB_PATH)
+	tar -zcf $(TARGET_DIR)/../images/onvif-prebuilt-$(ONVIF_SOC_NAME)-$(ONVIF_ARCH).tgz -C $(@D) $(ONVIF_SUB_PATH)
 endef
 
 endif
