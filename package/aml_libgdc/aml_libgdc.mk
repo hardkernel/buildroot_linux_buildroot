@@ -17,6 +17,8 @@ define AML_LIBGDC_BUILD_CMDS
 endef
 
 define AML_LIBGDC_INSTALL_TARGET_CMDS
+    mkdir -p $(TARGET_DIR)/etc/gdc_config
+    $(INSTALL) -D -m 0644 $(@D)/gdc_config/* $(TARGET_DIR)/etc/gdc_config/
     $(INSTALL) -D -m 0644 $(@D)/libgdc.so $(TARGET_DIR)/usr/lib/
     $(INSTALL) -D -m 0755 $(@D)/gdc_test  $(TARGET_DIR)/usr/bin/
 endef
