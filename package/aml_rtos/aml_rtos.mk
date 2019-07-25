@@ -4,7 +4,8 @@ ifneq ($(BR2_PACKAGE_AML_RTOS_LOCAL_PATH),)
 AML_RTOS_VERSION = 1.0.0
 AML_RTOS_SITE := $(call qstrip,$(BR2_PACKAGE_AML_RTOS_LOCAL_PATH))
 AML_RTOS_SITE_METHOD = local
-
+AML_RTOS_SOC_NAME = $(strip $(BR2_PACKAGE_AML_SOC_FAMILY_NAME))
+AML_RTOS_PREBUILT = rtos-prebuilt-$(AML_RTOS_SOC_NAME)
 
 define AML_RTOS_BUILD_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION)" ]; then \
@@ -38,6 +39,14 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 	fi
 	$(TARGET_MAKE_ENV) CC=$(TARGET_CC) CXX=$(TARGET_CXX) \
     $(MAKE) -C $(AML_RTOS_PKGDIR)/src install
+	#Package RTOS build result
+	pushd $(BINARIES_DIR); \
+		mkdir -p $(AML_RTOS_PREBUILT); \
+		test -f rtos-uImage && cp -fv rtos-uImage $(AML_RTOS_PREBUILT); \
+		test -f dspbootA.bin && cp -fv dspbootA.bin $(AML_RTOS_PREBUILT); \
+		test -f dspbootB.bin && cp -fv dspbootB.bin $(AML_RTOS_PREBUILT); \
+		tar -zcf $(AML_RTOS_PREBUILT).tgz -C $(AML_RTOS_PREBUILT) ./; \
+	popd
 endef
 
 endif
