@@ -16,7 +16,16 @@ endef
 define AML_NN_DETECT_YOLO_V3_INSTALL_TARGET_CMDS
     mkdir -p $(TARGET_DIR)/etc/nn_data
     $(INSTALL) -D -m 0644 $(@D)/libnn_yolo_v3.so  $(TARGET_DIR)/usr/lib/
-    $(INSTALL) -D -m 0644 $(@D)/nn_data/* $(TARGET_DIR)/etc/nn_data/
+	if [ $(BR2_PACKAGE_AML_SOC_FAMILY_NAME) = "G12B" ]; then \
+		$(INSTALL) -D -m 0644 $(@D)/nn_data/yolov3_7d.nb $(TARGET_DIR)/etc/nn_data/; \
+		$(INSTALL) -D -m 0644 $(@D)/nn_data/yolov3_88.nb $(TARGET_DIR)/etc/nn_data/; \
+	fi
+	if [ $(BR2_PACKAGE_AML_SOC_FAMILY_NAME) = "SM1" ]; then \
+		$(INSTALL) -D -m 0644 $(@D)/nn_data/yolov3_99.nb $(TARGET_DIR)/etc/nn_data/; \
+	fi
+	if [ $(BR2_PACKAGE_AML_SOC_FAMILY_NAME) = "C1" ]; then \
+		$(INSTALL) -D -m 0644 $(@D)/nn_data/yolov3_a1.nb $(TARGET_DIR)/etc/nn_data/; \
+	fi
 endef
 
 define AML_NN_DETECT_YOLO_V3_INSTALL_STAGING_CMDS
