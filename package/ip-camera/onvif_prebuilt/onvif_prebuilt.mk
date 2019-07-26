@@ -23,8 +23,13 @@ ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
 #We will only apply onvif prebuilt packages, so we need to make sure the original package's dependency can meet.
 ONVIF_PREBUILT_DEPENDENCIES = openssl zlib libjpeg directfb sqlite
 ONVIF_PREBUILT_DEPENDENCIES += gstreamer1 gst1-plugins-base gst1-plugins-good gst1-plugins-bad gst1-rtsp-server
-ONVIF_PREBUILT_DEPENDENCIES += libvpcodec libvphevcodec aml_nn_detect aml_libge2d aml_libgdc
+ONVIF_PREBUILT_DEPENDENCIES += aml_nn_detect aml_libge2d aml_libgdc
 ONVIF_PREBUILT_DEPENDENCIES += nginx php nodejs
+ifeq ($(BR2_PACKAGE_AML_SOC_USE_MULTIENC), y)
+GST_PLUGIN_AMLVENC_DEPENDENCIES += libmultienc
+else
+GST_PLUGIN_AMLVENC_DEPENDENCIES += libvpcodec libvphevcodec
+endif
 define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)
 	cp -av $(ONVIF_PREBUILT_DIRECTORY)/*  $(TARGET_DIR)/
