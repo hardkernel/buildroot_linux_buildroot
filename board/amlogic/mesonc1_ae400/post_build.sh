@@ -43,3 +43,26 @@ if [ -d $TARGET_DIR/lib/debug ]; then
     rm -frv $TARGET_DIR/lib/debug
 fi
 
+echo "Remove unnecessary BSA apps"
+rm -fv $TARGET_DIR/usr/bin/app_*
+
+echo "Remove unnecessary decoder driver"
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mpeg4.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/stream_input.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mjpeg.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mmpeg4.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_vc1.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_h264.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/decoder_common.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mpeg12.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_h264mvc.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/firmware.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_avs.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mmjpeg.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mh264.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mmpeg12.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_vp9.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_h265.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_real.ko
+rm -fv $TARGET_DIR/lib/modules/*/kernel/media/media_clock.ko
+
