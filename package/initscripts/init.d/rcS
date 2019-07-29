@@ -1,15 +1,14 @@
 #!/bin/sh
 
-if [ -f /etc/init.d/rc.modules ]; then
-        /etc/init.d/rc.modules
-fi
-
 #Must run S02overlayfs first, as it will change /etc folder
 #then impact what kind /etc/init.d/* scripts need to run
 if [ -f /etc/init.d/S02overlayfs ]; then
     /etc/init.d/S02overlayfs start
 fi
 
+if [ -f /etc/init.d/rc.modules ]; then
+    /etc/init.d/rc.modules
+fi
 
 # make sure user config directory is /var
 # / is read only, which can causes some application launch failed
