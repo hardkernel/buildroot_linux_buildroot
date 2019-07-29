@@ -136,6 +136,10 @@ BR2_PACKAGE_AML_RTOS_LOCAL_PATH="$(TOPDIR)/../vendor/amlogic/rtos/a1"
 BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION="a1_a113l_ad401_hifi4a_linux"
 BR2_PACKAGE_AML_RTOS_DSPA_INSTALL=y
 
+BR2_PACKAGE_AML_SOC_FAMILY_NAME="A1"
+BR2_PACKAGE_AML_SOC_CHIP_NAME="A113L"
+BR2_PACKAGE_AML_SOC_BOARD_NAME="AD401"
+
 #-----------------------For WiFi & BT----------------------------------#
 BR2_PACKAGE_HOSTAPD=y
 BR2_PACKAGE_HOSTAPD_ACS=y
@@ -224,7 +228,7 @@ BR2_PACKAGE_SWUPDATE=y
 BR2_PACKAGE_SWUPDATE_DOWNLOAD=y
 BR2_PACKAGE_SWUPDATE_CONFIG="package/swupdate/swupdate.config"
 #We dont need to install website for swupdate, as A1 use direct OTA feature, not WebUi Update
-#BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE=y 
+#BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE=y
 
 #-----------------------For AML Audio Player--------------------------------#
 BR2_PACKAGE_AML_AUDIO_PLAYER=y
