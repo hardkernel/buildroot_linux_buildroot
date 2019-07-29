@@ -4,14 +4,14 @@
 #
 ################################################################################
 
-WESTON_VERSION = 3.0.0
+WESTON_VERSION = 6.0.0
 WESTON_SITE = http://wayland.freedesktop.org/releases
 WESTON_SOURCE = weston-$(WESTON_VERSION).tar.xz
 WESTON_LICENSE = MIT
 WESTON_LICENSE_FILES = COPYING
 
 WESTON_DEPENDENCIES = host-pkgconf wayland wayland-protocols \
-	libxkbcommon pixman libpng jpeg mtdev udev cairo libinput \
+	libxkbcommon pixman libpng jpeg mtdev udev cairo libinput libdrm \
 	$(if $(BR2_PACKAGE_WEBP),webp)
 
 WESTON_CONF_OPTS = \
@@ -19,7 +19,8 @@ WESTON_CONF_OPTS = \
 	--disable-headless-compositor \
 	--disable-colord \
 	--disable-devdocs \
-	--disable-setuid-install
+	--disable-setuid-install \
+	--enable-autotools
 
 WESTON_MAKE_OPTS = \
 	WAYLAND_PROTOCOLS_DATADIR=$(STAGING_DIR)/usr/share/wayland-protocols
@@ -55,22 +56,13 @@ ifeq ($(BR2_PACKAGE_MESA3D_OPENGL_EGL)$(BR2_PACKAGE_MESA3D_OPENGL_ES),yy)
 WESTON_CONF_OPTS += --enable-egl
 WESTON_DEPENDENCIES += libegl
 else ifeq ($(BR2_PACKAGE_MESON_MALI),y)
-WESTON_CONF_OPTS += --enable-egl --enable-simple-egl-clients
+WESTON_CONF_OPTS += --enable-egl --enable-simple-egl-clients --disable-simple-dmabuf-egl-client
 WESTON_DEPENDENCIES += libegl
 else
 WESTON_CONF_OPTS += \
-  --disable-egl \
-  --disable-simple-egl-clients
-endif
-
-ifeq ($(BR2_PACKAGE_CAIRO)$(BR2_PACKAGE_HAS_LIBGLES),yy)
-WESTON_CONF_OPTS += --with-cairo=glesv2
-endif
-
-ifeq ($(BR2_PACKAGE_LIBUNWIND),y)
-WESTON_DEPENDENCIES += libunwind
-else
-WESTON_CONF_OPTS += --disable-libunwind
+	--disable-egl \
+	--disable-simple-dmabuf-drm-client \
+	--disable-simple-egl-clients
 endif
 
 ifeq ($(BR2_PACKAGE_WESTON_RDP),y)
@@ -115,7 +107,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBVA),y)
 WESTON_CONF_OPTS += --enable-vaapi-recorder
-WESTON_DEPENDENIES += libva
+WESTON_DEPENDENCIES += libva
 else
 WESTON_CONF_OPTS += --disable-vaapi-recorder
 endif
