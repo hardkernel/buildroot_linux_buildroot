@@ -143,6 +143,12 @@ else
 WESTON_CONF_OPTS += --disable-demo-clients-install
 endif
 
+ifeq ($(BR2_PACKAGE_WESTON_DRM_HELPER),y)
+WESTON_CONF_OPTS += \
+	--enable-drm-helper
+WESTON_DEPENDENCIES += meson-display
+endif
+
 $(eval $(autotools-package))
 
 
