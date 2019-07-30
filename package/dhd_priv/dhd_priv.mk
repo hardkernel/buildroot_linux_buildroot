@@ -4,7 +4,7 @@
 #
 ################################################################################
 DHD_PRIV_VERSION = 1.1
-ifndef ($(findstring amlogic-4.19-dev,$(BR2_LINUX_KERNEL_VERSION))
+ifeq ($(findstring amlogic-4.19-dev,$(BR2_LINUX_KERNEL_VERSION)),amlogic-4.19-dev)
 DHD_PRIV_SITE = $(TOPDIR)/../hardware/aml-4.19/amlogic/wifi/bcm_ampak/tools/dhd_priv
 else
 DHD_PRIV_SITE = $(TOPDIR)/../hardware/aml-4.9/amlogic/wifi/bcm_ampak/tools/dhd_priv
