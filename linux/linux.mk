@@ -500,6 +500,11 @@ define LINUX_KCONFIG_FIXUP_CMDS
 	$(call KCONFIG_DISABLE_OPT,CONFIG_AMLOGIC_MEDIA_FB_OSD_SYNC_FENCE,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_SYNC,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_SYNC_FILE,$(@D)/.config)
+	#optee linuxdriver compile should depend on CONFIG_DMA_SHARED_BUFFER enabled.
+	#CONFIG_DMA_SHARED_BUFFER is selected by CONFIG_SYNC_FILE.
+	#when CONFIG_SYNC_FILE is removed, CONFIG_DMA_SHARED_BUFFER will not be set.
+	$(if $(BR2_PACKAGE_TDK),
+		$(call KCONFIG_ENABLE_OPT,CONFIG_SYNC_FILE,$(@D)/.config))
 	$(call KCONFIG_DISABLE_OPT,CONFIG_SW_SYNC,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_SW_SYNC_USER,$(@D)/.config)
 	$(call KCONFIG_DISABLE_OPT,CONFIG_PM_RUNTIME,$(@D)/.config)
