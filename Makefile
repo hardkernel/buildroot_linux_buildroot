@@ -1001,8 +1001,14 @@ defconfig: $(BUILD_DIR)/buildroot-config/conf prepare-kconfig
 define percent_defconfig
 # Override the BR2_DEFCONFIG from COMMON_CONFIG_ENV with the new defconfig
 %_defconfig: $(BUILD_DIR)/buildroot-config/conf $(1)/configs/%_defconfig prepare-kconfig
-	@$$(COMMON_CONFIG_ENV) BR2_DEFCONFIG=$(1)/configs/$$@ \
-		$$< --defconfig=$(1)/configs/$$@ $$(CONFIG_CONFIG_IN)
+	@if support/scripts/br2-fragments-merge $(1)/configs/$$@ ; then \
+		$$(COMMON_CONFIG_ENV) BR2_DEFCONFIG=$(1)/configs/$$@ \
+			$$< --defconfig=$(1)/configs/$$@.tmp $$(CONFIG_CONFIG_IN); \
+		rm -fr $(1)/configs/$$@.tmp; \
+	else \
+		$$(COMMON_CONFIG_ENV) BR2_DEFCONFIG=$(1)/configs/$$@ \
+			$$< --defconfig=$(1)/configs/$$@ $$(CONFIG_CONFIG_IN); \
+	fi
 endef
 $(eval $(foreach d,$(call reverse,$(TOPDIR) $(BR2_EXTERNAL_DIRS)),$(call percent_defconfig,$(d))$(sep)))
 
