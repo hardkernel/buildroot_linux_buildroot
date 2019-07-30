@@ -96,7 +96,6 @@ int dsp_ctl(struct hifi4dsp_info_t *info, unsigned int cmd)
 	return 0;
 }
 
-
 bool dsp_dev_is_exist(struct hifi4dsp_info_t *info)
 {
 	int ret = -1;
@@ -120,14 +119,12 @@ bool dsp_dev_is_exist(struct hifi4dsp_info_t *info)
 	return 1;
 }
 
-
 bool dsp_firmware_is_exist(struct hifi4dsp_info_t *info)
 {
 	int ret = -1;
 	const char *pathname;
 	char path[256];
 	int fd;
-
 	strcpy(path, "/lib/firmware/");
 	strcat(path, info->fw_name);
 	if(strlen(info->fw_name)==0)
@@ -136,25 +133,18 @@ bool dsp_firmware_is_exist(struct hifi4dsp_info_t *info)
 		return 0;
 	}
 
-	sprintf(path, "/lib/firmware/%s", info->fw_name);
-
-	printf(" info->fw_name:%s", path);
-	pathname=path;
-
-	if(access(pathname,F_OK) != -1){
-		printf("firmware: %s exist\n", pathname);
-	}else{
-		printf("firmware: invalid dsp firmware (%s not exist)\n", pathname);
+	if (access(path, F_OK) != -1) {
+		printf("firmware: %s exist\n", path);
+	} else {
+		printf("firmware: invalid dsp firmware (%s not exist)\n", path);
 		return 0;
 	}
 	return 1;
 }
 
-
 int dsp_load(struct hifi4dsp_info_t *info)
 {
 	int err=0;
-
 	if(false == dsp_dev_is_exist(info))
 		err -= 1;
 
@@ -166,9 +156,9 @@ int dsp_load(struct hifi4dsp_info_t *info)
 		err -= 1;
 	if(err<0)
 		return err;
+
 	return dsp_ctl(info, HIFI4DSP_LOAD);
 }
-
 int dsp_reset(struct hifi4dsp_info_t *info)
 {
 	int err=0;

@@ -17,12 +17,14 @@
  */
 #ifndef __AML_HIFI4DSP_API_H__
 #define __AML_HIFI4DSP_API_H__
+#include <stdint.h>
 typedef struct hifi4dsp_info_t
 {
 	char id; 			/*dsp_id 0,1,2...*/
 	char fw_id;
 	char fw_name[32];	/*name of firmware which used for dsp*/
 	long phy_addr;		/*phy address of firmware wille be loaded on*/
+	size_t size;		/*size of reserved hifi memory*/
 }hifi4dsp_info;
 
 #define HIFI4DSP_IOC_MAGIC  'H'
@@ -37,6 +39,14 @@ typedef struct hifi4dsp_info_t
 #define HIFI4DSP_GET_INFO	_IOWR((HIFI4DSP_IOC_MAGIC),(18), struct hifi4dsp_info_t)
 
 #define HIFI4DSP_TEST		_IO(HIFI4DSP_IOC_MAGIC, 255)
+
+struct hifi4_shm_info_t {
+	long addr;
+	size_t size;
+};
+#define HIFI4DSP_SHM_CLEAN \
+		_IOWR(HIFI4DSP_IOC_MAGIC, 64, struct hifi4_shm_info_t)
+#define HIFI4DSP_SHM_INV _IOWR(HIFI4DSP_IOC_MAGIC, 65, struct hifi4_shm_info_t)
 
 
 #endif /*__AML_AUDIO_HIFI4DSP_API_H__ */
