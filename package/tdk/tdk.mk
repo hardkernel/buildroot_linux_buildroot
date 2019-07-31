@@ -106,6 +106,9 @@ define XTEST
 					-C $(@D)/demos/optee_test
 endef
 
+ifeq ($(BR2_ARM_KERNEL_32), y)
+TARGET_CONFIGURE_OPTS += KERNEL_A32_SUPPORT=true
+endif
 
 define TDK_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(LINUX_DIR) M=$(@D)/linuxdriver ARCH=$(KERNEL_ARCH) \
