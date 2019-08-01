@@ -11,19 +11,19 @@ AML_RTOS_DEPENDENCIES += aml_dsp_util
 define AML_RTOS_BUILD_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
-			./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION); \
+			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION); \
 			$(INSTALL) -D -m 644 ./out_armv8/rtos-uImage $(BINARIES_DIR)/;\
 		popd; \
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
-			./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION); \
+			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION); \
 			$(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/dspbootA.bin;\
 		popd; \
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
-			./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION); \
+			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION); \
 			$(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/dspbootB.bin;\
 		popd; \
 	fi
