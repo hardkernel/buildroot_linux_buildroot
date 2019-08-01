@@ -303,7 +303,7 @@ BR2_PACKAGE_LIBEVDEV=y
 
 #-------------------------RTOS-Depends------------------------------#
 BR2_PACKAGE_AML_RTOS=y
-BR2_PACKAGE_AML_RTOS_LOCAL_PATH="$(TOPDIR)/../vendor/amlogic/rtos/c1"
+BR2_PACKAGE_AML_RTOS_LOCAL_PATH="$(TOPDIR)/../vendor/amlogic/rtos/freertos"
 BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION="c1_c308x_ae409"
 BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION="c1_c308x_ae400_hifi4a"
 BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION="c1_c308x_ae400_hifi4b"
