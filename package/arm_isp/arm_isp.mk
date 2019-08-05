@@ -7,11 +7,14 @@
 ARM_ISP_VERSION = $(call qstrip,$(BR2_PACKAGE_ARM_ISP_VERSION))
 ARM_ISP_SITE = $(call qstrip,$(BR2_PACKAGE_ARM_ISP_LOCAL_PATH))
 CUR_PATH := $(shell cd "$(dirname $$0)";pwd)/$(dir $(lastword $(MAKEFILE_LIST)))
+ARM_ISP_INSTALL_STAGING = YES
 
 # modules
 ARM_ISP_MODULE_DIR = kernel/amlogic/arm_isp
 ARM_ISP_INSTALL_DIR = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/$(ARM_ISP_MODULE_DIR)
 ARM_ISP_DEP = $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/modules.dep
+ARM_ISP_INSTALL_STAGING_DIR = $(STAGING_DIR)/usr/include/linux
+ARM_AUTOCAP = $(@D)/isp_module/v4l2_dev/inc/api/acamera_autocap_api.h
 
 define copy-arm-isp
         $(foreach m, $(shell find $(strip $(1)) -name "*.ko"),\
@@ -62,6 +65,12 @@ ARM_ISP_SERVER_BIN = $(@D)/lib/lib32/iv009_isp_32.elf
 else
 ARM_ISP_SERVER_BIN = $(@D)/lib/lib32_64/iv009_isp_u32_k64.elf
 endif
+
+define ARM_ISP_INSTALL_STAGING_CMDS
+	if [ -f "$(ARM_AUTOCAP)" ]; then \
+		$(INSTALL) -D -m 0644 $(ARM_AUTOCAP) $(ARM_ISP_INSTALL_STAGING_DIR); \
+	fi
+endef
 
 define ARM_ISP_INSTALL_TARGET_CMDS
         $(call copy-arm-isp,$(@D),\
