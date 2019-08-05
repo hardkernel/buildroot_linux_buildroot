@@ -44,7 +44,7 @@ if [ -d $TARGET_DIR/lib/debug ]; then
 fi
 
 echo "Remove unnecessary BSA apps"
-rm -fv $TARGET_DIR/usr/bin/app_*
+find $TARGET_DIR/usr/bin -name app_* ! -name app_manager -delete
 
 echo "Remove unnecessary decoder driver"
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mpeg4.ko
