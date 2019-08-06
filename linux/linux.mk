@@ -259,7 +259,12 @@ LINUX_IMAGE_NAME = cuImage.$(firstword $(LINUX_DTS_NAME))
 else ifeq ($(BR2_LINUX_KERNEL_SIMPLEIMAGE),y)
 LINUX_IMAGE_NAME = simpleImage.$(firstword $(LINUX_DTS_NAME))
 else ifeq ($(BR2_LINUX_KERNEL_IMAGE),y)
-LINUX_IMAGE_NAME = Image.gz
+#C1 have special requirement for bootup performance, it dont want compressed kernel here.
+ifeq ($(BR2_LINUX_KERNEL_IMAGE_NOGZIP),y)
+  LINUX_IMAGE_NAME = Image
+else
+  LINUX_IMAGE_NAME = Image.gz
+endif
 else ifeq ($(BR2_LINUX_KERNEL_LINUX_BIN),y)
 LINUX_IMAGE_NAME = linux.bin
 else ifeq ($(BR2_LINUX_KERNEL_VMLINUX_BIN),y)
