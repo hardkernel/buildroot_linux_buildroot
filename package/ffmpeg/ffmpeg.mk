@@ -7,6 +7,8 @@
 FFMPEG_VERSION = 3.4.5
 FFMPEG_SOURCE = ffmpeg-$(FFMPEG_VERSION).tar.xz
 FFMPEG_SITE = http://ffmpeg.org/releases
+#FFMPEG_SITE = $(TOPDIR)/../vendor/amlogic/ffmpeg
+#FFMPEG_SITE_METHOD = local
 FFMPEG_INSTALL_STAGING = YES
 
 FFMPEG_LICENSE = LGPL-2.1+, libjpeg license
@@ -59,6 +61,18 @@ FFMPEG_CONF_OPTS = \
 #libplayer should compile first, so libplayer will link to its own inside ffmpeg
 FFMPEG_DEPENDENCIES += $(if $(BR2_PACKAGE_LIBPLAYER),libplayer)
 FFMPEG_DEPENDENCIES += host-pkgconf
+
+# Apply the related patch for our hifi dsp in ffmpeg
+ifeq ($(BR2_PACKAGE_AML_DSP_UTIL),y)
+FFMPEG_DEPENDENCIES += aml_dsp_util
+define FFMPEG_APPLY_HIFI4DSP_PATCHES
+	if [ -d $(FFMPEG_PKGDIR)/hifi4dsp  ]; then \
+		$(APPLY_PATCHES) $(@D) $(FFMPEG_PKGDIR)/hifi4dsp *.patch; \
+	fi
+endef
+
+FFMPEG_POST_PATCH_HOOKS += FFMPEG_APPLY_HIFI4DSP_PATCHES
+endif
 
 ifeq ($(BR2_PACKAGE_FFMPEG_GPL),y)
 FFMPEG_CONF_OPTS += --enable-gpl
