@@ -4,7 +4,7 @@
 #
 #############################################################
 AML_DSP_UTIL_VERSION:=0.0.1
-AML_DSP_UTIL_SITE=$(TOPDIR)/../vendor/amlogic/dsp_util
+AML_DSP_UTIL_SITE=$(TOPDIR)/../vendor/amlogic/rtos/dsp_util
 AML_DSP_UTIL_SITE_METHOD=local
 AML_DSP_UTIL_BUILD_DIR = $(BUILD_DIR)
 AML_DSP_UTIL_INSTALL_STAGING = YES

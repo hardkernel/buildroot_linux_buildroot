@@ -34,6 +34,12 @@ config BR2_PACKAGE_AML_RTOS_DSPA_INSTALL
     help
       Whether we install dspA bin to /usr/dsp folder
 
+config BR2_PACKAGE_AML_RTOS_DSPA_AUTOLOAD
+    bool "Auto load DSP_A RTOS image"
+    depends on BR2_PACKAGE_AML_RTOS_DSPA_INSTALL
+    help
+      Auto load DSP_A RTOS image
+
 config BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION
     string "AML RTOS DSPB build option"
     depends on BR2_PACKAGE_AML_RTOS
@@ -45,3 +51,9 @@ config BR2_PACKAGE_AML_RTOS_DSPB_INSTALL
     depends on BR2_PACKAGE_AML_RTOS
     help
       Whether we install dspB bin to /usr/dsp folder
+
+config BR2_PACKAGE_AML_RTOS_DSPB_AUTOLOAD
+    bool "Auto load DSP_B RTOS image"
+    depends on BR2_PACKAGE_AML_RTOS_DSPB_INSTALL
+    help
+      Auto load DSP_B RTOS image

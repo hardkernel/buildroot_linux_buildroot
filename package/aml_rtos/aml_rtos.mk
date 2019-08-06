@@ -33,10 +33,20 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
 		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootA.bin $(TARGET_DIR)/lib/firmware/;\
+		if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_AUTOLOAD)" ]; then \
+			$(INSTALL) -D -m 755 \
+			$(AML_RTOS_PKGDIR)/S71_load_dspa \
+			$(TARGET_DIR)/etc/init.d/;\
+		fi \
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
 		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootB.bin $(TARGET_DIR)/lib/firmware/;\
+		if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_AUTOLOAD)" ]; then \
+			$(INSTALL) -D -m 755 \
+			$(AML_RTOS_PKGDIR)/S71_load_dspb \
+			$(TARGET_DIR)/etc/init.d/;\
+		fi \
 	fi
 	#Package RTOS build result
 	pushd $(BINARIES_DIR); \
@@ -65,10 +75,19 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
 		$(INSTALL) -D -m 644 $(@D)/dspbootA.bin $(TARGET_DIR)/lib/firmware/;\
-	fi
+		if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_AUTOLOAD)" ]; then \
+			$(INSTALL) -D -m 755 \
+			$(AML_RTOS_PKGDIR)/S71_load_dspa \
+			$(TARGET_DIR)/etc/init.d/;\
+		fi \	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
 		$(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(TARGET_DIR)/lib/firmware/;\
+		if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_AUTOLOAD)" ]; then \
+			$(INSTALL) -D -m 755 \
+			$(AML_RTOS_PKGDIR)/S71_load_dspb \
+			$(TARGET_DIR)/etc/init.d/;\
+		fi \
 	fi
 endef
 

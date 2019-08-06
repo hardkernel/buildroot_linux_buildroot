@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Starts the input_eventd daemon.
+#
+
+
+case "$1" in
+  start)
+    # load firmware
+    dsp_util --load --dsp hifi4b -f dspbootB.bin
+    # Launch DSP rtos
+    dsp_util -S --dsp hifi4b
+    ;;
+  stop)
+    echo -n "Do thing: "
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0
