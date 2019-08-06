@@ -19,6 +19,7 @@ DEFCONFIG_ARRAY=(
     "mesontm2_ab311_32_release"
     "mesontm2_ab311_release"
 
+    "mesonsm1_ac200_release"
     "mesonsm1_ac200_32_release"
     "mesonsm1_ac213_32_release"
 
