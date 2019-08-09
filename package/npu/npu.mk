@@ -31,11 +31,20 @@ endef
 ifeq ($(BR2_aarch64), y)
 NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/* $(NPU_SO_INSTALL_DIR);
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib64/* $(NPU_SO_INSTALL_DIR); \
+	if [ -n "$(BR2_PACKAGE_NPU_NBG_IMAGE)" ]; then \
+		$(INSTALL) -m 0644 $(@D)/NBG/$(BR2_PACKAGE_NPU_NBG_IMAGE) \
+			$(BINARIES_DIR)/NBG.img; \
+	fi
+	
 else
 NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \
-	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/* $(NPU_SO_INSTALL_DIR);
+	$(INSTALL) -m 0755 $(@D)/sharelib/lib32/* $(NPU_SO_INSTALL_DIR); \
+	if [ -n "$(BR2_PACKAGE_NPU_NBG_IMAGE)" ]; then \
+		$(INSTALL) -m 0644 $(@D)/NBG/$(BR2_PACKAGE_NPU_NBG_IMAGE) \
+			$(BINARIES_DIR)/NBG.img; \
+	fi
 endif
 
 path = 	$(@D)

@@ -34,3 +34,9 @@ config BR2_PACKAGE_NPU_LOCAL_PATH
 	depends on BR2_PACKAGE_NPU
 	help
 		npu local path
+
+config BR2_PACKAGE_NPU_NBG_IMAGE
+	string "amlogic npu NBG image"
+	depends on BR2_PACKAGE_NPU
+	help
+		npu local NBG image

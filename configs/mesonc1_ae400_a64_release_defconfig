@@ -75,6 +75,7 @@ BR2_PACKAGE_NPU_GIT_URL=""
 BR2_PACKAGE_NPU_CUSTOM_TARBALL_LOCATION=""
 BR2_PACKAGE_NPU_LOCAL=y
 BR2_PACKAGE_NPU_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.19/npu/nanoq"
+BR2_PACKAGE_NPU_NBG_IMAGE="c1_c308x_model.img"
 
 
 #-------------------------ISP-------------------------------#
