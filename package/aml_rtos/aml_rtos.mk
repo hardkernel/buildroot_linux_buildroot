@@ -79,7 +79,8 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 			$(INSTALL) -D -m 755 \
 			$(AML_RTOS_PKGDIR)/S71_load_dspa \
 			$(TARGET_DIR)/etc/init.d/;\
-		fi \	fi
+		fi \
+	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
 		$(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(TARGET_DIR)/lib/firmware/;\
