@@ -50,6 +50,7 @@ pcm.dmixer_avs_plug {
     type rate
     slave.pcm "2to8"
     slave.rate 48000
+    slave.format S32_LE
 }
 
 pcm.halaudio {
