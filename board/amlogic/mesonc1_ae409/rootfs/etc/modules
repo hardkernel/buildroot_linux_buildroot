@@ -11,6 +11,7 @@ decoder_common
 encoder
 vpu
 amvenc_multi
+amvenc_jpeg
 
 #ISP
 iv009_isp_iq
