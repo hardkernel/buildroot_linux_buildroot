@@ -22,6 +22,9 @@ endif
 ifeq ($(BR2_PACKAGE_AML_NN_FACENET), y)
 AML_NN_DETECT_DEPENDENCIES += aml_nn_facenet
 endif
+ifeq ($(BR2_PACKAGE_AML_NN_INSIGHTFACE), y)
+AML_NN_DETECT_DEPENDENCIES += aml_nn_insightface
+endif
 
 define AML_NN_DETECT_BUILD_CMDS
     cd $(@D);mkdir -p obj;$(MAKE) CC=$(TARGET_CC)
