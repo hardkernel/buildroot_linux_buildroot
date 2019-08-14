@@ -69,9 +69,15 @@ AML_RTOS_SITE_METHOD = local
 AML_RTOS_DEPENDENCIES += aml_dsp_util
 
 define AML_RTOS_INSTALL_TARGET_CMDS
-	test -f $(@D)/rtos-uImage && $(INSTALL) -D -m 644 $(@D)/rtos-uImage $(BINARIES_DIR)/
-	test -f $(@D)/dspbootA.bin && $(INSTALL) -D -m 644 $(@D)/dspbootA.bin $(BINARIES_DIR)/
-	test -f $(@D)/dspbootB.bin && $(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(BINARIES_DIR)/
+	if [ -f $(@D)/rtos-uImage ]; then \
+		$(INSTALL) -D -m 644 $(@D)/rtos-uImage $(BINARIES_DIR)/; \
+	fi
+	if [ -f $(@D)/dspbootA.bin ]; then \
+		$(INSTALL) -D -m 644 $(@D)/dspbootA.bin $(BINARIES_DIR)/; \
+	fi
+	if [ -f $(@D)/dspbootB.bin ]; then \
+		$(INSTALL) -D -m 644 $(@D)/dspbootB.bin $(BINARIES_DIR)/; \
+	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
 		$(INSTALL) -D -m 644 $(@D)/dspbootA.bin $(TARGET_DIR)/lib/firmware/;\
