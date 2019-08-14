@@ -56,6 +56,26 @@ FFMPEG_CONF_OPTS = \
 	--disable-libilbc \
 	--disable-libvo-amrwbenc \
 	--disable-symver \
+	--disable-encoder=ac3 \
+	--disable-decoder=ac3 \
+	--disable-demuxer=ac3 \
+	--disable-parser=ac3 \
+	--disable-encoder=eac3 \
+	--disable-decoder=eac3 \
+	--disable-demuxer=eac3 \
+	--disable-parser=eac3 \
+	--disable-encoder=truehd \
+	--disable-decoder=truehd \
+	--disable-demuxer=truehd \
+	--disable-parser=truehd \
+	--disable-encoder=dts \
+	--disable-decoder=dts \
+	--disable-demuxer=dts \
+	--disable-parser=dts \
+	--disable-encoder=dtshd \
+	--disable-decoder=dtshd \
+	--disable-demuxer=dtshd \
+	--disable-parser=dtshd \
 	--disable-doc
 
 #libplayer should compile first, so libplayer will link to its own inside ffmpeg
