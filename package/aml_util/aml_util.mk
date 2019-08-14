@@ -67,6 +67,8 @@ endef
 
 define AML_UTIL_INSTALL_TARGET_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) CC=$(TARGET_CC) -C $(@D) install
+	$(INSTALL) -D -m 755 $(TOPDIR)/package/aml_util/S43sysname $(TARGET_DIR)/etc/init.d
+	$(INSTALL) -D -m 755 $(TOPDIR)/package/aml_util/get_sysname.sh $(TARGET_DIR)/etc/init.d
 endef
 
 $(eval $(generic-package))
