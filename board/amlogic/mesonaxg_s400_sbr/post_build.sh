@@ -70,6 +70,19 @@ fi
 if [ -f $1/etc/init.d/S44bluetooth ]; then
 	sed -i 's/bt_name=\"amlogic\"/bt_name=\"amlogic-sbr\"/g' $1/etc/init.d/S44bluetooth
 	sed -i '/while [ $cnt -lt 10 ]/,/done/d' $1/etc/init.d/S44bluetooth
+
+	# use get_system.sh to create bt name
+	textexist=$(cat $1/etc/init.d/S44bluetooth | grep get_sysname.sh)
+	if [ -z "$textexist" ] ; then
+		sed -i 's/MusicBox-//g' $1/etc/init.d/S44bluetooth
+		sed -i '/bt_name=\"/iif [ -f \/etc\/init.d\/get_sysname.sh ]; then' $1/etc/init.d/S44bluetooth
+		sed -i '/bt_name=\"/i  bt_name=$(\/etc\/init.d\/get_sysname.sh)' $1/etc/init.d/S44bluetooth
+		sed -i '/bt_name=\"/ifi' $1/etc/init.d/S44bluetooth
+		sed -i '/bt_name=\"/iif [ -z \"$bt_name\" ]; then' $1/etc/init.d/S44bluetooth
+		sed -i '/bt_name=\"/a fi' $1/etc/init.d/S44bluetooth
+		sed -i '/fw_path=\"\/etc\/bluetooth\"/abt_name=\"\"' $1/etc/init.d/S44bluetooth
+
+	fi
 fi
 
 # Remove some no useful files

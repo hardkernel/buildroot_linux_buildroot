@@ -76,5 +76,9 @@ while true ; do
         echo "start avs....."
         start_avs
     fi
+    if [ -f /etc/init.d/avs_mdns.sh ]; then
+        # start avs mdns service for avs setup
+        /etc/init.d/avs_mdns.sh
+    fi
     sleep 2
 done
