@@ -36,6 +36,7 @@ AmlAVCodec::AmlAVCodec()
   codec_param = (codec_para_t *)calloc(1, sizeof(codec_para_t));
   dump_fp = NULL;
   output_mode_ = kSbPlayerOutputModeInvalid;
+  has_fed_encrypt_data = false;
 }
 
 AmlAVCodec::~AmlAVCodec() {
@@ -236,7 +237,7 @@ SbTime AmlAVCodec::AVGetCurrentMediaTime(bool *is_playing,
       retpts = unwrap_pts;
     }
     if (retpts < pts_seek_to) {
-      CLOG(WARNING) << "pts " << retpts / 1000000.0 << " < seektopts " << pts_seek_to / 1000000.0;
+      //CLOG(WARNING) << "pts " << retpts / 1000000.0 << " < seektopts " << pts_seek_to / 1000000.0;
       retpts = pts_seek_to;
     }
   }
@@ -399,35 +400,33 @@ void AmlAVCodec::CopyClearBufferToSecure(InputBuffer *input_buffer) {
   drminfo_t *drminfo = (drminfo_t *)&frame_data[0];
   drminfo->drm_level = DRM_LEVEL1;
   drminfo->drm_pktsize = size;
-#if 1
-  drminfo->drm_hasesdata = 1;
-  if (codec_param->video_type == VFORMAT_VP9) {
-    std::vector<uint8_t> amldata;
-    if (AddVP9Header(const_cast<uint8_t *>(input_buffer->data()), size,
-                     amldata)) {
-      drminfo->drm_pktsize = amldata.size();
-      frame_data.insert(frame_data.end(), amldata.begin(), amldata.end());
+  if (!has_fed_encrypt_data) {
+    drminfo->drm_hasesdata = 1;
+    if (codec_param->video_type == VFORMAT_VP9) {
+      std::vector<uint8_t> amldata;
+      if (AddVP9Header(const_cast<uint8_t *>(input_buffer->data()), size, amldata)) {
+        drminfo->drm_pktsize = amldata.size();
+        frame_data.insert(frame_data.end(), amldata.begin(), amldata.end());
+      }
+    } else {
+      frame_data.insert(frame_data.end(), input_buffer->data(), input_buffer->data() + size);
     }
   } else {
-    frame_data.insert(frame_data.end(), input_buffer->data(),
-                      input_buffer->data() + size);
-  }
-#else
-  uint8_t *phy = GetSecMem(size);
-  drminfo->drm_hasesdata = 0;
-  drminfo->drm_phy = (unsigned int)((size_t)phy);
-  drminfo->drm_flag = TYPE_DRMINFO | TYPE_PATTERN;
+    uint8_t *phy = GetSecMem(size);
+    drminfo->drm_hasesdata = 0;
+    drminfo->drm_phy = (unsigned int)((size_t)phy);
+    drminfo->drm_flag = TYPE_DRMINFO | TYPE_PATTERN;
 #if 1
-  ::starboard::shared::widevine::DrmSystemWidevine::CopyBuffer(phy, input_buffer->data(), size);
+    ::starboard::shared::widevine::DrmSystemWidevine::CopyBuffer( phy, input_buffer->data(), size);
 #else
-  uint8_t *secdata = (uint8_t *)(sec_drm_mem_virt - sec_drm_mem) +
-                     (sec_drm_mem_off + drminfo->drm_phy);
-  SbMemoryCopy(secdata, input_buffer->data(), size);
-  CLOG(ERROR) << "copy to secmem size " << size
-              << " phy:" << (void *)drminfo->drm_phy
-              << " vir:" << (void *)secdata;
+    uint8_t *secdata = (uint8_t *)(sec_drm_mem_virt - sec_drm_mem) +
+                       (sec_drm_mem_off + drminfo->drm_phy);
+    SbMemoryCopy(secdata, input_buffer->data(), size);
+    CLOG(ERROR) << "copy to secmem size " << size
+                << " phy:" << (void *)drminfo->drm_phy
+                << " vir:" << (void *)secdata;
 #endif
-#endif
+  }
   last_pts_in_secure = input_buffer->timestamp();
   input_buffer->SetDecryptedContent(&frame_data[0], frame_data.size());
 }
@@ -675,7 +674,7 @@ void AmlAVCodec::AVCheckDecoderEos() {
       rp_freeze_time = now + kSbTimeMillisecond * 100;
     } else if (now > rp_freeze_time) {
       if ((bufstat.data_len <= 0x100) ||
-          (now > rp_freeze_time + kSbTimeMillisecond * 5000)) {
+          (now > rp_freeze_time + kSbTimeMillisecond * 3000)) {
         SbLogFormatF("%sbuffer freeze, size:%x datalen:%x free:%x rp:%x wp:%x\n",
             name.c_str(), bufstat.size, bufstat.data_len, bufstat.free_len,
             bufstat.read_pointer, bufstat.write_pointer);
