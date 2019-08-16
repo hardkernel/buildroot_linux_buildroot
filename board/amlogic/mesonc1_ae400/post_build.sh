@@ -56,7 +56,6 @@ rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_h264.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/decoder_common.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mpeg12.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_h264mvc.ko
-rm -fv $TARGET_DIR/lib/modules/*/kernel/media/firmware.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_avs.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mmjpeg.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mh264.ko
@@ -64,5 +63,4 @@ rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_mmpeg12.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_vp9.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_h265.ko
 rm -fv $TARGET_DIR/lib/modules/*/kernel/media/amvdec_real.ko
-rm -fv $TARGET_DIR/lib/modules/*/kernel/media/media_clock.ko
 
