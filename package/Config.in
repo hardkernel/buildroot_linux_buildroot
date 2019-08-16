@@ -49,6 +49,7 @@ menu "amlogic"
 	source "package/libmultienc/Config.in"
 	source "package/aml_rtos/Config.in"
 	source "package/aml_dsp_util/Config.in"
+	source "package/amr/Config.in"
 endmenu
 
 menu "Audio and video applications"
