@@ -64,7 +64,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/etc/init.d/S91onvif_wsdd           $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
 	cp -a $(TARGET_DIR)/etc/init.d/S49ipc_webui            $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
 	[ -f $(TARGET_DIR)/etc/init.d/S80ipc_autocap ] && \
-	cp -a $(TARGET_DIR)/etc/init.d/S80ipc_autocap          $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/
+	cp -a $(TARGET_DIR)/etc/init.d/S80ipc_autocap          $(@D)/$(ONVIF_SUB_PATH)/etc/init.d/ || true
 
 	cp -a $(TARGET_DIR)/usr/bin/onvif_rtsp                 $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
 	cp -a $(TARGET_DIR)/usr/bin/onvif_srvd                 $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
@@ -72,7 +72,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/bin/ipc-property               $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
 	cp -a $(TARGET_DIR)/usr/bin/ipc-property-service       $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
 	[ -f $(TARGET_DIR)/usr/bin/ipc_autocap ] && \
-	cp -a $(TARGET_DIR)/usr/bin/ipc_autocap                $(@D)/$(ONVIF_SUB_PATH)/usr/bin/
+	cp -a $(TARGET_DIR)/usr/bin/ipc_autocap                $(@D)/$(ONVIF_SUB_PATH)/usr/bin/ || true
 
 	cp -a $(TARGET_DIR)/usr/lib/libipc-property.so                   $(@D)/$(ONVIF_SUB_PATH)/usr/lib/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlimgcap.so     $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
