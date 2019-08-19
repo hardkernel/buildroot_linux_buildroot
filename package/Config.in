@@ -50,6 +50,7 @@ menu "amlogic"
 	source "package/aml_rtos/Config.in"
 	source "package/aml_dsp_util/Config.in"
 	source "package/amr/Config.in"
+	source "package/g711/Config.in"
 endmenu
 
 menu "Audio and video applications"
