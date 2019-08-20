@@ -9,6 +9,7 @@ AML_RTOS_PREBUILT = rtos-prebuilt-$(AML_RTOS_SOC_NAME)
 AML_RTOS_DEPENDENCIES += aml_dsp_util
 
 define AML_RTOS_BUILD_CMDS
+	mkdir -p $(BINARIES_DIR)
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
 			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_ARM_BUILD_OPTION); \
@@ -69,6 +70,7 @@ AML_RTOS_SITE_METHOD = local
 AML_RTOS_DEPENDENCIES += aml_dsp_util
 
 define AML_RTOS_INSTALL_TARGET_CMDS
+	mkdir -p $(BINARIES_DIR)
 	if [ -f $(@D)/rtos-uImage ]; then \
 		$(INSTALL) -D -m 644 $(@D)/rtos-uImage $(BINARIES_DIR)/; \
 	fi
