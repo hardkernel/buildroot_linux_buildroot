@@ -6,9 +6,22 @@ data_mtd_number=$(cat /proc/mtd | grep  -E "data" | awk -F : '{print $1}' | grep
 SWUPDATE_PATH=/mnt/swupdate/
 OTA_FILE_FLAG=$SWUPDATE_PATH/enable-network-ota
 
+#Waiting for /dev/data device to become ready
+TimedOut=10000 #10*1000 milisecond
+WaitedTime=0
 if [ ${data_mtd_number} = ""]; then
-    echo "can not get data mtd number, maybe emmc device......"
-    mount -t ext4 /dev/data /mnt
+  	echo "can not get data mtd number, maybe emmc device......"
+  	while [ "$WaitedTime" -lt "$TimedOut" ]
+  	do
+		if [ -b "/dev/data" ]; then
+	  		echo "/dev/data is ready now."
+	  		break;
+		fi
+		sleep 0.1
+		WaitedTime=$((WaitedTime+100))
+		echo "${root} is not ready.  Waited for ${WaitedTime} milisecond"
+  	done
+  	mount -t ext4 /dev/data /mnt
 else
     echo "get data mtd number, now mount data partition......"
     ubiattach /dev/ubi_ctrl -m ${data_mtd_number}
