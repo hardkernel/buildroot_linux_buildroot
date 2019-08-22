@@ -42,6 +42,8 @@ AmlAVCodec::AmlAVCodec()
 AmlAVCodec::~AmlAVCodec() {
   if (codec_param) {
     CLOG(WARNING) << "close codec";
+    if (isvideo)
+      amsysfs_set_sysfs_str("/sys/class/video/blackout_policy", "1");
     codec_reset(codec_param);
     codec_close(codec_param);
 #if defined(COBALT_WIDEVINE_OPTEE)
@@ -185,6 +187,10 @@ void AmlAVCodec::AVSeek(SbTime seek_to_time) {
   if ((seek_to_time == 0) && (time_seek == 0LL)) {
     CLOG(INFO) << "skip init seek to 0";
   } else {
+    if (isvideo && (output_mode_ != kSbPlayerOutputModeDecodeToTexture)) {
+      // display the frame before seek rather than a black screen
+      amsysfs_set_sysfs_str("/sys/class/video/blackout_policy", "0");
+    }
     int ret = codec_reset(codec_param);
     if (ret != CODEC_ERROR_NONE) {
       CLOG(ERROR) << "failed to reset codec " << ret;
@@ -198,6 +204,7 @@ void AmlAVCodec::AVSeek(SbTime seek_to_time) {
     char buf[64];
     sprintf(buf, "0x%lx", pts90k + 1);
     amsysfs_set_sysfs_str("/sys/class/tsync/pts_audio", buf);
+    amsysfs_set_sysfs_str("/sys/class/tsync/firstapts", buf);
   }
   prerolled = false;
   pts_seek_to = seek_to_time;
@@ -221,7 +228,7 @@ SbTime AmlAVCodec::AVGetCurrentMediaTime(bool *is_playing,
   if (isvideo)
     pts = codec_get_vpts(codec_param);
   else
-    pts = codec_get_apts(codec_param);
+    pts = codec_get_pcrscr(codec_param);
   SbTime retpts = kSbTimeMax;
   if (pts == -1) {
     CLOG(ERROR) << "failed to get pts";
@@ -1060,7 +1067,7 @@ int AmlVideoRenderer::GetFrame(vframebuf_t& vf) {
     SbTime timerval = SbTimeGetMonotonicNow() - time_seek + pts_seek_to;
     int64_t frmpts_us = (frm.pts >> 32) * 1000000LL + (frm.pts & 0xffffffff);
     int delta = frmpts_us - timerval;
-    if (delta < -1000*300) {
+    if ((delta < -1000*300) || (delta > 1000000*6)) {
       //CLOG(ERROR) << "drop frame idx:" << frm.index << " pts:" << frmpts_us/1000000.0 << " delta:" << delta;
       frameQueue.pop();
       ReleaseFrame(frm);
@@ -1169,19 +1176,23 @@ error:
 }
 
 void AmlVideoRenderer::Play() {
+  if (!isPaused) return;
   time_seek = SbTimeGetMonotonicNow();
   AmlAVCodec::Play();
 }
 
 void AmlVideoRenderer::Pause() {
+  if (isPaused) return;
   AmlAVCodec::Pause();
   // let seek set the initial value
   if (time_seek == 0LL) {
     return;
   }
-  SbTime now = SbTimeGetMonotonicNow();
-  pts_seek_to += (now - time_seek);
-  time_seek = now;
+  if (output_mode_ == kSbPlayerOutputModeDecodeToTexture) {
+    SbTime now = SbTimeGetMonotonicNow();
+    pts_seek_to += (now - time_seek);
+    time_seek = now;
+  }
 }
 
 } // namespace filter

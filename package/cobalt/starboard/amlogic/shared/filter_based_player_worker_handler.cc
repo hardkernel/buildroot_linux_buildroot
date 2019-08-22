@@ -497,7 +497,6 @@ void FilterBasedPlayerWorkerHandler::Update() {
       SbTime now = SbTimeGetMonotonicNow();
       SB_LOG(WARNING) << "sbtime: " << now/1000000.0 << " mediatime: " << media_time/1000000.0 << "(" << media_time << ")";
     }
-    update_media_info_cb_(media_time, dropped_frames, is_underflow);
     // cobalt seems ignoring underflow flag, we need to implement our own buffering logic here
     if (!paused_) {
       int nframe_video = (video_renderer_) ? video_renderer_->GetNumFramesBuffered() : AmlAVCodec::MAX_NUM_FRAMES;
@@ -524,6 +523,7 @@ void FilterBasedPlayerWorkerHandler::Update() {
         }
       }
     }
+    update_media_info_cb_(media_time, dropped_frames, underflow_pause || paused_);
   }
 
   update_job_token_ = Schedule(update_job_, kUpdateInterval);

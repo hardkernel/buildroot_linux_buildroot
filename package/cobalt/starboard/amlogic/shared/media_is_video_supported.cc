@@ -43,7 +43,7 @@ struct SupportedVideoCaps {
 
   void InitVideoCap(void) {
       const char *env = getenv("COBALT_SUPPORTED_VIDEO_CAPS");
-      if (!env) env = "vp9:3840x2160@60<0,h264:3840x2160@30<0,vr:1920x1080@30<0,hdr:3840x2160@30<0";
+      if (!env) env = "vp9:3840x2160@60<0,h264:3840x2160@60<0,vr:1920x1080@30<0,hdr:3840x2160@30<0";
       SB_LOG(INFO) << "InitVideoCap from string \"" << env << "\"";
       while (true) {
           char codec[32];
