@@ -20,6 +20,9 @@ define GST_PLUGIN_AMLNN_RUN_AUTOGEN
 	cd $(@D) && PATH=$(BR_PATH) ./autogen.sh
 endef
 GST_PLUGIN_AMLNN_POST_PATCH_HOOKS += GST_PLUGIN_AMLNN_RUN_AUTOGEN
-GST_PLUGIN_AMLNN_DEPENDENCIES += host-automake host-autoconf host-libtool gstreamer1 gst1-plugins-base aml_nn_detect
+GST_PLUGIN_AMLNN_DEPENDENCIES += host-automake host-autoconf host-libtool
+GST_PLUGIN_AMLNN_DEPENDENCIES += gstreamer1 gst1-plugins-base
+GST_PLUGIN_AMLNN_DEPENDENCIES += sqlite
+GST_PLUGIN_AMLNN_DEPENDENCIES += aml_nn_detect
 
 $(eval $(autotools-package))
