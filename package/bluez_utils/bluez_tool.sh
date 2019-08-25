@@ -9,8 +9,16 @@ NAME2=rtk_hciattach
 DAEMON2=/usr/sbin/$NAME2
 PIDFILE2=/var/run/$NAME2.pid
 
+rtk_bdaddr=/opt/bdaddr
+aml_bdaddr=/sys/module/kernel/parameters/btmac
+
 realtek_bt_init()
 {
+	if [[ x$(cat $aml_bdaddr) != x && x$(cat $aml_bdaddr) != x"(null)" ]];then
+		cat $aml_bdaddr > $rtk_bdaddr
+	else
+		rm -f $rtk_bdaddr
+	fi
 	modprobe rtk_btuart
 	modprobe rtk_btusb
 	sleep 1

@@ -45,7 +45,7 @@ ifeq ($(BCM), TRUE)
 endif
 
 ifeq ($(RTK), TRUE)
-	AML_UTIL_PRIV_FLAGS += -DREALTEK_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/realtek/wifi
+	AML_UTIL_PRIV_FLAGS += -DRTK_WIFI_MODULE -DREALTEK_MODULES_PATH=/lib/modules/$(LINUX_VERSION_PROBED)/kernel/realtek/wifi
 endif
 
 ifeq ($(CYPRESS), TRUE)

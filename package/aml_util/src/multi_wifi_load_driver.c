@@ -625,6 +625,26 @@ static int sdio_wifi_load_driver(int type)
 			get_module_arg(&dongle_registerd[i].wifi_module_arg, module_arg, type);
 			fprintf(stderr, "[%s:%d]module_path(%s)\n", __func__, __LINE__, module_path);
 			fprintf(stderr, "[%s:%d]module_arg(%s)\n", __func__, __LINE__, module_arg);
+#ifdef RTK_WIFI_MODULE
+			char wifimac[32];
+			char *wifimac_fileName = "/sys/module/kernel/parameters/wifimac";
+			FILE *wifimac_fp = NULL;
+			memset(wifimac, 0 ,sizeof(wifimac));
+			wifimac_fp = fopen(wifimac_fileName, "r");
+			if (wifimac_fp) {
+				if (fread(wifimac, 1, sizeof(wifimac) - 1, wifimac_fp) > 0) {
+					if (strlen(wifimac) > 0 && wifimac[strlen(wifimac) - 1] == '\n') {
+						wifimac[strlen(wifimac) - 1] = '\0';
+					}
+					if (strlen(wifimac) > 0 && strstr(wifimac, "(null)") == NULL) {
+						snprintf(module_arg + strlen(module_arg),
+							sizeof(module_arg) - strlen(module_arg) - 1,
+							" rtw_initmac=%s", wifimac);
+					}
+				}
+				fclose(wifimac_fp);
+			}
+#endif
 			insmod(module_path, module_arg);
 
 			if (dongle_registerd[i].wifi_module_name2) {
