@@ -59,16 +59,15 @@
             "resolution": "704x576"
         },
         "nn": {
+            "enabled": true,
             "detection": {
-                "enabled": true,
                 "model": "mtcnn-v1"
             },
-            "facenet": {
-                "enabled": true,
+            "recognition": {
+                "model": "facenet",
                 "db path": "",
                 "info string" : "name",
-                "threshold": 0.6,
-                "store-face": false
+                "threshold": 0.6
             }
         },
         "overlay": {
@@ -113,19 +112,13 @@
                 }
             },
             "nn": {
-                "detection": {
-                    "show": false,
-                    "rect color": "0xffff00ff"
+                "show": true,
+                "font": {
+                    "color": "0xffff00ff",
+                    "font file": "",
+                    "size": 24
                 },
-                "facenet": {
-                    "show": true,
-                    "font": {
-                        "color": "0xffff00ff",
-                        "font file": "",
-                        "size": 24
-                    },
-                    "rect color": "0xf0f0f0ff"
-                }
+                "rect color": "0xf0f0f0ff"
             }
         },
         "storage": {
