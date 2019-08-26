@@ -51,6 +51,8 @@ else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "txlx")
 SECUROS_IMAGE_DIR = "txlx"
 else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "g12a")
 SECUROS_IMAGE_DIR = "g12a"
+else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "g12b")
+SECUROS_IMAGE_DIR = "g12a"
 else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "sm1")
 SECUROS_IMAGE_DIR = "g12a"
 else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "tl1")
