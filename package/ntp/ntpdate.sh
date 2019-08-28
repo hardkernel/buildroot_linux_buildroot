@@ -24,6 +24,10 @@ if [ -x $NTPDATE_BIN ] ; then
         if [ $? = 0 ]; then
             echo "ntpdate OK"
             /bin/date +%Y-%m-%d > /etc/last_date
+            #If the platform have RTC, we will write back to RTC HW
+            if [ -e /dev/rtc ] || [ -e /dev/misc/rtc ]; then
+                hwclock -w
+            fi
             break;
         else
             echo "ntpdate FAIL"
