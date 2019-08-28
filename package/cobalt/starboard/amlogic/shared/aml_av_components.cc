@@ -862,7 +862,7 @@ AmlVideoRenderer::AmlVideoRenderer(SbMediaVideoCodec video_codec,
   if (output_mode_ == kSbPlayerOutputModeDecodeToTexture) {
     amsysfs_set_sysfs_str("/sys/class/vfm/map", "rm default");
     amsysfs_set_sysfs_str("/sys/class/vfm/map", "add default decoder ionvideo");
-    amsysfs_set_sysfs_int("/sys/module/amvdec_vp9/parameters/double_write_mode", 1);
+    amsysfs_set_sysfs_int("/sys/module/amvdec_vp9/parameters/double_write_mode", 0x100);
     amsysfs_set_sysfs_int("/sys/class/tsync/enable", 1);
     amsysfs_set_sysfs_int("/sys/class/tsync/mode", 1);
     if (!InitIonVideo()) {

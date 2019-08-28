@@ -17,65 +17,47 @@
 #include "starboard/configuration.h"
 #include "starboard/media.h"
 #include "starboard/string.h"
-#include "starboard/log.h"
 #include <stdlib.h>
-#include <string>
-#include <map>
 
-namespace {
-struct SupportedVideoCaps {
-  struct VideoCaps {
-    int64_t bitrate;
-    int width;
-    int height;
-    int fps;
-  };
-  std::map<std::string, VideoCaps> all_caps;
-
-  VideoCaps *GetVideoCap(SbMediaVideoCodec video_codec, bool decode_to_texture) {
-    std::string name = "none";
-    if (decode_to_texture) name = "vr";
-    else if (video_codec == kSbMediaVideoCodecVp9) name = "vp9";
-    else if (video_codec == kSbMediaVideoCodecH264) name = "h264";
-    auto it = all_caps.find(name);
-    return it != all_caps.end() ? (&it->second) : NULL;
-  }
-
-  void InitVideoCap(void) {
-      const char *env = getenv("COBALT_SUPPORTED_VIDEO_CAPS");
-      if (!env) env = "vp9:3840x2160@60<0,h264:3840x2160@60<0,vr:1920x1080@30<0,hdr:3840x2160@30<0";
-      SB_LOG(INFO) << "InitVideoCap from string \"" << env << "\"";
-      while (true) {
-          char codec[32];
-          int64_t bitrate;
-          int width, height, fps, len = 0;
-          if (sscanf(env, "%31[^:]:%dx%d@%d<%lld%n", codec, &width, &height, &fps, &bitrate, &len) != 5) {
-              SB_LOG(INFO) << "failed to get video caps \"" << env << "\"";
-              break;
-          }
-          bitrate = bitrate ? bitrate : SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND;
-          all_caps[codec] = {bitrate, width, height, fps};
-          SB_LOG(INFO) << "add video cap " << codec << ":" << width << "x" << height << "@" << fps << "<" << bitrate;
-          env += len;
-          if (*env++ == '\0') break;
-      }
-  }
-};
-} // namespace
+static int get_env_bool(const char *envname, int def) {
+  const char *env = getenv(envname);
+  if (env == NULL)
+    return def;
+  return ((SbStringCompareAll(env, "1") == 0) ||
+          (SbStringCompareAll(env, "yes") == 0) ||
+          (SbStringCompareAll(env, "true") == 0));
+}
 
 SB_EXPORT bool SbMediaIsVideoSupported(SbMediaVideoCodec video_codec,
-                                       int frame_width,
-                                       int frame_height,
-                                       int64_t bitrate,
-                                       int fps,
+                                       int frame_width, int frame_height,
+                                       int64_t bitrate, int fps,
                                        bool decode_to_texture_required) {
-  static SupportedVideoCaps * supported_caps = nullptr;
-  if (supported_caps == nullptr) {
-    supported_caps = new SupportedVideoCaps;
-    supported_caps->InitVideoCap();
+  static int cobalt_disable_4K = -1;
+  if (cobalt_disable_4K == -1) {
+    cobalt_disable_4K = get_env_bool("COBALT_DISABLE_4K", 0);
   }
-  SupportedVideoCaps::VideoCaps *caps = supported_caps->GetVideoCap(video_codec, decode_to_texture_required);
-  return (caps != NULL) && frame_width <= caps->width &&
-         frame_height <= caps->height && bitrate <= caps->bitrate &&
-         fps <= caps->fps;
+  int max_supported_width = cobalt_disable_4K ? 1920 : 3840;
+  int max_supported_height = cobalt_disable_4K ? 1080 : 2160;
+  int max_supported_fps = decode_to_texture_required ? 30 : 60;
+  if (video_codec == kSbMediaVideoCodecVp9) {
+    static int cobalt_disable_vp9 = -1;
+    if (cobalt_disable_vp9 == -1) {
+      cobalt_disable_vp9 = get_env_bool("COBALT_DISABLE_VP9", 0);
+    }
+    if (cobalt_disable_vp9)
+      return false;
+  } else {
+    //if (frame_width > 1920 || frame_height > 1080)
+    //  max_supported_fps = 30;
+    if (decode_to_texture_required) {
+      max_supported_width = 1920;
+      max_supported_height = 1080;
+    }
+  }
+  return (video_codec == kSbMediaVideoCodecH264 ||
+          video_codec == kSbMediaVideoCodecVp9) &&
+         frame_width <= max_supported_width &&
+         frame_height <= max_supported_height &&
+         bitrate <= SB_MEDIA_MAX_VIDEO_BITRATE_IN_BITS_PER_SECOND &&
+         fps <= max_supported_fps;
 }
