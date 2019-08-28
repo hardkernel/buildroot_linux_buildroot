@@ -44,14 +44,18 @@ endef
 
 ONVIF_SRVD_INSTALL_DIR = $(TARGET_DIR)/usr/bin/
 ONVIF_SRVD_SCRIPTS_INSTALL_DIR = $(TARGET_DIR)/etc/init.d
+ONVIF_SRVD_CONF_INSTALL_DIR = $(TARGET_DIR)/etc/onvif
 ONVIF_SRVD_WSDL_INSTALL_DIR = $(TARGET_DIR)/etc/onvif/wsdl
 
 define ONVIF_SRVD_INSTALL_TARGET_CMDS
 	mkdir -p $(ONVIF_SRVD_INSTALL_DIR)
 	$(INSTALL) -D -m 755 $(ONVIF_SRVD_DIR)/onvif_srvd $(ONVIF_SRVD_INSTALL_DIR)
+	$(INSTALL) -D -m 755 $(ONVIF_SRVD_DIR)/start_scripts/S04system_restore $(ONVIF_SRVD_SCRIPTS_INSTALL_DIR)/S04system_restore
 	$(INSTALL) -D -m 755 $(ONVIF_SRVD_DIR)/start_scripts/S90onvif_srvd $(ONVIF_SRVD_SCRIPTS_INSTALL_DIR)/S91onvif_srvd
 	mkdir -p $(ONVIF_SRVD_WSDL_INSTALL_DIR)
 	cp -af $(ONVIF_SRVD_DIR)/wsdl/*.{xsd,wsdl} $(ONVIF_SRVD_WSDL_INSTALL_DIR)
+	cp $(ONVIF_SRVD_DIR)/start_scripts/ipc_backup_restore.sh $(ONVIF_SRVD_CONF_INSTALL_DIR)
+	cp $(ONVIF_SRVD_DIR)/start_scripts/ipc.backup.persist.files.list $(ONVIF_SRVD_CONF_INSTALL_DIR)
 endef
 
 $(eval $(generic-package))
