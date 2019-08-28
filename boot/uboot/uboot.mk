@@ -148,7 +148,7 @@ ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(
 UBOOT_DEPENDENCIES += aml_uboot_toolchain-gcc-linaro-arm-none aml_uboot_toolchain-codesourcery aml_uboot_toolchain-gcc-linaro-aarch64 aml_uboot_toolchain-arc
 endif
 
-ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y) 
+ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y)
 UBOOT_MAKE_OPTS += \
 	ARCH=$(UBOOT_ARCH)
 else
@@ -189,6 +189,8 @@ SECUROS_IMAGE_DIR = "axg"
 else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "txlx")
 SECUROS_IMAGE_DIR = "txlx"
 else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "g12a")
+SECUROS_IMAGE_DIR = "g12a"
+else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "g12b")
 SECUROS_IMAGE_DIR = "g12a"
 else ifeq ($(BR2_TARGET_UBOOT_PLATFORM), "sm1")
 SECUROS_IMAGE_DIR = "g12a"
