@@ -392,16 +392,18 @@ OEMCryptoResult DrmSystemWidevine::CopyBuffer(uint8_t *out_buffer, const uint8_t
   bd.buffer.secure.max_length = data_length;
   bd.buffer.secure.offset = 0;
   uint8_t subsample_flags = OEMCrypto_FirstSubsample | OEMCrypto_LastSubsample;
+#if 0
   SB_LOG(ERROR) << "Call OEMCrypto_CopyBuffer(" << (void *)data_addr << " ,"
                 << data_length
                 << " ,{type=OEMCrypto_BufferType_Secure,buffer.secure.handle="
                 << (void *)out_buffer
                 << ",buffer.secure.max_length=" << data_length
                 << ",buffer.secure.offset=0}, " << std::hex << std::showbase << (unsigned int)subsample_flags;
+#endif
 //  OEMCryptoResult result = OEMCrypto_CopyBuffer(data_addr, data_length, &bd, subsample_flags);
   decltype(&OEMCrypto_CopyBuffer) oemCopyBuffer = (decltype(&OEMCrypto_CopyBuffer))widevine_symbols->CopyBuffer;
   OEMCryptoResult result = oemCopyBuffer(data_addr, data_length, &bd, subsample_flags);
-  SB_LOG(ERROR) << "OEMCrypto_CopyBuffer return " << result;
+//  SB_LOG(ERROR) << "OEMCrypto_CopyBuffer return " << result;
   if ((result == OEMCrypto_ERROR_BUFFER_TOO_LARGE) &&
       (data_length > chunk_size)) {
     bd.type = OEMCrypto_BufferType_Secure;
