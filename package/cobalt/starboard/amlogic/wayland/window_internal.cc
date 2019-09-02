@@ -62,6 +62,17 @@ SbWindowPrivate::SbWindowPrivate(wl_compositor* compositor,
     height = options->size.height;
   }
 
+  FILE * fp = fopen("/sys/class/video/device_resolution", "r");
+  if (fp != NULL) {
+      int display_width = width;
+      int display_height = height;
+      fscanf(fp, "%dx%d", &display_width, &display_height);
+      fclose(fp);
+      video_pixel_ratio = std::max(
+              static_cast<float>(display_width) / width,
+              static_cast<float>(display_height) / height);
+  }
+
   surface = wl_compositor_create_surface(compositor);
   shell_surface = wl_shell_get_shell_surface(shell, surface);
   wl_shell_surface_add_listener(shell_surface, &shell_surface_listener, this);
