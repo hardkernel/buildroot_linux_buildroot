@@ -39,6 +39,10 @@ ifeq ($(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL),y)
 AUDIOSERVICE_CONF_OPTS += --enable-external
 endif
 
+ifeq ($(BR2_PACKAGE_AUDIOSERVICE_STRESSTEST),y)
+AUDIOSERVICE_CONF_OPTS += --enable-stresstest
+endif
+
 ifeq ($(BR2_PACKAGE_AUDIOSERVICE_S400_SBR),y)
 AUDIOSERVICE_CONF_OPTS += --enable-s400sbr
 endif

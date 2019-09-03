@@ -49,6 +49,10 @@ config BR2_PACKAGE_AUDIOSERVICE_EXTERNAL
 	bool "Enable external device"
 	default n
 
+config BR2_PACKAGE_AUDIOSERVICE_STRESSTEST
+	bool "Enable stress test"
+	default n
+
 config BR2_PACKAGE_AUDIOSERVICE_USBPLAYER
 	bool  "Enable usb Player in homeapp"
 	select BR2_PACKAGE_FFMPEG
