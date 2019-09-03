@@ -48,3 +48,10 @@ if [ -d $TARGET_DIR/lib/debug ]; then
     rm -frv $TARGET_DIR/lib/debug
 fi
 
+#Our current libidn is v12, but soundai want to link with v11.
+if [ ! -L $TARGET_DIR/usr/lib/libidn.so.11 ]; then
+  pushd $TARGET_DIR/usr/lib/
+  ln -s libidn.so.12 libidn.so.11
+  popd
+fi
+
