@@ -36,7 +36,9 @@ AmlAVCodec::AmlAVCodec()
   codec_param = (codec_para_t *)calloc(1, sizeof(codec_para_t));
   dump_fp = NULL;
   output_mode_ = kSbPlayerOutputModeInvalid;
+#if defined(COBALT_WIDEVINE_OPTEE)
   has_fed_encrypt_data = false;
+#endif
 }
 
 AmlAVCodec::~AmlAVCodec() {
