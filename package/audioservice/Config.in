@@ -45,9 +45,17 @@ config BR2_PACKAGE_AUDIOSERVICE_CONFIG_FILE
 	help
 		It selects which default_audioservice.conf
 
-config BR2_PACKAGE_AUDIOSERVICE_EXTERNAL
-	bool "Enable external device"
+config BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_M6350
+	bool "Enable external M6350 device"
 	default n
+	help
+		Enable external input handle m6350
+
+config BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_962E
+	bool "Enable 962E device"
+	default n
+	help
+		Enable 962E
 
 config BR2_PACKAGE_AUDIOSERVICE_STRESSTEST
 	bool "Enable stress test"

@@ -35,8 +35,14 @@ AUDIOSERVICE_CONF_OPTS += --enable-python
 AUDIOSERVICE_DEPENDENCIES += python
 endif
 
-ifeq ($(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL),y)
-AUDIOSERVICE_CONF_OPTS += --enable-external
+ifeq ($(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_M6350),y)
+AUDIOSERVICE_CONF_OPTS += --enable-external_m6350
+EXTERNAL_M6350_LIB = libasexternal_m6350.so
+endif
+
+ifeq ($(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_962E),y)
+AUDIOSERVICE_CONF_OPTS += --enable-external_962e
+EXTERNAL_962E_LIB = libasexternal_962e.so
 endif
 
 ifeq ($(BR2_PACKAGE_AUDIOSERVICE_STRESSTEST),y)
@@ -67,7 +73,8 @@ define AUDIOSERVICE_LIB_INSTALL_CMD
 endef
 
 
-AUDIOSERVICe_CONF_OPTS = --prefix=$(TARGET_DIR)/usr
+# AUDIOSERVICe_CONF_OPTS = --prefix=$(TARGET_DIR)/usr
+AUDIOSERVICE_EXTERNAL_INPUT_LIB = libasexternal_input.so
 
 define AUDIOSERVICE_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 755 $(AUDIOSERVICE_SITE)/script/S90audioservice \
@@ -78,6 +85,16 @@ define AUDIOSERVICE_INSTALL_INIT_SYSV
 	$(INSTALL) -d $(TARGET_DIR)/etc/mcu6350_bin/
 	$(INSTALL) -D -m 644 \
 		$(AUDIOSERVICE_SITE)/src/external/mcu6350_bin/* $(TARGET_DIR)/etc/mcu6350_bin/
+if [ "$(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_M6350)" == "y" ]; then \
+	cd $(TARGET_DIR)/usr/lib; \
+	ln -fs $(EXTERNAL_M6350_LIB) $(AUDIOSERVICE_EXTERNAL_INPUT_LIB); \
+	cd -; \
+fi
+if [ "$(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_962E)" == "y" ]; then \
+	cd $(TARGET_DIR)/usr/lib; \
+	ln -fs $(EXTERNAL_962E_LIB) $(AUDIOSERVICE_EXTERNAL_INPUT_LIB); \
+	cd -; \
+fi
 endef
 
 # Autoreconf requires an m4 directory to exist
