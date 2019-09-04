@@ -16,6 +16,8 @@ DEFCONFIG_ARRAY=(
     "mesona1_ad401_a32_release"
     "mesona1_ad409_skt_a32_release"
 
+    "mesontm2_ab301_32_release"
+    "mesontm2_ab301_release"
     "mesontm2_ab311_32_release"
     "mesontm2_ab311_release"
     "mesontm2_ab311_SBR_a6432_release"
