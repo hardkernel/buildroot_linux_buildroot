@@ -6,7 +6,7 @@ AML_NN_FACENET_SITE = $(TOPDIR)/../vendor/amlogic/slt/npu_app/detect_library/mod
 AML_NN_FACENET_SITE_METHOD = local
 AML_NN_FACENET_INSTALL_STAGING = YES
 AML_NN_FACENET_DEPENDENCIES = npu
-
+AML_NN_FACENET_DEPENDENCIES += aml_nn_detect
 
 define AML_NN_FACENET_BUILD_CMDS
     cd $(@D);mkdir -p obj;$(MAKE) CC=$(TARGET_CC)
