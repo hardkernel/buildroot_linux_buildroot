@@ -16,7 +16,7 @@ JSMPEG_INCOME_PORT=8081
 JSMPEG_WEBSOCKET_PORT=8082
 
 IPC_PROPERTY=/usr/bin/ipc-property
-IPC_WEBSTREAM_PROP=/ipc/webstream
+IPC_WEBSTREAM_PROP=/ipc/video/ts/web
 
 start() {
   echo "Start setting ipc-webui ownership ..."
