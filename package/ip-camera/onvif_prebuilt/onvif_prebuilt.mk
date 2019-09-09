@@ -15,11 +15,11 @@ ONVIF_SOC_NAME = $(strip $(BR2_PACKAGE_AML_SOC_FAMILY_NAME))
 endif
 
 ONVIF_SUB_PATH = $(ONVIF_SOC_NAME)/$(ONVIF_ARCH)
-ONVIF_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_prebuilt
 ONVIF_PREBUILT_SITE_METHOD = local
-ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_SUB_PATH)
 
 ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
+ONVIF_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_prebuilt
+ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_SUB_PATH)
 #We will only apply onvif prebuilt packages, so we need to make sure the original package's dependency can meet.
 ONVIF_PREBUILT_DEPENDENCIES = openssl zlib libjpeg directfb sqlite
 ONVIF_PREBUILT_DEPENDENCIES += gstreamer1 gst1-plugins-base gst1-plugins-good gst1-plugins-bad gst1-rtsp-server
@@ -38,6 +38,8 @@ endef
 endif
 
 ifeq ($(BR2_PACKAGE_ONVIF_GENERATE_PREBUILT),y)
+#Just for pass compile
+ONVIF_PREBUILT_SITE = $(TOPDIR)/package/ip-camera/onvif_prebuilt
 #We will package the onvif prebuitl pacakge, so we need to wait for onvif libraries/binraries ready, here we list the onvif binraies.
 ONVIF_PREBUILT_DEPENDENCIES = onvif_srvd
 ONVIF_PREBUILT_DEPENDENCIES += ipc-webui
