@@ -15,6 +15,7 @@ ONVIF_SOC_NAME = $(strip $(BR2_PACKAGE_AML_SOC_FAMILY_NAME))
 endif
 
 ONVIF_SUB_PATH = $(ONVIF_SOC_NAME)/$(ONVIF_ARCH)
+ONVIF_PREBUILT_SITE = $(TOPDIR)/package/ip-camera/onvif_prebuilt
 ONVIF_PREBUILT_SITE_METHOD = local
 
 ifeq ($(BR2_PACKAGE_ONVIF_APPLY_PREBUILT),y)
@@ -38,8 +39,6 @@ endef
 endif
 
 ifeq ($(BR2_PACKAGE_ONVIF_GENERATE_PREBUILT),y)
-#Just for pass compile
-ONVIF_PREBUILT_SITE = $(TOPDIR)/package/ip-camera/onvif_prebuilt
 #We will package the onvif prebuitl pacakge, so we need to wait for onvif libraries/binraries ready, here we list the onvif binraies.
 ONVIF_PREBUILT_DEPENDENCIES = onvif_srvd
 ONVIF_PREBUILT_DEPENDENCIES += ipc-webui
