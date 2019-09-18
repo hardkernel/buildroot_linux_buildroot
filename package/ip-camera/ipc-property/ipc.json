@@ -3,7 +3,7 @@
         "audio": {
             "enabled": false,
             "device": "test",
-            "device options": "",
+            "device-options": "",
             "channels": 2,
             "format": "S16LE",
             "codec": "mulaw",
@@ -11,12 +11,57 @@
             "bitrate": 0
         },
         "video": {
-            "device": "/dev/video0",
-            "bitrate": 2000,
-            "codec": "h265",
-            "framerate": 30,
-            "gop": 30,
-            "resolution": "1920x1080"
+            "multi-channel": false,
+            "ts": {
+                "main": {
+                    "device": "/dev/video0",
+                    "bitrate": 2000,
+                    "codec": "h265",
+                    "framerate": 30,
+                    "gop": 30,
+                    "resolution": "1920x1080"
+                },
+                "sub": {
+                    "enabled": false,
+                    "device": "/dev/video0",
+                    "bitrate": 2000,
+                    "codec": "h265",
+                    "framerate": 30,
+                    "gop": 30,
+                    "resolution": "704x576"
+                },
+                "web": {
+                    "enabled": false,
+                    "device": "/dev/video0",
+                    "bitrate": 1000,
+                    "codec": "h265",
+                    "framerate": 30,
+                    "gop": 30,
+                    "resolution": "640x360",
+                    "port": 0,
+                    "secret": ""
+                },
+                "gdc": {
+                    "enabled": false,
+                    "config-file": "",
+                    "input-resolution": "1920x1080",
+                    "output-resolution": "1920x1080"
+                }
+            },
+            "vr": {
+                "device": "/dev/video0",
+                "bitrate": 2000,
+                "codec": "h265",
+                "framerate": 30,
+                "gop": 30,
+                "resolution": "1920x1080",
+                "gdc": {
+                    "enabled": false,
+                    "config-file": "",
+                    "input-resolution": "1920x1080",
+                    "output-resolution": "1920x1080"
+                }
+            }
         },
         "isp": {
             "wdr": {
@@ -40,23 +85,11 @@
             },
             "ircut": true
         },
-        "gdc":{
-            "enabled": false,
-            "config-file": "",
-            "input-resolution": "1920x1080",
-            "output-resolution": "1920x1080"
-        },
         "backchannel": {
             "enabled": false,
-            "clock rate": 8000,
+            "clock-rate": 8000,
             "encoding": "PCMU",
             "device": ""
-        },
-        "substream": {
-            "enabled": false,
-            "bitrate": 500,
-            "codec": "h265",
-            "resolution": "704x576"
         },
         "nn": {
             "enabled": true,
@@ -65,32 +98,36 @@
             },
             "recognition": {
                 "model": "facenet",
-                "db path": "",
-                "info string" : "name",
+                "db-path": "",
+                "info-string" : "name",
                 "threshold": 0.6
             }
         },
         "overlay": {
-            "time": {
+            "datetime": {
+                "enabled": true,
+                "position": "top-right",
                 "font": {
                     "color": "0xffffffff",
-                    "background color": "0x00000000",
-                    "font file": "",
+                    "background-color": "0x00000000",
+                    "font-file": "",
                     "size": 48
-                },
-                "date": {
-                    "enabled": true,
-                    "location": "top-right"
-                },
-                "pts": {
-                    "enabled": false,
-                    "location": "bot-right"
+                }
+            },
+            "pts": {
+                "enabled": false,
+                "position": "bot-right",
+                "font": {
+                    "color": "0xffffffff",
+                    "background-color": "0x00000000",
+                    "font-file": "",
+                    "size": 32
                 }
             },
             "watermark": {
                 "image": {
                     "file": "",
-                    "location": {
+                    "position": {
                         "left": 0,
                         "top": 0,
                         "width": 0,
@@ -100,11 +137,11 @@
                 "text": {
                     "font": {
                         "color": "0xffffffff",
-                        "background color": "0x00000000",
-                        "font file": "",
+                        "background-color": "0x00000000",
+                        "font-file": "",
                         "size": 30
                     },
-                    "location": {
+                    "position": {
                         "left": 0,
                         "top": 0
                     },
@@ -115,34 +152,34 @@
                 "show": true,
                 "font": {
                     "color": "0xffff00ff",
-                    "font file": "",
+                    "font-file": "",
                     "size": 24
                 },
-                "rect color": "0xf0f0f0ff"
+                "rect-color": "0xf0f0f0ff"
             }
         },
-        "storage": {
-          "enabled": false,
-          "location": "",
-          "chunk duration": 5,
-          "reserved space size": 200
+        "recording": {
+            "enabled": false,
+            "location": "",
+            "chunk-duration": 5,
+            "reserved-space-size": 200
         },
-        "image capture": {
-          "enabled": true,
-          "quality": 80,
-          "location": "/tmp",
-          "trigger": false,
-          "imagefile": ""
+        "image-capture": {
+            "enabled": true,
+            "quality": 80,
+            "location": "/tmp",
+            "trigger": false,
+            "imagefile": ""
         }
 
     },
     "onvif": {
         "device": {
-            "firmware ver": "1.0",
-            "hardware id": "111",
+            "firmware-ver": "1.0",
+            "hardware-id": "111",
             "manufacturer": "amlogic",
             "model": "0",
-            "serial number": "10101010"
+            "serial-number": "10101010"
         },
         "discover": {
             "enabled": true
@@ -184,7 +221,7 @@
             }
         ],
         "wsdl": {
-          "path": "/etc/onvif/wsdl"
+            "path": "/etc/onvif/wsdl"
         }
     },
     "rtsp": {
