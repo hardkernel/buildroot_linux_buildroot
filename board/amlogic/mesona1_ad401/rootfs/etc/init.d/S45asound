@@ -3,6 +3,11 @@
 
 curvol_file=/etc/current_volume
 
+#hw:0,4 need to use TDMIN_B as loopback input, but default is PDM in dts, so we need manually switch
+amixer_ctr=`amixer controls | grep "Loopback datain source"` > /dev/null
+datainsrc_id=${amixer_ctr%%,*}
+amixer cset $datainsrc_id 1
+
 function resume_volume()
 {
     amixer_vol_ctrl=`amixer controls | grep "DAC Digital Playback Volume"` > /dev/null
