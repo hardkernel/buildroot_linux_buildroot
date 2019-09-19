@@ -70,7 +70,7 @@
             "brightness": 128,
             "contrast": 128,
             "saturation": 128,
-            "hue": 128,
+            "hue": 180,
             "sharpness": 128,
             "exposure" : {
                 "auto": true,
