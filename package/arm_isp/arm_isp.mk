@@ -23,26 +23,32 @@ define copy-arm-isp
                 echo $(4)/$(notdir $(m)): >> $(3)))
 endef
 
+ifeq ($(BR2_PACKAGE_AML_SOC_FAMILY_NAME), "C1")
+PLATFORM = C308X
+else
+PLATFORM = G12B
+endif
+
 ifeq ($(BR2_PACKAGE_ARM_ISP_LOCAL),y)
 ARM_ISP_SITE = $(call qstrip,$(BR2_PACKAGE_ARM_ISP_LOCAL_PATH))
 ARM_ISP_SITE_METHOD = local
 ARM_ISP_DEPENDENCIES = linux
 
 V4L2_DEV_BUILD_CMDS = cd $(@D)/isp_module/v4l2_dev; \
-			$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/isp_module/v4l2_dev KDIR=$(LINUX_DIR) \
-			ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS)
+                        $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/isp_module/v4l2_dev KDIR=$(LINUX_DIR) \
+                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS) PLATFORM_VERSION=$(PLATFORM)
 
 SENSOR_DEV_BUILD_CMDS = cd $(@D)/isp_module/subdev/sensor; \
                         $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/isp_module/subdev/sensor KDIR=$(LINUX_DIR) \
-                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS)
+                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS) PLATFORM_VERSION=$(PLATFORM)
 
 IQ_DEV_BUILD_CMDS = cd $(@D)/isp_module/subdev/iq; \
                         $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/isp_module/subdev/iq KDIR=$(LINUX_DIR) \
-                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS)
+                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS) PLATFORM_VERSION=$(PLATFORM)
 
 LENS_DEV_BUILD_CMDS = cd $(@D)/isp_module/subdev/lens; \
                         $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/isp_module/subdev/lens KDIR=$(LINUX_DIR) \
-                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS)
+                        ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(TARGET_KERNEL_CROSS) PLATFORM_VERSION=$(PLATFORM)
 
 define ARM_ISP_BUILD_CMDS
 	$(V4L2_DEV_BUILD_CMDS)
