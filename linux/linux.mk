@@ -317,7 +317,7 @@ endif # BR2_LINUX_KERNEL_VMLINUX
 
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_LOCAL),y)
 define LINUX_COPY_GIT_DIR
-	test -d $(LINUX_SITE)/.git && ln -s $(LINUX_SITE)/.git $(@D)/
+	test -d $(LINUX_SITE)/.git && ln -s $(LINUX_SITE)/.git $(@D)/ || true
 endef
 
 LINUX_PRE_PATCH_HOOKS += LINUX_COPY_GIT_DIR
