@@ -7,6 +7,7 @@ ifeq ($(BR2_PACKAGE_NPU_LOCAL),y)
 #BR2_PACKAGE_NPU_LOCAL_PATH=$(TOPDIR)/../hardware/aml-4.9/npu/nanoq
 NPU_SITE = $(call qstrip,$(BR2_PACKAGE_NPU_LOCAL_PATH))
 NPU_SITE_METHOD = local
+NPU_VERSION = 1.0
 ARM_NPU_MODULE_DIR = kernel/amlogic/npu
 NPU_KO_INSTALL_DIR=$(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/kernel/amlogic/npu
 NPU_SO_INSTALL_DIR=$(TARGET_DIR)/lib
@@ -36,7 +37,7 @@ NPU_INSTALL_TARGETS_CMDS = \
 		$(INSTALL) -m 0644 $(@D)/NBG/$(BR2_PACKAGE_NPU_NBG_IMAGE) \
 			$(BINARIES_DIR)/NBG.img; \
 	fi
-	
+
 else
 NPU_INSTALL_TARGETS_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/build/sdk/drivers/galcore.ko $(NPU_KO_INSTALL_DIR); \

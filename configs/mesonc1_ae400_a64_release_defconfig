@@ -39,6 +39,7 @@ BR2_LINUX_KERNEL_IMAGE_NOGZIP=y
 # Kernel Additional Config
 BR2_PACKAGE_AML_CUSTOMIZE_KERNEL=y
 BR2_PACKAGE_AML_CUSTOMIZE_KERNEL_ENABLE_OPT_LIST="CONFIG_NTFS_FS CONFIG_FUSE_FS"
+BR2_PACKAGE_AML_AAA=y
 
 #-------------------------Uboot-------------------------------#
 ##
