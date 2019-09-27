@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <thread>
 #include <vector>
 #include <alsa/asoundlib.h>
 #include <awelib.h>
@@ -28,7 +29,12 @@
 #define BUFFER_SIZE (SAMPLE_RATE/2)
 #define PERIOD_SIZE (SAMPLE_RATE/4)
 
-#define DSP_SOCKET 1
+#define DSP_SOCKET 0
+#define DUMP_DATA 0
+
+#if DUMP_DATA
+FILE* fp_input ; FILE* fp_output;
+#endif
 
 UINT32 inCount = 0;
 UINT32 outCount = 0;
@@ -193,7 +199,7 @@ void setup_DSP() {
 	pAwelib->SetLayoutAddresses(wireId1, wireId2, layoutId);
 
 	in_samples.resize(inCount);
-    out_samples.resize(outCount);
+        out_samples.resize(outCount);
 	//ring_buffer.resize(RING_BUFFER_SIZE);
 
 #if DSP_SOCKET == 1
@@ -217,9 +223,11 @@ void setup_DSP() {
 
 int main()
 {
-
-	setup_DSP();
-
+    setup_DSP();
+#if DUMP_DATA
+    fp_input = fopen("/data/input.bin" , "wb");
+    fp_output = fopen("/data/output.bin" , "wb");
+#endif
     snd_pcm_t *handle;
     snd_pcm_hw_params_t *params;
     int err;
@@ -232,16 +240,13 @@ int main()
     int count = 0;
     int error = 0;
 
-
-	snd_pcm_hw_params_t *write_params;
-	snd_pcm_t *write_handle;
-	int write_err;
-	int write_dir;
-	unsigned int write_sampleRate = SAMPLE_RATE;
+    snd_pcm_hw_params_t *write_params;
+    snd_pcm_t *write_handle;
+    int write_err;
+    int write_dir;
+    unsigned int write_sampleRate = SAMPLE_RATE;
     snd_pcm_uframes_t write_periodSize = PERIOD_SIZE;
     snd_pcm_uframes_t write_bufferSize = BUFFER_SIZE;
-
-
 
     err = snd_pcm_open(&handle, REC_DEVICE_NAME, SND_PCM_STREAM_CAPTURE, 0);
     if (err)
@@ -303,14 +308,11 @@ int main()
         printf( "Unable to set HW parameters: %s\n", snd_strerror(err));
         goto error;
     }
-
-	printf(" open record device done \n");
-
-
+    printf(" open record device done \n");
 
     write_err = snd_pcm_open(&write_handle, WRITE_DEVICE_NAME, SND_PCM_STREAM_PLAYBACK, 0);
 
-	if (write_err)
+    if (write_err)
     {
         printf( "Unable to open playback PCM device: \n");
         goto error;
@@ -379,9 +381,7 @@ int main()
         goto error;
     }
 
-	printf(" open write device is successful \n");
-
-
+    printf(" open write device is successful \n");
 
     while (1)
     {
@@ -396,27 +396,28 @@ int main()
                 goto error;
             }
         }
-
-		if (pAwelib->IsStarted()) {
-			error = pAwelib->PumpAudio(&buffer[0], &out_samples[0], inCount, outCount);
+	if (pAwelib->IsStarted()) {
+		error = pAwelib->PumpAudio(&buffer[0], &out_samples[0], inCount, outCount);
+	}
+	else
+		memset(&out_samples[0] , 0 , outCount*4);
+#if DUMP_DATA
+        fwrite(&buffer[0] , READ_FRAME*2 , sizeof(int) , fp_input);
+        fflush(fp_input);
+        fwrite(&out_samples[0] , READ_FRAME*2 , sizeof(int) , fp_output);
+        fflush(fp_output);
+#endif
+	err = snd_pcm_writei(write_handle, &out_samples[0], READ_FRAME);
+	if (err == -EPIPE) printf( "Underrun occurred from write: %d\n", err);
+	if (err < 0) {
+		err = snd_pcm_recover(write_handle, err, 0);
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		if (err < 0)
+		{
+			printf( "Error occured while writing: %s\n", snd_strerror(err));
+			goto error;
 		}
-		else
-			memset(&out_samples[0] , 0 , outCount*4);
-
-
-		err = snd_pcm_writei(write_handle, &out_samples[0], READ_FRAME);
-		//err = snd_pcm_writei(write_handle, &buffer[0], READ_FRAME);
-		if (err == -EPIPE) printf( "Underrun occurred from write: %d\n", err);
-		if (err < 0) {
-			err = snd_pcm_recover(write_handle, err, 0);
-			//std::this_thread::sleep_for(std::chrono::milliseconds(20));				// Still an error, need to exit.
-			if (err < 0)
-			{
-				printf( "Error occured while writing: %s\n", snd_strerror(err));
-				goto error;
-			}
-		}
-
+	}
     }
     ret = 0;
 

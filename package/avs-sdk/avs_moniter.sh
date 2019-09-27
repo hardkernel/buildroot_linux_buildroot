@@ -80,5 +80,5 @@ while true ; do
         # start avs mdns service for avs setup
         /etc/init.d/avs_mdns.sh
     fi
-    sleep 2
+    sleep 10
 done
