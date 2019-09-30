@@ -26,7 +26,7 @@ PULSEAUDIO_DEPENDENCIES = \
 
 ifeq ($(BR2_PACKAGE_BT_SETUP), y)
 PULSEAUDIO_DEPENDENCIES += bt_setup
-PULSEAUDIO_PRE_CONFIGURE_HOOKS += PULSEAUDIO_PRE_CONFIGURE_FILES
+PULSEAUDIO_CONF_OPTS += --enable-amlbt
 endif
 
 ifeq ($(BR2_PACKAGE_LIBSAMPLERATE),y)
@@ -153,15 +153,6 @@ else
 PULSEAUDIO_CONF_OPTS += --disable-x11
 endif
 #PULSEAUDIO_CONF_OPTS += --disable-dbus
-
-define PULSEAUDIO_PRE_CONFIGURE_FILES
-	cp $(TOPDIR)/package/bt_setup/module/Makefile.am \
-		$(@D)/src/
-	cp $(TOPDIR)/package/bt_setup/module/module-bsa-sink.c \
-		$(@D)/src/modules
-	cp $(TOPDIR)/package/bt_setup/module/module-bsa-sink-symdef.h \
-		$(@D)/src
-endef
 
 # ConsoleKit module init failure breaks user daemon startup
 define PULSEAUDIO_REMOVE_CONSOLE_KIT
