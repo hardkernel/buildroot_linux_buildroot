@@ -106,5 +106,5 @@ sed -i 'N;/\n.*\"name\":\t\"USB\"/!P;D' $1/etc/default_audioservice.conf
 sed -i '/\"name\":\t\"USB\"/,/}],/{//!d}' $1/etc/default_audioservice.conf
 sed -i '/\"name\":\t\"USB\"/d' $1/etc/default_audioservice.conf
 sed -i 's/\"name\":\t\"GVA\"/\"name\":\t\"BT\"/' $1/etc/default_audioservice.conf
-sed -i 's/66563/66562/' $1/etc/default_audioservice.conf
+sed -i 's/0x10403/0x10402/' $1/etc/default_audioservice.conf
 
