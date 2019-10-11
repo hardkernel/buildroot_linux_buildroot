@@ -24,3 +24,7 @@ amvdec_mmpeg4
 amvdec_real
 amvdec_vc1
 amvdec_vp9
+
+#TV
+aml_hardware_dmx
+
