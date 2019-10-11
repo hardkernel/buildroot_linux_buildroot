@@ -11,8 +11,10 @@ DEFCONFIG_ARRAY=(
     "==========In Maintaining======================"
 
     "mesonc1_ae400_a64_release"
+    "mesonc1_ae400_a64_neu_release"
     "mesonc1_ae409_skt_a64_release"
     "mesonc1_ae401_a64_release"
+    "mesonc1_ae401_a64_neu_release"
 
     "mesona1_ad401_a32_release"
     "mesona1_ad402_a32_release"
