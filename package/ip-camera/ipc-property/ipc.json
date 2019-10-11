@@ -83,7 +83,9 @@
                 "crgain_default": 0,
                 "cbgain_default": 0
             },
-            "ircut": true
+            "ircut": true,
+            "anti-banding": 60,
+            "mirroring": "NONE"
         },
         "backchannel": {
             "enabled": false,
