@@ -58,18 +58,18 @@ BR2_TARGET_UBOOT_PLATFORM="c1"
 BR2_TARGET_ROOTFS_CPIO=y
 #BR2_TARGET_ROOTFS_CPIO_GZIP=y
 BR2_TARGET_ROOTFS_CPIO_UIMAGE=y
-BR2_TARGET_ROOTFS_INITRAMFS_LIST="board/amlogic/mesonc1_ae401/initramfs/ramfslist-64"
+BR2_TARGET_ROOTFS_INITRAMFS_LIST="board/neucore/mesonc1_ae401/initramfs/ramfslist-64"
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
 BR2_TARGET_ROOTFS_EXT2_SIZE="2048M"
 BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
-BR2_ROOTFS_COMMON_OVERLAY="board/amlogic/common/rootfs/rootfs-419/"
-BR2_ROOTFS_OVERLAY="board/amlogic/mesonc1_ae401/rootfs/"
-BR2_ROOTFS_UPGRADE_DIR="board/amlogic/common/upgrade/upgrade-c1/"
-BR2_ROOTFS_UPGRADE_DIR_OVERLAY="board/amlogic/mesonc1_ae401/upgrade/"
-BR2_ROOTFS_POST_BUILD_SCRIPT="$(TOPDIR)/board/amlogic/mesonc1_ae401/post_build.sh"
-BR2_RECOVERY_OTA_DIR="board/amlogic/common/ota/ota-c1/"
+BR2_ROOTFS_COMMON_OVERLAY="board/neucore/common/rootfs/rootfs-419/"
+BR2_ROOTFS_OVERLAY="board/neucore/mesonc1_ae401/rootfs/"
+BR2_ROOTFS_UPGRADE_DIR="board/neucore/common/upgrade/upgrade-c1/"
+BR2_ROOTFS_UPGRADE_DIR_OVERLAY="board/neucore/mesonc1_ae401/upgrade/"
+BR2_ROOTFS_POST_BUILD_SCRIPT="$(TOPDIR)/board/neucore/mesonc1_ae401/post_build.sh"
+BR2_RECOVERY_OTA_DIR="board/neucore/common/ota/ota-c1/"
 
 
 #-------------------------NPU-------------------------------#
