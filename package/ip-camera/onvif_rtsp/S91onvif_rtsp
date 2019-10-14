@@ -24,7 +24,16 @@ stop() {
     return 1
   fi
   printf "Stopping $DAEMON "
-  kill $(cat $PID_FILE) && rm -f $PID_FILE
+  pid=$(cat $PID_FILE)
+  kill $pid && rm -f $PID_FILE
+  while true; do
+   if kill -0 $pid > /dev/null 2>&1; then
+      echo "Waiting for $DAEMON exit..."
+      sleep 1
+   else
+      break
+   fi
+  done
   echo "$DAEMON stopped"
 }
 restart() {
