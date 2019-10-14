@@ -55,3 +55,23 @@ config BR2_PACKAGE_AML_SOC_USE_MULTIENC
     help
       check if use multi-encoder library
 
+config BR2_PACKAGE_AML_VENDOR_PARTITION
+    bool "Support with vendor partition"
+    default n
+    help
+      check if use vendor partition
+
+if BR2_PACKAGE_AML_VENDOR_PARTITION
+config BR2_PACKAGE_AML_VENDOR_PARTITION_SIZE
+	string  "Vendor paritition size"
+	default "256M"
+	help
+	  Please provide vendor partition size defined in DTS file
+
+config BR2_PACKAGE_AML_VENDOR_PARTITION_PATH
+	string  "Vendor partition content path"
+	default ""
+	help
+	  Please provide vendor partition content path
+endif
+

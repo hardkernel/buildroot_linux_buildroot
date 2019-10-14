@@ -4,6 +4,7 @@
 #
 ################################################################################
 AML_TVSERVER_SITE = $(TOPDIR)/../vendor/amlogic/aml_tvserver
+AML_TVSERVER_VERSION=1.0
 AML_TVSERVER_SITE_METHOD=local
 AML_TVSERVER_DEPENDENCIES = dbus
 
