@@ -68,8 +68,8 @@
                 "enabled": false
             },
             "brightness": 128,
-            "contrast": 128,
-            "saturation": 128,
+            "contrast": 136,
+            "saturation": 136,
             "hue": 180,
             "sharpness": 128,
             "exposure" : {
