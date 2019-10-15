@@ -29,6 +29,7 @@ powerStateChange()
     #######suspend#######
     aml_socket aml_musicBox_socket suspend
     wait_wake_lock
+    echo "" > /sys/kernel/config/usb_gadget/amlogic/UDC
     echo "mem" > $powerStateFile
     ######resume#########
     aml_socket aml_musicBox_socket resume
