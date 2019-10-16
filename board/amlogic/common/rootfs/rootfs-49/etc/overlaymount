@@ -6,6 +6,9 @@ pivot() { # <new_root> <old_root>
                 /bin/mount -o noatime,move $2/sys /sys 2>&-
                 /bin/mount -o noatime,move $2/run /run 2>&-
                 /bin/mount -o noatime,move $2/data /data 2>&-
+                if [ -e /dev/vendor ]; then
+                   /bin/mount -o noatime,move $2/vendor /vendor 2>&-
+                fi
                 return 0
         }
 }
