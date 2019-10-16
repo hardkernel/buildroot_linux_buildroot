@@ -105,11 +105,10 @@ sed -i '/-f $DISPLAYCARD/,/fi/d' $1/etc/init.d/avs_moniter.sh
 # The input list should match pure soundbar project
 # add BT input source
 sed -i '/\"name\":\t\"GVA\"/i \\t\t\t\"name":\ \"BT\",\
-\t\t\t\"id\":\t66562,\
-\t\t\t\"halid\":\ 0,\
+\t\t\t\"id\":\t\"0x10402\",\
 \t\t\t\"enabled\":\tfalse\
 \t\t},\ {' $1/etc/default_audioservice.conf
 # Replace GVA with AVS
 sed -i 's/GVA/AVS/' $1/etc/default_audioservice.conf
-sed -i 's/66563/66566/' $1/etc/default_audioservice.conf
+sed -i 's/0x10403/0x10406/' $1/etc/default_audioservice.conf
 
