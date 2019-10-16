@@ -96,13 +96,13 @@
         "nn": {
             "enabled": true,
             "detection": {
-                "model": "mtcnn-v1"
+                "model": "aml_face_detection"
             },
             "recognition": {
-                "model": "facenet",
+                "model": "aml_face_recognition",
                 "db-path": "",
                 "info-string" : "name",
-                "threshold": 0.6
+                "threshold": 1.0
             }
         },
         "overlay": {
