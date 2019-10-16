@@ -9,5 +9,6 @@ source "package/aml_nn_detect_library/aml_nn_detect_yolo_v2/Config.in"
 source "package/aml_nn_detect_library/aml_nn_detect_yolo_v3/Config.in"
 source "package/aml_nn_detect_library/aml_nn_detect_yoloface/Config.in"
 source "package/aml_nn_detect_library/aml_nn_facenet/Config.in"
-source "package/aml_nn_detect_library/aml_nn_insightface/Config.in"
+source "package/aml_nn_detect_library/aml_nn_face_recognition/Config.in"
+source "package/aml_nn_detect_library/aml_nn_face_detection/Config.in"
 endif
