@@ -27,10 +27,10 @@ else
 endif
 
 define AML_TVSERVER_INSTALL_TUNER_DRIVER
-	if ls $(TARGET_DIR)/etc/driver/tuner/$(KERNEL_BITS)/*.ko 2>&1 > /dev/null; then \
+	if ls $(BR2_PACKAGE_AML_VENDOR_PARTITION_PATH)/etc/driver/tuner/$(KERNEL_BITS)/*.ko 2>&1 > /dev/null; then \
 		pushd $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/; \
-		rm -fr tuner && ln -s /etc/driver/tuner/$(KERNEL_BITS) tuner; \
-		for ko in $$(find $(TARGET_DIR)/etc/driver/tuner/$(KERNEL_BITS)/ -name '*.ko' -printf "%f\n"); \
+		rm -fr tuner && ln -s /vendor/etc/driver/tuner/$(KERNEL_BITS) tuner; \
+		for ko in $$(find $(BR2_PACKAGE_AML_VENDOR_PARTITION_PATH)/etc/driver/tuner/$(KERNEL_BITS)/ -name '*.ko' -printf "%f\n"); \
 		do echo "tuner/$$ko:" >> modules.dep; done;\
 		popd; \
 	fi
