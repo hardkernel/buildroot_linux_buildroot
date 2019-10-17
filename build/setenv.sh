@@ -30,6 +30,7 @@ DEFCONFIG_ARRAY=(
     "mesonsm1_ac200_32_release"
     "mesonsm1_ac200-tdk_a6432_release"
     "mesonsm1_ac213_32_release"
+    "mesonsm1_ac214_32_release"
 
     "mesontl1_x301_32_release"
     "mesontl1_x301_release"
