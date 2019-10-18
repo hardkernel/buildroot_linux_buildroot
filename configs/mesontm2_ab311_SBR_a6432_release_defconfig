@@ -26,7 +26,7 @@ BR2_LINUX_KERNEL_IMAGE_LOADADDR="0x1008000"
 BR2_LINUX_KERNEL_PATCH="amlogic-4.9"
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_USE_INTREE_DTS=y
-BR2_LINUX_KERNEL_INTREE_DTS_NAME="tm2_t962e2_ab311"
+BR2_LINUX_KERNEL_INTREE_DTS_NAME="tm2_t962e2_ab311_sbr"
 BR2_LINUX_KERNEL_AMLOGIC_DTD=y
 BR2_LINUX_KERNEL_ANDROID_FORMAT=y
 BR2_LINUX_KERNEL_UIMAGE=y
@@ -193,6 +193,7 @@ BR2_PACKAGE_WAVPACK=y
 #
 BR2_PACKAGE_ALSA_LIB=y
 BR2_PACKAGE_LIBSAMPLERATE=y
+BR2_PACKAGE_ALSA_PLUGINS=y
 
 #
 # ALSA lib selection
@@ -252,8 +253,11 @@ BR2_PACKAGE_NETPLUG=y
 
 BR2_PACKAGE_DHCPCD=y
 BR2_PACKAGE_DNSMASQ=y
-BR2_PACKAGE_DNSMASQ_TFTP=n
-BR2_PACKAGE_DNSMASQ_DHCP=n
+BR2_PACKAGE_DNSMASQ_TFTP=y
+BR2_PACKAGE_DNSMASQ_DHCP=y
+BR2_PACKAGE_DNSMASQ_DNSSEC=y
+BR2_PACKAGE_DNSMASQ_IDN=y
+BR2_PACKAGE_DNSMASQ_CONNTRACK=y
 BR2_PACKAGE_IW=y
 
 BR2_PACKAGE_WPA_SUPPLICANT=y
@@ -276,6 +280,7 @@ BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION="m-amlogic"
 BR2_PACKAGE_BRCMAP6XXX_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/wifi/broadcom/drivers/ap6xxx"
 BR2_PACKAGE_BRCMAP6XXX_SDIO_VERSION="bcmdhd.1.363.59.144.x.cn"
 BR2_PACKAGE_BRCMAP6XXX_USB_VERSION="bcmdhd-usb.1.363.110.17.x"
+BR2_PACKAGE_DHD_PRIV=y
 
 # bcm bluetooth
 BR2_PACKAGE_AML_BRCM_BSA=y
@@ -285,6 +290,18 @@ BR2_PACKAGE_MEDIA_MODULES_STANDALONE=y
 BR2_PACKAGE_MEDIA_MODULES_LOCAL=y
 BR2_PACKAGE_MEDIA_MODULES_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/media_modules"
 BR2_PACKAGE_MEDIA_MODLUES_VERSION="amlogic-4.9-dev"
+
+# for WIFI Host AP
+BR2_PACKAGE_HOSTAPD=y
+BR2_PACKAGE_HOSTAPD_ACS=y
+BR2_PACKAGE_HOSTAPD_EAP=y
+BR2_PACKAGE_HOSTAPD_WPS=y
+
+# Boa web server
+BR2_PACKAGE_BOA=y
+
+# Web ui wifi config
+BR2_PACKAGE_WEB_UI_WIFI=y
 
 BR2_TARGET_USBTOOL_AMLOGIC=y
 #BR2_TARGET_USBTOOL_UBI_AMLOGIC=y
@@ -348,3 +365,54 @@ BR2_PACKAGE_DROPBEAR_SMALL=y
 BR2_PACKAGE_HTOP=y
 #procrank
 BR2_PACKAGE_PROCRANK_LINUX=y
+
+#ATMOS
+BR2_PACKAGE_DOLBY_ATMOS_RELEASE=y
+
+#For Audio Service
+BR2_PACKAGE_DBUS=y
+BR2_PACKAGE_AUDIOSERVICE=y
+#BR2_PACKAGE_AUDIOSERVICE_FFMPEG=y
+BR2_PACKAGE_AUDIOSERVICE_CONFIG_FILE="default_audioservice_s400_sbr.conf"
+BR2_PACKAGE_AUDIOSERVICE_STRESSTEST=y
+
+#For rsyslog, needed by audio service
+BR2_PACKAGE_RSYSLOG=y
+BR2_PACKAGE_LIBESTR=y
+BR2_PACKAGE_LIBFASTJSON=y
+BR2_PACKAGE_LIBLOGGING=y
+
+# FFMPEG for USBPlayer, audio only
+#
+BR2_PACKAGE_FFMPEG_ARCH_SUPPORTS=y
+BR2_PACKAGE_FFMPEG=y
+# BR2_PACKAGE_FFMPEG_GPL is not set
+# # BR2_PACKAGE_FFMPEG_NONFREE is not set
+BR2_PACKAGE_FFMPEG_FFMPEG=y
+BR2_PACKAGE_FFMPEG_FFPLAY=y
+# # BR2_PACKAGE_FFMPEG_FFSERVER is not set
+# # BR2_PACKAGE_FFMPEG_FFPROBE is not set
+# # BR2_PACKAGE_FFMPEG_AVRESAMPLE is not set
+ BR2_PACKAGE_FFMPEG_SWSCALE=y
+ BR2_PACKAGE_FFMPEG_ENCODERS=""
+ BR2_PACKAGE_FFMPEG_DECODERS="8svx_exp, 8svx_fib, aac, aac_fixed, aac_latm, ac3, ac3_fixed, adpcm_4xm, adpcm_adx, adpcm_afc, adpcm_aica, adpcm_ct, adpcm_dtk, adpcm_ea, adpcm_ea_maxis_xa, adpcm_ea_r1, adpcm_ea_r2, adpcm_ea_r3, adpcm_ea_xas, g722, g726, g726le, adpcm_ima_amv, adpcm_ima_apc, adpcm_ima_dat4, adpcm_ima_dk3, adpcm_ima_dk4, adpcm_ima_ea_eacs, adpcm_ima_ea_sead, adpcm_ima_iss, adpcm_ima_oki, adpcm_ima_qt, adpcm_ima_rad, adpcm_ima_smjpeg, adpcm_ima_wav, adpcm_ima_ws, adpcm_ms, adpcm_mtaf, adpcm_psx, adpcm_sbpro_2, adpcm_sbpro_3, adpcm_sbpro_4, adpcm_swf, adpcm_thp, adpcm_thp_le, adpcm_vima, adpcm_xa, adpcm_yamaha, alac, amrnb, libopencore_amrnb, amrwb, libopencore_amrwb, ape, aptx, aptx_hd, atrac1, atrac3, atrac3al, atrac3plus, atrac3plusal, on2avc, binkaudio_dct, binkaudio_rdft, bmv_audio, comfortnoise, cook, dolby_e, dsd_lsbf, dsd_lsbf_planar, dsd_msbf, dsd_msbf_planar, dsicinaudio, dss_sp, dst, dca, dvaudio, eac3, evrc, flac, g723_1, g729, gremlin_dpcm, gsm, gsm_ms, iac, imc, interplay_dpcm, interplayacm, mace3, mace6, metasound, mlp, mp1, mp1float, mp2, mp2float, mp3float, mp3, mp3adufloat, mp3adu, mp3on4float, mp3on4, als, mpc7, mpc8, nellymoser, opus, libopus, paf_audio, pcm_alaw, pcm_bluray, pcm_dvd, pcm_f16le, pcm_f24le, pcm_f32be, pcm_f32le, pcm_f64be, pcm_f64le, pcm_lxf, pcm_mulaw, pcm_s16be, pcm_s16be_planar, pcm_s16le, pcm_s16le_planar, pcm_s24be, pcm_s24daud, pcm_s24le, pcm_s24le_planar, pcm_s32be, pcm_s32le, pcm_s32le_planar, pcm_s64be, pcm_s64le, pcm_s8, pcm_s8_planar, pcm_u16be, pcm_u16le, pcm_u24be, pcm_u24le, pcm_u32be, pcm_u32le, pcm_u8, pcm_zork, qcelp, qdm2, qdmc, real_144, real_288, ralf, roq_dpcm, s302m, sbc, sdx2_dpcm, shorten, sipr, smackaud, sol_dpcm, sonic, libspeex, tak, truehd, truespeech, tta, twinvq, vmdaudio, vorbis, libvorbis, wavesynth, wavpack, ws_snd1, wmalossless, wmapro, wmav1, wmav2, wmavoice, xan_dpcm, xma1, xma2"
+ BR2_PACKAGE_FFMPEG_MUXERS=""
+ BR2_PACKAGE_FFMPEG_DEMUXERS="all"
+ BR2_PACKAGE_FFMPEG_PARSERS="all"
+ BR2_PACKAGE_FFMPEG_BSFS="all"
+ BR2_PACKAGE_FFMPEG_PROTOCOLS="all"
+ BR2_PACKAGE_FFMPEG_FILTERS="amix,aresample"
+ BR2_PACKAGE_FFMPEG_INDEVS=y
+ BR2_PACKAGE_FFMPEG_OUTDEVS=y
+ BR2_PACKAGE_FFMPEG_EXTRACONF=""
+
+# Add USB Player
+#
+BR2_PACKAGE_AUDIOSERVICE_USBPLAYER=y
+
+# Add AirPlay
+#
+BR2_PACKAGE_AUDIOSERVICE_AIRPLAY=y
+
+BR2_PACKAGE_AML_CUSTOMIZE_KERNEL=y
+BR2_PACKAGE_AML_CUSTOMIZE_KERNEL_ENABLE_OPT_LIST="CONFIG_AMLOGIC_SND_SOC_TAS5782M"
