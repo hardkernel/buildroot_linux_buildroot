@@ -27,3 +27,7 @@ amvdec_vp9
 
 #Tuner
 mxl661_fe_32
+
+#PQ
+ldim_alg_32
+dnlp_alg_32

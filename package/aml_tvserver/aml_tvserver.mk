@@ -37,6 +37,17 @@ define AML_TVSERVER_INSTALL_TUNER_DRIVER
 endef
 AML_TVSERVER_POST_INSTALL_TARGET_HOOKS += AML_TVSERVER_INSTALL_TUNER_DRIVER
 
+define AML_TVSERVER_INSTALL_PQ_DRIVER
+	if ls $(BR2_PACKAGE_AML_VENDOR_PARTITION_PATH)/etc/driver/pq/$(KERNEL_BITS)/*.ko 2>&1 > /dev/null; then \
+		pushd $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/; \
+		rm -fr pq && ln -s /vendor/etc/driver/pq/$(KERNEL_BITS) pq; \
+		for ko in $$(find $(BR2_PACKAGE_AML_VENDOR_PARTITION_PATH)/etc/driver/pq/$(KERNEL_BITS)/ -name '*.ko' -printf "%f\n"); \
+		do echo "pq/$$ko:" >> modules.dep; done;\
+		popd; \
+	fi
+endef
+AML_TVSERVER_POST_INSTALL_TARGET_HOOKS += AML_TVSERVER_INSTALL_PQ_DRIVER
+
 define AML_TVSERVER_UNINSTALL_TARGET_CMDS
         $(MAKE) -C $(@D) uninstall
 endef
