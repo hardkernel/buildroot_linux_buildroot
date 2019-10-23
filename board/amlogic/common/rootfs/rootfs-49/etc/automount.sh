@@ -14,6 +14,8 @@ if [ "x$cmd" = "xadd" ];then
         mkdir -p /media/$mount_point
         if [ "x$format" = "xntfs" ];then
             ntfs-3g $DEVNAME /media/$mount_point
+        elif [ "x$format" = "xexfat" ];then
+            mount.exfat $DEVNAME /media/$mount_point
         else
             mount $DEVNAME /media/$mount_point
         fi
