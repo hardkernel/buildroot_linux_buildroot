@@ -33,7 +33,7 @@ fi
 echo "change /etc/init.d/S82airplay2 to fit for this project"
 if [ -f $1/etc/init.d/S82airplay2 ] ; then
 	# sed -i 's/OPTIONS=.*/OPTIONS=\"-D dmixer_avs_auto --ipc-client \/tmp\/homeapp_airplay --mfi-proxy 192.168.11.11 --mfi-port 50001\"/' $1/etc/init.d/S82airplay2
-	sed -i 's/OPTIONS=.*/OPTIONS=\"-D dmixer_avs_auto --ipc-client \/tmp\/homeapp_airplay --mfi-device /dev/i2c-0 --mfi-address 0x10\"/' $1/etc/init.d/S82airplay2
+	sed -i 's/OPTIONS=.*/OPTIONS=\"-D dmixer_avs_auto --ipc-client \/tmp\/homeapp_airplay --mfi-device \/dev\/i2c-0 --mfi-address 0x10\"/' $1/etc/init.d/S82airplay2
 fi
 
 # Remove some no useful files
