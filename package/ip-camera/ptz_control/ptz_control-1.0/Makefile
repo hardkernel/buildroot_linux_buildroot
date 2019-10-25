@@ -21,13 +21,9 @@ SOURCES  = $(COMMON_DIR)main.c         \
 
 OBJECTS  := $(patsubst %.c,  %.o, $(SOURCES) )
 
-DEBUG_SUFFIX   = debug
-
-DEBUG_OBJECTS := $(patsubst %.o, %_$(DEBUG_SUFFIX).o, $(OBJECTS) )
-
 
 .PHONY: all
-all: debug release
+all: release
 
 
 .PHONY: release
@@ -35,34 +31,19 @@ release: CFLAGS := -s  $(CFLAGS)
 release: $(DAEMON_NAME)
 
 
-.PHONY: debug
-debug: CFLAGS := -DDEBUG  -g  $(CFLAGS)
-debug: $(DAEMON_NAME)_$(DEBUG_SUFFIX)
-
-
 # release
 $(DAEMON_NAME): $(OBJECTS)
 	$(call build_bin, $(OBJECTS))
-
-# debug
-$(DAEMON_NAME)_$(DEBUG_SUFFIX): $(DEBUG_OBJECTS)
-	$(call build_bin, $(DEBUG_OBJECTS))
 
 
 # Build release objects
 %.o: %.c
 	$(build_object)
 
-# Build debug objects
-%_$(DEBUG_SUFFIX).o: %.c
-	$(build_object)
-
 .PHONY: clean
 clean:
 	-@rm -f $(DAEMON_NAME)
-	-@rm -f $(DAEMON_NAME)_$(DEBUG_SUFFIX)
 	-@rm -f $(OBJECTS)
-	-@rm -f $(DEBUG_OBJECTS)
 	-@rm -f *.*~
 
 .PHONY: install
@@ -92,7 +73,6 @@ help:
 	@echo "make [command]"
 	@echo "command is:"
 	@echo "   all       -  build daemon in release and debug mode"
-	@echo "   debug     -  build in debug mode (#define DEBUG 1)"
 	@echo "   release   -  build in release mode (strip)"
 	@echo "   clean     -  remove all generated files"
 	@echo "   help      -  this help"

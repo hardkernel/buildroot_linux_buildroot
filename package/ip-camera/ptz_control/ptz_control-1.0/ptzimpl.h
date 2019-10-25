@@ -1,11 +1,9 @@
 #ifndef __PTZIMPL_H__
 #define __PTZIMPL_H__
 
-#ifdef  DEBUG
-#define PRINTF(args...)  printf(" " args)
-#else
-#define PRINTF(args...)  do { } while(0)
-#endif
+#define PRINTF(bdebug, args...)  if ( bdebug ) {\
+        printf(" " args);\
+    }
 
 typedef unsigned char BYTE;
 typedef enum {
@@ -16,12 +14,12 @@ typedef enum {
 
 typedef struct PTZPramas
 {
-    int nttys;        // /dev/ttyS*, 0 or 1
+    int nttys;        // /dev/ttyS*, 0,1,2...
     int naddr;        // the addr of ptz device
     int npelco;       // pelco-D for 0, pelco-P for 1
     int nbaudrate;    // BAUDRATE
-    int ncommand;     // _PTZ_COMMAND_
-    int ndata;        // speed for pan or lilt, or preset point
+    int ncommand;     // PTZ_COMMAND_
+    int noffset;      // speed for pan or lilt, or preset point
 } PTZPRAMAS;
 
 typedef struct tagPORTPARAMS
@@ -98,6 +96,7 @@ typedef struct tagCOMMPELCOP
 } COMMPELCOP, *PCOMMPELCOP;
 
 ////////////////////////////////////////////////////////////////////////////////
+extern BOOL g_debug;
 
 void InitPtzPramas(PTZPRAMAS *pptzpramas);
 void GetPelcoType(char *ppelco, PTZPRAMAS *pptzpramas);
@@ -106,11 +105,15 @@ int Init485(PTZPRAMAS *pptzpramas);
 void Deinit485(void);
 int InitPTZPort(int fd, const NC_PORTPARAMS *param);
 
+void OpenGpioPin(BOOL bsend);
+
 void ReadFrom485();
 BOOL WriteTo485(BYTE *pdata, int nsize);
 
-int DeviceControl(PTZPRAMAS *pptzpramas);
-int ControlPELCO_D(PTZPRAMAS *pptzpramas);
-int ControlPELCO_P(PTZPRAMAS *pptzpramas);
+BOOL DeviceControl(PTZPRAMAS *pptzpramas);
+BOOL PELCO_D_SendStop(PTZPRAMAS *pptzpramas);
+BOOL ControlPELCO_D(PTZPRAMAS *pptzpramas);
+BOOL PELCO_P_SendStop(PTZPRAMAS *pptzpramas);
+BOOL ControlPELCO_P(PTZPRAMAS *pptzpramas);
 
 #endif//    __PTZIMPL_H__
