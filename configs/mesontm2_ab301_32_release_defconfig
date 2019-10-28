@@ -233,6 +233,7 @@ BR2_TARGET_ROOTFS_TAR_GZIP=y
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_COMMON_OVERLAY="board/amlogic/common/rootfs/rootfs-49/"
 BR2_ROOTFS_OVERLAY="board/amlogic/mesontm2_ab301/rootfs/"
+BR2_ROOTFS_POST_BUILD_SCRIPT="$(TOPDIR)/board/amlogic/mesontm2_ab301/post_build.sh"
 BR2_ROOTFS_UPGRADE_DIR="board/amlogic/common/upgrade/upgrade-tm2-tv/"
 BR2_RECOVERY_OTA_DIR="board/amlogic/common/ota/ota-tm2-tv/"
 BR2_LINUX_KERNEL=y
