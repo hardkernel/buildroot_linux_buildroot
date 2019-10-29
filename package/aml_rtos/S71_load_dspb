@@ -7,7 +7,11 @@
 case "$1" in
   start)
     # load firmware
-    dsp_util --load --dsp hifi4b -f dspbootB.bin
+    if [ -f /lib/firmware/dspbootB_sram.bin ]; then
+        dsp_util --load2 --dsp hifi4b --firmware1 dspbootB_sdram.bin --firmware2 dspbootB_sram.bin
+    else
+        dsp_util --load --dsp hifi4b -f dspbootB.bin
+    fi
     # Launch DSP rtos
     dsp_util -S --dsp hifi4b
     ;;

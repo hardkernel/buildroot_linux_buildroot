@@ -19,13 +19,17 @@ define AML_RTOS_BUILD_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
 			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPA_BUILD_OPTION); \
-			$(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/dspbootA.bin;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/dspbootA.bin || true;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sram.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sram.bin $(BINARIES_DIR)/dspbootA_sram.bin || true;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sdram.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sdram.bin $(BINARIES_DIR)/dspbootA_sdram.bin || true;\
 		popd; \
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
 			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION); \
-			$(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/dspbootB.bin;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspbootB.bin $(BINARIES_DIR)/dspbootB.bin || true;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sram.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sram.bin $(BINARIES_DIR)/dspbootB_sram.bin || true;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sdram.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sdram.bin $(BINARIES_DIR)/dspbootB_sdram.bin || true;\
 		popd; \
 	fi
 endef
@@ -33,7 +37,7 @@ endef
 define AML_RTOS_INSTALL_TARGET_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
-		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootA.bin $(TARGET_DIR)/lib/firmware/;\
+		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootA*.bin $(TARGET_DIR)/lib/firmware/;\
 		if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPA_AUTOLOAD)" ]; then \
 			$(INSTALL) -D -m 755 \
 			$(AML_RTOS_PKGDIR)/S71_load_dspa \
@@ -42,7 +46,7 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 	fi
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_INSTALL)" ]; then \
 		mkdir -p $(TARGET_DIR)/lib/firmware/; \
-		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootB.bin $(TARGET_DIR)/lib/firmware/;\
+		$(INSTALL) -D -m 644 $(BINARIES_DIR)/dspbootB*.bin $(TARGET_DIR)/lib/firmware/;\
 		if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_AUTOLOAD)" ]; then \
 			$(INSTALL) -D -m 755 \
 			$(AML_RTOS_PKGDIR)/S71_load_dspb \
@@ -53,8 +57,7 @@ define AML_RTOS_INSTALL_TARGET_CMDS
 	pushd $(BINARIES_DIR); \
 		mkdir -p $(AML_RTOS_PREBUILT); \
 		test -f rtos-uImage && cp -fv rtos-uImage $(AML_RTOS_PREBUILT); \
-		test -f dspbootA.bin && cp -fv dspbootA.bin $(AML_RTOS_PREBUILT); \
-		test -f dspbootB.bin && cp -fv dspbootB.bin $(AML_RTOS_PREBUILT); \
+		cp -f dspboot*.bin $(AML_RTOS_PREBUILT)/ || true; \
 		tar -zcf $(AML_RTOS_PREBUILT).tgz -C $(AML_RTOS_PREBUILT) ./; \
 	popd
 endef
