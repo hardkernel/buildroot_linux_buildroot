@@ -3,9 +3,11 @@
 # ipc_webui
 #
 
+MKDIR=/bin/mkdir
 CHOWN=/bin/chown
 IPC_WEBUI_PATH=/var/www/ipc-webui
-OPTS="-R www-data $IPC_WEBUI_PATH"
+DATA_DIR=/etc/ipc-webui
+OPTS="-R www-data $DATA_DIR"
 
 NODE=/usr/bin/node
 DAEMON_NAME=webstreaming
@@ -20,6 +22,7 @@ IPC_WEBSTREAM_PROP=/ipc/video/ts/web
 
 start() {
   echo "Start setting ipc-webui ownership ..."
+  $MKDIR -p $DATA_DIR
   $CHOWN $OPTS
   if [ -f $PID_FILE ] && kill -0 $(cat $PID_FILE); then
     echo "$DAEMON_NAME already running"
