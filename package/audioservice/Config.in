@@ -71,4 +71,8 @@ config BR2_PACKAGE_AUDIOSERVICE_AIRPLAY
 	bool  "Enable airplay client in homeapp"
 	select BR2_PACKAGE_AIRPLAY2
 	default n
+
+config BR2_PACKAGE_AUDIOSERVICE_AMLUART
+	bool  "Enable AMLUART client in homeapp"
+	default n
 endif
