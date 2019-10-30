@@ -27,7 +27,7 @@ define AML_RTOS_BUILD_CMDS
 	if [ -n "$(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION)" ]; then \
 		pushd $(@D);  \
 			set -e; ./scripts/amlogic/mk.sh $(BR2_PACKAGE_AML_RTOS_DSPB_BUILD_OPTION); \
-			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspbootB.bin $(BINARIES_DIR)/dspbootB.bin || true;\
+			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot.bin $(BINARIES_DIR)/dspbootB.bin || true;\
 			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sram.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sram.bin $(BINARIES_DIR)/dspbootB_sram.bin || true;\
 			test -f ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sdram.bin &&  $(INSTALL) -D -m 644 ./demos/amlogic/xcc/xtensa_hifi4/dspboot_sdram.bin $(BINARIES_DIR)/dspbootB_sdram.bin || true;\
 		popd; \
