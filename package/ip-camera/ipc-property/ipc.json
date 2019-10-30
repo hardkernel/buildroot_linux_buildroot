@@ -7,8 +7,8 @@
             "channels": 2,
             "format": "S16LE",
             "codec": "mulaw",
-            "samplerate": 48000,
-            "bitrate": 0
+            "samplerate": 8000,
+            "bitrate": 64
         },
         "video": {
             "multi-channel": false,
@@ -191,12 +191,6 @@
         },
         "media": {
             "profiles": [
-                {
-                    "name": "RTSP",
-                    "protocol": "rtsp",
-                    "width": 1920,
-                    "height": 1080
-                }
             ]
         },
         "network": {
