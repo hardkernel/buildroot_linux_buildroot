@@ -22,13 +22,6 @@ fi
 #echo "Remove unnecessary BSA apps"
 #find $TARGET_DIR/usr/bin -name app_* ! -name app_manager -delete
 
-# Copy related aml_halaudio configure file
-# now we use the 5.1.2 8 channels config
-if [ -f $1/etc/halaudio/8ch_aml_audio_config.json ] ; then
-	cp $1/etc/halaudio/8ch_aml_audio_config.json \
-		$1/etc/aml_audio_config.json
-fi
-
 # Change S82airplay2 to fit for this project
 echo "change /etc/init.d/S82airplay2 to fit for this project"
 if [ -f $1/etc/init.d/S82airplay2 ] ; then
