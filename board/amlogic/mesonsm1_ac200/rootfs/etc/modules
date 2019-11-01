@@ -26,3 +26,6 @@ amvdec_vc1
 amvdec_vp9
 #NN
 galcore
+#OPTEE
+optee
+optee_armtz
