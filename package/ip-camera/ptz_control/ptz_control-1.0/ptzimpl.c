@@ -507,17 +507,18 @@ BOOL ControlPELCO_D(PTZPRAMAS *pptzpramas)
             bpre_stop = TRUE;
             break;
         case PAN_AUTO:
-            Command.Cmd1 = 0x90;
-            Command.Cmd2 = 0x00;
-            Command.Data1 = nPTZSpeedPreset;  // pan speed : 0x00 ~ 0x3f
-            Command.Data2 = 0x00;
+            Command.Cmd1 = 0x00;
+            Command.Cmd2 = 0x07;
+            Command.Data1 = 0x00;
+            Command.Data2 = nPTZSpeedPreset;  // preset : 0x00 ~ 0x3f
             bpre_stop = TRUE;
             break;
         case PAN_AUTO_STOP:
-            Command.Cmd1 = 0x10;
-            Command.Cmd2 = 0x00;
+            Command.Cmd1 = 0x00;
+            Command.Cmd2 = 0x03;
             Command.Data1 = 0x00;
-            Command.Data2 = 0x00;
+            Command.Data2 = nPTZSpeedPreset;  // preset : 0x00 ~ 0x3f
+            bpre_stop = TRUE;
             break;
         default:   //PTZ_STOP
             Command.Cmd1 = 0x00;
@@ -711,16 +712,17 @@ BOOL ControlPELCO_P(PTZPRAMAS *pptzpramas)
             break;
         case PAN_AUTO:
             Command.Data1 = 0x00;
-            Command.Data2 = 0x99;
+            Command.Data2 = 0x07;
             Command.Data3 = 0x00;
-            Command.Data4 = 0x20;
+            Command.Data4 = nPTZSpeedPreset;   //preset 0x00~0xff
             bpre_stop = TRUE;
             break;
         case PAN_AUTO_STOP:
             Command.Data1 = 0x00;
-            Command.Data2 = 0x96;
+            Command.Data2 = 0x03;
             Command.Data3 = 0x00;
-            Command.Data4 = 0x20;
+            Command.Data4 = nPTZSpeedPreset;   //preset 0x00~0xff
+            bpre_stop = TRUE;
             break;
         default:   //PTZ_STOP
             Command.Data1 = 0x00;
