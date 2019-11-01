@@ -175,7 +175,7 @@ $MULTI_WIFI station 1
 #else
 #$MULTI_WIFI ap 1
 #fi
-
+mkdir -p /etc/wifi
 wifi_chip_id_vendor="/sys/bus/mmc/devices/sdio:0001/sdio:0001:1/vendor"
 wifi_chip_id=`cat ${wifi_chip_id_vendor}`
 case "${wifi_chip_id}" in

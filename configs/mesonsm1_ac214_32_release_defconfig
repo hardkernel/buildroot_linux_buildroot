@@ -1,4 +1,4 @@
-# Mirrors and Download locations
+
 BR2_BACKUP_SITE="http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty"
 # Architecture
 BR2_arm=y
@@ -244,9 +244,6 @@ BR2_PACKAGE_LIBXSLT=y
 BR2_SYSTEM_DHCP="eth0"
 BR2_PACKAGE_NETPLUG=y
 BR2_PACKAGE_DHCPCD=y
-BR2_PACKAGE_DNSMASQ=y
-BR2_PACKAGE_DNSMASQ_TFTP=n
-BR2_PACKAGE_DNSMASQ_DHCP=n
 BR2_PACKAGE_IW=y
 BR2_PACKAGE_WPA_SUPPLICANT=y
 BR2_PACKAGE_WPA_SUPPLICANT_CLI=y
@@ -348,13 +345,36 @@ BR2_PACKAGE_RTK8822BU_LOCAL=y
 BR2_PACKAGE_RTK8822BU_STANDALONE=y
 BR2_PACKAGE_RTK8822BU_GIT_VERSION="m-amlogic"
 BR2_PACKAGE_RTK8822BU_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/wifi/realtek/drivers/8822bu"
-BR2_PACKAGE_BRCMAP6XXX=y
-BR2_PACKAGE_BRCMAP6XXX_LOCAL=y
-BR2_PACKAGE_BRCMAP6XXX_STANDALONE=y
-BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION="m-amlogic"
-BR2_PACKAGE_BRCMAP6XXX_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/wifi/broadcom/drivers/ap6xxx"
-BR2_PACKAGE_BRCMAP6XXX_SDIO_VERSION="bcmdhd.1.363.59.144.x.cn"
-BR2_PACKAGE_BRCMAP6XXX_USB_VERSION="bcmdhd-usb.1.363.110.17.x"
+#-----------------------brcm  modules ---------------------------------#
+#BR2_PACKAGE_BRCMAP6XXX=y
+#BR2_PACKAGE_BRCMAP6XXX_LOCAL=y
+#BR2_PACKAGE_BRCMAP6XXX_STANDALONE=y
+#BR2_PACKAGE_BRCMAP6XXX_GIT_VERSION="m-amlogic"
+#BR2_PACKAGE_BRCMAP6XXX_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/wifi/broadcom/drivers/ap6xxx"
+#BR2_PACKAGE_BRCMAP6XXX_SDIO_VERSION="bcmdhd.1.363.59.144.x.cn"
+#BR2_PACKAGE_BRCMAP6XXX_USB_VERSION="bcmdhd-usb.1.363.110.17.x"
+#------------------brcm modules end-------------------------#
+#------------------qca modules ---------------------------------------------#
+BR2_PACKAGE_QUALCOMM_WIFI=y
+BR2_PACKAGE_QUALCOMM_QCA6174=y
+BR2_PACKAGE_QUALCOMM_WIFI_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/wifi/qualcomm/drivers"
+BR2_PACKAGE_QUALCOMM_WIFIFW_LOCAL_PATH="$(TOPDIR)/../hardware/aml-4.9/amlogic/wifi"
+
+#------------------qca modules end ------------------------------#
+#-----------------tools--------------------------#
+BR2_PACKAGE_HOSTAPD=y
+BR2_PACKAGE_HOSTAPD_ACS=y
+BR2_PACKAGE_HOSTAPD_EAP=y
+BR2_PACKAGE_HOSTAPD_WPS=y
+
+BR2_PACKAGE_DNSMASQ=y
+BR2_PACKAGE_DNSMASQ_TFTP=y
+BR2_PACKAGE_DNSMASQ_DHCP=y
+BR2_PACKAGE_DNSMASQ_DNSSEC=y
+BR2_PACKAGE_DNSMASQ_IDN=y
+BR2_PACKAGE_DNSMASQ_CONNTRACK=y
+BR2_PACKAGE_DNSMASQ_LUA=y
+#-------------------tools end-----------------------#
 #BR2_PACKAGE_BRCMUSI=y
 #BR2_PACKAGE_BRCMUSI_LOCAL=y
 #BR2_PACKAGE_BRCMUSI_GIT_VERSION="kk-amlogic"

@@ -381,6 +381,18 @@ static const dongle_info dongle_registerd[] = {
 		},
 		"qca9377",
 		0x0,
+	},
+	{
+		"050a",
+		"wlan",
+		"wlan.ko",
+		QCA_KO_PATH,
+		.wifi_module_arg = {
+			.arg_type   = MODULE_ARG_OTHER,
+			.arg        = "country_code=CN",
+		},
+		"qca6174",
+		0x0,
 	}
 };
 
