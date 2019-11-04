@@ -7,7 +7,7 @@
 IPC_WEBUI_VERSION = 1.0
 IPC_WEBUI_SITE = $(TOPDIR)/../vendor/amlogic/ipc/ipc_webui
 IPC_WEBUI_SITE_METHOD = local
-IPC_WEBUI_DEPENDENCIES = nginx php nodejs host-gettext
+IPC_WEBUI_DEPENDENCIES = nginx php host-gettext
 
 define IPC_WEBUI_BUILD_CMDS
 	$(HOST_DIR)/bin/msgfmt $(@D)/locale/zh_CN/LC_MESSAGES/language.po -o $(@D)/locale/zh_CN/LC_MESSAGES/language.mo

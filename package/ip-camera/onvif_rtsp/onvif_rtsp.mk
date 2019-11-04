@@ -12,6 +12,7 @@ ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlvenc gst-plugin-amloverlay gst-plugin-a
 ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlnn
 ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlvconv
 ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlgdc
+ONVIF_RTSP_DEPENDENCIES += gst-plugin-amlwebstreamserversink
 ONVIF_RTSP_DEPENDENCIES += ipc-property
 
 define ONVIF_RTSP_BUILD_CMDS
