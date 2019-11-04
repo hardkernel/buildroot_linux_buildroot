@@ -1,5 +1,5 @@
 config BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_GCC_LINARO_ARM_NONE
     bool "Amlogic uboot arm-none-eabi toolchain"
-    default y
+    default n
     help
 	64bit soc bl30 compile toolchain

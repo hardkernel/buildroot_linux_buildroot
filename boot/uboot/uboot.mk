@@ -124,14 +124,8 @@ UBOOT_BINS += u-boot.bin
 UBOOT_BIN_IFT = u-boot.bin.ift
 endif
 
-ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_ODROID_C2)),y)
-	UBOOT_BINS := fip/u-boot.bin
-else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
+ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
 	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl  build/u-boot.bin.sd.bin build/u-boot.bin.encrypt build/u-boot.bin.encrypt.efuse build/u-boot.bin.encrypt.sd.bin build/u-boot.bin.encrypt.usb.bl2 build/u-boot.bin.encrypt.usb.tpl
-else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
-	UBOOT_BINS := build/u-boot.bin
-else ifeq ($(BR2_TARGET_UBOOT_ODROID),y)
-	UBOOT_BINS := sd_fuse/u-boot.bin
 endif
 
 # The kernel calls AArch64 'arm64', but U-Boot calls it just 'arm', so
@@ -144,20 +138,11 @@ else
 UBOOT_ARCH = $(KERNEL_ARCH)
 endif
 
-ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y)
-UBOOT_DEPENDENCIES += aml_uboot_toolchain-gcc-linaro-arm-none aml_uboot_toolchain-codesourcery aml_uboot_toolchain-gcc-linaro-aarch64 aml_uboot_toolchain-arc
-endif
-
-ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y)
-UBOOT_MAKE_OPTS += \
-	ARCH=$(UBOOT_ARCH)
-else
 UBOOT_MAKE_OPTS += \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
 	ARCH=$(UBOOT_ARCH) \
 	HOSTCC="$(HOSTCC) $(subst -I/,-isystem /,$(subst -I /,-isystem /,$(HOST_CFLAGS)))" \
 	HOSTLDFLAGS="$(HOST_LDFLAGS)"
-endif
 
 ifeq ($(BR2_TARGET_UBOOT_NEEDS_ATF_BL31),y)
 UBOOT_DEPENDENCIES += arm-trusted-firmware
@@ -332,8 +317,8 @@ endif # BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY
 
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
 define UBOOT_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
-		cd $(@D);./mk $(UBOOT_BOARD_NAME)
+	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) \
+	cd $(@D);./mk $(UBOOT_BOARD_NAME)
 endef
 define UBOOT_INSTALL_AMLOGIC_USB_TOOL
 	cp -dpf $(@D)/build/u-boot.bin $(BINARIES_DIR)/
@@ -369,45 +354,6 @@ define UBOOT_BUILD_CMDS
 endef
 endif
 
-ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_2015)$(BR2_TARGET_UBOOT_AMLOGIC)),y)
-ifeq ($(filter y, $(BR2_TARGET_UBOOT_AMLOGIC_REPO)),y)
-define UBOOT_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
-		cd $(@D);./mk $(UBOOT_BOARD_NAME)
-endef
-else
-define UBOOT_BUILD_CMDS
-	$(TARGET_CONFIGURE_OPTS) $(UBOOT_CONFIGURE_OPTS) PATH=$(PATH):$(HOST_DIR)/usr/aarch64-buildroot-none-gnu/bin:$(HOST_DIR)/usr/gcc-arm-none-eabi-6-2017-q2-update/bin/:$(HOST_DIR)/usr/codesourcery/Sourcery_G++_Lite/bin:$(HOST_DIR)/usr/arc-4.8-amlogic-20130904-r2/bin 	\
-		$(MAKE) -j1 -C $(@D) $(UBOOT_MAKE_TARGET)
-endef
-endif
-ifeq ($(BR2_TARGET_USBTOOL_AMLOGIC),y)
-ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_2015),y)
-define UBOOT_INSTALL_AMLOGIC_USB_TOOL
-	cp -dpf $(@D)/fip/u-boot.bin.encrypt $(BINARIES_DIR)/
-	cp -dpf $(@D)/fip/u-boot.bin.encrypt.efuse $(BINARIES_DIR)/
-	cp -dpf $(@D)/fip/u-boot.bin.usb.bl2 $(BINARIES_DIR)/
-	cp -dpf $(@D)/fip/u-boot.bin.usb.tpl $(BINARIES_DIR)/
-	cp -dpf $(@D)/fip/u-boot.bin.encrypt.usb.bl2 $(BINARIES_DIR)/
-	cp -dpf $(@D)/fip/u-boot.bin.encrypt.usb.tpl $(BINARIES_DIR)/
-	cp -dpf $(@D)/fip/u-boot.bin.encrypt.sd.bin $(BINARIES_DIR)/
-	$(INSTALL) -m 0755 $(@D)/fip/$(call qstrip,$(BR2_TARGET_UBOOT_PLATFORM))/aml_encrypt_$(BR2_TARGET_UBOOT_PLATFORM) $(HOST_DIR)/usr/bin
-endef
-else #BR2_TARGET_UBOOT_AMLOGIC_2015
-define UBOOT_INSTALL_AMLOGIC_USB_TOOL
-	cp -dpf $(@D)/build/ddr_init.bin $(BINARIES_DIR)/
-	cp -dpf $(@D)/build/u-boot-comp.bin $(BINARIES_DIR)/
-	cp -dpf $(@D)/build/u-boot-usb.bin.aml.encrypt.usb.start $(BINARIES_DIR)/
-	cp -dpf $(@D)/build/u-boot-usb.bin.aml.encrypt $(BINARIES_DIR)/
-	cp -dpf $(@D)/build/u-boot.bin.aml.encrypt $(BINARIES_DIR)/
-	cp -dpf $(@D)/build/u-boot.bin.aml.efuse $(BINARIES_DIR)/
-endef
-endif #BR2_TARGET_UBOOT_AMLOGIC_2015
-UBOOT_POST_INSTALL_IMAGES_HOOKS += UBOOT_INSTALL_AMLOGIC_USB_TOOL
-endif #BR2_TARGET_USBTOOL_AMLOGIC
-else
-endif
-
 define UBOOT_BUILD_OMAP_IFT
 	$(HOST_DIR)/bin/gpsign -f $(@D)/u-boot.bin \
 		-c $(call qstrip,$(BR2_TARGET_UBOOT_OMAP_IFT_CONFIG))
@@ -436,14 +382,6 @@ define UBOOT_INSTALL_IMAGES_CMDS
 			cp -dpf $(@D)/$(f) $(BINARIES_DIR)/
 		)
 	)
-	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
-		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
-	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
-		cp -dpf $(@D)/sd_fuse/bl1.bin.hardkernel $(BINARIES_DIR)/)
-	$(if $(BR2_TARGET_UBOOT_AMLOGIC),
-		cp -dpf $(@D)/mksdcard $(BINARIES_DIR)/)
-	$(if $(BR2_TARGET_UBOOT_AMLOGIC_2015),
-		cp -dpf $(@D)/fip/u-boot.bin.sd.bin $(BINARIES_DIR)/)
 	$(UBOOT_GENERATE_ENV_IMAGE)
 	$(if $(BR2_TARGET_UBOOT_BOOT_SCRIPT),
 		$(MKIMAGE) -C none -A $(MKIMAGE_ARCH) -T script \
