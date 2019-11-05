@@ -57,6 +57,7 @@ DEFCONFIG_ARRAY=(
     "mesonaxg_s400_32_release"
     "mesonaxg_s400_sbr_32_release"
     "mesonaxg_s400_sbravs_32_release"
+    "mesonaxg_s410_sbr_32_release"
     "mesonaxg_s420_32_release"
 
     "==========Out Of Maintain==============="

@@ -39,6 +39,12 @@ config BR2_PACKAGE_AUDIOSERVICE_S400_SBR
 	help
 	  It's for dynamic control MCLK and SCLK.
 
+config BR2_PACKAGE_AUDIOSERVICE_S410_SBR
+	bool  "S410 SoundBar Refernece platform"
+	default n
+	help
+	  It's for dynamic control MCLK and SCLK.
+
 config BR2_PACKAGE_AUDIOSERVICE_CONFIG_FILE
 	string "set the audioservice configuration file"
 	default "default_audioservice_s400_sb.conf"
