@@ -12,7 +12,7 @@ ONVIF_WSDD_DEPENDENCIES = host-openssl openssl zlib
 
 ONVIF_WSDD_SITE = $(call github,KoynovStas,wsdd,$(ONVIF_WSDD_VERSION))
 
-ONVIF_WSDD_SDK_VERSION = 2.8.65
+ONVIF_WSDD_SDK_VERSION = 2.8.94
 ONVIF_WSDD_EXTRA_DOWNLOADS = https://sourceforge.net/projects/gsoap2/files/gsoap-2.8/gsoap_$(ONVIF_WSDD_SDK_VERSION).zip
 
 ONVIF_WSDD_INTERNAL_SITE = $(TOPDIR)/../vendor/amlogic/ipc/onvif_wsdd
