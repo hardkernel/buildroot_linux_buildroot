@@ -8,7 +8,12 @@ cd /sys/kernel/config/usb_gadget/amlogic
 echo 0x18D1 > idVendor
 echo 0x4e26 > idProduct
 mkdir strings/0x409
-echo 0123456789ABCDEF > strings/0x409/serialnumber
+#Read out serial number, and configure to ADB
+serialnumber=$(cat /proc/cmdline | sed -n 's/.*androidboot.serialno=\([0-9a-zA-Z]*\).*/\1/p')
+if [ -z "$serialnumber" ] || [ "$serialnumber" = "1234567890" ]; then
+  serialnumber="0123456789ABCDEF"
+fi
+echo $serialnumber > strings/0x409/serialnumber
 echo amlogic > strings/0x409/manufacturer
 echo p212 > strings/0x409/product
 mkdir configs/amlogic.1
@@ -23,13 +28,13 @@ echo ff400000.dwc2_a > /sys/kernel/config/usb_gadget/amlogic/UDC
 
 
 udisk_partition_init()
-{	
+{
 #mount dir create
 if [ ! -d "/udisk"  ]
 then
     mkdir /udisk
 fi
-	
+
 mount -t vfat /dev/udisk /udisk
 if [ $? -ne 0 ]
 then
@@ -43,7 +48,7 @@ case "$1" in
 		  udisk_partition_init
 		  u_disk_init &
 		;;
-	netready|netup|netdown|netchange) 
+	netready|netup|netdown|netchange)
 		;;
 	*)
 		echo "Usage: $0 {start}"

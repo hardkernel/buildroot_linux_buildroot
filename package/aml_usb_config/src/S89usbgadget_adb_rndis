@@ -8,7 +8,12 @@ usb_rndis_init()
 	echo 0x18D1 > idVendor
 	echo 0x4e26 > idProduct
 	mkdir strings/0x409
-	echo 0123456789ABCDEF > strings/0x409/serialnumber
+    #Read out serial number, and configure to ADB
+    serialnumber=$(cat /proc/cmdline | sed -n 's/.*androidboot.serialno=\([0-9a-zA-Z]*\).*/\1/p')
+    if [ -z "$serialnumber" ] || [ "$serialnumber" = "1234567890" ]; then
+      serialnumber="0123456789ABCDEF"
+    fi
+	echo $serialnumber > strings/0x409/serialnumber
 	echo amlogic > strings/0x409/manufacturer
 	echo p212 > strings/0x409/product
 	mkdir configs/amlogic.1
