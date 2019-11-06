@@ -1,5 +1,5 @@
 
-BR2_BACKUP_SITE="http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty"
+BR2_BACKUP_SITE="http://sources.buildroot.net"
 # Architecture
 BR2_arm=y
 BR2_cortex_a9=y
