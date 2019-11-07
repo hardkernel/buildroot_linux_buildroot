@@ -1,4 +1,4 @@
-config BR2_PACKAGE_HDCP
+config BR2_PACKAGE_AML_HDCP
 	bool "hdcp ca and ta"
 	help
 	  hdcp ca and ta

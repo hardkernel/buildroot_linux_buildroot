@@ -54,6 +54,8 @@ menu "amlogic"
 	source "package/amr/Config.in"
 	source "package/g711/Config.in"
 	source "package/aml_tvserver/Config.in"
+    source "package/aml_hdcp/Config.in"
+    source "package/aml_provision/Config.in"
 endmenu
 
 menu "Audio and video applications"
@@ -2322,12 +2324,5 @@ menu "Trustzone"
     source "package/tdk/Config.in"
 endmenu
 
-menu "hdcp"
-    source "package/hdcp/Config.in"
-endmenu
-
-menu "provision"
-    source "package/provision/Config.in"
-endmenu
 
 endmenu
