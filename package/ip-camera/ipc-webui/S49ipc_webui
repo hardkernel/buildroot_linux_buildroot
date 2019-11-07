@@ -9,44 +9,14 @@ IPC_WEBUI_PATH=/var/www/ipc-webui
 DATA_DIR=/etc/ipc-webui
 OPTS="-R www-data $DATA_DIR"
 
-NODE=/usr/bin/node
-DAEMON_NAME=webstreaming
-PID_FILE=/tmp/${DAEMON_NAME}.pid
-JSMPEG_RELAY_PATH=${IPC_WEBUI_PATH}/jsmpeg/websocket-relay.js
-JSMPEG_SECRET=webstream
-JSMPEG_INCOME_PORT=8081
-JSMPEG_WEBSOCKET_PORT=8082
-
-IPC_PROPERTY=/usr/bin/ipc-property
-IPC_WEBSTREAM_PROP=/ipc/video/ts/web
-
 start() {
   echo "Start setting ipc-webui ownership ..."
   $MKDIR -p $DATA_DIR
   $CHOWN $OPTS
-  if [ -f $PID_FILE ] && kill -0 $(cat $PID_FILE); then
-    echo "$DAEMON_NAME already running"
-    return 1
-  fi
-  echo "Starting $DAEMON_NAME..."
-  $NODE $JSMPEG_RELAY_PATH "$JSMPEG_SECRET" $JSMPEG_INCOME_PORT $JSMPEG_WEBSOCKET_PORT &
-  echo $! > $PID_FILE
-  $IPC_PROPERTY set ${IPC_WEBSTREAM_PROP}/secret "$JSMPEG_SECRET"
-  $IPC_PROPERTY set ${IPC_WEBSTREAM_PROP}/port "$JSMPEG_INCOME_PORT"
-  $IPC_PROPERTY set ${IPC_WEBSTREAM_PROP}/enabled true
 }
 
 stop() {
-  if [ ! -f "$PID_FILE" ] || ! kill -0 $(cat "$PID_FILE"); then
-    echo "$DAEMON_NAME not running"
-    return 1
-  fi
-
-  echo "Stopping $DAEMON_NAME..."
-  $IPC_PROPERTY set ${IPC_WEBSTREAM_PROP}/enabled false
-  sleep 2
-  kill -15 $(cat $PID_FILE) && rm -f $PID_FILE
-  echo "$DAEMON_NAME stopped"
+  echo "Stop ipc-webui..."
 }
 
 restart() {

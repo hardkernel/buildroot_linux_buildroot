@@ -25,7 +25,8 @@ ONVIF_PREBUILT_DIRECTORY=$(ONVIF_PREBUILT_SITE)/$(ONVIF_SUB_PATH)
 ONVIF_PREBUILT_DEPENDENCIES = openssl zlib libjpeg directfb sqlite
 ONVIF_PREBUILT_DEPENDENCIES += gstreamer1 gst1-plugins-base gst1-plugins-good gst1-plugins-bad gst1-rtsp-server
 ONVIF_PREBUILT_DEPENDENCIES += aml_nn_detect aml_libge2d aml_libgdc
-ONVIF_PREBUILT_DEPENDENCIES += nginx php nodejs
+ONVIF_PREBUILT_DEPENDENCIES += libwebsockets
+ONVIF_PREBUILT_DEPENDENCIES += nginx php
 ifeq ($(BR2_PACKAGE_AML_SOC_USE_MULTIENC), y)
 GST_PLUGIN_AMLVENC_DEPENDENCIES += libmultienc
 else
@@ -82,6 +83,7 @@ define ONVIF_PREBUILT_INSTALL_TARGET_CMDS
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvenc.so       $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlvconv.so      $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlgdc.so        $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
+	cp -a $(TARGET_DIR)/usr/lib/gstreamer-1.0/libgstamlwsss.so       $(@D)/$(ONVIF_SUB_PATH)/usr/lib/gstreamer-1.0/
 
 	cp -a $(TARGET_DIR)/etc/nginx/nginx.conf       $(@D)/$(ONVIF_SUB_PATH)/etc/nginx
 	cp -a $(TARGET_DIR)/etc/php.ini                $(@D)/$(ONVIF_SUB_PATH)/etc/php.ini
