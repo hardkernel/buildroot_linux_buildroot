@@ -347,7 +347,6 @@ BR2_PACKAGE_OPENSSL_ENGINES=y
 
 
 #--------------------Weston/Wayland DRM-----------------------#
-BR2_PACKAGE_MALI_EXAMPLES=y
 #Mali egl
 BR2_PACKAGE_MESON_MALI=y
 BR2_PACKAGE_PROVIDES_LIBEGL="meson-mali"
