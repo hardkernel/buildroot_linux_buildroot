@@ -383,7 +383,6 @@ comment "Other GUIs"
 	source "package/aml_browser_toolchains/Config.in"
 	source "package/chromium/Config.in"
 	source "package/cobalt/Config.in"
-	source "package/mali_examples/Config.in"
 	source "package/qt5/Config.in"
 	source "package/kf5/Config.in"
 if BR2_PACKAGE_QT5
