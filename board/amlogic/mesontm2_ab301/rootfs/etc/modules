@@ -31,3 +31,7 @@ mxl661_fe
 #PQ
 ldim_alg
 dnlp_alg
+
+#optee
+optee
+optee_armtz

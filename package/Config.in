@@ -2322,4 +2322,12 @@ menu "Trustzone"
     source "package/tdk/Config.in"
 endmenu
 
+menu "hdcp"
+    source "package/hdcp/Config.in"
+endmenu
+
+menu "provision"
+    source "package/provision/Config.in"
+endmenu
+
 endmenu
