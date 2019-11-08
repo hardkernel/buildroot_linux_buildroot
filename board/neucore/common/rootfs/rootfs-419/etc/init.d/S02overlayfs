@@ -24,4 +24,4 @@ case ${current_system} in
 esac
 
 
-do_overlay_mount /data/overlay
+#do_overlay_mount /data/overlay
