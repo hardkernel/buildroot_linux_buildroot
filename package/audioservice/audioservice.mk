@@ -90,10 +90,10 @@ define AUDIOSERVICE_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 644 \
 		$(AUDIOSERVICE_SITE)/src/config/$(BR2_PACKAGE_AUDIOSERVICE_CONFIG_FILE) \
 		$(TARGET_DIR)/etc/default_audioservice.conf
-	$(INSTALL) -d $(TARGET_DIR)/etc/mcu6350_bin/
-	$(INSTALL) -D -m 644 \
-		$(AUDIOSERVICE_SITE)/src/external/mcu6350_bin/* $(TARGET_DIR)/etc/mcu6350_bin/
 if [ "$(BR2_PACKAGE_AUDIOSERVICE_EXTERNAL_M6350)" == "y" ]; then \
+	$(INSTALL) -d $(TARGET_DIR)/etc/mcu6350_bin/; \
+	$(INSTALL) -D -m 644 \
+		$(AUDIOSERVICE_SITE)/src/external/mcu6350_bin/* $(TARGET_DIR)/etc/mcu6350_bin/; \
 	cd $(TARGET_DIR)/usr/lib; \
 	ln -fs $(EXTERNAL_M6350_LIB) $(AUDIOSERVICE_EXTERNAL_INPUT_LIB); \
 	cd -; \
