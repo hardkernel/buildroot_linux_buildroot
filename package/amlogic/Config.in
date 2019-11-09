@@ -1,0 +1,90 @@
+menu "amlogic"
+
+#Shared
+    source "package/amlogic/aml_aaa/Config.in"
+    source "package/amlogic/aml_util/Config.in"
+    source "package/amlogic/aml_share/Config.in"
+    source "package/amlogic/aml_customer/Config.in"
+    source "package/amlogic/aml_usb_config/Config.in"
+    source "package/amlogic/system_control/Config.in"
+    source "package/amlogic/aml_commonlib/Config.in"
+
+#Testing
+    source "package/amlogic/test_tools/Config.in"
+    source "package/amlogic/aml_pdm_mic_test/Config.in"
+    source "package/amlogic/amlogic_test/Config.in"
+    source "package/amlogic/vccktest/Config.in"
+
+
+    source "package/amlogic/aml_thermal/Config.in"
+
+    source "package/amlogic/slt/Config.in"
+
+    source "package/amlogic/aml_ubootenv/Config.in"
+    source "package/amlogic/aml_bootloader_message/Config.in"
+
+#GFX
+    source "package/amlogic/meson-mali/Config.in"
+    source "package/amlogic/meson-display/Config.in"
+    source "package/amlogic/aml_minigbm/Config.in"
+    source "package/amlogic/aml_minigbmtest/Config.in"
+    source "package/amlogic/drm-tests/Config.in"
+
+#WiFi
+    source "package/amlogic/aml_brcm_bsa/Config.in"
+    source "package/amlogic/aml_cypress_bsa/Config.in"
+    source "package/amlogic/bt_setup/Config.in"
+
+#Audio
+    source "package/amlogic/airplay2/Config.in"
+    source "package/amlogic/aml_soundai/Config.in"
+    source "package/amlogic/audioservice/Config.in"
+    source "package/amlogic/aml_speaker_process/Config.in"
+    source "package/amlogic/aml_audio_player/Config.in"
+    source "package/amlogic/avs-sdk/Config.in"
+    source "package/amlogic/assistant-sdk/Config.in"
+    source "package/amlogic/librespot/Config.in"
+    source "package/amlogic/librespot-sync/Config.in"
+
+
+#Media
+    source "package/amlogic/aml_libion/Config.in"
+    source "package/amlogic/aml_libge2d/Config.in"
+    source "package/amlogic/aml_libgdc/Config.in"
+    source "package/amlogic/libvpcodec/Config.in"
+    source "package/amlogic/libvphevcodec/Config.in"
+    source "package/amlogic/libmultienc/Config.in"
+    source "package/amlogic/media_modules/Config.in"
+    source "../multimedia/Config.in"
+    source "package/amlogic/aml_libs_nf/Config.in"
+
+#IPC
+    source "package/amlogic/arm_isp/Config.in"
+    source "package/amlogic/ipc/Config.in"
+    source "package/amlogic/aml_nn_detect_library/Config.in"
+
+#TV
+    source "package/amlogic/aml_tvserver/Config.in"
+    source "package/amlogic/aml_dvb/Config.in"
+    source "package/amlogic/aml_zvbi/Config.in"
+
+#RTOS
+    source "package/amlogic/aml_rtos/Config.in"
+    source "package/amlogic/aml_dsp_util/Config.in"
+
+#Browser
+    source "package/amlogic/aml_launcher/Config.in"
+    source "package/amlogic/aml_browser_toolchains/Config.in"
+    source "package/amlogic/chromium/Config.in"
+    source "package/amlogic/cobalt/Config.in"
+
+#Crypto
+    source "package/amlogic/aml_af_alg/Config.in"
+
+    source "package/amlogic/aml_bdk/Config.in"
+    source "package/amlogic/tdk/Config.in"
+    source "package/amlogic/aml_hdcp/Config.in"
+    source "package/amlogic/aml_provision/Config.in"
+
+endmenu
+

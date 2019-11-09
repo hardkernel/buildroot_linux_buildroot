@@ -1,6 +1,0 @@
-menu "AML Browser Toolchains"
-  source "package/aml_browser_toolchains/browser_toolchain_bison/Config.in"
-  source "package/aml_browser_toolchains/browser_toolchain_depot_tools/Config.in"
-  source "package/aml_browser_toolchains/browser_toolchain_gcc-linaro-aarch64/Config.in"
-  source "package/aml_browser_toolchains/browser_toolchain_gcc-linaro-armeabihf/Config.in"
-endmenu
