@@ -160,7 +160,7 @@ define TDK_INSTALL_TARGET_CMDS
 	echo "#OPTEE" >> $(TARGET_DIR)/etc/modules
 	echo optee >> $(TARGET_DIR)/etc/modules
 	echo optee_armtz >> $(TARGET_DIR)/etc/modules
-	install -m 755 $(TDK-PKGDIR)/S59optee $(TARGET_DIR)/etc/init.d/S59optee
+	install -m 755 $(TDK_PKGDIR)/S59optee $(TARGET_DIR)/etc/init.d/S59optee
 	$(INSTALL) -D -m 0755 $(@D)/demos/hello_world/out/ca/tee_helloworld $(TARGET_DIR)/usr/bin
 	$(INSTALL) -D -m 0755 $(@D)/demos/optee_test/out/xtest/tee_xtest $(TARGET_DIR)/usr/bin
 	$(TDK_TA_TO_TARGET)
