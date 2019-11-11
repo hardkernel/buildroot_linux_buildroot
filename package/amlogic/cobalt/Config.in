@@ -25,6 +25,12 @@ config BR2_PACKAGE_COBALT
 #	select BR2_PACKAGE_NINJA
 #	select BR2_PACKAGE_OPENSSL
 
+config BR2_PACKAGE_COBALT_VERSION
+	string "Cobalt version"
+    default ""
+	help
+	  cobalt version
+
 if BR2_PACKAGE_COBALT
 
 choice

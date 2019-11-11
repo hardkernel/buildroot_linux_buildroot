@@ -3,7 +3,9 @@
 # Cobalt
 #
 #############################################################
-COBALT_VERSION = 19.lts.5.205289
+COBALT_VERSION = $(call qstrip,$(BR2_PACKAGE_COBALT_VERSION))
+#COBALT_VERSION = 19.lts.5.205289
+COBALT_MAJOR_VERSION = $(shell echo $(COBALT_VERSION) | cut -d'.' -f1)
 
 ifeq ($(BR2_aarch64), y)
 COBALT_TOOLCHAIN_DEPENDENCIES = browser_toolchain_gcc-linaro-aarch64
@@ -18,7 +20,7 @@ COBALT_CROSS=arm-linux-gnueabihf-
 endif
 
 COBALT_INSTALL_DIR = $(TARGET_DIR)/usr/bin/cobalt
-COBALT_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/cobalt
+COBALT_PREBUILT_SITE = $(TOPDIR)/../vendor/amlogic/cobalt_prebuilt
 COBALT_PREBUILT_DIRECTORY=$(COBALT_PREBUILT_SITE)/cobalt-$(COBALT_VERSION)/$(COBALT_ARCH)
 
 ifeq ($(BR2_PACKAGE_COBALT_PREBUILT),y)
@@ -37,6 +39,7 @@ COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libpla
 COBALT_SOURCE = cobalt-$(COBALT_VERSION).tar.gz
 COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
 COBALT_STRIP_COMPONENTS=0
+COBALT_STARBOARD_PATH = $(TOPDIR)/../vendor/amlogic/cobalt/cobalt-$(COBALT_MAJOR_VERSION)
 
 ifeq ($(BR2_PACKAGE_COBALT_GLES), y)
 COBALT_REL = amlogic-wayland
@@ -66,7 +69,7 @@ COBALT_CFLAGS="$(TOOLCHAIN_EXTERNAL_CFLAGS)"
 
 define COBALT_BUILD_CMDS
 	touch $(COBALT_DIR)/src/third_party/__init__.py
-	rsync -a $(COBALT_PKGDIR)/starboard $(COBALT_DIR)/src/third_party
+	rsync -a $(COBALT_STARBOARD_PATH)/starboard $(COBALT_DIR)/src/third_party
 	$(call qstrip, $(COBALT_ENABLE_WIDEVINE_CE_CDM)); \
 	export SYS_ROOT=$(STAGING_DIR); \
 	export COBALT_CFLAGS=$(COBALT_CFLAGS); \
