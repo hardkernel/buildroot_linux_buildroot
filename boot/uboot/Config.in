@@ -559,12 +559,6 @@ config BR2_TARGET_UBOOT_WITH_SECURE_OS
     help
         build uboot with secure os
 
-source "package/aml_uboot_customer/Config.in"
-source "package/aml_uboot_toolchain-codesourcery/Config.in"
-source "package/aml_uboot_toolchain-gcc-linaro-arm-none/Config.in"
-source "package/aml_uboot_toolchain-gcc-linaro-aarch64/Config.in"
-source "package/aml_uboot_toolchain-arc/Config.in"
-
 config BR2_TARGET_UBOOT_BOOT_SCRIPT
 	bool "Generate a U-Boot boot script"
 	help

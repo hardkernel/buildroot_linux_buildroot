@@ -496,28 +496,6 @@ config BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF
 
 # Linux extensions
 source "linux/Config.ext.in"
-source "package/gpu/Config.in"
-source "package/npu/Config.in"
-source "package/wifi-fw/Config.in"
-source "package/rtk8188eu/Config.in"
-source "package/rtk8192cu/Config.in"
-source "package/rtk8192du/Config.in"
-source "package/rtk8192eu/Config.in"
-source "package/rtk8189es/Config.in"
-source "package/rtk8723bs/Config.in"
-source "package/rtk8723ds/Config.in"
-source "package/rtk8723au/Config.in"
-source "package/rtk8723bu/Config.in"
-source "package/rtk8811au/Config.in"
-source "package/rtk8812au/Config.in"
-source "package/realtek_bt/Config.in"
-source "package/brcmap6xxx/Config.in"
-source "package/qualcomm_wifi/Config.in"
-source "package/brcmusi/Config.in"
-source "package/aml_nand/Config.in"
-source "package/aml_tvin/Config.in"
-source "package/aml_pmu/Config.in"
-source "package/aml_touch/Config.in"
 
 # Linux tools
 source "package/linux-tools/Config.in"

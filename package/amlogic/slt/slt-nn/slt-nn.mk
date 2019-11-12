@@ -4,7 +4,7 @@
 SLT_NN_VERSION = 1.0
 SLT_NN_SITE = $(TOPDIR)/../vendor/amlogic/slt/npu_app/NN_SLT/DnCnn-test
 SLT_NN_SITE_METHOD = local
-SLT_NN_DEPENDENCIES = npu
+SLT_NN_DEPENDENCIES = npu jpeg
 
 define SLT_NN_BUILD_CMDS
     cd $(@D);mkdir -p obj;$(MAKE) CC=$(TARGET_CC)
