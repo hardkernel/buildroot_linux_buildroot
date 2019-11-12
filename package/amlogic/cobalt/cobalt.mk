@@ -40,6 +40,7 @@ COBALT_STRIP_COMPONENTS=0
 
 ifeq ($(BR2_PACKAGE_COBALT_GLES), y)
 COBALT_REL = amlogic-wayland
+COBALT_DEPENDENCIES += meson-mali
 else
 COBALT_REL = amlogic-directfb
 COBALT_DEPENDENCIES += directfb
