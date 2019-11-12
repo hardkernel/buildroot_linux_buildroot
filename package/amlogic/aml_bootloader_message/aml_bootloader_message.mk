@@ -4,7 +4,7 @@
 #
 #############################################################
 AML_BOOTLOADER_MESSAGE_VERSION = 0.1
-AML_BOOTLOADER_MESSAGE_SITE = $(AML_BOOTLOADER_MESSAGE_PKGDIR)/src
+AML_BOOTLOADER_MESSAGE_SITE = $(TOPDIR)/../vendor/amlogic/aml_commonlib/bootloader_message
 AML_BOOTLOADER_MESSAGE_SITE_METHOD = local
 AML_BOOTLOADER_MESSAGE_DEPENDENCIES = zlib
 

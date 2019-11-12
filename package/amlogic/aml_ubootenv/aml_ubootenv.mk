@@ -4,7 +4,7 @@
 #
 #############################################################
 AML_UBOOTENV_VERSION = 0.1
-AML_UBOOTENV_SITE = $(AML_UBOOTENV_PKGDIR)/src
+AML_UBOOTENV_SITE = $(TOPDIR)/../vendor/amlogic/aml_commonlib/ubootenv
 AML_UBOOTENV_SITE_METHOD = local
 AML_UBOOTENV_DEPENDENCIES += libzlib
 

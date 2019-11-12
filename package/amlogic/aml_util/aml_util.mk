@@ -4,7 +4,7 @@
 #
 #############################################################
 AML_UTIL_VERSION = 0.1
-AML_UTIL_SITE = $(AML_UTIL_PKGDIR)/src
+AML_UTIL_SITE = $(TOPDIR)/../vendor/amlogic/aml_commonlib/utils
 AML_UTIL_SITE_METHOD = local
 
 AML_UTIL_DEPENDENCIES += linux libusb
