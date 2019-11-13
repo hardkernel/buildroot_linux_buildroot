@@ -9,6 +9,23 @@ DAEMON_ARGS="--pid_file $PID_FILE"
 DAEMON_ARGS="$DAEMON_ARGS --cfg_file $CFG_FILE"
 
 
+set_default_properties()
+{
+  ipc_property_set="/usr/bin/ipc-property set"
+
+  # set sensor properties
+  isp_property_path="/ipc/isp"
+  sensor=$(cat /proc/device-tree/sensor/sensor-name)
+  ${ipc_property_set} "${isp_property_path}/sensor" "${sensor}"
+  if echo "os08a10" | grep -q ${sensor}; then
+     sensor_support_4k="true"
+  else
+     sensor_support_4k="false"
+  fi
+  ${ipc_property_set} "${isp_property_path}/4k" "${sensor_support_4k}"
+
+}
+
 d_start()
 {
     if [ -f $PID_FILE ] && kill -0 $(cat $PID_FILE); then
@@ -18,6 +35,7 @@ d_start()
 
     echo "Starting $DAEMON..."
     $DAEMON_PATH/$DAEMON $DAEMON_ARGS && echo "$DAEMON started"
+    set_default_properties
 }
 
 
