@@ -17,7 +17,7 @@ CHROMIUM_VERSION = 69.0.3497.81
 CHROMIUM_DEPENDENCIES = libxkbcommon gconf libexif cups libnss libdrm pciutils pulseaudio krb5 pango libplayer browser_toolchain_depot_tools
 
 CHROMIUM_SOURCE = chromium-$(CHROMIUM_VERSION).tar.xz
-CHROMIUM_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
+CHROMIUM_SITE = file://$(TOPDIR)/../vendor/amlogic/external/packages
 
 ifeq ($(BR2_PACKAGE_CHROMIUM_ENABLE_WIDEVINE), y)
 CHROMIUM_ENABLE_WIDEVINE=true

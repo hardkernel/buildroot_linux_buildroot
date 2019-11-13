@@ -1,5 +1,0 @@
-config BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_ARC
-    bool "Amlogic Uboot arc toolchain"
-    default n
-    help
-	amlogic m8 soc uboot compile toolchain

@@ -37,7 +37,7 @@ endif
 ifeq ($(BR2_PACKAGE_COBALT_COMPILE_ALL), y)
 COBALT_DEPENDENCIES = libxkbcommon gconf libexif libnss libdrm pulseaudio libplayer browser_toolchain_depot_tools $(COBALT_TOOLCHAIN_DEPENDENCIES)
 COBALT_SOURCE = cobalt-$(COBALT_VERSION).tar.gz
-COBALT_SITE = http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
+COBALT_SITE = file://$(TOPDIR)/../vendor/amlogic/external/packages
 COBALT_STRIP_COMPONENTS=0
 COBALT_STARBOARD_PATH = $(TOPDIR)/../vendor/amlogic/cobalt/cobalt-$(COBALT_MAJOR_VERSION)
 

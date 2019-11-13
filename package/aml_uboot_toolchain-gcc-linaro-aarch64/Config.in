@@ -1,5 +1,0 @@
-config BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_GCC_LINARO_AARCH64
-    bool "aml_uboot_toolchain-gcc-linaro-aarch64"
-    default n
-    help
-	amlogic 64bit soc uboot compile toolchain

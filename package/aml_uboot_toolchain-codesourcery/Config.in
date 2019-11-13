@@ -1,5 +1,0 @@
-config BR2_PACKAGE_AML_UBOOT_TOOLCHAIN_CODESOURCERY
-    bool "Amlogic uboot codesourcery toolchain"
-    default n
-    help
-	amlogic m8 soc uboot compile toolchain, and 64bit soc bl30 compile toolchain

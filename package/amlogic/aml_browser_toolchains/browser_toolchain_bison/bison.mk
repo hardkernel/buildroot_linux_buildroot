@@ -5,7 +5,7 @@
 #############################################################
 BROWSER_TOOLCHAIN_BISON_VERSION		= 2.7.1
 BROWSER_TOOLCHAIN_BISON_SOURCE		= bison-$(BROWSER_TOOLCHAIN_BISON_VERSION)-x86_64.tar.gz
-BROWSER_TOOLCHAIN_BISON_SITE		= http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
+BROWSER_TOOLCHAIN_BISON_SITE		= file://$(TOPDIR)/../vendor/amlogic/external/packages
 
 BROWSER_TOOLCHAIN_BISON_INSTALL_DIR = $(HOST_DIR)/usr/browser-toolchain/bison-$(BROWSER_TOOLCHAIN_BISON_VERSION)
 

@@ -5,7 +5,7 @@
 #############################################################
 BROWSER_TOOLCHAIN_DEPOT_TOOLS_VERSION		= 29b7b99e-2018.08.02
 BROWSER_TOOLCHAIN_DEPOT_TOOLS_SOURCE		= depot_tools-$(BROWSER_TOOLCHAIN_DEPOT_TOOLS_VERSION).tar.gz
-BROWSER_TOOLCHAIN_DEPOT_TOOLS_SITE		= http://openlinux.amlogic.com:8000/download/GPL_code_release/ThirdParty
+BROWSER_TOOLCHAIN_DEPOT_TOOLS_SITE		= file://$(TOPDIR)/../vendor/amlogic/external/packages
 
 BROWSER_TOOLCHAIN_DEPOT_TOOLS_INSTALL_DIR = $(HOST_DIR)/usr/browser-toolchain/depot_tools-$(BROWSER_TOOLCHAIN_DEPOT_TOOLS_VERSION)
 
