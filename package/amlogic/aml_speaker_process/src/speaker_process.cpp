@@ -141,7 +141,7 @@ void setup_DSP() {
 	int error = 0;
 	// Create AWE.
 	pAwelib = AWELibraryFactory();
-	error = pAwelib->CreateEx("spk", 1e9f, 1e7f, true);
+	error = pAwelib->CreateEx("spk", 1.418e9f, 1e7f, true, 768, 0, 2, 2);
 	if (error < 0)
 	{
 		printf("[DSP] Create AWE failed with %d\n", error);
@@ -153,7 +153,7 @@ void setup_DSP() {
 	const char* file = "/usr/bin/speaker_processing.awb";
 	// Only load a layout if asked.
 	uint32_t pos;
-	error = pAwelib->LoadAwbFile(file, &pos);
+	error = pAwelib->LoadAwbFileUnencrypted(file, &pos);
 	if (error < 0)
 	{
 		printf("[DSP] LoadAwbFile failed with %d\n", error);

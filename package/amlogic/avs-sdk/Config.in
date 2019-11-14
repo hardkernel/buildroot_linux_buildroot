@@ -19,8 +19,14 @@ config BR2_PACKAGE_AVS_SDK
 		to quickly and easily build Alexa-enabled products, including APIs, hardware
 	   	development kits, software development kits, and documentation.
 
-config BR2_AVS_DSPC
-        bool "enable DSPC AFE"
+config BR2_AVS_DSPC_AEC
+        bool "only enable DSPC AEC"
+
+config BR2_AVS_AMAZON_WWE
+        bool "enable amazon wwe"
+
+config BR2_AVS_RDSPC
+        bool "enable RDSPC AFE"
 
 config BR2_PACKAGE_DISPLAYCARD_AML_IMP
         bool "enable avs displaycard ."
