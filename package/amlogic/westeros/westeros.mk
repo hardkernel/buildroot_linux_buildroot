@@ -3,7 +3,7 @@
 # westeros
 #
 ################################################################################
-WESTEROS_VERSION = 8904a11d560f0de0fbe855b4fc604c367d0c0645
+WESTEROS_VERSION = 5ac97229a85f2befcfde2409e268f5197dc1cf47
 WESTEROS_SITE_METHOD = git
 WESTEROS_SITE = git://github.com/rdkcmf/westeros
 WESTEROS_INSTALL_STAGING = YES
@@ -20,6 +20,7 @@ WESTEROS_CONF_OPTS = \
 	--enable-xdgv5=yes\
 	--enable-app=yes\
 	--enable-test=yes\
+	--enable-modules=no\
 	--enable-essos=yes
     
 ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
@@ -45,6 +46,8 @@ define WESTEROS_RUN_AUTOCONF
 	mkdir -p $(@D)/cfg
 	mkdir -p $(@D)/m4
 	mkdir -p $(@D)/essos/cfg
+	mkdir -p $(@D)/drm/modules/cfg
+	mkdir -p $(@D)/drm/modules/resolution/cfg
 endef
 WESTEROS_PRE_CONFIGURE_HOOKS += WESTEROS_RUN_AUTOCONF
 
