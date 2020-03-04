@@ -130,6 +130,12 @@ endif
 
 ifeq ($(BR2_TARGET_UBOOT_AMLOGIC_REPO),y)
 	UBOOT_BINS := build/u-boot.bin build/u-boot.bin.usb.bl2 build/u-boot.bin.usb.tpl  build/u-boot.bin.sd.bin build/u-boot.bin.encrypt build/u-boot.bin.encrypt.efuse build/u-boot.bin.encrypt.sd.bin build/u-boot.bin.encrypt.usb.bl2 build/u-boot.bin.encrypt.usb.tpl
+else ifeq ($(BR2_TARGET_UBOOT_AMLOGIC),y)
+ifeq ($(BR2_TARGET_UBOOT_ODROID_COMMON),n)
+	UBOOT_BINS := build/u-boot.bin
+else
+	UBOOT_BINS := sd_fuse/u-boot.bin
+endif
 endif
 
 # The kernel calls AArch64 'arm64', but U-Boot calls it just 'arm', so
@@ -142,11 +148,22 @@ else
 UBOOT_ARCH = $(KERNEL_ARCH)
 endif
 
+ifeq ($(BR2_TARGET_UBOOT_ODROID_N2),"")
+ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y)
+UBOOT_DEPENDENCIES += aml_uboot_toolchain-gcc-linaro-arm-none aml_uboot_toolchain-codesourcery aml_uboot_toolchain-gcc-linaro-aarch64 aml_uboot_toolchain-arc
+endif
+endif
+
+ifeq ($(filter y,$(BR2_TARGET_UBOOT_AMLOGIC_2015) $(BR2_TARGET_UBOOT_AMLOGIC) $(BR2_TARGET_UBOOT_ODROID) $(BR2_TARGET_UBOOT_ODROID_C2)),y) 
+UBOOT_MAKE_OPTS += \
+	ARCH=$(UBOOT_ARCH)
+else
 UBOOT_MAKE_OPTS += \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
 	ARCH=$(UBOOT_ARCH) \
 	HOSTCC="$(HOSTCC) $(subst -I/,-isystem /,$(subst -I /,-isystem /,$(HOST_CFLAGS)))" \
 	HOSTLDFLAGS="$(HOST_LDFLAGS)"
+endif
 
 ifeq ($(BR2_TARGET_UBOOT_NEEDS_ATF_BL31),y)
 UBOOT_DEPENDENCIES += arm-trusted-firmware
@@ -393,11 +410,22 @@ define UBOOT_INSTALL_IMAGES_CMDS
 			cp -dpf $(@D)/$(f) $(BINARIES_DIR)/
 		)
 	)
-	$(UBOOT_GENERATE_ENV_IMAGE)
-	$(if $(BR2_TARGET_UBOOT_BOOT_SCRIPT),
-		$(MKIMAGE) -C none -A $(MKIMAGE_ARCH) -T script \
-			-d $(call qstrip,$(BR2_TARGET_UBOOT_BOOT_SCRIPT_SOURCE)) \
-			$(BINARIES_DIR)/boot.scr)
+	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
+		cp -dpf $(@D)/sd_fuse/sd_fusing.sh $(BINARIES_DIR)/)
+	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID)$(BR2_TARGET_UBOOT_ODROID_C2),y),
+		cp -dpf $(@D)/sd_fuse/bl1.bin.hardkernel $(BINARIES_DIR)/)
+	$(if $(filter y, $(BR2_TARGET_UBOOT_ODROID_COMMON),y),
+		$(if $(BR2_TARGET_UBOOT_AMLOGIC),
+			cp -dpf $(@D)/mksdcard $(BINARIES_DIR)/)
+	)
+	$(if $(BR2_TARGET_UBOOT_AMLOGIC_2015),
+		cp -dpf $(@D)/fip/u-boot.bin.sd.bin $(BINARIES_DIR)/)
+	$(if $(BR2_TARGET_UBOOT_ENVIMAGE),
+		cat $(call qstrip,$(BR2_TARGET_UBOOT_ENVIMAGE_SOURCE)) | \
+			$(HOST_DIR)/usr/bin/mkenvimage -s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE) \
+			$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUNDANT),-r) \
+			$(if $(filter BIG,$(BR2_ENDIAN)),-b) \
+			-o $(BINARIES_DIR)/uboot-env.bin -)
 endef
 
 ifeq ($(BR2_TARGET_UBOOT_ZYNQMP),y)
