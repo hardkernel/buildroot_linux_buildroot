@@ -10,7 +10,6 @@ BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 DEFCONFIG_ARRAY=(
     "==========In Maintaining======================"
 
-    "odroidc3"
     "odroidn2"
     "odroidn2_bios"
 
