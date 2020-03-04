@@ -11,7 +11,6 @@ BUILD_OUTPUT_DIR=$LOCAL_DIR/output
 DEFCONFIG_ARRAY=(
     "==========In Maintaining======================"
 
-    "odroidc3"
     "odroidn2"
 
     "mesonc1_ae400_a64_release"
