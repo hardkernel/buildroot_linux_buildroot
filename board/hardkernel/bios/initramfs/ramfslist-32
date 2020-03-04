@@ -222,6 +222,7 @@
 ./usr/bin/true
 ./usr/bin/truncate
 ./usr/bin/tty
+./usr/bin/uboot-parser
 ./usr/bin/udevadm
 ./usr/bin/uname
 ./usr/bin/uname26

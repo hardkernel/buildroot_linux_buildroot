@@ -1,0 +1,4 @@
+config BR2_TARGET_UBOOT_PARSER
+	bool "uboot-parser"
+	help
+           The command line to parse 'boot.ini' to grab the boot configuration
