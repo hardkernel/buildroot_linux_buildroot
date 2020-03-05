@@ -5,7 +5,8 @@
 ################################################################################
 
 FB_TEST_APP_VERSION = rosetta-1.1.0
-FB_TEST_APP_SITE = $(call github,prpplague,fb-test-app,$(FB_TEST_APP_VERSION))
+FB_TEST_APP_SITE = http://sources.buildroot.net/fb-test-app
+FB_TEST_APP_SOURCE = fb-test-app-$(FB_TEST_APP_VERSION).tar.gz
 FB_TEST_APP_LICENSE = GPL-2.0
 FB_TEST_APP_LICENSE_FILES = COPYING
 
