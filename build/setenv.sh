@@ -11,6 +11,7 @@ DEFCONFIG_ARRAY=(
     "==========In Maintaining======================"
 
     "odroidn2"
+    "odroidc4"
     "odroidn2_bios"
 
     "mesonc1_ae400_a64_release"
