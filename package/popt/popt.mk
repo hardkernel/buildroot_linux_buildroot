@@ -5,7 +5,7 @@
 ################################################################################
 
 POPT_VERSION = 1.16
-POPT_SITE = http://rpm5.org/files/popt
+POPT_SITE = ftp://anduin.linuxfromscratch.org/BLFS/popt
 POPT_INSTALL_STAGING = YES
 POPT_LICENSE = MIT
 POPT_LICENSE_FILES = COPYING
