@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-ICU_VERSION = 60.2
+ICU_VERSION = 60.3
 ICU_SOURCE = icu4c-$(subst .,_,$(ICU_VERSION))-src.tgz
-ICU_SITE = http://download.icu-project.org/files/icu4c/$(ICU_VERSION)
+ICU_SITE = https://github.com/unicode-org/icu/releases/download/release-$(subst .,-,$(ICU_VERSION))
 ICU_LICENSE = ICU License
 ICU_LICENSE_FILES = LICENSE
 
