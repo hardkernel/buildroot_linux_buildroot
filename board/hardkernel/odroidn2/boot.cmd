@@ -2,7 +2,7 @@
 # U-boot booting script
 #
 
-setenv bootargs "root=/dev/mmcblk0p2 rootfstype=ext4 rootwait init=/sbin/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 vout=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} vdaccfg=${vdac_config}"
+setenv bootargs "root=UUID=@@ROOTUUID@@ rootfstype=ext4 rootwait init=/sbin/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xff803000 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 vout=${outputmode} hdmimode=${hdmimode} cvbsmode=${cvbsmode} vdaccfg=${vdac_config}"
 
 setenv fdt_addr_r "0x1000000"
 setenv kernel_addr_r "0x1080000"
