@@ -275,8 +275,6 @@
 ./usr/bin/traceroute
 ./usr/bin/kplayer
 ./usr/bin/bootplayer
-./usr/bin/ionplayer
-./usr/bin/audioplayer
 ./usr/libexec
 ./usr/lib64
 ./usr/sbin
