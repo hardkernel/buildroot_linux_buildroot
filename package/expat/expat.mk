@@ -5,7 +5,7 @@
 ################################################################################
 
 EXPAT_VERSION = 2.2.6
-EXPAT_SITE = http://downloads.sourceforge.net/project/expat/expat/$(EXPAT_VERSION)
+EXPAT_SITE = http://sources.buildroot.net/expat
 EXPAT_SOURCE = expat-$(EXPAT_VERSION).tar.bz2
 EXPAT_INSTALL_STAGING = YES
 EXPAT_DEPENDENCIES = host-pkgconf

@@ -5,7 +5,7 @@
 ################################################################################
 
 LIBJPEG_VERSION = 9c
-LIBJPEG_SITE = http://www.ijg.org/files
+LIBJPEG_SITE = http://sources.buildroot.net/libjpeg
 LIBJPEG_SOURCE = jpegsrc.v$(LIBJPEG_VERSION).tar.gz
 LIBJPEG_LICENSE = IJG
 LIBJPEG_LICENSE_FILES = README
